@@ -1,62 +1,55 @@
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs");
+
+
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs'
 
 const userSchema = new mongoose.Schema(
-    {
-        username: {
-            type: String,
-            // unique:true,
-            required:[true,"Please add a name"]
-        },
-        email: {
-            type: String,
-            required:[true,"Please add a email"],
-            unique:true,
-            trim:true,
-            match: [
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                "Please enter a valid email",
-              ]
-        },
-        password: {
-            type: String,
-            required:[true,"Please add a password"]
-        },
-        photo: {
-            type: String,
-            // required:[true,"Please add a photo"],
-            default:"https://i.ibb.co/4pDNDk1/avatar.png"
-        },
-        phone: {
-            type: String,
-            default:"+853"
-        },
-        bio: {
-            type: String,
-            default: "bio",
-        },
-        role: {
-            type: String,
-            // required: true,
-            default: "subscriber",
-            // subscriber, author, and admin (suspended)
-        },
-        isVerified: {
-            type: Boolean,
-            default: false,
-        },
-        userAgent: {
-            type: Array,
-            // required: true,
-            default: [],
-        },
-
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    {
-        timestamps:true,
-        minimize:false
-    }
-)
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim:true,
+      match: [
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+          "Please enter a valid email",
+        ]
+    },
+    password: {
+        type: String,
+        required:[true,"Please add a password"]
+    },
+    photo: {
+        type: String,
+        // required:[true,"Please add a photo"],
+        default:"https://i.ibb.co/4pDNDk1/avatar.png"
+    },
+    phone: {
+        type: String,
+        default:"+853"
+    },
+    bio: {
+        type: String,
+        default: "bio",
+    },
+    role: {
+        type: String,
+        // required: true,
+        default: "subscriber",
+        // subscriber, author, and admin (suspended)
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+  },
+  { timestamps: true }
+);
 
 // Encrypt password before saving to DB
 userSchema.pre("save", async function (next) {
@@ -71,5 +64,6 @@ userSchema.pre("save", async function (next) {
     next();
   });
 
-const User = mongoose.model("User", userSchema)
-module.exports = User
+const User = mongoose.model('User', userSchema);
+
+export default User;

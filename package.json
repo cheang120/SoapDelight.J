@@ -7,14 +7,16 @@
   "scripts": {
     "dev": "nodemon api/index.js",
     "start": "node api/index.js",
-    "build":"npm install && npm install --prefix SoapDelight.J && npm run build --prefix  SoapDelight.J"
+    "build": "npm install && npm install --prefix SoapDelight.J && npm run build --prefix  SoapDelight.J"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.4",
     "nodemon": "^3.1.4"
   }
