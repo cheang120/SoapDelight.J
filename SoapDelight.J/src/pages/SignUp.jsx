@@ -119,6 +119,9 @@ const [uCase, setUCase] = useState(false)
     if (password !== password2) {
       return setErrorMessage("Passwords do not match");
     }
+    if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
+      return setErrorMessage("Passwords must contain Uppercase and Lowercase");
+    }
     try {
       setLoading(true);
       setErrorMessage(null);
@@ -142,7 +145,7 @@ const [uCase, setUCase] = useState(false)
   };
   return (
     <div className='min-h-screen mt-20'>
-      <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5'>
+      <div className='flex w-2/3 p-3 mx-auto flex-col md:flex-row md:items-center gap-10'>
         {/* left */}
         <div className='flex-1'>
           <Link to='/' className='font-bold dark:text-white text-4xl'>
