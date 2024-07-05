@@ -1,32 +1,123 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from '../components/PasswordInput';
 // import OAuth from '../components/OAuth';
+// import React, { useState } from "react";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { FaTimes } from 'react-icons/fa';
+import { BsCheck2All } from 'react-icons/bs';
+
 
 const initialState = {
-  name:'',
-  email:'',
-  password:'',
-  password2:''
+  username:"",
+  email:"",
+  password:"",
+  password2:""
 }
+
 
 export default function SignUp() {
   const [formData, setFormData] = useState(initialState);
+  const {username, email, password, password2} = formData
+  // console.log(formData.password);
+  // const password = formData.password
+  // console.log(password);
+  // const [password, setPassword] = useState({});
+  console.log(formData.username);
+
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+
+
+// Validate email
+const validateEmail = (email) => {
+    return email.match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+  
+
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+
+  const togglePassword1 = () => {
+    setShowPassword1(!showPassword1);
+  };
+  
+  const togglePassword2 = () => {
+    setShowPassword2(!showPassword2);
+  };
+
+
 
   const handleChange = (e) => {
     // console.log(e.target.value);
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
-  // console.log(formData);
+
+
+
+
+  useEffect(() => {
+    // Check Lower and Uppercase
+    if (password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
+        setUCase(true);
+    }else {
+        setUCase(false);
+    }
+    // Check for numbers
+    if (password.match(/([0-9])/)) {
+        setNum(true);
+    } else {
+        setNum(false);
+    }
+    // Check for special character
+    if (password.match(/([!,%,&,@,#,$,^,*,?,_,~])/)) {
+        setSChar(true);
+    } else {
+        setSChar(false);
+    }
+    // Check for PASSWORD LENGTH
+    if (password.length > 5) {
+        setPassLength(true);
+    } else {
+        setPassLength(false);
+    }
+}, [password]);
+
+const [uCase, setUCase] = useState(false)
+  const [num, setNum] = useState(false)
+  const [sChar, setSChar] = useState(false)
+  const [passLength, setPassLength] = useState(false)
+
+  const timesIcon = <FaTimes color='red' size={15} />
+  const checkIcon = <BsCheck2All color='green' size={15} />
+
+  const switchIcon = (condition) => {
+    if (condition) {
+      return checkIcon
+    }
+    return timesIcon
+  }
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password) {
       return setErrorMessage('Please fill out all fields.');
+    }
+    if (formData.password.length < 6) {
+      return setErrorMessage("Password must be up to 6 characters");
+    }
+    if (!validateEmail(formData.email)) {
+      return setErrorMessage("Please enter a valid email");
+    }
+    if (password !== password2) {
+      return setErrorMessage("Passwords do not match");
     }
     try {
       setLoading(true);
@@ -88,35 +179,81 @@ export default function SignUp() {
                 onChange={handleChange}
               />
             </div>
-            {/* <div>
+
+
+            <div className="relative">
               <Label value='Your password' />
-              <TextInput
-                type='password'
+              <input
+                type={showPassword1 ? "text" : "password"}
                 placeholder='Password'
+                className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
+                required
                 id='password'
+                // name='password'
+
                 onChange={handleChange}
               />
-            </div> */}
-            <div>
-              <Label value='Password'/>
-              <PasswordInput 
-                type='text'
-                placeholder="Password"
-                name="password"
-                id='password'
-                onChange={handleChange}
-              />
+              <div className=" absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
+                {showPassword1 ? (
+                  <AiOutlineEyeInvisible size={20} />
+                ) : (
+                  <AiOutlineEye size={20} />
+                )}
+              </div>
             </div>
-            <div>
-              <Label value='Confirm Password'/>
-              <PasswordInput
-                type='text'
-                placeholder="Confirm Password"
-                name="password2"
+
+            <div className="relative">
+              <Label value='Confirm Password' />
+              <input
+                type={showPassword2 ? "text" : "password"}
+                placeholder='Confirm Password'
+                className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
+                required
                 id='password2'
+                name='password2'
+                // name={name}
+                // value={value}
                 onChange={handleChange}
               />
+              <div className=" absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
+                {showPassword2 ? (
+                  <AiOutlineEyeInvisible size={20} />
+                ) : (
+                  <AiOutlineEye size={20} />
+                )}
+              </div>
             </div>
+
+            {/* Password Strength */}
+            <div className='rounded overflow-hidden p-1 mb-1'>
+                <ul className=''>
+                  <li>
+                    <span className='flex justify-start items-center text-[0.63rem]'>
+                     {switchIcon(uCase)}
+                      &nbsp; Lowercase & Uppercase
+                    </span>
+                  </li>
+                  <li>
+                    <span className='flex justify-start items-center text-[0.63rem]'>
+                            {switchIcon(num)}
+                            &nbsp; Number (0-9)
+                    </span>
+                    </li>
+                    <li>
+                    <span className='flex justify-start items-center text-[0.63rem]'>
+                            {switchIcon(sChar)}
+                            &nbsp; Special Character (!@#$%^&*)
+                    </span>
+                    </li>
+                    <li>
+                    <span className='flex justify-start items-center text-[0.63rem]'>
+                            {switchIcon(passLength)}
+                            &nbsp; At least 6 Character
+                    </span>
+                  </li>
+                </ul>
+            </div>
+
 
             <Button
               gradientDuoTone='purpleToPink'
