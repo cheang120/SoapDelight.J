@@ -17,13 +17,9 @@ const initialState = {
 }
 
 
-export default function SignUp() {
+export default function SignIn() {
   const [formData, setFormData] = useState(initialState);
   const {username, email, password, password2} = formData
-  // console.log(formData.password);
-  // const password = formData.password
-  // console.log(password);
-  // const [password, setPassword] = useState({});
   console.log(formData.username);
 
   const [errorMessage, setErrorMessage] = useState(null);
@@ -39,17 +35,13 @@ const validateEmail = (email) => {
     );
 };
   
-
   const [showPassword1, setShowPassword1] = useState(false);
-  const [showPassword2, setShowPassword2] = useState(false);
 
   const togglePassword1 = () => {
     setShowPassword1(!showPassword1);
   };
   
-  const togglePassword2 = () => {
-    setShowPassword2(!showPassword2);
-  };
+
 
 
 
@@ -107,7 +99,7 @@ const [uCase, setUCase] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.username || !formData.email || !formData.password) {
+    if (!formData.email || !formData.password) {
       return setErrorMessage('Please fill out all fields.');
     }
     if (formData.password.length < 6) {
@@ -116,16 +108,14 @@ const [uCase, setUCase] = useState(false)
     if (!validateEmail(formData.email)) {
       return setErrorMessage("Please enter a valid email");
     }
-    if (password !== password2) {
-      return setErrorMessage("Passwords do not match");
-    }
+
     if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
       return setErrorMessage("Passwords must contain Uppercase and Lowercase");
     }
     try {
       setLoading(true);
       setErrorMessage(null);
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -136,7 +126,7 @@ const [uCase, setUCase] = useState(false)
       }
       setLoading(false);
       if(res.ok) {
-        navigate('/sign-in');
+        navigate('/');
       }
     } catch (error) {
       setErrorMessage(error.message);
@@ -164,15 +154,6 @@ const [uCase, setUCase] = useState(false)
             className='flex flex-col gap-4' 
             onSubmit={handleSubmit}
           >
-            <div>
-              <Label value='Your username' />
-              <TextInput
-                type='text'
-                placeholder='Username'
-                id='username'
-                onChange={handleChange}
-              />
-            </div>
             <div>
               <Label value='Your email' />
               <TextInput
@@ -205,27 +186,7 @@ const [uCase, setUCase] = useState(false)
               </div>
             </div>
 
-            <div className="relative">
-              <Label value='Confirm Password' />
-              <input
-                type={showPassword2 ? "text" : "password"}
-                placeholder='Confirm Password'
-                className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
-                required
-                id='password2'
-                name='password2'
-                // name={name}
-                // value={value}
-                onChange={handleChange}
-              />
-              <div className=" absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
-                {showPassword2 ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </div>
-            </div>
+ 
 
             {/* Password Strength */}
             <div className='rounded overflow-hidden p-1 mb-1'>
@@ -269,15 +230,18 @@ const [uCase, setUCase] = useState(false)
                   <span className='pl-3'>Loading...</span>
                 </>
               ) : (
-                'Sign Up'
+                'Sign Ip'
               )}
             </Button>
             {/* <OAuth /> */}
           </form>
           <div className='flex gap-2 text-sm mt-5'>
-            <span>Have an account?</span>
-            <Link to='/sign-in' className='text-blue-500'>
-              Sign In
+          <Link to='/' className='text-blue-500'>
+              Home
+            </Link>
+            <span>Don't have an account?</span>
+            <Link to='/sign-up' className='text-blue-500'>
+              Sign Up
             </Link>
           </div>
           {errorMessage && (
