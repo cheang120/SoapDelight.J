@@ -1,12 +1,15 @@
 import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken'
+import asyncHandler from 'express-async-handler'
 
 import crypto from 'crypto'
 import dotenv from 'dotenv'
 import { errorHandler } from '../utils/error.js';
 
-const expiresIn = '1d'
+const generateToken = (id) => {
+  return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn:"1d"})
+}
 
 
 export const signup = async (req, res, next) => {
@@ -25,8 +28,13 @@ export const signup = async (req, res, next) => {
 
     if (password.length <6) {
         next(errorHandler(400,"Passwrod must be up to 6 characters."))
-
     }
+
+  const userExists = await User.findOne({email})
+
+  if (userExists) {
+    next(errorHandler(500,"Email already in used."))
+  }
 
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
@@ -36,8 +44,35 @@ export const signup = async (req, res, next) => {
     password: hashedPassword,
   });
 
+  // Generate Token
+  const token = generateToken(newUser._id)
+  
+  // Send HTTP-only cookie
+  res.cookie("token", token, {
+    path:"/",
+    httpOnly:true,
+    expires: new Date(Date.now() + 1000 * 86400),
+    sameSite:"none",
+    secure:true,
+  })
+  
+  // console.log(token);
+
+
+  // if (newUser) {
+  //   const {_id, username, email, phone, bio, phtot,role,isVerified, token} = newUser
+  //   res.status(201).json({
+  //     _id, username, email, phone, bio, phtot,role,isVerified, token
+  //   })
+    
+  // } else {
+  //   next(errorHandler(400,"Invalid user data."))
+  // }
+
   try {
+
     await newUser.save();
+    console.log('User saved successfully')
     res.json('Signup successful');
   } catch (error) {
     next(error);
