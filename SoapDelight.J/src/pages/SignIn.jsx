@@ -7,23 +7,29 @@ import PasswordInput from '../components/PasswordInput';
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FaTimes } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
+import { useDispatch, useSelector } from 'react-redux';
+import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
 
 
 const initialState = {
   username:"",
   email:"",
   password:"",
-  password2:""
 }
 
 
 export default function SignIn() {
   const [formData, setFormData] = useState(initialState);
-  const {username, email, password, password2} = formData
-  console.log(formData.username);
 
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const {username, email, password} = formData
+  // console.log(formData.username);
+
+  // const [errorMessage, setErrorMessage] = useState(null);
+  // const [loading, setLoading] = useState(false);
+  const {loading, error:errorMessage} = useSelector(state => state.user)
+
+  const dispatch = useDispatch()
+
   const navigate = useNavigate();
 
 
@@ -41,17 +47,10 @@ const validateEmail = (email) => {
     setShowPassword1(!showPassword1);
   };
   
-
-
-
-
   const handleChange = (e) => {
     // console.log(e.target.value);
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
-
-
-
 
   useEffect(() => {
     // Check Lower and Uppercase
@@ -100,21 +99,26 @@ const [uCase, setUCase] = useState(false)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return setErrorMessage('Please fill out all fields.');
+      // return setErrorMessage('Please fill out all fields.');
+      return dispatch(signInFailure('Please fill out all fields.'))
     }
     if (formData.password.length < 6) {
-      return setErrorMessage("Password must be up to 6 characters");
+      // return setErrorMessage("Password must be up to 6 characters");
+      return dispatch(signInFailure("Password must be up to 6 characters"))
     }
     if (!validateEmail(formData.email)) {
-      return setErrorMessage("Please enter a valid email");
+      // return setErrorMessage("Please enter a valid email");
+      return dispatch(signInFailure("Please enter a valid email"))
     }
 
     if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-      return setErrorMessage("Passwords must contain Uppercase and Lowercase");
+      // return setErrorMessage("Passwords must contain Uppercase and Lowercase");
+      return dispatch(signInFailure("Passwords must contain Uppercase and Lowercase"))
     }
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      // setLoading(true);
+      // setErrorMessage(null);
+      dispatch(signInStart())
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -122,15 +126,19 @@ const [uCase, setUCase] = useState(false)
       });
       const data = await res.json();
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        // return setErrorMessage(data.message);
+        dispatch(signInFailure(data.message))
       }
-      setLoading(false);
+      // setLoading(false);
       if(res.ok) {
+        dispatch(signInSuccess(data))
         navigate('/');
       }
     } catch (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
+      // setErrorMessage(error.message);
+      // setLoading(false);
+      dispatch(signInFailure(data.message))
+
     }
   };
   return (
