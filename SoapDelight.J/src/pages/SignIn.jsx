@@ -12,7 +12,7 @@ import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlic
 
 
 const initialState = {
-  username:"",
+
   email:"",
   password:"",
 }
@@ -21,7 +21,7 @@ const initialState = {
 export default function SignIn() {
   const [formData, setFormData] = useState(initialState);
 
-  const {username, email, password} = formData
+  const {email, password} = formData
   // console.log(formData.username);
 
   // const [errorMessage, setErrorMessage] = useState(null);
@@ -29,7 +29,6 @@ export default function SignIn() {
   const {loading, error:errorMessage} = useSelector(state => state.user)
 
   const dispatch = useDispatch()
-
   const navigate = useNavigate();
 
 

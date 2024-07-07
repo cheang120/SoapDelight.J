@@ -1,6 +1,7 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from "react-redux";
 import PasswordInput from '../components/PasswordInput';
 // import OAuth from '../components/OAuth';
 // import React, { useState } from "react";
@@ -28,6 +29,7 @@ export default function SignUp() {
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch()
   const navigate = useNavigate();
 
 
