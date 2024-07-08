@@ -26,13 +26,13 @@ const userSchema = new mongoose.Schema(
     },
     profilePicture:{
       type:String,
-      default:"https://i.ibb.co/4pDNDk1/avatar.png"
+      default:"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
     },
-    photo: {
-        type: String,
-        // required:[true,"Please add a photo"],
-        default:"https://i.ibb.co/4pDNDk1/avatar.png"
-    },
+    // photo: {
+    //     type: String,
+    //     // required:[true,"Please add a photo"],
+    //     default:"https://i.ibb.co/4pDNDk1/avatar.png"
+    // },
     phone: {
         type: String,
         default:"+853"
