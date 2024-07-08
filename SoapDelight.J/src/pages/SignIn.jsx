@@ -2,7 +2,7 @@ import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from '../components/PasswordInput';
-// import OAuth from '../components/OAuth';
+import OAuth from '../components/OAuth';
 // import React, { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FaTimes } from 'react-icons/fa';
@@ -240,7 +240,7 @@ const [uCase, setUCase] = useState(false)
                 'Sign Ip'
               )}
             </Button>
-            {/* <OAuth /> */}
+            <OAuth />
           </form>
           <div className='flex gap-2 text-sm mt-5'>
           <Link to='/' className='text-blue-500'>
