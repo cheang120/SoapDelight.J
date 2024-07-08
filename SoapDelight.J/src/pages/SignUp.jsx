@@ -274,7 +274,7 @@ const [uCase, setUCase] = useState(false)
                 'Sign Up'
               )}
             </Button>
-            <OAuth />
+            {/* <OAuth /> */}
           </form>
           <div className='flex gap-2 text-sm mt-5'>
           <Link to='/' className='text-blue-500'>
