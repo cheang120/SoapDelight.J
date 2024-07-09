@@ -236,7 +236,7 @@ const [uCase, setUCase] = useState(false)
                   <span className='pl-3'>Loading...</span>
                 </>
               ) : (
-                'Sign Ip'
+                'Sign In'
               )}
             </Button>
             <OAuth />

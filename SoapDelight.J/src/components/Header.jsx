@@ -24,21 +24,21 @@ export default function Header() {
   //   }
   // }, [location.search]);
 
-  // const handleSignout = async () => {
-  //   try {
-  //     const res = await fetch('/api/auth/signout', {
-  //       method: 'POST',
-  //     });
-  //     const data = await res.json();
-  //     if (!res.ok) {
-  //       console.log(data.message);
-  //     } else {
-  //       dispatch(signoutSuccess());
-  //     }
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  // };
+  const handleSignout = async () => {
+    try {
+      const res = await fetch('/api/user/signout', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -98,7 +98,7 @@ export default function Header() {
             </Link>
             <Dropdown.Divider />
             <Dropdown.Item 
-              // onClick={handleSignout}
+              onClick={handleSignout}
             >
               Sign out
             </Dropdown.Item>
