@@ -161,4 +161,26 @@ export const google = async (req, res, next) => {
   }
 };
 
+// Logout User 
+export const signout = (req, res, next) => {
+  try {
+    res
+      .clearCookie('access_token')
+      .status(200)
+      .json('User has been signed out');
+  } catch (error) {
+    next(error);
+  }
+};
 
+
+// get user 
+export const getUser = async (req, res, next) => {
+  const user = await User.findById(req.user._id)
+  // console.log(user);
+  try {
+    res.send("get user")
+  } catch (error) {
+    next(error);
+  }
+}
