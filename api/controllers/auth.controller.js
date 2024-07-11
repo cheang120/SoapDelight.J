@@ -179,7 +179,15 @@ export const getUser = async (req, res, next) => {
   const user = await User.findById(req.user._id)
   // console.log(user);
   try {
-    res.send("get user")
+    // res.send("get user")
+    if (user) {
+      const {_id,username,email,password,photo,phone,bio,role,isVerified} = user
+      console.log(user);
+      res.status(200).json({_id,username,email,password,photo,phone,bio,role,isVerified})
+    }else {
+      return next(errorHandler(404, 'User not found!'));
+
+    }
   } catch (error) {
     next(error);
   }
