@@ -74,6 +74,19 @@ export const protect  = async (req, res, next) => {
 //   }
 // });
 
+export const verifiedOnly  = async (req, res, next) => {
+
+  // console.log(req.user);
+  //   if (req.user && req.user.isVerified) {
+  //   next();
+  // } else {
+  //   // res.status(401);
+  //   // throw new Error("Not authorized, account not verified");
+  //   return next(errorHandler(401, 'Not authorized, account not verified'));
+  // }
+}
+
+
 // const verifiedOnly = asyncHandler(async (req, res, next) => {
 //   if (req.user && req.user.isVerified) {
 //     next();
