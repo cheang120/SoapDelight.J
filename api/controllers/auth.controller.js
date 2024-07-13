@@ -14,6 +14,7 @@ const generateToken = (id) => {
 
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
+  // console.log(username);
 
   if (
     !username ||
@@ -46,6 +47,7 @@ export const signup = async (req, res, next) => {
 
   // Generate Token
   const token = generateToken(newUser._id)
+  // console.log(token);
   
   // Send HTTP-only cookie
   res.cookie("token", token, {
@@ -58,21 +60,8 @@ export const signup = async (req, res, next) => {
   
   // console.log(token);
 
-
-  // if (newUser) {
-  //   const {_id, username, email, phone, bio, phtot,role,isVerified, token} = newUser
-  //   res.status(201).json({
-  //     _id, username, email, phone, bio, phtot,role,isVerified, token
-  //   })
-    
-  // } else {
-  //   next(errorHandler(400,"Invalid user data."))
-  // }
-
   try {
-
     await newUser.save();
-    console.log('User saved successfully')
     res.json('Signup successful');
   } catch (error) {
     next(error);
