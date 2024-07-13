@@ -69,12 +69,11 @@ export const authorOnly  = async (req, res, next) => {
   }
 };
 
-const adminOnly = asyncHandler(async (req, res, next) => {
+export const adminOnly = async (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
   } else {
-    res.status(401);
-    throw new Error("Not authorized as an admin");
+    return next(errorHandler(401, 'Not authorized as an admin'));
   }
-});
+};
 

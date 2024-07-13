@@ -209,3 +209,19 @@ export const loginStatus = async (req, res, next) => {
   }
   return res.json(false)
 }
+
+// upgrade User
+export const upgradeUser = async (req, res, next) => {
+  // res.send("Upgrade User")
+  const {role, id} = req.body
+  const user = await User.findById(id)
+  if(!user) {
+    return next(errorHandler(500, 'User not found!'));
+  }
+  user.role = role
+  await user.save()
+  res.status(200).json({
+    message:`User role updated to ${role}`
+  })
+
+}
