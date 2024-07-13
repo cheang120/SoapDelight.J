@@ -1,6 +1,6 @@
 import express from 'express'
-import { deleteUser, signout, test, updateUser } from '../controllers/user.controller.js'
-import { verifiedOnly } from '../middleware/auth.middleware.js'
+import { deleteUser, getUsers, signout, test, updateUser } from '../controllers/user.controller.js'
+import { protect, verifiedOnly, authorOnly } from '../middleware/auth.middleware.js'
 import { verifyToken } from '../utils/verifyUser.js'
 
 const router = express.Router()
@@ -9,5 +9,6 @@ router.get('/test', test)
 // router.post('/signout' , signout)
 router.put('/update/:userId',verifyToken, updateUser)
 router.delete('/delete/:userId',verifyToken, deleteUser)
+// router.get('/getUsers', authorOnly, getUsers)
 
 export default router 

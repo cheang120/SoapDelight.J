@@ -79,3 +79,7 @@ export const signout = (req, res, next) => {
       next(error)
     }
   }
+
+  export const getUsers = async (req, res, next) => {
+    res.send("get users")
+  }

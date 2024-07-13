@@ -181,3 +181,14 @@ export const getUser = async (req, res, next) => {
     next(error);
   }
 }
+
+// get users 
+export const getUsers = async (req, res, next) => {
+  // res.send('get users')
+  const users = await User.find().sort("-createdAt").select("-password")
+  if(!users) {
+    return next(errorHandler(500, 'Something went wrong!'));
+  }
+  res.status(200).json(users)
+
+}
