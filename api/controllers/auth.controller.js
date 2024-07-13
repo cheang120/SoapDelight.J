@@ -192,3 +192,20 @@ export const getUsers = async (req, res, next) => {
   res.status(200).json(users)
 
 }
+
+// get login status
+export const loginStatus = async (req, res, next) => {
+  // res.send("get login status")
+  const token = req.cookies.access_token
+  if(!token){
+    return res.json(false)
+  }
+
+  // Verify Token
+  const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+  if(verified ){
+    return res.json(true)
+  }
+  return res.json(false)
+}
