@@ -101,7 +101,10 @@ const DashProfile = () => {
     );
   };
 
+
+
   const handleChange = (e) => {
+    // const dispatch = useDispatch()
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
   // console.log(formData);
@@ -110,6 +113,10 @@ const DashProfile = () => {
     e.preventDefault();
     setUpdateUserError(null);
     setUpdateUserSuccess(null);
+
+
+
+
     if (Object.keys(formData).length === 0) {
       setUpdateUserError('No changes made');
       return;
@@ -118,6 +125,13 @@ const DashProfile = () => {
       setUpdateUserError('Please wait for image to upload');
       return;
     }
+    if (formData.password.length < 6) {
+      return dispatch(updateFailure("Password must be up to 6 characters"))
+    }
+    if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
+      return dispatch(updateFailure("Passwords must contain Uppercase and Lowercase"))
+    }
+
     try {
       dispatch(updateStart());
       const res = await fetch(`/api/user/update/${currentUser._id}`, {
