@@ -2,10 +2,11 @@ import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken'
 import asyncHandler from 'express-async-handler'
-
 import crypto from 'crypto'
 import dotenv from 'dotenv'
 import { errorHandler } from '../utils/error.js';
+import sendEmail from "../utils/sendEmail.js";
+import Token from "../models/token.model.js";
 
 const generateToken = (id) => {
   return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn:"1d"})
@@ -225,3 +226,144 @@ export const upgradeUser = async (req, res, next) => {
   })
 
 }
+
+  // Send Automated emails
+  export const sendAutomatedEmail = asyncHandler(async (req, res) => {
+    const { subject, send_to, reply_to, template, url } = req.body;
+    console.log(url);
+  
+    if (!subject || !send_to || !reply_to || !template) {
+      res.status(500);
+      throw new Error("Missing email parameter");
+    }
+  
+    // Get user
+    const user = await User.findOne({ email: send_to });
+    // console.log(user);
+
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+  
+    const sent_from = process.env.EMAIL_USER;
+    const name = user.name;
+    const link = `${process.env.FRONTEND_URL}${url}`;
+  
+    console.log(sent_from);
+    // console.log(name);
+    try {
+        await sendEmail(
+          subject,
+          send_to,
+          sent_from,
+          reply_to,
+          template,
+          name,
+          link
+        );
+        res.status(200).json({ message: "Email Sent" });
+    } catch (error) {
+        res.status(500);
+        throw new Error("Email not sent, please try again");
+    }
+  });
+  
+
+  // Verify User
+export const verifyUser = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  const hashedToken = hashedToken(verificationToken);
+
+  const userToken = await Token.findOne({
+    vToken: hashedToken,
+    expiresAt: { $gt: Date.now() },
+  });
+
+  if (!userToken) {
+    res.status(404);
+    throw new Error("Invalid or Expired Token");
+  }
+
+  // Find User
+  const user = await User.findOne({ _id: userToken.userId });
+
+  if (user.isVerified) {
+    res.status(400);
+    throw new Error("User is already verified");
+  }
+
+  // Now verify user
+  user.isVerified = true;
+  await user.save();
+
+  res.status(200).json({ message: "Account Verification Successful" });
+};
+
+// send Verification Email
+export const sendVerificationEmail = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (user.isVerified) {
+    res.status(400);
+    throw new Error("User already verified");
+  }
+
+  // Delete Token if it exists in DB
+  let token = await Token.findOne({ userId: user._id });
+  if (token) {
+    await token.deleteOne();
+  }
+
+  //   Create Verification Token and Save
+  const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
+  console.log(verificationToken);
+  // res.send("Token")
+
+  // Hash token and save
+  const hashedToken = hashToken(verificationToken);
+  await new Token({
+    userId: user._id,
+    vToken: hashedToken,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
+  }).save();
+
+  // Construct Verification URL
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
+  
+  // Send Email
+  const subject = "Verify Your Account - AUTH:Z";
+  const send_to = user.email;
+  const sent_from = process.env.EMAIL_USER;
+  const reply_to = "noreply@babycode.com";
+  const template = "verifyEmail";
+  const name = user.name;
+  const link = verificationUrl;
+
+  try {
+    await sendEmail(
+      subject,
+      send_to,
+      sent_from,
+      reply_to,
+      template,
+      name,
+      link
+    );
+    res.status(200).json({ message: "Verification Email Sent" });
+  } catch (error) {
+    res.status(500);
+    throw new Error("Email not sent, please try again");
+  }
+
+
+});
+
+

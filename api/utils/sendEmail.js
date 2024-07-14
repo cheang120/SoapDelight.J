@@ -1,8 +1,8 @@
 import  nodemailer from "nodemailer";
-import  hbs from "nodemailer-express-handlebars";
-import  path from "path";
+import  hbs from  "nodemailer-express-handlebars";
+import  path  from "path";
 
-export const sendEmail = async (
+ const sendEmail = async (
   subject,
   send_to,
   sent_from,
@@ -24,17 +24,17 @@ export const sendEmail = async (
     },
   });
 
-  const handlearOptions = {
+  const handlebarOptions = {
     viewEngine: {
       extName: ".handlebars",
-      partialsDir: path.resolve("./views"),
+      partialsDir: path.resolve("./api/views"),
       defaultLayout: false,
     },
-    viewPath: path.resolve("./views"),
+    viewPath: path.resolve("./api/views"),
     extName: ".handlebars",
   };
 
-  transporter.use("compile", hbs(handlearOptions));
+  transporter.use("compile", hbs(handlebarOptions));
 
   // Options for sending email
   const options = {
@@ -59,4 +59,4 @@ export const sendEmail = async (
   });
 };
 
-// module.exports = sendEmail;
+export default sendEmail;
