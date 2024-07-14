@@ -7,12 +7,18 @@ import dotenv from 'dotenv'
 import { errorHandler } from '../utils/error.js';
 import sendEmail from "../utils/sendEmail.js";
 import Token from "../models/token.model.js";
+// import {generateToken,hashToken} from '../utils'
 
 const generateToken = (id) => {
   return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn:"1d"})
 }
 
+// Hash Token
+const hashToken = (token) => {
+  return crypto.createHash("sha256").update(token.toString()).digest("hex");
+};
 
+// registration
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
   // console.log(username);
@@ -69,6 +75,105 @@ export const signup = async (req, res, next) => {
   }
 };
 
+// send Verification Email
+export const sendVerificationEmail = async (req, res) => {
+  // res.send("verify email")
+  const user = await User.findById(req.user._id);
+console.log(user);
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+  }
+
+  if (user.isVerified) {
+    res.status(400).json({ message: "User already verified" });
+  }
+
+  // Delete Token if it exists in DB
+  let token = await Token.findOne({ userId: user._id });
+
+  if (token) {
+    await token.deleteOne();
+  }
+
+  //   Create Verification Token and Save
+  const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
+  console.log(verificationToken);
+  // res.send("Token")
+
+  // Hash token and save
+  const hashedToken = hashToken(verificationToken);
+  // console.log(hashedToken);
+  // res.send('hashedToken')
+  await new Token({
+    userId: user._id,
+    vToken: hashedToken,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
+  }).save();
+
+  // Construct Verification URL
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
+  // console.log(process.env.FRONTEND_URL);
+  // res.send('link')
+  // Send Email
+  const subject = "Verify Your Account - BabyCode";
+  const send_to = user.email;
+  const sent_from = process.env.EMAIL_USER;
+  const reply_to = "noreply@babycode.com";
+  const template = "verifyEmail";
+  const name = user.name;
+  const link = verificationUrl;
+
+  try {
+    await sendEmail(
+      subject,
+      send_to,
+      sent_from,
+      reply_to,
+      template,
+      name,
+      link
+    );
+    res.status(200).json({ message: "Verification Email Sent" });
+  } catch (error) {
+    res.status(500).json({ message: "Email not sent, please try again" });
+  }
+
+
+};
+
+// Verify User
+export const verifyUser = async (req, res) => {
+  // res.send("verifyUser")
+  const { verificationToken } = req.params;
+  // console.log(verificationToken);
+  // res.send("verificationToken")
+
+  const hashedToken = hashToken(verificationToken);
+
+  const userToken = await Token.findOne({
+    vToken: hashedToken,
+    expiresAt: { $gt: Date.now() },
+  });
+
+  if (!userToken) {
+    res.status(404).json({ message: "Invalid or Expired Token" });
+  }
+
+  // // Find User
+  const user = await User.findOne({ _id: userToken.userId });
+
+  if (user.isVerified) {
+    res.status(400).json({ message: "User is already verified" });
+  }
+
+  // // Now verify user
+  user.isVerified = true;
+  await user.save();
+
+  res.status(200).json({ message: "Account Verification Successful" });
+};
 
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
@@ -270,100 +375,7 @@ export const upgradeUser = async (req, res, next) => {
   });
   
 
-  // Verify User
-export const verifyUser = async (req, res) => {
-  const { verificationToken } = req.params;
-
-  const hashedToken = hashedToken(verificationToken);
-
-  const userToken = await Token.findOne({
-    vToken: hashedToken,
-    expiresAt: { $gt: Date.now() },
-  });
-
-  if (!userToken) {
-    res.status(404);
-    throw new Error("Invalid or Expired Token");
-  }
-
-  // Find User
-  const user = await User.findOne({ _id: userToken.userId });
-
-  if (user.isVerified) {
-    res.status(400);
-    throw new Error("User is already verified");
-  }
-
-  // Now verify user
-  user.isVerified = true;
-  await user.save();
-
-  res.status(200).json({ message: "Account Verification Successful" });
-};
-
-// send Verification Email
-export const sendVerificationEmail = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
-  }
-
-  if (user.isVerified) {
-    res.status(400);
-    throw new Error("User already verified");
-  }
-
-  // Delete Token if it exists in DB
-  let token = await Token.findOne({ userId: user._id });
-  if (token) {
-    await token.deleteOne();
-  }
-
-  //   Create Verification Token and Save
-  const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
-  console.log(verificationToken);
-  // res.send("Token")
-
-  // Hash token and save
-  const hashedToken = hashToken(verificationToken);
-  await new Token({
-    userId: user._id,
-    vToken: hashedToken,
-    createdAt: Date.now(),
-    expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
-  }).save();
-
-  // Construct Verification URL
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
-  
-  // Send Email
-  const subject = "Verify Your Account - AUTH:Z";
-  const send_to = user.email;
-  const sent_from = process.env.EMAIL_USER;
-  const reply_to = "noreply@babycode.com";
-  const template = "verifyEmail";
-  const name = user.name;
-  const link = verificationUrl;
-
-  try {
-    await sendEmail(
-      subject,
-      send_to,
-      sent_from,
-      reply_to,
-      template,
-      name,
-      link
-    );
-    res.status(200).json({ message: "Verification Email Sent" });
-  } catch (error) {
-    res.status(500);
-    throw new Error("Email not sent, please try again");
-  }
 
 
-});
 
 

@@ -1,5 +1,5 @@
 import express from 'express'
-import { google, signin, signup ,getUser, signout,getUsers, loginStatus, upgradeUser,sendAutomatedEmail } from '../controllers/auth.controller.js'
+import { google, signin, signup ,getUser, signout,getUsers, loginStatus, upgradeUser,sendAutomatedEmail,sendVerificationEmail,verifyUser } from '../controllers/auth.controller.js'
 import { authorOnly, protect,adminOnly } from '../middleware/auth.middleware.js'
 
 
@@ -15,6 +15,7 @@ router.get('/loginStatus', loginStatus)
 router.post('/upgradeUser', protect, adminOnly, upgradeUser)
 router.post('/sendAutomatedEmail', protect, sendAutomatedEmail)
 
-router.post("/sendVerificationEmail", protect);
+router.post("/sendVerificationEmail", protect,sendVerificationEmail);
+router.patch('/verifyUser/:verificationToken', protect,verifyUser )
 
 export default router
