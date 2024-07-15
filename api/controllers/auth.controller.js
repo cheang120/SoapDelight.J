@@ -375,7 +375,70 @@ export const upgradeUser = async (req, res, next) => {
   });
   
 
+  export const forgotPassword = async (req, res, next) => {
+    // res.send("forgot password")
 
+    const { email } = req.body;
+    // console.log(email);
+    // res.send("email")
+  
+    const user = await User.findOne({ email });
+    // console.log(user);
+  
+    if (!user) {
+      return next(errorHandler(404, 'No user with this email!'));
+    }
+  
+    // Delete Token if it exists in DB
+    let token = await Token.findOne({ userId: user._id });
+    // console.log(token);
+    // res.send("token")
+    if (token) {
+      await token.deleteOne();
+    }
+  
+    //   Create Verification Token and Save
+    const resetToken = crypto.randomBytes(32).toString("hex") + user._id;
+    // console.log(resetToken);
+  
+    // Hash token and save
+    const hashedToken = hashToken(resetToken);
+    await new Token({
+      userId: user._id,
+      rToken: hashedToken,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
+    }).save();
+    // console.log(resetToken);
+    
+
+      // Construct Reset URL
+    const resetUrl = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
+    // console.log(resetUrl);
+        // Send Email
+    const subject = "Password Reset Request - BabyCode";
+    const send_to = user.email;
+    const sent_from = process.env.EMAIL_USER;
+    const reply_to = "noreply@babycode.com";
+    const template = "forgotPassword";
+    const name = user.name;
+    const link = resetUrl;
+
+    try {
+        await sendEmail(
+            subject,
+            send_to,
+            sent_from,
+            reply_to,
+            template,
+            name,
+            link
+        );
+        return next(errorHandler(200, 'Password Reset Email Sent!'));
+    } catch (error) {
+        return next(errorHandler(500, 'Email not sent, please try again!'));
+    }
+  }
 
 
 
