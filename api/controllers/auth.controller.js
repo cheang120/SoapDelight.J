@@ -56,7 +56,7 @@ export const signup = async (req, res, next) => {
 
   // Generate Token
   const token = generateToken(newUser._id)
-  // console.log(token);
+  console.log(token);
   
   // Send HTTP-only cookie
   res.cookie("token", token, {
@@ -67,7 +67,7 @@ export const signup = async (req, res, next) => {
     secure:true,
   })
   
-  // console.log(token);
+  console.log(token);
 
   try {
     await newUser.save();
@@ -101,10 +101,11 @@ export const sendVerificationEmail = async (req, res,next) => {
     res.status(400).json({ message: "User already verified" });
   }
 
-  console.log(user);
+  // console.log(user);
 
   // Delete Token if it exists in DB
   let token = await Token.findOne({ userId: user._id });
+
 
   if (token) {
     await token.deleteOne();

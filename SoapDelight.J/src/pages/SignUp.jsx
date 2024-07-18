@@ -9,6 +9,7 @@ import { FaTimes } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import {  validateEmail } from '../redux/features/auth/authService';
 import { signup,RESET } from '../redux/features/auth/authSlice.js';
+import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
 
 
 
@@ -91,48 +92,112 @@ const [uCase, setUCase] = useState(false)
     return timesIcon
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.username || !formData.email || !formData.password) {
-      return setErrorMessage('Please fill out all fields.');
-    }
-    if (formData.password.length < 6) {
-      return setErrorMessage("Password must be up to 6 characters");
-    }
-    if (!validateEmail(formData.email)) {
-      return setErrorMessage("Please enter a valid email");
-    }
-    if (password !== password2) {
-      return setErrorMessage("Passwords do not match");
-    }
-    if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-      return setErrorMessage("Passwords must contain Uppercase and Lowercase");
-    }
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!formData.username || !formData.email || !formData.password) {
+  //     return setErrorMessage('Please fill out all fields.');
+  //   }
+  //   if (formData.password.length < 6) {
+  //     return setErrorMessage("Password must be up to 6 characters");
+  //   }
+  //   if (!validateEmail(formData.email)) {
+  //     return setErrorMessage("Please enter a valid email");
+  //   }
+  //   if (password !== password2) {
+  //     return setErrorMessage("Passwords do not match");
+  //   }
+  //   if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
+  //     return setErrorMessage("Passwords must contain Uppercase and Lowercase");
+  //   }
 
+  //   try {
+  //     setLoading(true);
+  //     setError(false);
+  //     const res = await fetch('/api/auth/signup', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(formData),
+  //     });
+  //     const data = await res.json();
+  //     console.log(data);
+  //     setLoading(false);
+  //     if (data.success === false) {
+  //       setError(true);
+  //       return;
+  //     }
+
+  //         // Assume the API returns a token on successful signup
+  //   const { token } = data;
+
+  //   // Store the token in localStorage
+  //   localStorage.setItem('authToken', token);
+
+
+  //     await fetch('/api/auth/sendVerificationEmail', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ email: formData.email }),
+  //     });
+
+  //     navigate('/dashboard');
+
+  //   } catch (error) {
+  //     setLoading(false);
+  //     setError(true);
+  //   }
+  // };
+
+  const handleSubmit = async (formData) => {
     try {
-      setLoading(true);
-      setError(false);
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch('/api/auth/signin', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
-      setLoading(false);
-      if (data.success === false) {
-        setError(true);
-        return;
+      if (!res.ok) {
+        throw new Error(data.message || 'Signin failed');
       }
-
-          // Assume the API returns a token on successful signup
-    const { token } = data;
-
-    // Store the token in localStorage
-    localStorage.setItem('authToken', token);
-
+      dispatch(signInSuccess(data));
+      navigate('/dashboard?tab=profile');
+    } catch (error) {
+      dispatch(signInFailure(error.message));
+    }
+  };
+  
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    if (!formData.username || !formData.email || !formData.password || !formData.password2) {
+      return dispatch(signInFailure('Please fill out all fields.'));
+    }
+    if (formData.password.length < 6) {
+      return dispatch(signInFailure("Password must be at least 6 characters"));
+    }
+    if (!validateEmail(formData.email)) {
+      return dispatch(signInFailure("Please enter a valid email"));
+    }
+    if (formData.password !== formData.password2) {
+      return dispatch(signInFailure("Passwords do not match"));
+    }
+    if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
+      return dispatch(signInFailure("Passwords must contain both uppercase and lowercase letters"));
+    }
+  
+    try {
+      dispatch(signInStart());
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Signup failed');
+      }
 
       await fetch('/api/auth/sendVerificationEmail', {
         method: 'POST',
@@ -142,11 +207,11 @@ const [uCase, setUCase] = useState(false)
         body: JSON.stringify({ email: formData.email }),
       });
 
-      navigate('/dashboard');
-
+      // Automatically login after signup
+      await handleSubmit({ email: formData.email, password: formData.password });
+  
     } catch (error) {
-      setLoading(false);
-      setError(true);
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -170,7 +235,7 @@ const [uCase, setUCase] = useState(false)
         <div className='flex-1'>
           <form 
             className='flex flex-col gap-4' 
-            onSubmit={handleSubmit}
+            onSubmit={handleSignup}
           >
             <div>
               <Label value='Your username' />
