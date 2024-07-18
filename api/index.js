@@ -15,7 +15,7 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000","https://soapdelight-j.onrender.com"],
     credentials: true,
   })
 );
