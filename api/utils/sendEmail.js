@@ -1,6 +1,6 @@
-import nodemailer from "nodemailer";
-import hbs from "nodemailer-express-handlebars";
-import path from "path";
+import nodemailer from 'nodemailer';
+import hbs from 'nodemailer-express-handlebars';
+import path from 'path';
 
 const sendEmail = async (
   subject,
@@ -12,6 +12,11 @@ const sendEmail = async (
   link
 ) => {
   try {
+    // Log environment variables for debugging (Do not do this in production)
+    console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
+    console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? '******' : 'Not set'); // Mask the password
+
     // Create Email Transporter
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
