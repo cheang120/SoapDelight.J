@@ -1,12 +1,15 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector,shallowEqual } from "react-redux";
 import PasswordInput from '../components/PasswordInput';
 import OAuth from '../components/OAuth';
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FaTimes } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
+import {  validateEmail } from '../redux/features/auth/authService';
+import { signup,RESET } from '../redux/features/auth/authSlice.js';
+
 
 
 const initialState = {
@@ -20,26 +23,13 @@ const initialState = {
 export default function SignUp() {
   const [formData, setFormData] = useState(initialState);
   const {username, email, password, password2} = formData
-  // console.log(formData.password);
-  // const password = formData.password
-  // console.log(password);
-  // const [password, setPassword] = useState({});
-  console.log(formData.username);
 
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch()
   const navigate = useNavigate();
 
-
-
-// Validate email
-const validateEmail = (email) => {
-    return email.match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
-};
-  
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
@@ -58,9 +48,6 @@ const validateEmail = (email) => {
     // console.log(e.target.value);
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
-
-
-
 
   useEffect(() => {
     // Check Lower and Uppercase
@@ -104,8 +91,6 @@ const [uCase, setUCase] = useState(false)
     return timesIcon
   }
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password) {
@@ -123,27 +108,49 @@ const [uCase, setUCase] = useState(false)
     if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
       return setErrorMessage("Passwords must contain Uppercase and Lowercase");
     }
+
     try {
       setLoading(true);
-      setErrorMessage(null);
+      setError(false);
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
+      console.log(data);
+      setLoading(false);
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        setError(true);
+        return;
       }
-      setLoading(false);
-      if(res.ok) {
-        navigate('/sign-in');
-      }
+
+          // Assume the API returns a token on successful signup
+    const { token } = data;
+
+    // Store the token in localStorage
+    localStorage.setItem('authToken', token);
+
+
+      await fetch('/api/auth/sendVerificationEmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      navigate('/dashboard');
+
     } catch (error) {
-      setErrorMessage(error.message);
       setLoading(false);
+      setError(true);
     }
   };
+
+
   return (
     <div className='min-h-screen mt-20'>
       <div className='flex w-2/3 p-3 mx-auto flex-col md:flex-row md:items-center gap-10'>

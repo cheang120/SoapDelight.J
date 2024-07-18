@@ -43,6 +43,7 @@ export const signup = async (req, res, next) => {
   if (userExists) {
     next(errorHandler(500,"Email already in used."))
   }
+  
 
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
@@ -51,6 +52,7 @@ export const signup = async (req, res, next) => {
     email,
     password: hashedPassword,
   });
+  // console.log(newUser);
 
   // Generate Token
   const token = generateToken(newUser._id)
@@ -75,11 +77,21 @@ export const signup = async (req, res, next) => {
   }
 };
 
+
+
 // send Verification Email
-export const sendVerificationEmail = async (req, res) => {
+
+export const sendVerificationEmail = async (req, res,next) => {
   // res.send("verify email")
-  const user = await User.findById(req.user._id);
-console.log(user);
+  const { email } = req.body;
+  console.log(email);
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const user = await User.findOne({ email });
+
 
   if (!user) {
     res.status(404).json({ message: "User not found" });
@@ -88,6 +100,8 @@ console.log(user);
   if (user.isVerified) {
     res.status(400).json({ message: "User already verified" });
   }
+
+  console.log(user);
 
   // Delete Token if it exists in DB
   let token = await Token.findOne({ userId: user._id });
@@ -98,7 +112,7 @@ console.log(user);
 
   //   Create Verification Token and Save
   const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
-  console.log(verificationToken);
+  // console.log(verificationToken);
   // res.send("Token")
 
   // Hash token and save
@@ -117,6 +131,7 @@ console.log(user);
   // console.log(process.env.FRONTEND_URL);
   // res.send('link')
   // Send Email
+
   const subject = "Verify Your Account - BabyCode";
   const send_to = user.email;
   const sent_from = process.env.EMAIL_USER;
@@ -139,8 +154,6 @@ console.log(user);
   } catch (error) {
     res.status(500).json({ message: "Email not sent, please try again" });
   }
-
-
 };
 
 // Verify User
@@ -175,8 +188,10 @@ export const verifyUser = async (req, res) => {
   res.status(200).json({ message: "Account Verification Successful" });
 };
 
-export const signin = async (req, res, next) => {
+export const signin = asyncHandler( async (req, res, next) => {
   const { email, password } = req.body;
+  // console.log(password);
+  // console.log(email);
 
   if (!email || !password || email === '' || password === '') {
     next(errorHandler(400, 'All fields are required'));
@@ -184,13 +199,17 @@ export const signin = async (req, res, next) => {
 
   try {
     const validUser = await User.findOne({ email });
+    // console.log(validUser);
     if (!validUser) {
       return next(errorHandler(404, 'User not found'));
     }
-    const validPassword = bcryptjs.compareSync(password, validUser.password);
+    const validPassword = await bcryptjs.compare(password, validUser.password);
+    // console.log(password);
+    // console.log(validUser.password);
     if (!validPassword) {
       return next(errorHandler(400, 'Invalid password'));
     }
+
     const token = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET
@@ -207,7 +226,7 @@ export const signin = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+});
 
 export const google = async (req, res, next) => {
   const { email, name, googlePhotoUrl } = req.body;
@@ -409,7 +428,7 @@ export const upgradeUser = async (req, res, next) => {
       createdAt: Date.now(),
       expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
     }).save();
-    // console.log(resetToken);
+    console.log(resetToken);
     
 
       // Construct Reset URL
@@ -441,4 +460,35 @@ export const upgradeUser = async (req, res, next) => {
   }
 
 
+  export const resetPassword = async (req, res, next) => {
+    // res.send("reset password")
+    const { resetToken } = req.params;
+    const { password } = req.body;
+    // console.log(resetToken);
+    // console.log(password);
+  
+    const hashedToken = hashToken(resetToken);
+  
+    const userToken = await Token.findOne({
+      rToken: hashedToken,
+      expiresAt: { $gt: Date.now() },
+    });
+  
+    if (!userToken) {
+      return next(errorHandler(404, 'Invalid or Expired Token!'));
+    }
+  
+    // // Find User
+    const user = await User.findOne({ _id: userToken.userId });
+  
+    // // Now Reset password
+    user.password = password;
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+    user.password = hashedPassword
+    // const newPassword = hashedPassword,
 
+    await user.save();
+  
+    res.status(200).json({ message: "Password Reset Successful, please login" });
+
+  }

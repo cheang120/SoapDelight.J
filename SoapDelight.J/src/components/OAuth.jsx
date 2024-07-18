@@ -6,8 +6,12 @@ import { app } from '../firebase'
 import { useDispatch } from 'react-redux'
 import { signInSuccess } from '../redux/user/userSlice'
 import { useNavigate } from 'react-router-dom'
+import axios from "axios"
+import {sendVerificationEmail} from '../redux/features/auth/authService'
 
 const OAuth = () => {
+
+
     const auth = getAuth(app)
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -27,7 +31,14 @@ const OAuth = () => {
                 })
             })
             const data = await res.json()
+
             if (res.ok) {
+                // const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
+                // console.log(BACKEND_URL);
+                // const API_URL = `${BACKEND_URL}/api/auth/`
+                // dispatch(sendVerificationEmail());
+                // const response = await axios.post(API_URL + "sendVerificationEmail");
+                // return response.data.message;
                 dispatch(signInSuccess(data))
                 navigate('/')
             }
