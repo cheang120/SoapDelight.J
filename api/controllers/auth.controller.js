@@ -56,7 +56,7 @@ export const signup = async (req, res, next) => {
 
   // Generate Token
   const token = generateToken(newUser._id)
-  console.log(token);
+  // console.log(token);
   
   // Send HTTP-only cookie
   res.cookie("token", token, {
@@ -67,7 +67,7 @@ export const signup = async (req, res, next) => {
     secure:true,
   })
   
-  console.log(token);
+  // console.log(token);
 
   try {
     await newUser.save();
@@ -84,7 +84,7 @@ export const signup = async (req, res, next) => {
 export const sendVerificationEmail = async (req, res,next) => {
   // res.send("verify email")
   const { email } = req.body;
-  console.log(email);
+  // console.log(email);
 
   if (!email) {
     return res.status(400).json({ message: "Email is required" });
