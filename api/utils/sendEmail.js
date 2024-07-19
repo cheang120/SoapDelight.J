@@ -114,6 +114,7 @@ const sendEmail = async (subject, send_to, sent_from, reply_to, template,name, l
   // }
   // const response = await sendgrid.send(draft)
   // console.log(response);
+
 };
 
 // Test sending an email
