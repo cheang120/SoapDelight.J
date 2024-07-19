@@ -13,9 +13,9 @@ const sendEmail = async (
 ) => {
   try {
     // Log environment variables for debugging (Do not do this in production)
-    console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
-    console.log("EMAIL_USER:", process.env.EMAIL_USER);
-    console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? '******' : 'Not set'); // Mask the password
+    // console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
+    // console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    // console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? '******' : 'Not set'); // Mask the password
 
     // Create Email Transporter
     const transporter = nodemailer.createTransport({
