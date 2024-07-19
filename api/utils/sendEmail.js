@@ -83,7 +83,7 @@ sendgrid.setApiKey('SG.H19nn53VR_mSuo_GGD4vMw.R3vBnLXHWWK5IFyIRpkuyea1q3ijs5zKkE
 // Example function to send an email
 const sendEmail = async (subject, send_to, sent_from, reply_to, template,name, link) => {
   // console.log("hello");
-  console.log(subject, send_to, sent_from, reply_to, template,name, link);
+  // console.log(subject, send_to, sent_from, reply_to, template,name, link);
 
 
   try {
