@@ -16,6 +16,8 @@ const __dirname = path.resolve();
 app.use(
   cors({
     origin: ["http://localhost:3000","https://soapdelight-j.onrender.com"],
+    methods:['GET','POST'],
+    allowedHeaders: ['Authorization', 'Content-Type', 'On-behalf-of', 'x-sg-elas-acl'],
     credentials: true,
   })
 );
