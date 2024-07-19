@@ -77,7 +77,7 @@ import User from '../models/user.model.js';
 dotenv.config();
 
 // Set API key
-sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
+sendgrid.setApiKey('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');
 
 
 // Example function to send an email
