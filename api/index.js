@@ -22,11 +22,11 @@ app.use(
   })
 );
 
-app.use(express.static(path.join(__dirname, '/SoapDelight.J/dist')));
+// app.use(express.static(path.join(__dirname, '/SoapDelight.J/dist')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'SoapDelight.J', 'dist', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'SoapDelight.J', 'dist', 'index.html'));
+// });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

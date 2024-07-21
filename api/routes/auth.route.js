@@ -1,7 +1,6 @@
 import express from 'express'
-import { google, signin, signup ,getUser, signout,getUsers, loginStatus, upgradeUser,sendAutomatedEmail,sendVerificationEmail,verifyUser ,forgotPassword,resetPassword} from '../controllers/auth.controller.js'
+import { google, signin, signup ,getUser, signout,getUsers,loginStatus, upgradeUser,sendAutomatedEmail,sendVerificationEmail,verifyUser ,forgotPassword,resetPassword} from '../controllers/auth.controller.js'
 import { authorOnly, protect,adminOnly } from '../middleware/auth.middleware.js'
-
 
 const router = express.Router()
 

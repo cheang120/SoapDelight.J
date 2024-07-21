@@ -100,10 +100,7 @@ const [uCase, setUCase] = useState(false)
       // return setErrorMessage('Please fill out all fields.');
       return dispatch(signInFailure('Please fill out all fields.'))
     }
-    if (formData.password.length < 6) {
-      // return setErrorMessage("Password must be up to 6 characters");
-      return dispatch(signInFailure("Password must be up to 6 characters"))
-    }
+
     if (!validateEmail(formData.email)) {
       // return setErrorMessage("Please enter a valid email");
       return dispatch(signInFailure("Please enter a valid email"))
@@ -130,7 +127,7 @@ const [uCase, setUCase] = useState(false)
       // setLoading(false);
       if(res.ok) {
         dispatch(signInSuccess(data))
-        navigate('/');
+        navigate('/dashboard?tab=profile');
       }
     } catch (error) {
       // setErrorMessage(error.message);

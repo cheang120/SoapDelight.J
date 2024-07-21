@@ -91,7 +91,7 @@ export const sendVerificationEmail = async (req, res,next) => {
   }
 
   const user = await User.findOne({ email });
-
+  // console.log(user);
 
   if (!user) {
     res.status(404).json({ message: "User not found" });
@@ -132,14 +132,20 @@ export const sendVerificationEmail = async (req, res,next) => {
   // console.log(process.env.FRONTEND_URL);
   // res.send('link')
   // Send Email
+  // console.log(user.username);
 
   const subject = "Verify Your Account - BabyCode";
   const send_to = user.email;
   const sent_from = process.env.EMAIL_USER;
   const reply_to = "noreply@babycode.com";
-  const template = "verifyEmail";
-  const name = user.name;
+  // const template = 'verifyEmail';
+  const name = user.username;
   const link = verificationUrl;
+
+  // console.log(template);
+
+  // console.log(`Sending email to ${user.username} (${send_to})`); 
+  // console.log(name);
 
   try {
     await sendEmail(
@@ -147,7 +153,7 @@ export const sendVerificationEmail = async (req, res,next) => {
       send_to,
       sent_from,
       reply_to,
-      template,
+      // template,
       name,
       link
     );
@@ -327,13 +333,18 @@ export const loginStatus = async (req, res, next) => {
     return res.json(false)
   }
 
-  // Verify Token
-  const verified = jwt.verify(token, process.env.JWT_SECRET);
-
-  if(verified ){
-    return res.json(true)
+  try {
+      // // Verify Token
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    if (verified) {
+      return res.json(true);
+    } else {
+      return res.json(false);
+    }
+  } catch (error) {
+    return res.json(false);
   }
-  return res.json(false)
+
 }
 
 // upgrade User

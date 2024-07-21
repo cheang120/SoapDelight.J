@@ -84,3 +84,7 @@ export const signout = (req, res, next) => {
   export const getUsers = async (req, res, next) => {
     res.send("get users")
   }
+
+  export const loginStatus = async (req,res,next) => {
+    res.send("get login status")
+  }
