@@ -171,8 +171,8 @@ export const verifyUser = async (req, res) => {
   // res.send("verificationToken")
 
   const hashedToken = hashToken(verificationToken);
-  console.log(`Verification Token: ${verificationToken}`);
-  console.log(`Hashed Token: ${hashedToken}`);
+  // console.log(`Verification Token: ${verificationToken}`);
+  // console.log(`Hashed Token: ${hashedToken}`);
 
   const userToken = await Token.findOne({
     vToken: hashedToken,
@@ -183,10 +183,10 @@ export const verifyUser = async (req, res) => {
     res.status(404).json({ message: "Invalid or Expired Token" });
   }
 
-  console.log(userToken);
+  // console.log(userToken);
   // // Find User
   const user = await User.findOne({ _id: userToken.userId });
-  console.log(user);
+  // console.log(user);
 
   if (user.isVerified) {
     res.status(400).json({ message: "User is already verified" });
