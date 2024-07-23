@@ -44,8 +44,8 @@ const Verify = () => {
       };
     
   return (
-    <section>
-      <div className="flex justify-center items-center flex-col w-full mx-auto text-center min-h-screen">
+    <section className='mt-10'>
+      <div className="flex items-center flex-col w-full mx-auto text-center min-h-screen">
         <h2>Account Verification</h2>
         <p>To verify your account, click the button below...</p>
         <br />
