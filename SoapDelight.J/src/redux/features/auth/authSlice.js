@@ -70,6 +70,25 @@ export const sendVerificationEmail = createAsyncThunk(
   }
 );
 
+// verify User
+export const verifyUser = createAsyncThunk(
+  "auth/verifyUser",
+  async (verificationToken, thunkAPI) => {
+    try {
+      return await authService.verifyUser(verificationToken)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+
+)
+
 
 // Get Login Status
 export const getLoginStatus = createAsyncThunk(

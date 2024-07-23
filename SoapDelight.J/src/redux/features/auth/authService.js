@@ -15,13 +15,17 @@ const signup = async (userData) => {
     return response.data
 }
 
+const verifyUser = async (verificationToken) =>{
+    console.log(verificationToken);
+    const response = await axios.patch(`${API_URL} verifyUser/${verificationToken}`)
+    return response.data.message
+}
 
-// Send Verification Email
-export const sendVerificationEmail = async () => {
-
+const sendVerificationEmail = async () => {
     const response = await axios.post(API_URL + "sendVerificationEmail");
     return response.data.message;
 };
+
 
 // Get Login Status
 // const getLoginStatus = async () => {
@@ -30,7 +34,7 @@ export const sendVerificationEmail = async () => {
 // };
 
 const authService = {
-    signup,sendVerificationEmail
+    signup,verifyUser,sendVerificationEmail
 }
 
 export default authService

@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux'
 import { signInSuccess } from '../redux/user/userSlice'
 import { useNavigate } from 'react-router-dom'
 import axios from "axios"
-import {sendVerificationEmail} from '../redux/features/auth/authService'
+// import {sendVerificationEmail} from '../redux/features/auth/authService'
 
 const OAuth = () => {
 

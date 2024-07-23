@@ -14,6 +14,7 @@ import PrivateRoute from './components/PrivateRoute'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import {getLoginStatus} from "./redux/features/auth/authSlice"
+import Verify from './components/Verify'
 
 axios.defaults.withCredentials = true
 
@@ -37,7 +38,9 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route element={<PrivateRoute />} >
           <Route path="/dashboard" element={<Dashboard />} />
+
         </Route>
+        <Route path="/verify/:verificationToken" element={<Verify />} />
         <Route path="/projects" element={<Projects />} />
       </Routes>
       <FooterCom />

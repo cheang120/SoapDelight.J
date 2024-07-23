@@ -171,8 +171,8 @@ export const verifyUser = async (req, res) => {
   // res.send("verificationToken")
 
   const hashedToken = hashToken(verificationToken);
-  console.log(verificationToken);
-  
+  console.log(`Verification Token: ${verificationToken}`);
+  console.log(`Hashed Token: ${hashedToken}`);
 
   const userToken = await Token.findOne({
     vToken: hashedToken,

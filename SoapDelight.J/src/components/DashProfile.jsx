@@ -273,14 +273,13 @@ const DashProfile = () => {
           onChange={handleChange}
         />
         {!currentUser.isVerified && 
-          <div className='border-red-500'>
+          <div>
 
             <TextInput
               type='email'
               id='email'
-              placeholder='Please verify your email!'
+              placeholder='Please verify your email !'
               onChange={handleChange}
-              className='placeholder:text-red-500 border-red-500'
 
             />
 
