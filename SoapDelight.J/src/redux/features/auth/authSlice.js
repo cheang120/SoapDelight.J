@@ -18,6 +18,8 @@ const initialState = {
 
 }
 
+export const SEND_VERIFICATION_EMAIL = 'SEND_VERIFICATION_EMAIL';
+
 // signup User
 export const signup = createAsyncThunk(
   '/api/auth/signup',
@@ -36,30 +38,56 @@ export const signup = createAsyncThunk(
 );
 
 
-
-
-
-
-
 // send Verification Email
 export const sendVerificationEmail = createAsyncThunk(
-  'auth/sendVerificationEmail',
+  SEND_VERIFICATION_EMAIL,
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch('/api/auth/sendVerificationEmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // 填寫必要的郵件參數
+          subject: 'Verification Email',
+          send_to: 'user@example.com',
+          reply_to: 'no-reply@example.com',
+          template: 'verification',
+          url: '/verify'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      return data.message;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+
+// Get Login Status
+export const getLoginStatus = createAsyncThunk(
+  "auth/getLoginStatus",
   async (_, thunkAPI) => {
     try {
-      return await authService.sendVerificationEmail();
+      return await authService.getLoginStatus();
     } catch (error) {
       const message =
-        (error.response && error.response.data && error.response.data.message) ||
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
         error.message ||
         error.toString();
       return thunkAPI.rejectWithValue(message);
     }
   }
 );
-
-
-
-
 
 
 

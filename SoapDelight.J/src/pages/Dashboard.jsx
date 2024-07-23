@@ -6,8 +6,10 @@ import DashPosts from '../components/DashPosts';
 import DashUsers from '../components/DashUsers';
 import DashComments from '../components/DashComments';
 import DashboardComp from '../components/DashboardComp';
+import useRedirectLoggedOutUser from '../customHook/useRedirectLoggedOutUser';
 
 export default function Dashboard() {
+  // useRedirectLoggedOutUser("/signin")
   const location = useLocation();
   const [tab, setTab] = useState('');
   useEffect(() => {

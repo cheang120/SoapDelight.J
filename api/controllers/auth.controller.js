@@ -113,7 +113,7 @@ export const sendVerificationEmail = async (req, res,next) => {
 
   //   Create Verification Token and Save
   const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
-  // console.log(verificationToken);
+  console.log(verificationToken);
   // res.send("Token")
 
   // Hash token and save
@@ -171,6 +171,8 @@ export const verifyUser = async (req, res) => {
   // res.send("verificationToken")
 
   const hashedToken = hashToken(verificationToken);
+  console.log(verificationToken);
+  
 
   const userToken = await Token.findOne({
     vToken: hashedToken,
@@ -181,8 +183,10 @@ export const verifyUser = async (req, res) => {
     res.status(404).json({ message: "Invalid or Expired Token" });
   }
 
+  console.log(userToken);
   // // Find User
   const user = await User.findOne({ _id: userToken.userId });
+  console.log(user);
 
   if (user.isVerified) {
     res.status(400).json({ message: "User is already verified" });

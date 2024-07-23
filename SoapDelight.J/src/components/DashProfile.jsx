@@ -23,10 +23,14 @@ import { useDispatch } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import { app } from '../firebase';
+import Notification from './Notification';
+// import useRedirectLoggedOutUser from '../customHook/useRedirectLoggedOutUser';
+
 
 
 
 const DashProfile = () => {
+
   const { currentUser, error, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
@@ -39,6 +43,9 @@ const DashProfile = () => {
   const [formData, setFormData] = useState({});
   const filePickerRef = useRef();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+
+
 
   // console.log(imageFileUploadProgress,imageFileUploadError);
 
@@ -115,8 +122,6 @@ const DashProfile = () => {
     setUpdateUserSuccess(null);
 
 
-
-
     if (Object.keys(formData).length === 0) {
       setUpdateUserError('No changes made');
       return;
@@ -125,12 +130,13 @@ const DashProfile = () => {
       setUpdateUserError('Please wait for image to upload');
       return;
     }
-    if (formData.password.length < 6) {
-      return dispatch(updateFailure("Password must be up to 6 characters"))
-    }
-    if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-      return dispatch(updateFailure("Passwords must contain Uppercase and Lowercase"))
-    }
+    console.log('Submitting formData:', formData);
+    // if (formData.password.length < 6) {
+    //   return dispatch(updateFailure("Password must be up to 6 characters"))
+    // }
+    // if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
+    //   return dispatch(updateFailure("Passwords must contain Uppercase and Lowercase"))
+    // }
 
     try {
       dispatch(updateStart());
@@ -141,7 +147,15 @@ const DashProfile = () => {
         },
         body: JSON.stringify(formData),
       });
+      await fetch('/api/auth/sendVerificationEmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
       const data = await res.json();
+      // console.log(data);
       if (!res.ok) {
         dispatch(updateFailure(data.message));
         setUpdateUserError(data.message);
@@ -190,7 +204,9 @@ const DashProfile = () => {
   };
 
   return (
-    <div className='max-w-lg mx-auto p-3 w-full'>
+    <div className='flex w-full'>
+      {/* {!currentUser.isVerified && <Notification email={user.email} />} */}
+      <div className='max-w-lg mx-auto p-3 w-full'>
 
       <h1 className='my-7 text-center font-semibold text-3xl'>profile</h1>
 
@@ -241,6 +257,7 @@ const DashProfile = () => {
         {imageFileUploadError && (
           <Alert color='failure'>{imageFileUploadError}</Alert>
         )}
+        <h3>Role: {currentUser.role}</h3>
         <TextInput
           type='text'
           id='username'
@@ -255,10 +272,34 @@ const DashProfile = () => {
           defaultValue={currentUser.email}
           onChange={handleChange}
         />
+        {!currentUser.isVerified && 
+          <div className='border-red-500'>
+
+            <TextInput
+              type='email'
+              id='email'
+              placeholder='Please verify your email!'
+              onChange={handleChange}
+              className='placeholder:text-red-500 border-red-500'
+
+            />
+
+          </div>
+
+        }
+
+
         <TextInput
           type='password'
           id='password'
           placeholder='password'
+          onChange={handleChange}
+        />
+        <TextInput
+          type='text'
+          id='phone'
+          placeholder='Phone Number'
+          defaultValue={currentUser.phone}
           onChange={handleChange}
         />
         <Button
@@ -321,7 +362,9 @@ const DashProfile = () => {
         </Modal.Body>
       </Modal>
 
+      </div>
     </div>
+
   )
 }
 

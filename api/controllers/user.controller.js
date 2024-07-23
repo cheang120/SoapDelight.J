@@ -58,6 +58,7 @@ export const signout = (req, res, next) => {
             email: req.body.email,
             profilePicture: req.body.profilePicture,
             password: req.body.password,
+            phone:req.body.phone
           },
         },
         { new: true }

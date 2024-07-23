@@ -23,6 +23,12 @@ export const sendVerificationEmail = async () => {
     return response.data.message;
 };
 
+// Get Login Status
+// const getLoginStatus = async () => {
+//     const response = await axios.get(API_URL + "loginStatus");
+//     return response.data;
+// };
+
 const authService = {
     signup,sendVerificationEmail
 }

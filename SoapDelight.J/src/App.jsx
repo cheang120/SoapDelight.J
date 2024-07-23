@@ -11,11 +11,20 @@ import axios from "axios"
 import {ToastContainer} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import PrivateRoute from './components/PrivateRoute'
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import {getLoginStatus} from "./redux/features/auth/authSlice"
 
 axios.defaults.withCredentials = true
 
 
+
+
 function App() {
+  const dispatch = useDispatch()
+  useEffect(()=>{
+    dispatch(getLoginStatus())
+  },[dispatch])
 
   return (
     <BrowserRouter>
