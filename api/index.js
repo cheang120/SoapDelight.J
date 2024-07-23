@@ -15,7 +15,7 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000","https://soapdelight-j.onrender.com"],
+    origin: ["http://localhost:3000"],
     methods:['GET','POST'],
     allowedHeaders: ['Authorization', 'Content-Type', 'On-behalf-of', 'x-sg-elas-acl'],
     credentials: true,
@@ -52,18 +52,6 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-
-
-
-// const __dirname = path.resolve();
-
-
-
-// app.use(express.static(path.join(__dirname, '/client/dist')));
-
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-// });
 
 
 
