@@ -26,6 +26,11 @@ const sendVerificationEmail = async () => {
     return response.data.message;
 };
 
+const forgotPassword = async (userData) => {
+    const response = await axios.post('/api/auth/forgotPassword', userData)
+    return response.data.message
+}
+
 
 // Get Login Status
 // const getLoginStatus = async () => {
@@ -34,7 +39,7 @@ const sendVerificationEmail = async () => {
 // };
 
 const authService = {
-    signup,verifyUser,sendVerificationEmail
+    signup,verifyUser,sendVerificationEmail,forgotPassword
 }
 
 export default authService

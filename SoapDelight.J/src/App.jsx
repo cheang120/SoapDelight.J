@@ -15,6 +15,8 @@ import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import {getLoginStatus} from "./redux/features/auth/authSlice"
 import Verify from './components/Verify'
+import Forgot from './pages/Forgot'
+import Reset from './pages/Reset'
 
 axios.defaults.withCredentials = true
 
@@ -42,6 +44,8 @@ function App() {
         </Route>
         <Route path="/verify/:verificationToken" element={<Verify />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/forgotpassword" element={<Forgot />} />
+        <Route path='/resetPassword/:resetToken' element={<Reset />} />
       </Routes>
       <FooterCom />
     </BrowserRouter>

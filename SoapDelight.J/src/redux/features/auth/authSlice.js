@@ -89,6 +89,24 @@ export const verifyUser = createAsyncThunk(
 
 )
 
+// forgot Password
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (userData, thunkAPI) => {
+    try {
+      return await authService.forgotPassword(userData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 
 // Get Login Status
 export const getLoginStatus = createAsyncThunk(

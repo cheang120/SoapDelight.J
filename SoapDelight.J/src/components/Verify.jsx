@@ -2,6 +2,7 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { RESET , verifyUser } from '../redux/features/auth/authSlice'
 import { useParams,useNavigate } from 'react-router-dom'
+import { signInFailure } from '../redux/user/userSlice'
 
 
 
@@ -11,7 +12,7 @@ const Verify = () => {
     const navigate = useNavigate();
 
     const verifyAccount = async () => {
-      console.log(`Verification Token: ${verificationToken}`);
+      // console.log(`Verification Token: ${verificationToken}`);
         try {
           const res = await fetch(`/api/auth/verify/${verificationToken}`, {
             method: 'PATCH',
@@ -39,7 +40,8 @@ const Verify = () => {
           }
         } catch (error) {
           console.error('Error verifying account:', error);
-          alert('An error occurred while verifying your account.');
+          // alert('An error occurred while verifying your account.');
+          return dispatch(signInFailure("An error occurred while verifying your account."));
         }
       };
     

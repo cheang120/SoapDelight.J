@@ -444,12 +444,12 @@ export const upgradeUser = async (req, res, next) => {
       createdAt: Date.now(),
       expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
     }).save();
-    console.log(resetToken);
+    // console.log(resetToken);
     
 
       // Construct Reset URL
     const resetUrl = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
-    // console.log(resetUrl);
+    console.log(resetUrl);
         // Send Email
     const subject = "Password Reset Request - BabyCode";
     const send_to = user.email;
