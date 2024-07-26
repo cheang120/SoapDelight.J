@@ -1,4 +1,5 @@
-import {createSlice} from '@reduxjs/toolkit'
+import {createSlice,createAsyncThunk} from '@reduxjs/toolkit'
+import authService from '../features/auth/authService';
 
 const initialState = {
     currentUser:null,
@@ -15,6 +16,23 @@ const initialState = {
     verifiedUsers: 0,
     suspendedUsers: 0,
 }
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ userData, resetToken }, thunkAPI) => {
+    try {
+      return await authService.resetPassword(userData, resetToken);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 const userSlice = createSlice({
     name:'user',
@@ -90,6 +108,39 @@ const userSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
           },
+          resetStart: (state) => {
+            state.loading = true;
+            state.error = null;
+          },
+          resetSuccess: (state) => {
+            state.currentUser = null;
+            state.loading = false;
+            state.error = null;
+          },
+          resetFailure: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+          },
+
+    },
+    extraReducers:(builder) => {
+      builder
+      // resetPassword
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = action.payload;
+        toast.success(action.payload);
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
 
     }
 })
@@ -107,7 +158,10 @@ export const {
     deleteUserFailure,
     forgotStart,
     forgotSuccess,
-    forgotFailure
+    forgotFailure,
+    resetStart,
+    resetSuccess,
+    resetFailure
 } = userSlice.actions
 
 export default userSlice.reducer

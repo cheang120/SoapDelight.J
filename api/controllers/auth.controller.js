@@ -481,7 +481,7 @@ export const upgradeUser = async (req, res, next) => {
     // res.send("reset password")
     const { resetToken } = req.params;
     const { password } = req.body;
-    // console.log(resetToken);
+    console.log(resetToken);
     // console.log(password);
   
     const hashedToken = hashToken(resetToken);

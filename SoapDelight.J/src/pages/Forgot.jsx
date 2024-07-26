@@ -3,7 +3,7 @@ import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { AiOutlineMail } from "react-icons/ai";
 import { BiLogIn } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 // import Card from "../../components/card/Card";
 // import Loader from "../../components/loader/Loader";
@@ -16,6 +16,7 @@ import {forgotFailure,forgotStart} from '../redux/user/userSlice'
 const Forgot = () => {
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
 //   const { isLoading } = useSelector((state) => state.auth);
 
@@ -46,9 +47,10 @@ const Forgot = () => {
           body: JSON.stringify(userData),
         });
         const data = await res.json();
-  
+        
         if (res.ok) {
           toast.success(data.message);
+          navigate('/');
         } else {
           throw new Error(data.message);
         }
