@@ -458,8 +458,9 @@ export const upgradeUser = async (req, res, next) => {
     const template = "forgotPassword";
     const name = user.name;
     const link = resetUrl;
-
+    // console.log(link);
     try {
+      // console.log(subject, send_to, sent_from, reply_to, name, link);
         await sendEmail(
             subject,
             send_to,
