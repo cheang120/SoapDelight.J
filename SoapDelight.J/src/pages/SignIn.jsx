@@ -24,8 +24,8 @@ export default function SignIn() {
   // console.log(formData.username);
 
   // const [errorMessage, setErrorMessage] = useState(null);
-  // const [loading, setLoading] = useState(false);
-  const {loading, error:errorMessage} = useSelector(state => state.user)
+  const [loading, setLoading] = useState(false);
+  // const {loading, error:errorMessage} = useSelector(state => state.user)
 
   const dispatch = useDispatch()
   const navigate = useNavigate();
@@ -138,7 +138,7 @@ const [uCase, setUCase] = useState(false)
   };
   return (
     <div className='min-h-screen mt-20'>
-      <div className='flex w-2/3 p-3 mx-auto flex-col md:flex-row md:items-center gap-10'>
+      <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7 p-3 mx-auto flex-col md:flex-row md:items-center gap-10'>
         {/* left */}
         <div className='flex-1'>
           <Link to='/' className='font-bold dark:text-white text-4xl'>
@@ -189,6 +189,8 @@ const [uCase, setUCase] = useState(false)
               </div>
             </div>
 
+
+
  
 
             {/* Password Strength */}
@@ -221,6 +223,13 @@ const [uCase, setUCase] = useState(false)
                 </ul>
             </div>
 
+            <div className='flex gap-2 text-sm mt-2'>
+              <span>Forgot Password?</span>
+              <Link to='/forgotpassword' className='text-blue-500'>
+                Forgot Password
+              </Link>
+            </div>
+
 
             <Button
               gradientDuoTone='purpleToPink'
@@ -239,7 +248,7 @@ const [uCase, setUCase] = useState(false)
             <OAuth />
           </form>
           <div className='flex gap-2 text-sm mt-5'>
-          <Link to='/' className='text-blue-500'>
+            <Link to='/' className='text-blue-500'>
               Home
             </Link>
             <span>Don't have an account?</span>
@@ -247,11 +256,11 @@ const [uCase, setUCase] = useState(false)
               Sign Up
             </Link>
           </div>
-          {errorMessage && (
+          {/* {errorMessage && (
             <Alert className='mt-5' color='failure'>
               {errorMessage}
             </Alert>
-          )}
+          )} */}
         </div>
       </div>
     </div>

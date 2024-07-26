@@ -218,7 +218,7 @@ const [uCase, setUCase] = useState(false)
 
   return (
     <div className='min-h-screen mt-20'>
-      <div className='flex w-2/3 p-3 mx-auto flex-col md:flex-row md:items-center gap-10'>
+      <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7 p-3 mx-auto flex-col md:flex-row md:items-center gap-10'>
         {/* left */}
         <div className='flex-1'>
           <Link to='/' className='font-bold dark:text-white text-4xl'>
