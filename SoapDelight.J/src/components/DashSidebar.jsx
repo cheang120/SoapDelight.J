@@ -8,7 +8,7 @@ import {
   HiChartPie,
 } from 'react-icons/hi';
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation,useNavigate } from 'react-router-dom';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
@@ -16,8 +16,13 @@ import { useSelector } from 'react-redux';
 export default function DashSidebar () {
     const location = useLocation();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { currentUser } = useSelector((state) => state.user);
     const [tab, setTab] = useState('');
+
+    // console.log(currentUser.role);
+    const userRole = currentUser.role
+
     
     useEffect(() => {
       const urlParams = new URLSearchParams(location.search);
@@ -25,7 +30,12 @@ export default function DashSidebar () {
       if (tabFromUrl) {
         setTab(tabFromUrl);
       }
-    }, [location.search]);
+
+      // 當tab為users且userRole不為admin時重定向
+    if (tabFromUrl === 'users' && userRole !== 'admin') {
+      navigate('/dashboard?tab=profile');
+    }
+    }, [location.search,userRole, navigate]);
 
     const handleSignout = async () => {
         try {
@@ -47,17 +57,20 @@ export default function DashSidebar () {
       <Sidebar.Items>
       <Sidebar.ItemGroup className='flex flex-col gap-1'>
         <Link to='/dashboard?tab=profile' >
-            <Sidebar.Item as='div' active={tab === 'profile'} icon={HiUser} label={currentUser.role} labelColor='dark'>
+            <Sidebar.Item as='div' active={tab === 'profile'} icon={HiUser} label={userRole} labelColor='dark'>
                 Profile
             </Sidebar.Item>
         </Link>
-        {currentUser.role === 'admin' && (
-        <Link to='/dashboard?tab=users' >
-            <Sidebar.Item as='div' active={tab === 'users'} icon={HiUser}  labelColor='dark'>
+
+
+        {userRole === 'admin' && (
+            <Link to='/dashboard?tab=users'>
+              <Sidebar.Item as='div' active={tab === 'users'} icon={HiUser} labelColor='dark'>
                 Users
-            </Sidebar.Item>
-        </Link>
-        )}
+              </Sidebar.Item>
+            </Link>
+          )}
+   
             <Sidebar.Item  
                 icon={HiArrowSmRight}
                 className='cursor-pointer'

@@ -8,13 +8,18 @@ import ChangeRole from "./ChangeRole";
 
 const UserList = () => {
   const dispatch = useDispatch();
-  const { users, isLoading } = useSelector((state) => state.auth);
+  const { users, isLoading, error, currentUser } = useSelector((state) => state.auth); // 假設 currentUser 包含當前用戶的信息
   const [currentPage, setCurrentPage] = useState(0);
   const usersPerPage = 10;
 
   useEffect(() => {
     dispatch(getUsers());
   }, [dispatch]);
+
+  if (error) {
+    return <p>載入資料時出錯: {error}</p>;
+  }
+
 
   const handlePageClick = (data) => {
     setCurrentPage(data.selected);
@@ -74,6 +79,20 @@ const UserList = () => {
             </table>
 
           </div>
+
+          <ReactPaginate
+            previousLabel={"previous"}
+            nextLabel={"next"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            subContainerClassName={"pages pagination"}
+            activeClassName={"active"}
+          />
 
         </div>
       </div>

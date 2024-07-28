@@ -9,7 +9,7 @@ router.post('/signin', signin)
 router.post('/google', google)
 router.post('/signout' , signout)
 router.get('/getuser',protect, getUser)
-router.get('/getUsers', protect,getUsers)
+router.get('/getUsers', protect,adminOnly,getUsers)
 // router.delete('/deleteUser/:id', protect, adminOnly, async (req, res, next) => {
 //     const { id } = req.params;
 //     try {

@@ -327,7 +327,12 @@ export const getUsers = async (req, res, next) => {
     if(!users) {
       return next(errorHandler(500, 'Something went wrong!'));
     }
-    res.status(200).json(users)
+    const currentUser = req.user;
+    // console.log(currentUser);
+
+    res.status(200).json({ users, currentUser });
+
+
   } catch (error) {
     return next(error);
   }

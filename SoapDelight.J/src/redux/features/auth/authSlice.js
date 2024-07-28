@@ -15,6 +15,7 @@ const initialState = {
     isError:false,
     verifiedUsers: 0,
     suspendedUsers: 0,
+    currentUsers:null
   }
 
 }
@@ -166,9 +167,20 @@ export const getLoginStatus = createAsyncThunk(
 // );
 
 export const getUsers = createAsyncThunk('auth/getUsers', async () => {
-  const response = await axios.get('/api/auth/getUsers');
-  return response.data;
+  try {
+    const response = await axios.get('/api/auth/getUsers');
+    const usersData = response.data.users.map(user => ({
+      ...user,
+      role: user.role // 假設從 API 中取得了使用者的角色資料
+    }));
+    
+    return usersData;
+  } catch (error) {
+    throw error;
+  }
 });
+
+
 
 export const login = createAsyncThunk('auth/login', async (credentials) => {
   const response = await axios.post('/api/login', credentials);
@@ -466,6 +478,8 @@ const authSlice = createSlice({
         toast.error(action.payload);
       })
 
+      
+
       // deleteUser
       // .addCase(deleteUser.pending, (state) => {
       //   state.isLoading = true;
@@ -544,6 +558,9 @@ const authSlice = createSlice({
         state.message = action.payload;
         toast.error(action.payload);
       });
+
+
+      
        
   }
 });
