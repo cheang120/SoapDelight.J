@@ -2,6 +2,7 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import userReducer from './user/userSlice'
 import themeReducer from './theme/themeSlice'
 import { thunk } from 'redux-thunk';  // 使用命名导入
+import authReducer from '../redux/features/auth/authSlice'
 // import rootReducer from './reducers';
 // import emailReducer from "../redux/features/email/emailSlice";
 // import filterReducer from "../redux/features/auth/filterSlice";
@@ -10,6 +11,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 const rootReducer = combineReducers({
+  auth:authReducer,
   user: userReducer,
   theme: themeReducer
 })

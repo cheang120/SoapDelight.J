@@ -124,61 +124,92 @@ const Reset = () => {
         
     }
   return (
-    <div className=''>
-            <div>
-                <div className='--flex-center'>
-                    <MdPassword size={35} color="#999" />
-                </div>
-                <h2>Reset Password</h2>
-                <form onSubmit={reset}>
-                    <div className="relative">
-                        <Label value='Your password' />
-                        <input
-                            type={showPassword1 ? "text" : "password"}
-                            placeholder='Password'
-                            className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
-                            required
-                            id='password'
-                            onChange={handleChange}
-                        />
-                        <div className="absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
-                            {showPassword1 ? (
-                                <AiOutlineEyeInvisible size={20} />
-                            ) : (
-                                <AiOutlineEye size={20} />
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="relative">
-                        <Label value='Confirm Password' />
-                        <input
-                            type={showPassword2 ? "text" : "password"}
-                            placeholder='Confirm Password'
-                            className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
-                            required
-                            id='password2'
-                            onChange={handleChange}
-                        />
-                        <div className="absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
-                            {showPassword2 ? (
-                                <AiOutlineEyeInvisible size={20} />
-                            ) : (
-                                <AiOutlineEye size={20} />
-                            )}
-                        </div>
-                    </div>
-
-                    <button type='submit' className='--btn --btn-primary --btn-block '>
-                        Reset Password
-                    </button>
-                    <div>
-                        <p><Link to='/'>- Home</Link></p>
-                        <p><Link to='/login'>- Login</Link></p>
-                    </div>
-                </form>
+<div className="min-h-screen flex flex-col justify-center items-center mx-auto max-w-4xl px-4">
+    <div className="border border-transparent w-2/3 rounded-lg shadow-<your-shadow-class> overflow-hidden">
+        <div className="block text-lg font-light p-4 mx-auto w-full border border-gray-300 border-b-3 rounded-md outline-none">
+            <div className="flex justify-center items-center">
+                <MdPassword size={35} color="#999" />
             </div>
+            <h2 className="text-center mb-6">Reset Password</h2>
+
+            <form onSubmit={reset} className="flex flex-col items-center gap-4">
+                <div className="relative w-full">
+                    <Label value="Your password" />
+                    <input
+                        type={showPassword1 ? "text" : "password"}
+                        placeholder="Password"
+                        className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
+                        required
+                        id="password"
+                        onChange={handleChange}
+                    />
+                    <div className="absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
+                        {showPassword1 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+                    </div>
+                </div>
+
+                <div className="relative w-full">
+                    <Label value="Confirm Password" />
+                    <input
+                        type={showPassword2 ? "text" : "password"}
+                        placeholder="Confirm Password"
+                        className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
+                        required
+                        id="password2"
+                        onChange={handleChange}
+                    />
+                    <div className="absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
+                        {showPassword2 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+                    </div>
+                </div>
+
+                {/* Password Strength */}
+                <div className='rounded overflow-hidden p-1 mb-1 w-full'>
+                    <ul className=''>
+                    <li>
+                        <span className='h-3.5 flex justify-start items-center text-[0.63rem]'>
+                        {switchIcon(uCase)}
+                        &nbsp; Lowercase & Uppercase
+                        </span>
+                    </li>
+                    <li>
+                        <span className='h-3.5 flex justify-start items-center text-[0.63rem]'>
+                                {switchIcon(num)}
+                                &nbsp; Number (0-9)
+                        </span>
+                        </li>
+                        <li>
+                        <span className='h-3.5 flex justify-start items-center text-[0.63rem]'>
+                                {switchIcon(sChar)}
+                                &nbsp; Special Character (!@#$%^&*)
+                        </span>
+                        </li>
+                        <li>
+                        <span className='h-3.5 flex justify-start items-center text-[0.63rem]'>
+                                {switchIcon(passLength)}
+                                &nbsp; At least 6 Character
+                        </span>
+                    </li>
+                    </ul>
+                </div>
+
+
+
+                <div className="flex items-center justify-between w-full mb-5">
+                    <p className='hover:text-blue-500'>
+                        <Link to="/">Home</Link>
+                    </p>
+                    <Button type="submit" gradientDuoTone='purpleToPink' className="text-lg font-normal px-2 py-1 rounded-md cursor-pointer flex items-center justify-center transition duration-300 --btn-primary --btn-block">
+                        Reset Password
+                    </Button>
+                    <p className='hover:text-blue-500'>
+                        <Link to="/login">Login</Link>
+                    </p>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
   )
 }
 

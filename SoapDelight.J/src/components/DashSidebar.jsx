@@ -18,6 +18,7 @@ export default function DashSidebar () {
     const dispatch = useDispatch();
     const { currentUser } = useSelector((state) => state.user);
     const [tab, setTab] = useState('');
+    
     useEffect(() => {
       const urlParams = new URLSearchParams(location.search);
       const tabFromUrl = urlParams.get('tab');
@@ -46,10 +47,17 @@ export default function DashSidebar () {
       <Sidebar.Items>
       <Sidebar.ItemGroup className='flex flex-col gap-1'>
         <Link to='/dashboard?tab=profile' >
-            <Sidebar.Item as='div' active={tab === 'profile'} icon={HiUser} label={"User"} labelColor='dark'>
+            <Sidebar.Item as='div' active={tab === 'profile'} icon={HiUser} label={currentUser.role} labelColor='dark'>
                 Profile
             </Sidebar.Item>
         </Link>
+        {currentUser.role === 'admin' && (
+        <Link to='/dashboard?tab=users' >
+            <Sidebar.Item as='div' active={tab === 'users'} icon={HiUser}  labelColor='dark'>
+                Users
+            </Sidebar.Item>
+        </Link>
+        )}
             <Sidebar.Item  
                 icon={HiArrowSmRight}
                 className='cursor-pointer'

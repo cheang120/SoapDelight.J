@@ -321,12 +321,18 @@ export const getUser = async (req, res, next) => {
 // get users 
 export const getUsers = async (req, res, next) => {
   // res.send('get users')
-  const users = await User.find().sort("-createdAt").select("-password")
-  if(!users) {
-    return next(errorHandler(500, 'Something went wrong!'));
-  }
-  res.status(200).json(users)
 
+  try {
+    const users = await User.find().sort("-createdAt").select("-password")
+    if(!users) {
+      return next(errorHandler(500, 'Something went wrong!'));
+    }
+    res.status(200).json(users)
+  } catch (error) {
+    return next(error);
+  }
+  
+ 
 }
 
 // get login status
@@ -364,7 +370,6 @@ export const upgradeUser = async (req, res, next) => {
   res.status(200).json({
     message:`User role updated to ${role}`
   })
-
 }
 
   // Send Automated emails

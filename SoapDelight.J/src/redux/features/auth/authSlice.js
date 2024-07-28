@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { toast } from "react-toastify";
 import authService from "./authService";
+import axios from 'axios';
 
 const initialState = {
   auth:{
@@ -107,6 +108,28 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
+// Reset Password
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ userData, resetToken }, thunkAPI) => {
+      try {
+          const response = await axios.patch(
+              `/api/auth/resetPassword/${resetToken}`,
+              userData
+          );
+          return response.data.message;
+      } catch (error) {
+          const message =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+          return thunkAPI.rejectWithValue(message);
+      }
+  }
+);
+
 
 // Get Login Status
 export const getLoginStatus = createAsyncThunk(
@@ -126,13 +149,59 @@ export const getLoginStatus = createAsyncThunk(
   }
 );
 
+// getUsers
+// export const getUsers = createAsyncThunk(
+//   "auth/getUsers",
+//   async (_, thunkAPI) => {
+//     try {
+//       return await authService.getUsers();
+//     } catch (error) {
+//       const message =
+//         (error.response && error.response.data && error.response.data.message) ||
+//         error.message ||
+//         error.toString();
+//       return thunkAPI.rejectWithValue(message);
+//     }
+//   }
+// );
 
+export const getUsers = createAsyncThunk('auth/getUsers', async () => {
+  const response = await axios.get('/api/auth/getUsers');
+  return response.data;
+});
+
+export const login = createAsyncThunk('auth/login', async (credentials) => {
+  const response = await axios.post('/api/login', credentials);
+  return response.data;
+});
+
+export const upgradeUser = createAsyncThunk(
+  "auth/upgradeUser",
+  async (currentUsers, thunkAPI) => {
+    try {
+      const response = await axios.post('/api/auth/upgradeUser', { id: currentUsers.id, role: currentUsers.role });
+      return response.data;
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 
 
 const authSlice = createSlice({
   name: "auth",
-  initialState,
+  initialState:{
+    users: [],
+    isLoading: false,
+    error: null,
+  },
   reducers: {
     RESET(state){
         state.isError = false;
@@ -227,91 +296,91 @@ const authSlice = createSlice({
         })
 
         // Logout User
-        .addCase(logout.pending, (state) => {
-            state.isLoading = true;
-        })
-        .addCase(logout.fulfilled, (state, action) => {
-            state.isLoading = false;
-            state.isSuccess = true;
-            state.isLoggedIn = false;
-            state.user = null;
-            toast.success(action.payload);
-        })
-        .addCase(logout.rejected, (state, action) => {
-            state.isLoading = false;
-            state.isError = true;
-            state.message = action.payload;
-            toast.error(action.payload);
-        })
+        // .addCase(logout.pending, (state) => {
+        //     state.isLoading = true;
+        // })
+        // .addCase(logout.fulfilled, (state, action) => {
+        //     state.isLoading = false;
+        //     state.isSuccess = true;
+        //     state.isLoggedIn = false;
+        //     state.user = null;
+        //     toast.success(action.payload);
+        // })
+        // .addCase(logout.rejected, (state, action) => {
+        //     state.isLoading = false;
+        //     state.isError = true;
+        //     state.message = action.payload;
+        //     toast.error(action.payload);
+        // })
 
         // Get Login Status
-        .addCase(getLoginStatus.pending, (state) => {
-            state.isLoading = true;
-        })
-        .addCase(getLoginStatus.fulfilled, (state, action) => {
-            state.isLoading = false;
-            state.isSuccess = true;
-            state.isLoggedIn = action.payload;
-            console.log(action.payload);
-        })
-        .addCase(getLoginStatus.rejected, (state, action) => {
-            state.isLoading = false;
-            state.isError = true;
-            state.message = action.payload;
-            // console.log(action.payload);
-        })
+        // .addCase(getLoginStatus.pending, (state) => {
+        //     state.isLoading = true;
+        // })
+        // .addCase(getLoginStatus.fulfilled, (state, action) => {
+        //     state.isLoading = false;
+        //     state.isSuccess = true;
+        //     state.isLoggedIn = action.payload;
+        //     console.log(action.payload);
+        // })
+        // .addCase(getLoginStatus.rejected, (state, action) => {
+        //     state.isLoading = false;
+        //     state.isError = true;
+        //     state.message = action.payload;
+        //     // console.log(action.payload);
+        // })
 
       // Get User
-      .addCase(getUser.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(getUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.isLoggedIn = true;
-        state.user = action.payload;
-      })
-      .addCase(getUser.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        toast.error(action.payload);
-      })
+      // .addCase(getUser.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(getUser.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.isLoggedIn = true;
+      //   state.user = action.payload;
+      // })
+      // .addCase(getUser.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload;
+      //   toast.error(action.payload);
+      // })
 
       // Update user
-      .addCase(updateUser.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(updateUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.isLoggedIn = true;
-        state.user = action.payload;
-        toast.success("User Updated");
-      })
-      .addCase(updateUser.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        toast.error(action.payload);
-      })
+      // .addCase(updateUser.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(updateUser.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.isLoggedIn = true;
+      //   state.user = action.payload;
+      //   toast.success("User Updated");
+      // })
+      // .addCase(updateUser.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload;
+      //   toast.error(action.payload);
+      // })
 
       // send Verification Email
-      .addCase(sendVerificationEmail.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(sendVerificationEmail.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.message = action.payload;
-        toast.success(action.payload);
-      })
-      .addCase(sendVerificationEmail.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        toast.error(action.payload);
-      })
+      // .addCase(sendVerificationEmail.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(sendVerificationEmail.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.message = action.payload;
+      //   toast.success(action.payload);
+      // })
+      // .addCase(sendVerificationEmail.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload;
+      //   toast.error(action.payload);
+      // })
 
       // verify User
       .addCase(verifyUser.pending, (state) => {
@@ -331,21 +400,21 @@ const authSlice = createSlice({
       })
 
       // change Password
-      .addCase(changePassword.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(changePassword.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.message = action.payload;
-        toast.success(action.payload);
-      })
-      .addCase(changePassword.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        toast.error(action.payload);
-      })
+      // .addCase(changePassword.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(changePassword.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.message = action.payload;
+      //   toast.success(action.payload);
+      // })
+      // .addCase(changePassword.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload;
+      //   toast.error(action.payload);
+      // })
 
        // forgotPassword
        .addCase(forgotPassword.pending, (state) => {
@@ -364,24 +433,24 @@ const authSlice = createSlice({
          toast.error(action.payload);
        })
 
-      // resetPassword
-      .addCase(resetPassword.pending, (state) => {
-        state.isLoading = true;
+         // resetPassword
+         .addCase(resetPassword.pending, (state) => {
+          state.isLoading = true;
       })
       .addCase(resetPassword.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.message = action.payload;
-        toast.success(action.payload);
+          state.isLoading = false;
+          state.isSuccess = true;
+          state.message = action.payload;
+          toast.success(action.payload);
       })
       .addCase(resetPassword.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        toast.error(action.payload);
+          state.isLoading = false;
+          state.isError = true;
+          state.message = action.payload;
+          toast.error(action.payload);
       })
 
-      // getUsers
+      // Get Users
       .addCase(getUsers.pending, (state) => {
         state.isLoading = true;
       })
@@ -398,92 +467,81 @@ const authSlice = createSlice({
       })
 
       // deleteUser
-      .addCase(deleteUser.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(deleteUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.message = action.payload;
-        toast.success(action.payload);
-      })
-      .addCase(deleteUser.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        toast.error(action.payload);
-      })
+      // .addCase(deleteUser.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(deleteUser.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.message = action.payload;
+      //   toast.success(action.payload);
+      // })
+      // .addCase(deleteUser.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload;
+      //   toast.error(action.payload);
+      // })
 
       // upgradeUser
+      // .addCase(upgradeUser.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(upgradeUser.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.message = action.payload;
+      //   toast.success(action.payload);
+      // })
+      // .addCase(upgradeUser.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload;
+      //   toast.error(action.payload);
+      // })
+
+
+
+
+
+      // loginWithGoogle
+      // .addCase(loginWithGoogle.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(loginWithGoogle.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isSuccess = true;
+      //   state.isLoggedIn = true;
+      //   state.user = action.payload;
+      //   toast.success("Login Successful");
+      // })
+      // .addCase(loginWithGoogle.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.isError = true;
+      //   state.message = action.payload;
+      //   state.user = null;
+      //   toast.error(action.payload);
+      // });
+
+            // 处理其他异步操作的状态
+      // 处理 upgradeUser 的状态
       .addCase(upgradeUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(upgradeUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.message = action.payload;
-        toast.success(action.payload);
+        // 更新用户状态
+        const index = state.users.findIndex(user => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+        toast.success("User upgraded successfully");
       })
       .addCase(upgradeUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        toast.error(action.payload);
-      })
-
-      // send Login Code
-      .addCase(sendLoginCode.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(sendLoginCode.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.message = action.payload;
-        toast.success(action.payload);
-      })
-      .addCase(sendLoginCode.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        toast.error(action.payload);
-      })
-
-      // loginWithCode
-      .addCase(loginWithCode.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(loginWithCode.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.isLoggedIn = true;
-        state.twoFactor = false;
-        state.user = action.payload;
-        toast.success(action.payload);
-      })
-      .addCase(loginWithCode.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        state.user = null;
-        toast.error(action.payload);
-      })
-
-      // loginWithGoogle
-      .addCase(loginWithGoogle.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(loginWithGoogle.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.isLoggedIn = true;
-        state.user = action.payload;
-        toast.success("Login Successful");
-      })
-      .addCase(loginWithGoogle.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-        state.user = null;
         toast.error(action.payload);
       });
        
