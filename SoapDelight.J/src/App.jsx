@@ -40,8 +40,8 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route element={<PrivateRoute />} >
           <Route path="/dashboard" element={<Dashboard />} />
-
         </Route>
+
         <Route path="/verify/:verificationToken" element={<Verify />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/forgotpassword" element={<Forgot />} />

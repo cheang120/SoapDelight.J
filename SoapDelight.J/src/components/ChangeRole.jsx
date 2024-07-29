@@ -45,7 +45,7 @@ const ChangeRole = ({ _id, email, role }) => {
   return (
     <div className='sort'>
       <form
-        className="--flex-start"
+        className="--flex-start flex"
         onSubmit={changeRole}
       >
         <select value={userRole} onChange={(e) => setUserRole(e.target.value)}>
@@ -55,7 +55,7 @@ const ChangeRole = ({ _id, email, role }) => {
           <option value="admin">Admin</option>
           <option value="suspended">Suspended</option>
         </select>
-        <button className="--btn --btn-primary">
+        <button className="ml-2 --btn --btn-primary">
           <FaCheck size={15} />
         </button>
       </form>

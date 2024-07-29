@@ -61,21 +61,18 @@ export default function DashSidebar () {
                 Profile
             </Sidebar.Item>
         </Link>
-
-
-        {userRole === 'admin' && (
+          {userRole === 'admin' && (
             <Link to='/dashboard?tab=users'>
               <Sidebar.Item as='div' active={tab === 'users'} icon={HiUser} labelColor='dark'>
                 Users
               </Sidebar.Item>
             </Link>
           )}
-   
-            <Sidebar.Item  
-                icon={HiArrowSmRight}
-                className='cursor-pointer'
-                onClick={handleSignout}
-            >
+          <Sidebar.Item  
+              icon={HiArrowSmRight}
+              className='cursor-pointer'
+              onClick={handleSignout}
+          >
                 Sign Out
             </Sidebar.Item>
         </Sidebar.ItemGroup>

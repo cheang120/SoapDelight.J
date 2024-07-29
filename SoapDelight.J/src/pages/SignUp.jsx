@@ -212,6 +212,11 @@ const [uCase, setUCase] = useState(false)
   
     } catch (error) {
       dispatch(signInFailure(error.message));
+            if (error.message.includes("Email already registered")) {
+        setErrorMessage("This email is already registered. Please use a different email.");
+      } else {
+        setErrorMessage(error.message);
+      }
     }
   };
 

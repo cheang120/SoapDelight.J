@@ -9,11 +9,11 @@ const filterSlice = createSlice({
   initialState,
   reducers: {
     FILTER_USERS(state, action) {
-      const { users, search } = action.payload;
+      const { users, searchTerm } = action.payload;
       const tempUsers = users.filter(
         (user) =>
-          user.name.toLowerCase().includes(search.toLowerCase()) ||
-          user.email.toLowerCase().includes(search.toLowerCase())
+          user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
       state.filteredUsers = tempUsers;
     },
