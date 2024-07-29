@@ -43,9 +43,9 @@ const ChangeRole = ({ _id, email, role }) => {
   };
 
   return (
-    <div className='sort'>
+    <div className=''>
       <form
-        className="--flex-start flex"
+        className=" flex items-center justify-center"
         onSubmit={changeRole}
       >
         <select value={userRole} onChange={(e) => setUserRole(e.target.value)}>
@@ -55,7 +55,7 @@ const ChangeRole = ({ _id, email, role }) => {
           <option value="admin">Admin</option>
           <option value="suspended">Suspended</option>
         </select>
-        <button className="ml-2 --btn --btn-primary">
+        <button className="flex items-center justify-center ml-2 z-10 text-base font-normal px-2 py-1 mr-0.5 border border-transparent rounded-md cursor-pointer transition duration-300 text-white bg-blue-500">
           <FaCheck size={15} />
         </button>
       </form>

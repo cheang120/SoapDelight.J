@@ -10,10 +10,20 @@ const filterSlice = createSlice({
   reducers: {
     FILTER_USERS(state, action) {
       const { users, searchTerm } = action.payload;
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      
       const tempUsers = users.filter(
         (user) =>
-          user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+          {
+            // 新增：确保 username 和 email 已定义
+            const username = user.username ? user.username.toLowerCase() : "";
+            const email = user.email ? user.email.toLowerCase() : "";
+            
+            return (
+              username.includes(lowerCaseSearchTerm) ||
+              email.includes(lowerCaseSearchTerm)
+            );
+          }
       );
       state.filteredUsers = tempUsers;
     },
