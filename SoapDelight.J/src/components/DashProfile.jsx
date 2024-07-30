@@ -130,7 +130,7 @@ const DashProfile = () => {
       setUpdateUserError('Please wait for image to upload');
       return;
     }
-    console.log('Submitting formData:', formData);
+    // console.log('Submitting formData:', formData);
     // if (formData.password.length < 6) {
     //   return dispatch(updateFailure("Password must be up to 6 characters"))
     // }

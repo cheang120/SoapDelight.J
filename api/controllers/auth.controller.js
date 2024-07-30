@@ -141,11 +141,13 @@ export const sendVerificationEmail = async (req, res,next) => {
   // const template = 'verifyEmail';
   const name = user.username;
   const link = verificationUrl;
+  // console.log(link);
 
   // console.log(template);
 
   // console.log(`Sending email to ${user.username} (${send_to})`); 
   // console.log(name);
+  console.log(subject,send_to,sent_from,reply_to,template,name,link);
 
   try {
     await sendEmail(
@@ -153,10 +155,11 @@ export const sendVerificationEmail = async (req, res,next) => {
       send_to,
       sent_from,
       reply_to,
-      // template,
+      template,
       name,
       link
     );
+    // console.log(link);
     res.status(200).json({ message: "Verification Email Sent" });
   } catch (error) {
     res.status(500).json({ message: "Email not sent, please try again" });
@@ -518,4 +521,23 @@ export const upgradeUser = async (req, res, next) => {
   
     res.status(200).json({ message: "Password Reset Successful, please login" });
 
+  }
+
+  export const deleteUser = async(req,res, next) => {
+    // res.send("delete user")
+    const { id } = req.params;
+    console.log(`Deleting user with id: ${id}`);
+  
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID format', statusCode: 400 });
+    }
+    try {
+      const user = await User.findByIdAndDelete(id);
+      if (!user) {
+        return next(new Error('User not found!')); // 你可以使用一个自定义错误处理器来处理这种错误
+      }
+      res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+      next(error); // 确保捕获到的错误被传递到全局错误处理器
+    }
   }
