@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { FaTrashAlt } from 'react-icons/fa';
 import "react-confirm-alert/src/react-confirm-alert.css";
 import ReactPaginate from "react-paginate";
-import { getUsers } from "../redux/features/auth/authSlice";
+import { getUsers, deleteUser } from "../redux/features/auth/authSlice";
 import ChangeRole from "./ChangeRole";
 import { FILTER_USERS, selectUsers } from '../redux/features/auth/filterSlice';
+import { Button, Modal } from 'flowbite-react';
 
 const UserList = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,8 @@ const UserList = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const usersPerPage = 10;
+  const [showModal, setShowModal] = useState(false);
+  const [deleteUserId, setDeleteUserId] = useState(null);
 
   useEffect(() => {
     dispatch(getUsers());
@@ -40,8 +43,28 @@ const UserList = () => {
 
   const pageCount = Math.ceil(filteredUsers.length / usersPerPage);
 
-  const confirmDelete = (id) => {
-    console.log(`Delete user with id: ${id}`);
+  const handleDeleteClick = (id) => {
+    setDeleteUserId(id);
+    setShowModal(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowModal(false);
+    try {
+      dispatch(deleteUser.pending());
+      const res = await fetch(`/api/auth/deleteUser/${deleteUserId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        dispatch(deleteUser.rejected(data.message));
+      } else {
+        dispatch(deleteUser.fulfilled(data));
+        window.location.reload(); 
+      }
+    } catch (error) {
+      dispatch(deleteUser.rejected(error.message));
+    }
   };
 
   return (
@@ -103,7 +126,10 @@ const UserList = () => {
                     </td>
                     <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="Action">
                       <span className="cursor-pointer text-red-600">
-                        <FaTrashAlt size={20} onClick={() => confirmDelete(user._id)} />
+                        <FaTrashAlt 
+                          size={20} 
+                          onClick={() => handleDeleteClick(user._id)} 
+                        />
                       </span>
                     </td>
                   </tr>
@@ -135,6 +161,21 @@ const UserList = () => {
           </div>
         </div>
       </div>
+      
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        <Modal.Header>確認刪除</Modal.Header>
+        <Modal.Body>
+          <p>你確定要刪除此用戶嗎？此操作不可撤銷。</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={confirmDelete} color="failure">
+            確認
+          </Button>
+          <Button onClick={() => setShowModal(false)}>
+            取消
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </section>
   );
 }

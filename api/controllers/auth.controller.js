@@ -138,7 +138,7 @@ export const sendVerificationEmail = async (req, res,next) => {
   const send_to = user.email;
   const sent_from = process.env.EMAIL_USER;
   const reply_to = "noreply@babycode.com";
-  // const template = 'verifyEmail';
+  // const template = verifyEmail;
   const name = user.username;
   const link = verificationUrl;
   // console.log(link);
@@ -147,7 +147,7 @@ export const sendVerificationEmail = async (req, res,next) => {
 
   // console.log(`Sending email to ${user.username} (${send_to})`); 
   // console.log(name);
-  console.log(subject,send_to,sent_from,reply_to,template,name,link);
+  console.log(subject,send_to,sent_from,reply_to,name,link);
 
   try {
     await sendEmail(
@@ -155,7 +155,7 @@ export const sendVerificationEmail = async (req, res,next) => {
       send_to,
       sent_from,
       reply_to,
-      template,
+      // template,
       name,
       link
     );
@@ -189,7 +189,7 @@ export const verifyUser = async (req, res) => {
   // console.log(userToken);
   // // Find User
   const user = await User.findOne({ _id: userToken.userId });
-  // console.log(user);
+  console.log(user);
 
   if (user.isVerified) {
     res.status(400).json({ message: "User is already verified" });
