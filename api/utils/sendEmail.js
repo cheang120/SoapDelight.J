@@ -84,7 +84,7 @@ sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 const sendEmail = async (subject, send_to, sent_from, reply_to,name, link) => {
   // console.log("hello");
   console.log(subject, send_to, sent_from, reply_to,name, link);
-// console.log('this is ' + link);
+console.log('this is ' + link);
 
   try {
 

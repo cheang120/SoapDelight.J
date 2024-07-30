@@ -469,7 +469,7 @@ export const upgradeUser = async (req, res, next) => {
     const send_to = user.email;
     const sent_from = process.env.EMAIL_USER;
     const reply_to = "noreply@babycode.com";
-    const template = "forgotPassword";
+    // const template = "forgotPassword";
     const name = user.name;
     const link = resetUrl;
     // console.log(link);
@@ -480,7 +480,7 @@ export const upgradeUser = async (req, res, next) => {
             send_to,
             sent_from,
             reply_to,
-            template,
+            // template,
             name,
             link
         );
@@ -492,37 +492,40 @@ export const upgradeUser = async (req, res, next) => {
 
 
   export const resetPassword = async (req, res, next) => {
-    // res.send("reset password")
     const { resetToken } = req.params;
     const { password } = req.body;
-    console.log(resetToken);
-    // console.log(password);
-  
-    const hashedToken = hashToken(resetToken);
-  
-    const userToken = await Token.findOne({
-      rToken: hashedToken,
-      expiresAt: { $gt: Date.now() },
-    });
-  
-    if (!userToken) {
-      return next(errorHandler(404, 'Invalid or Expired Token!'));
+
+    try {
+        const hashedToken = hashToken(resetToken);
+
+        const userToken = await Token.findOne({
+            rToken: hashedToken,
+            expiresAt: { $gt: Date.now() },
+        });
+
+        if (!userToken) {
+            return next(errorHandler(404, '無效或過期的 token！'));
+        }
+
+        // 查找用戶
+        const user = await User.findOne({ _id: userToken.userId });
+
+        if (!user) {
+            return next(errorHandler(404, '用戶不存在！'));
+        }
+
+        // 重設密碼
+        const hashedPassword = bcryptjs.hashSync(password, 10);
+        user.password = hashedPassword;
+
+        await user.save();
+
+        res.status(200).json({ message: "密碼重置成功，請登錄" });
+
+    } catch (error) {
+        next(errorHandler(500, '密碼重置失敗，請重試！'));
     }
-  
-    // // Find User
-    const user = await User.findOne({ _id: userToken.userId });
-  
-    // // Now Reset password
-    user.password = password;
-    const hashedPassword = bcryptjs.hashSync(password, 10);
-    user.password = hashedPassword
-    // const newPassword = hashedPassword,
-
-    await user.save();
-  
-    res.status(200).json({ message: "Password Reset Successful, please login" });
-
-  }
+};
 
   export const deleteUser = async(req,res, next) => {
     // res.send("delete user")
