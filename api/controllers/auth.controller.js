@@ -270,6 +270,7 @@ export const google = async (req, res, next) => {
         email,
         password: hashedPassword,
         profilePicture: googlePhotoUrl,
+        isVerified:true
       });
       await newUser.save();
       const token = jwt.sign(
