@@ -72,3 +72,49 @@ export const deleteProduct = asyncHandler(async (req, res, next) => {
     await Product.findByIdAndDelete(req.params.id)
     res.status(200).json({ message: "Product deleted." });
 });
+
+  // Update Product
+export const updateProduct = asyncHandler(async(req,res,next) => {
+    // res.send("update")
+    const {
+        name,
+        category,
+        brand,
+        quantity,
+        price,
+        description,
+        image,
+        regularPrice,
+        color,
+      }= req.body;
+
+      const product = await Product.findById(req.params.id);
+      // if product doesnt exist
+      if (!product) {
+        res.status(404);
+        throw new Error("Product not found");
+      }
+
+      // update product
+      const updatedProduct =  await Product.findByIdAndUpdate(
+        { _id: req.params.id },
+        {
+          name,
+          category,
+          brand,
+          quantity,
+          price,
+          description,
+          image,
+          regularPrice,
+          color,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+    
+      res.status(200).json(updatedProduct);
+
+})
