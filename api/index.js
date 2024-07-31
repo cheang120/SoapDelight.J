@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRoutes from './routes/user.route.js';
 import authRoutes from './routes/auth.route.js';
+import productRoute from './routes/productRoute.js'
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -11,6 +12,7 @@ dotenv.config();
 
 const app = express();
 const __dirname = path.resolve();
+
 
 // CORS 配置
 app.use(
@@ -29,7 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
+app.use('/api/products', productRoute);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'SoapDelight.J', 'dist', 'index.html'));
