@@ -41,3 +41,22 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     res.status(201).json(product);
 
 });
+
+
+export const getProducts = asyncHandler(async (req, res, next) => {
+    // res.send("get product")
+    const products = await Product.find().sort("-createdAt");
+    res.status(200).json(products);
+})
+
+export const getProduct = asyncHandler(async (req, res, next) => {
+    const product = await Product.findById(req.params.id);
+    // if product doesnt exist
+    if (!product) {
+      res.status(404);
+      throw new Error("Product not found");
+    }
+  
+    res.status(200).json(product);
+})
+
