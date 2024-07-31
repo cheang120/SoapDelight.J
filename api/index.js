@@ -7,11 +7,16 @@ import productRoute from './routes/productRoute.js'
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
+import { EventEmitter } from 'events';
+
 
 dotenv.config();
 
 const app = express();
 const __dirname = path.resolve();
+
+
+EventEmitter.defaultMaxListeners = 20;
 
 
 // CORS 配置

@@ -4,6 +4,6 @@ import { adminOnly, protect } from "../middleware/auth.middleware.js"
 
 const router = express.Router()
 
-router.post("/createProduct", protect,adminOnly, createProduct)
+router.post("/", protect,adminOnly, createProduct)
 
 export default router
