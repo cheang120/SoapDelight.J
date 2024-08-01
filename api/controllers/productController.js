@@ -1,6 +1,8 @@
 // productController.js
 import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js'
+import mongoose from "mongoose";
+const { ObjectId } = mongoose.Schema;
 
 export const createProduct = asyncHandler(async (req, res, next) => {
 //   res.send("Correct product");
@@ -173,4 +175,53 @@ export const deleteReview = asyncHandler(async(req,res,next) => {
     product.save();
     res.status(200).json({ message: "Product rating deleted!!!." });
 
+  });
+
+  // Edit Review
+export const updateReview = asyncHandler(async (req, res) => {
+
+    const { star, review, reviewDate, userID } = req.body;
+    // console.log(userID);
+
+    const { id } = req.params;
+  
+    // validation
+    if (star < 1 || !review) {
+      res.status(400);
+      throw new Error("Please add star and review");
+    }
+  
+    const product = await Product.findById(id);
+  
+    // if product doesnt exist
+    if (!product) {
+      res.status(404);
+      throw new Error("Product not found");
+    }
+    // console.log(product);
+    // Match user to review
+    if (req.user._id.toString() !== userID) {
+      res.status(401);
+      throw new Error("User not authorized");
+    }
+
+  
+    // // Update Product review
+    const updatedReview = await Product.findOneAndUpdate(
+      { _id: product._id, "ratings.userID": new mongoose.Types.ObjectId(userID) },
+      {
+        $set: {
+          "ratings.$.star": Number(star),
+          "ratings.$.review": review,
+          "ratings.$.reviewDate": reviewDate,
+        },
+      }
+    );
+    console.log(updateReview);
+  
+    if (updatedReview) {
+      res.status(200).json({ message: "Product review updated." });
+    } else {
+      res.status(400).json({ message: "Product review NOT updated." });
+    }
   });
