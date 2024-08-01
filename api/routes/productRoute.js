@@ -1,5 +1,5 @@
 import express from "express"
-import { createProduct, deleteProduct, getProduct, getProducts, updateProduct } from "../controllers/productController.js"
+import { createProduct, deleteProduct, getProduct, getProducts, reviewProduct, updateProduct } from "../controllers/productController.js"
 import { adminOnly,authorOnly, protect } from "../middleware/auth.middleware.js"
 
 const router = express.Router()
@@ -10,5 +10,7 @@ router.get("/:id", getProduct)
 
 router.delete("/:id",protect,authorOnly,  deleteProduct)
 router.patch("/:id",protect,authorOnly, updateProduct)
+router.patch("/review/:id",protect, reviewProduct)
+
 
 export default router

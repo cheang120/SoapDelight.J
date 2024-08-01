@@ -118,3 +118,37 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
       res.status(200).json(updatedProduct);
 
 })
+
+
+export const reviewProduct = asyncHandler(async(req,res,next) => {
+    // res.send("review")
+      // star, review
+  const { star, review, reviewDate } = req.body;
+  const { id } = req.params;
+
+  // validation
+  if (star < 1 || !review) {
+    res.status(400);
+    throw new Error("Please add star and review");
+  }
+
+  const product = await Product.findById(id);
+
+  // if product doesnt exist
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  // Update Product
+  product.ratings.push({
+    star,
+    review,
+    reviewDate,
+    name: req.user.name,
+    userID: req.user._id,
+  });
+  product.save();
+
+  res.status(200).json({ message: "Product review added." });
+})
