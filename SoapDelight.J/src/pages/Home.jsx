@@ -1,9 +1,10 @@
 import React from 'react'
+import Slider from '../components/slider/slider.jsx'
 
 const Home = () => {
   return (
-    <div>
-      Home
+    <div className='flex'>
+      <Slider />
     </div>
   )
 }

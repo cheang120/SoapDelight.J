@@ -6,6 +6,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
+import { HiOutlineMenuAlt3 } from "react-icons/hi";
+import { FaShoppingCart, FaTimes, FaUserCircle } from "react-icons/fa";
+
+
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -14,6 +18,9 @@ export default function Header() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
+  const [showMenu, setShowMenu] = useState(false);
+  const [scrollPage, setScrollPage] = useState(false);
+
   // const [searchTerm, setSearchTerm] = useState('');
 
   // useEffect(() => {
@@ -23,6 +30,15 @@ export default function Header() {
   //     setSearchTerm(searchTermFromUrl);
   //   }
   // }, [location.search]);
+
+  const fixNavbar = () => {
+    if (window.scrollY > 50) {
+      setScrollPage(true);
+    } else {
+      setScrollPage(false);
+    }
+  };
+  window.addEventListener("scroll", fixNavbar);
 
   const handleSignout = async () => {
     try {
@@ -40,6 +56,25 @@ export default function Header() {
     }
   };
 
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+  };
+
+  const hideMenu = () => {
+    setShowMenu(false);
+  };
+
+
+  const cart = (
+    <span className='flex'>
+      
+        <FaShoppingCart size={20} className='text-purple-500'/> 
+        <p className='ml-1 text-purple-500'>
+          {/* {cartTotalQuantity} */}
+          3
+          </p>
+    </span>
+  );
 
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -50,15 +85,19 @@ export default function Header() {
   // };
 
   return (
-    <Navbar className='border-b-2'>
+    <Navbar
+    className={`
+    border-b-2 list-none z-50
+    ${scrollPage ? 'z-50 fixed top-0 w-full  transition-all duration-500 bg-white' : 'null'}
+  `}    >
       <Link
         to='/'
         className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
       >
-       <img src="/logo.svg" alt="SoapDelight.J" className='w-10 ' />
-
+       {/* <img src="/logo.svg" alt="SoapDelight.J" className='w-10 ' /> */}
+        <p className='text-purple-500's>Soap<span className='text-yellow-400'>Delight.J</span></p>
       </Link>
-      <form 
+      {/* <form 
         // onSubmit={handleSubmit}
       >
         <TextInput
@@ -69,7 +108,7 @@ export default function Header() {
           // value={searchTerm}
           // onChange={(e) => setSearchTerm(e.target.value)}
         />
-      </form>
+      </form> */}
 
       <div className='flex gap-2 md:order-2'>
         <Button
@@ -113,12 +152,14 @@ export default function Header() {
         )}
 
         <Navbar.Toggle />
+        
+
       </div>
 
 
       <Navbar.Collapse>
 
-      <form 
+      {/* <form 
         // onSubmit={handleSubmit}
       >
         <TextInput
@@ -129,7 +170,7 @@ export default function Header() {
           // value={searchTerm}
           // onChange={(e) => setSearchTerm(e.target.value)}
         />
-      </form>
+      </form> */}
 
         <Navbar.Link active={path === '/'} as={'div'}>
           <Link to='/'>Home</Link>
@@ -140,7 +181,11 @@ export default function Header() {
         <Navbar.Link active={path === '/projects'} as={'div'}>
           <Link to='/projects'>Projects</Link>
         </Navbar.Link>
+        <Navbar.Link active={path === '/cart'} as={'div'} className='none cursor-pointer'>
+          <Link to='/cart'>{cart}</Link>
+        </Navbar.Link>
       </Navbar.Collapse>
+
     </Navbar>
   );
 }

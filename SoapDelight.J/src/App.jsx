@@ -17,6 +17,7 @@ import {getLoginStatus} from "./redux/features/auth/authSlice"
 import Verify from './components/Verify'
 import Forgot from './pages/Forgot'
 import Reset from './pages/Reset'
+import { Card } from './components/Card'
 
 axios.defaults.withCredentials = true
 
@@ -44,6 +45,7 @@ function App() {
 
         <Route path="/verify/:verificationToken" element={<Verify />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/cart" element={<Card />} />
         <Route path="/forgotpassword" element={<Forgot />} />
         <Route path='/resetPassword/:resetToken' element={<Reset />} />
       </Routes>
