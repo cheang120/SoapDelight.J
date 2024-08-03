@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/user.route.js';
 import authRoutes from './routes/auth.route.js';
 import productRoute from './routes/productRoute.js'
+import categoryRoute from'./routes/categoryRoute.js'
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -37,6 +38,8 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoute);
+app.use("/api/category", categoryRoute);
+
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'SoapDelight.J', 'dist', 'index.html'));
