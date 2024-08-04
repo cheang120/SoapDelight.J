@@ -9,8 +9,6 @@ import { useEffect, useState } from 'react';
 import { HiOutlineMenuAlt3 } from "react-icons/hi";
 import { FaShoppingCart, FaTimes, FaUserCircle } from "react-icons/fa";
 
-
-
 export default function Header() {
   const path = useLocation().pathname;
   const location = useLocation();
@@ -64,15 +62,13 @@ export default function Header() {
     setShowMenu(false);
   };
 
-
   const cart = (
     <span className='flex'>
-      
-        <FaShoppingCart size={20} className='text-purple-500'/> 
-        <p className='ml-1 text-purple-500'>
-          {/* {cartTotalQuantity} */}
-          3
-          </p>
+      <FaShoppingCart size={20} className='text-purple-500'/> 
+      <p className='ml-1 text-purple-500'>
+        {/* {cartTotalQuantity} */}
+        3
+      </p>
     </span>
   );
 
@@ -86,16 +82,17 @@ export default function Header() {
 
   return (
     <Navbar
-    className={`
-    border-b-2 list-none z-50
-    ${scrollPage ? 'z-50 fixed top-0 w-full  transition-all duration-500 bg-white' : 'null'}
-  `}    >
+      className={`
+        border-b-2 list-none z-50
+        ${scrollPage ? 'z-50 fixed top-0 w-full  transition-all duration-500 bg-white' : 'null'}
+      `}
+    >
       <Link
         to='/'
         className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
       >
-       {/* <img src="/logo.svg" alt="SoapDelight.J" className='w-10 ' /> */}
-        <p className='text-purple-500's>Soap<span className='text-yellow-400'>Delight.J</span></p>
+        {/* <img src="/logo.svg" alt="SoapDelight.J" className='w-10 ' /> */}
+        <p className='text-purple-500'>Soap<span className='text-yellow-400'>Delight.J</span></p>
       </Link>
       {/* <form 
         // onSubmit={handleSubmit}
@@ -152,25 +149,21 @@ export default function Header() {
         )}
 
         <Navbar.Toggle />
-        
-
       </div>
 
-
       <Navbar.Collapse>
-
-      {/* <form 
-        // onSubmit={handleSubmit}
-      >
-        <TextInput
-          type='text'
-          placeholder='Search...'
-          rightIcon={AiOutlineSearch}
-          className='block sm:hidden mb-10'
-          // value={searchTerm}
-          // onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </form> */}
+        {/* <form 
+          // onSubmit={handleSubmit}
+        >
+          <TextInput
+            type='text'
+            placeholder='Search...'
+            rightIcon={AiOutlineSearch}
+            className='block sm:hidden mb-10'
+            // value={searchTerm}
+            // onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </form> */}
 
         <Navbar.Link active={path === '/'} as={'div'}>
           <Link to='/'>Home</Link>
@@ -185,7 +178,6 @@ export default function Header() {
           <Link to='/cart'>{cart}</Link>
         </Navbar.Link>
       </Navbar.Collapse>
-
     </Navbar>
   );
 }
