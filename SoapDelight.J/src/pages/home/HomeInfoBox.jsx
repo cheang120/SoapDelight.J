@@ -7,11 +7,11 @@ import {
 import { FaShippingFast } from "react-icons/fa";
 
 const data = [
-  {
-    icon: <FaShippingFast size={30} color="#8cb4f5" />,
-    heading: "Free Shipping",
-    text: "We offer free shipping on special products",
-  },
+//   {
+//     icon: <FaShippingFast size={30} color="#8cb4f5" />,
+//     heading: "Free Shipping",
+//     text: "We offer free shipping on special products",
+//   },
   {
     icon: <BsFillCreditCardFill size={30} color="#f7d272" />,
     heading: "Secure Payment",
@@ -22,16 +22,16 @@ const data = [
     heading: "Quality Products",
     text: "We sell products from only tested and proven brands.",
   },
-  {
-    icon: <BsClockHistory size={30} color="#82fa9e" />,
-    heading: "24/7 Support",
-    text: "Get access to support from our exprt support team.",
-  },
+//   {
+//     icon: <BsClockHistory size={30} color="#82fa9e" />,
+//     heading: "24/7 Support",
+//     text: "Get access to support from our exprt support team.",
+//   },
 ];
 
 const HomeInfoBox = ({ icon, heading, text }) => {
   return (
-    <div className="infoboxes --mb2">
+    <div className="infoboxes mb-8 mt-8 justify-evenly">
       {data.map((item, index) => {
         return (
           <div className="infobox" key={index}>
