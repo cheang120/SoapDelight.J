@@ -8,6 +8,7 @@ import HomeInfoBox from "./HomeInfoBox";
 
 import Slider from '../../components/slider/slider.jsx'
 import ProductCarousel from '../../components/carousel/Carousel.jsx';
+import ProductCategory from '../../components/productCategory/ProductCategory.jsx';
 
 const PageHeading = ({ heading, btnText }) => {
   return (
@@ -83,6 +84,12 @@ const Home = () => {
           <HomeInfoBox />
           <PageHeading heading={"Latest Products"} btnText={"Shop Now >>>"} />
           <ProductCarousel products={productss}  />
+        </div>
+      </section>
+      <section className='bg-gray-100'>
+        <div className="max-w-[1000px] mx-auto px-5">
+          <h3 className='text-xl'>Categories</h3>
+          <ProductCategory />
         </div>
       </section>
     </div>

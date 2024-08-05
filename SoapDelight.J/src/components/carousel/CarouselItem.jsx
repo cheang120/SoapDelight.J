@@ -45,7 +45,7 @@ const CarouselItem = ({
 
   // const desc = removeHTMLTags(description);
   return (
-    <div className=" p-4 shadow-lg rounded-lg bg-white">
+    <div className=" p-4 shadow-lg rounded-lg bg-white mx-2 mb-10">
       <Link 
         // to={`/product-details/${product._id}`}
       >

@@ -49,3 +49,10 @@
     border-bottom: 1px solid #ccc;
     margin-bottom: 1rem;
   }
+
+  /* Flex */
+.--flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

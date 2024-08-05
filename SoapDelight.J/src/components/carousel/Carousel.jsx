@@ -13,14 +13,13 @@ const ProductCarousel = ({ products }) => {
         showDots={false}
         responsive={responsive}
         infinite={true}
-        autoPlay={true}
+        // autoPlay={true}
         autoPlaySpeed={3000}
         customTransition="all 500ms ease"
         transitionDuration={1000}
       >
         {products}
       </Carousel>
-      dsds
     </div>
     </ErrorBoundary>
 
