@@ -28,6 +28,23 @@
     transition: all 0.3s;
   }
 
+  .--btn:hover {
+    transform: translateY(-2px);
+  }
+  
+  .--btn-lg {
+    padding: 8px 10px;
+  }
+  
+  .--btn-block {
+    width: 100%;
+  }
+
+.--btn-primary {
+    color: #fff;
+    background: #007bff;
+  }
+
   .--hr {
     border-bottom: 1px solid #ccc;
     margin-bottom: 1rem;

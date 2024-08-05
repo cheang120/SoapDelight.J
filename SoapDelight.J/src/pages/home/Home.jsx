@@ -1,10 +1,13 @@
 import React from 'react'
 import { Avatar, Button, Dropdown, Navbar, TextInput } from 'flowbite-react';
+import { productData } from "../../components/carousel/data.jsx";
+import CarouselItem from "../../components/carousel/CarouselItem";
 
 import "./Home.scss";
 import HomeInfoBox from "./HomeInfoBox";
 
 import Slider from '../../components/slider/slider.jsx'
+import ProductCarousel from '../../components/carousel/Carousel.jsx';
 
 const PageHeading = ({ heading, btnText }) => {
   return (
@@ -22,8 +25,56 @@ const PageHeading = ({ heading, btnText }) => {
     </>
   );
 };
+// const latestProducts = [
+//   <div key="1">产品 1</div>,
+//   <div key="2">产品 2</div>,
+//   <div key="3">产品 3</div>,
+// ];
+
+
+// const latestProducts = latest.map((item) => (
+//   <div key={item._id}>
+//     <CarouselItem
+//       name={item.name}
+//       url={item.image[0]}
+//       price={item.price}
+//       regularPrice={item.regularPrice}
+//       description={item.description}
+//       product={item}
+//     />
+//   </div>
+// ));
 
 const Home = () => {
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   dispatch(getProducts());
+  // }, [dispatch]);
+  // const { products } = useSelector((state) => state.product);
+  // const latest = products
+  //   ?.filter((item, index) => {
+  //     return item.quantity > 0;
+  //   })
+  //   ?.filter((item, index) => index < 6);
+
+  // const phones = products
+  //   ?.filter((item, index) => {
+  //     return item.category === "Phone";
+  //   })
+  //   ?.filter((item, index) => index < 6);
+
+
+    const productss = productData.map((item)=>(
+      <div key={item.id}>
+        <CarouselItem 
+          name={item.name}
+          url={item.imageurl}
+          price={item.price}
+          description={item.description}
+        />
+      </div>
+    ))
+
   return (
     <div className='flex flex-col'>
       <Slider />
@@ -31,7 +82,7 @@ const Home = () => {
         <div className="max-w-[1000px] mx-auto px-5">
           <HomeInfoBox />
           <PageHeading heading={"Latest Products"} btnText={"Shop Now >>>"} />
-          {/* <ProductCarousel products={latestProducts} /> */}
+          <ProductCarousel products={productss}  />
         </div>
       </section>
     </div>
