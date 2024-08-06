@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.route.js';
 import productRoute from './routes/productRoute.js'
 import categoryRoute from'./routes/categoryRoute.js'
 import brandRoute from './routes/brandRoute.js'
+import couponRoute from './routes/couponRoute.js'
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -41,6 +42,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoute);
 app.use("/api/category", categoryRoute);
 app.use("/api/brand", brandRoute)
+app.use("/api/coupon", couponRoute)
 
 
 app.get('*', (req, res) => {

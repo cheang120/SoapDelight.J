@@ -92,6 +92,12 @@ const Home = () => {
           <ProductCategory />
         </div>
       </section>
+      <section className=''>
+        <div className="max-w-[1000px] mx-auto px-5 pt-5">
+          <PageHeading heading={"Mobile Phone"} btnText={"Shop Now >>>"} />
+          <ProductCarousel products={productss}  />
+        </div>
+      </section>
     </div>
   )
 }
