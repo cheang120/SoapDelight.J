@@ -50,6 +50,10 @@
     margin-bottom: 1rem;
   }
 
+  .react-multiple-carousel__arrow{
+    z-index: 10;
+  }
+
   /* Flex */
 .--flex-center {
   display: flex;

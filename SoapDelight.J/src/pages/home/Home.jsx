@@ -88,7 +88,7 @@ const Home = () => {
       </section>
       <section className='bg-gray-100'>
         <div className="max-w-[1000px] mx-auto px-5">
-          <h3 className='text-xl'>Categories</h3>
+          <h3 className='text-xl mt-5'>Categories</h3>
           <ProductCategory />
         </div>
       </section>
