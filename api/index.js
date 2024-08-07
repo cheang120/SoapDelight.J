@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/user.route.js';
 import authRoutes from './routes/auth.route.js';
 import productRoute from './routes/productRoute.js'
+import orderRoute  from "./routes/orderRoute.js";
 import categoryRoute from'./routes/categoryRoute.js'
 import brandRoute from './routes/brandRoute.js'
 import couponRoute from './routes/couponRoute.js'
@@ -43,6 +44,7 @@ app.use('/api/products', productRoute);
 app.use("/api/category", categoryRoute);
 app.use("/api/brand", brandRoute)
 app.use("/api/coupon", couponRoute)
+app.use("/api/order", orderRoute)
 
 
 app.get('*', (req, res) => {
