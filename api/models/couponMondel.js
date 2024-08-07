@@ -12,8 +12,8 @@ const couponSchema = new mongoose.Schema(
       maxlength: [12, "Coupon must not be more than 12 characters"],
     },
     expiresAt: {
-        type:String,
-    //   type: Date,
+    // type:String,
+      type: Date,
       required: true,
     },
     discount: {
