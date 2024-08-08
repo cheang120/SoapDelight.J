@@ -1,5 +1,5 @@
 import asyncHandler from "express-async-handler";
-// const Order = require("../models/orderModel");
+import Order from "../models/orderModel.js";
 // const { calculateTotalPrice } = require("../utils");
 // const Product = require("../models/productModel");
 // const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
@@ -10,39 +10,39 @@ import asyncHandler from "express-async-handler";
 // const sendEmail = require("../utils/sendEmail");
 
 export const createOrder = asyncHandler(async (req, res) => {
-  res.send("create order")
-  // const {
-  //   orderDate,
-  //   orderTime,
-  //   orderAmount,
-  //   orderStatus,
-  //   cartItems,
-  //   shippingAddress,
-  //   paymentMethod,
-  //   coupon,
-  // } = req.body;
+  // res.send("create order")
+  const {
+    orderDate,
+    orderTime,
+    orderAmount,
+    orderStatus,
+    cartItems,
+    shippingAddress,
+    paymentMethod,
+    coupon,
+  } = req.body;
 
   //   Validation
-  // if (!cartItems || !orderStatus || !shippingAddress || !paymentMethod) {
-  //   res.status(400);
-  //   throw new Error("Order data missing!!!");
-  // }
+  if (!cartItems || !orderStatus || !shippingAddress || !paymentMethod) {
+    res.status(400);
+    throw new Error("Order data missing!!!");
+  }
 
   // const updatedProduct = await updateProductQuantity(cartItems);
   // console.log("updated product", updatedProduct);
 
   // Create Order
-  // await Order.create({
-  //   user: req.user.id,
-  //   orderDate,
-  //   orderTime,
-  //   orderAmount,
-  //   orderStatus,
-  //   cartItems,
-  //   shippingAddress,
-  //   paymentMethod,
-  //   coupon,
-  // });
+  await Order.create({
+    user: req.user.id,
+    orderDate,
+    orderTime,
+    orderAmount,
+    orderStatus,
+    cartItems,
+    shippingAddress,
+    paymentMethod,
+    coupon,
+  });
 
   // Send Order Email to the user
   // const subject = "Shopito Order Placed";
@@ -52,67 +52,69 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   // await sendEmail(subject, send_to, template, reply_to);
 
-  // res.status(201).json({ message: "Order Created" });
+  res.status(201).json({ message: "Order Created" });
 });
 
 // Get all Orders
-// const getOrders = asyncHandler(async (req, res) => {
-//   let orders;
+export const getOrders = asyncHandler(async (req, res) => {
+  let orders;
 
-//   if (req.user.role === "admin") {
-//     orders = await Order.find().sort("-createdAt");
-//     return res.status(200).json(orders);
-//   }
-//   orders = await Order.find({ user: req.user._id }).sort("-createdAt");
-//   res.status(200).json(orders);
-// });
+  if (req.user.role === "admin") {
+    orders = await Order.find().sort("-createdAt");
+    return res.status(200).json(orders);
+  }
+  orders = await Order.find({ user: req.user._id }).sort("-createdAt");
+  res.status(200).json(orders);
+});
 
 // // Get single Order
-// const getOrder = asyncHandler(async (req, res) => {
-//   const order = await Order.findById(req.params.id);
-//   // if product doesnt exist
-//   if (!order) {
-//     res.status(404);
-//     throw new Error("Order not found");
-//   }
-//   if (req.user.role === "admin") {
-//     return res.status(200).json(order);
-//   }
-//   // Match Order to its user
-//   if (order.user.toString() !== req.user.id) {
-//     res.status(401);
-//     throw new Error("User not authorized");
-//   }
-//   res.status(200).json(order);
-// });
+export const getOrder = asyncHandler(async (req, res) => {
+  // res.send("order")
+  const order = await Order.findById(req.params.id);
+  // if product doesnt exist
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+  if (req.user.role === "admin") {
+    return res.status(200).json(order);
+  }
+  // Match Order to its user
+  if (order.user.toString() !== req.user.id.toString()) {
+    res.status(401);
+    throw new Error("User not authorized");
+  }
+  res.status(200).json(order);
+});
 
 // // Update Product
-// const updateOrderStatus = asyncHandler(async (req, res) => {
-//   const { orderStatus } = req.body;
-//   const { id } = req.params;
+export const updateOrderStatus = asyncHandler(async (req, res) => {
+  // res.send("order")
+  const { orderStatus } = req.body;
+  const { id } = req.params;
 
-//   const order = await Order.findById(id);
+  const order = await Order.findById(id);
 
-//   // if product doesnt exist
-//   if (!order) {
-//     res.status(404);
-//     throw new Error("Order not found");
-//   }
+  // if product doesnt exist
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
 
-//   // Update Product
-//   await Order.findByIdAndUpdate(
-//     { _id: id },
-//     {
-//       orderStatus: orderStatus,
-//     },
-//     {
-//       new: true,
-//       runValidators: true,
-//     }
-//   );
+  // Update Product
+  await Order.findByIdAndUpdate(
+    { _id: id },
+    {
+      orderStatus: orderStatus,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
-//   res.status(200).json({ message: "Order status updated" });
-// });
+  res.status(200).json({ message: "Order status updated" });
+});
 
 // // Pay with stripe
 // const payWithStripe = asyncHandler(async (req, res) => {
