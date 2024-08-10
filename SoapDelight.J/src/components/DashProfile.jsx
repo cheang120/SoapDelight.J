@@ -24,6 +24,7 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import { app } from '../firebase';
 import Notification from './Notification';
+import PageMenu from './pageMenu/PageMenu';
 // import useRedirectLoggedOutUser from '../customHook/useRedirectLoggedOutUser';
 
 
@@ -207,6 +208,7 @@ const DashProfile = () => {
     <div className='flex w-full'>
       {/* {!currentUser.isVerified && <Notification email={user.email} />} */}
       <div className='max-w-lg mx-auto p-3 w-full'>
+      <PageMenu />
 
       <h1 className='my-7 text-center font-semibold text-3xl'>profile</h1>
 

@@ -68,6 +68,13 @@ export default function DashSidebar () {
               </Sidebar.Item>
             </Link>
           )}
+          {(userRole === 'author' ||  userRole === 'admin')  && (
+            <Link to='/dashboard?tab=productAdmin'>
+              <Sidebar.Item as='div' active={tab === 'productAdmin'} icon={HiUser} labelColor='dark'>
+                Product Admin
+              </Sidebar.Item>
+            </Link>
+          )}
           <Sidebar.Item  
               icon={HiArrowSmRight}
               className='cursor-pointer'

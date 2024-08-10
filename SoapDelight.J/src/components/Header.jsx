@@ -1,4 +1,4 @@
-import { Avatar, Button, Dropdown, Navbar, TextInput } from 'flowbite-react';
+import { Avatar, Button, Dropdown, Navbar, Sidebar, TextInput } from 'flowbite-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
@@ -6,8 +6,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
-import { HiOutlineMenuAlt3 } from "react-icons/hi";
+import { HiOutlineMenuAlt3, HiUser } from "react-icons/hi";
 import { FaShoppingCart, FaTimes, FaUserCircle } from "react-icons/fa";
+// import { Sidebar } from 'flowbite-react';
+
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -18,6 +20,8 @@ export default function Header() {
   const { theme } = useSelector((state) => state.theme);
   const [showMenu, setShowMenu] = useState(false);
   const [scrollPage, setScrollPage] = useState(false);
+  const userRole = currentUser.role
+
 
   // const [searchTerm, setSearchTerm] = useState('');
 
@@ -133,6 +137,13 @@ export default function Header() {
             <Link to={'/dashboard?tab=profile'}>
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
+            {(userRole === 'author' ||  userRole === 'admin')  && (
+            <Link to='/productAdmin'>
+
+              <Dropdown.Item>ProductAdmin</Dropdown.Item>
+
+            </Link>
+          )}
             <Dropdown.Divider />
             <Dropdown.Item 
               onClick={handleSignout}

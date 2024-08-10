@@ -8,6 +8,7 @@ import DashComments from '../components/DashComments';
 import DashboardComp from '../components/DashboardComp';
 import useRedirectLoggedOutUser from '../customHook/useRedirectLoggedOutUser';
 import { useSelector } from 'react-redux';
+import { ProductAdmin } from './productAdmin/ProductAdmin.jsx';
 
 
 
@@ -38,6 +39,8 @@ export default function Dashboard() {
       {tab === 'posts' && <DashPosts />}
       {/* users */}
       {tab === 'users' && <DashUsers />}
+      {/* product admin */}
+      {tab === 'productAdmin' && <ProductAdmin />}
       {/* comments  */}
       {tab === 'comments' && <DashComments />}
       {/* dashboard comp */}
