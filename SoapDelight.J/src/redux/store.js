@@ -9,6 +9,7 @@ import filterReducer from "../redux/features/auth/filterSlice";
 
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import categoryReducer from "../redux/features/categoryAndBrand/categoryAndBrandSlice"
 
 const rootReducer = combineReducers({
   auth:authReducer,
@@ -26,7 +27,13 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: 
+    persistedReducer ,
+    category: categoryReducer,
+
+
+
+
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(thunk),
 });
