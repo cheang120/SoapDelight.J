@@ -20,7 +20,10 @@ export default function Header() {
   const { theme } = useSelector((state) => state.theme);
   const [showMenu, setShowMenu] = useState(false);
   const [scrollPage, setScrollPage] = useState(false);
-  const userRole = currentUser.role
+  // const role = obj?.role;
+  // console.log(userRole);
+  console.log(currentUser);
+  const userRole = currentUser ? currentUser.role : null;
 
 
   // const [searchTerm, setSearchTerm] = useState('');

@@ -40,7 +40,7 @@ export default function Dashboard() {
       {/* users */}
       {tab === 'users' && <DashUsers />}
       {/* product admin */}
-      {tab === 'productAdmin' && <ProductAdmin />}
+      {/* {tab === 'productAdmin' && <ProductAdmin />} */}
       {/* comments  */}
       {tab === 'comments' && <DashComments />}
       {/* dashboard comp */}
