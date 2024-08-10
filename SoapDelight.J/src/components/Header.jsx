@@ -22,7 +22,7 @@ export default function Header() {
   const [scrollPage, setScrollPage] = useState(false);
   // const role = obj?.role;
   // console.log(userRole);
-  console.log(currentUser);
+  // console.log(currentUser);
   const userRole = currentUser ? currentUser.role : null;
 
 

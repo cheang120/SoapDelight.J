@@ -1,6 +1,7 @@
 import React from 'react'
+import './AdminHome.module.scss'
 
-const AdminHome = () => {
+export const AdminHome = () => {
   return (
     <div>
       <h2>Admin Home</h2>
@@ -8,4 +9,3 @@ const AdminHome = () => {
   )
 }
 
-export default AdminHome
