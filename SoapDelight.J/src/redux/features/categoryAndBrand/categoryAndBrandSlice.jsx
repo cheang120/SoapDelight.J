@@ -1,4 +1,6 @@
 import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
+import categoryAndBrandService from "./categoryAndBrandService.jsx";
 
 
  const initialState = {
@@ -65,4 +67,4 @@ import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
 
 export const {RESET_CAT} = categoryAndBrandSlice.actions
 
-export default createSlice.reducer;
+export default categoryAndBrandSlice.reducer;
