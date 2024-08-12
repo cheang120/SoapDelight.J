@@ -4,10 +4,15 @@ import mongoose from "mongoose";
 import slugify from "slugify";
 import Category from "../models/categoryModel.js";
 
+
+
 // // Create Category
 export const createCategory = asyncHandler(async (req, res,next) => {
     // res.send("create category")
+    // console.log(req.body);
+    console.log('Request body:', req.body);
   const { name } = req.body;
+  
   if (!name) {
     res.status(400);
     throw new Error("Please fill in category name");

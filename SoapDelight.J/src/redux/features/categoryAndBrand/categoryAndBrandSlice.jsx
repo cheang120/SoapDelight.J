@@ -13,22 +13,23 @@ import categoryAndBrandService from "./categoryAndBrandService.jsx";
 
 
 
- const createCategory = createAsyncThunk(
-    "category/createCategory",
-    async ({ formData }, thunkAPI) => {
-      try {
-        return await categoryAndBrandService.createCategory(formData);
-      } catch (error) {
-        const message =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-        return thunkAPI.rejectWithValue(message);
-      }
+export const createCategory = createAsyncThunk(
+  "category/create",
+  async (formData, thunkAPI) => {
+    try {
+      return await categoryAndBrandService.createCategory(formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      console.log(message);
+      return thunkAPI.rejectWithValue(message);
     }
-  );
+  }
+);
 
   const categoryAndBrandSlice = createSlice({
     name: "category",
@@ -51,8 +52,9 @@ import categoryAndBrandService from "./categoryAndBrandService.jsx";
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          console.log(action.payload);
           toast.success("Category Created successfully");
+          // console.log(action.payload);
+
         })
         .addCase(createCategory.rejected, (state, action) => {
           state.isLoading = false;

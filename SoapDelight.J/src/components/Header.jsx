@@ -141,7 +141,7 @@ export default function Header() {
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             {(userRole === 'author' ||  userRole === 'admin')  && (
-            <Link to='/productAdmin'>
+            <Link to='/productAdmin/home'>
 
               <Dropdown.Item>ProductAdmin</Dropdown.Item>
 
