@@ -5,6 +5,7 @@ import categoryAndBrandService from "./categoryAndBrandService.jsx";
 
  const initialState = {
     categories:[],
+    brands:[],
     isError:false,
     isSuccess:false,
     isLoading:false,
@@ -56,6 +57,26 @@ export const deleteCategory = createAsyncThunk(
   async (slug, thunkAPI) => {
     try {
       return await categoryAndBrandService.deleteCategory(slug);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      console.log(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+
+// Create New Brand
+export const createBrand = createAsyncThunk(
+  "category/createBrand",
+  async (formData, thunkAPI) => {
+    try {
+      return await categoryAndBrandService.createBrand(formData);
     } catch (error) {
       const message =
         (error.response &&
@@ -130,6 +151,23 @@ export const deleteCategory = createAsyncThunk(
           console.log(action.payload);
         })
         .addCase(deleteCategory.rejected, (state, action) => {
+          state.isLoading = false;
+          state.isError = true;
+          state.message = action.payload;
+          toast.error(action.payload);
+        })
+        // create brand
+        .addCase(createBrand.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(createBrand.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.isSuccess = true;
+          state.isError = false;
+          console.log(action.payload);
+          toast.success("Brand Created successfully");
+        })
+        .addCase(createBrand.rejected, (state, action) => {
           state.isLoading = false;
           state.isError = true;
           state.message = action.payload;
