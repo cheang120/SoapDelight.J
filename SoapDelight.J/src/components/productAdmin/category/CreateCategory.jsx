@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import {createCategory} from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice'
 
-const CreateCategory = () => {
+const CreateCategory = ({reloadCategory}) => {
     const [name, setName] = useState("");
 
     const { isLoading } = useSelector((state) => state.category);
@@ -23,7 +23,7 @@ const CreateCategory = () => {
         await dispatch(createCategory(formData));
         // dispatch(getCategories());
         setName("");
-        // reloadCategory();
+        reloadCategory();
         
       };
 
