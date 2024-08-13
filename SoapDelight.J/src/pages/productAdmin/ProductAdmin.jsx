@@ -4,6 +4,7 @@ import styles from "./ProductAdmin.module.scss";
 import Navbar from "../../components/productAdmin/navbar/Navbar";
 import { AdminHome } from "../../components/productAdmin/adminHome/AdminHome.jsx";
 import Category from "../../components/productAdmin/category/Category.jsx";
+import Brand from "../../components/productAdmin/brand/Brand.jsx";
 // import AdminHome from "../../components/productAdmin/adminHome/AdminHome.jsx";
 // import Home from "../../components/admin/home/Home";
 // import AddProduct from "../../components/admin/addProduct/AddProduct";
@@ -13,7 +14,6 @@ import Category from "../../components/productAdmin/category/Category.jsx";
 // import OrderDetails from "../../components/admin/orderDetails/OrderDetails";
 // import Coupon from "../../components/admin/coupon/Coupon";
 // import Category from "../../components/admin/category/Category";
-// import Brand from "../../components/admin/brand/Brand";
 
 export const ProductAdmin = () => {
   return (
@@ -34,7 +34,7 @@ export const ProductAdmin = () => {
           {/* <Route path="order-details/:id" element={<OrderDetails />} /> */}
           {/* <Route path="coupon" element={<Coupon />} /> */}
           <Route path="category" element={<Category />} />
-          {/* <Route path="brand" element={<Brand />} /> */}
+          <Route path="brand" element={<Brand />} />
         </Routes>
       </div>
     </div>

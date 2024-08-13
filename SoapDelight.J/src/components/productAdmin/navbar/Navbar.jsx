@@ -29,6 +29,11 @@ const Navbar = () => {
                     Category
                 </NavLink>
             </li>
+            <li>
+                <NavLink to={'/productAdmin/brand'} className={activeLink}>
+                    Brand
+                </NavLink>
+            </li>
         </ul>
       </nav>
     </div>
