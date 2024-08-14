@@ -25,6 +25,16 @@ const Navbar = () => {
                 </NavLink>
             </li>
             <li>
+                <NavLink to={'/productAdmin/all-products'} className={activeLink}>
+                    View Products
+                </NavLink>
+            </li>
+            <li>
+                <NavLink to={'/productAdmin/add-product'} className={activeLink}>
+                    Add Product
+                </NavLink>
+            </li>
+            <li>
                 <NavLink to={'/productAdmin/category'} className={activeLink}>
                     Category
                 </NavLink>
