@@ -2,8 +2,7 @@ import React, { useEffect } from "react";
 // import "../coupon/Coupon.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  RESET_CAT,
-//   getBrands,
+  RESET_CAT, getBrands,
 //   getCategories,
 } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
 import CreateBrand from "./CreateBrand";
@@ -17,15 +16,15 @@ const Brand = () => {
 //     dispatch(getBrands());
 //   }, [dispatch]);
 
-//   const reloadBrands = () => {
-//     dispatch(getBrands());
-//   };
+  const reloadBrands = () => {
+    dispatch(getBrands());
+  };
 
   return (
     <section>
       <div className="container coupon">
         <CreateBrand
-        //  reloadBrands={reloadBrands} 
+         reloadBrands={reloadBrands} 
         />
         <BrandList
         //  brands={brands} 

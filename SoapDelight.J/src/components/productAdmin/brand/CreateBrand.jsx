@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { createBrand, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
+import { createBrand, getBrands, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
+import { toast } from 'react-toastify';
 
-const CreateBrand = () => {
+const CreateBrand = ({reloadBrands}) => {
     const [name, setName] = useState("");
     const [category, setCategory] = useState("");
-
 
     const { isLoading, categories = [] } = useSelector((state) => state.category || {});
     const dispatch = useDispatch();
@@ -17,26 +17,46 @@ const CreateBrand = () => {
     //   dispatch(getBrands());
     }, [dispatch]);
 
+    const generateSlug = (name) => {
+        return name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+    };
+
     
 
     const saveBrand = async (e) => {
         e.preventDefault();
         // console.log(name,category);
+        
         if (name.length < 3) {
           return toast.error("Brand must be up to 3 characters");
         }
         if (!category) {
             return toast.error("Please add a parent category");
           }
+          const slug = generateSlug(name);
           const formData = {
             name,
+            slug,
             category,
           };
+
+          try {
+            await dispatch(createBrand(formData)).unwrap(); // unwrap 以捕獲錯誤
+            setName("");
+            setCategory(""); // 清除選擇
+            reloadBrands(); // 重新加載品牌
+            toast.success("Brand created successfully!");
+        } catch (error) {
+            toast.error(`Failed to create brand: ${error.message}`);
+        }
+
+
+
         // console.log(formData);
-        dispatch(createBrand(formData));
+        // dispatch(createBrand(formData));
         // dispatch(getBrands());
-        setName("");
-        reloadBrands();
+        // setName("");
+        // reloadBrands();
         
       };
   return (
