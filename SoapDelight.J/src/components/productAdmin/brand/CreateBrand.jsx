@@ -7,7 +7,7 @@ const CreateBrand = () => {
     const [category, setCategory] = useState("");
 
 
-    const { isLoading, categories } = useSelector((state) => state.category || []);
+    const { isLoading, categories = [] } = useSelector((state) => state.category || {});
     const dispatch = useDispatch();
     const isSuccess = useSelector((state) => state.category.isSuccess);
     const message = useSelector((state) => state.category.message);

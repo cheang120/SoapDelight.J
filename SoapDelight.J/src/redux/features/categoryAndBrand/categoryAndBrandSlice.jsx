@@ -130,7 +130,7 @@ export const createBrand = createAsyncThunk(
           state.isSuccess = true;
           state.isError = false;
           state.categories = action.payload
-          console.log(action.payload);
+          // console.log(action.payload);
 
         })
         .addCase(getCategories.rejected, (state, action) => {
@@ -148,7 +148,7 @@ export const createBrand = createAsyncThunk(
           state.isSuccess = true;
           state.isError = false;
           toast.success(action.payload);
-          console.log(action.payload);
+          // console.log(action.payload);
         })
         .addCase(deleteCategory.rejected, (state, action) => {
           state.isLoading = false;
@@ -164,7 +164,7 @@ export const createBrand = createAsyncThunk(
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          console.log(action.payload);
+          // console.log(action.payload);
           toast.success("Brand Created successfully");
         })
         .addCase(createBrand.rejected, (state, action) => {
