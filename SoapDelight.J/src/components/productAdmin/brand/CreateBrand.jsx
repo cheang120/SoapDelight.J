@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
+import { createBrand, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
 
 const CreateBrand = () => {
     const [name, setName] = useState("");
@@ -21,18 +21,22 @@ const CreateBrand = () => {
 
     const saveBrand = async (e) => {
         e.preventDefault();
-        // console.log(name);
+        // console.log(name,category);
         if (name.length < 3) {
-          return toast.error("Coupon must be up to 3 characters");
+          return toast.error("Brand must be up to 3 characters");
         }
-        const formData = {
-          name,
-        };
+        if (!category) {
+            return toast.error("Please add a parent category");
+          }
+          const formData = {
+            name,
+            category,
+          };
         // console.log(formData);
-        await dispatch(createCategory(formData));
-        // dispatch(getCategories());
+        dispatch(createBrand(formData));
+        // dispatch(getBrands());
         setName("");
-        reloadCategory();
+        reloadBrands();
         
       };
   return (

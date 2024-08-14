@@ -6,8 +6,8 @@ import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
 const CategoryList = () => {
-    const { isLoading,categories } = useSelector((state) => state.category);
-    const dispatch = useDispatch();
+  const { isLoading, categories = [] } = useSelector((state) => state.category || {});
+  const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(getCategories());
