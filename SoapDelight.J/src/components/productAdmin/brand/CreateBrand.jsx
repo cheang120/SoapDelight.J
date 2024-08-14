@@ -40,23 +40,23 @@ const CreateBrand = ({reloadBrands}) => {
             category,
           };
 
-          try {
-            await dispatch(createBrand(formData)).unwrap(); // unwrap 以捕獲錯誤
-            setName("");
-            setCategory(""); // 清除選擇
-            reloadBrands(); // 重新加載品牌
-            toast.success("Brand created successfully!");
-        } catch (error) {
-            toast.error(`Failed to create brand: ${error.message}`);
-        }
+        //   try {
+        //     await dispatch(createBrand(formData)).unwrap(); // unwrap 以捕獲錯誤
+        //     setName("");
+        //     setCategory(""); // 清除選擇
+        //     reloadBrands(); // 重新加載品牌
+        //     toast.success("Brand created successfully!");
+        //     } catch (error) {
+        //         toast.error(`Failed to create brand: ${error.message}`);
+        // }
 
 
 
         // console.log(formData);
-        // dispatch(createBrand(formData));
-        // dispatch(getBrands());
-        // setName("");
-        // reloadBrands();
+        await dispatch(createBrand(formData));
+        await dispatch(getBrands());
+        setName("");
+        reloadBrands();
         
       };
   return (
