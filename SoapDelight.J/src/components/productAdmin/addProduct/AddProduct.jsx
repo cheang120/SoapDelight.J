@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 import "./AddProduce.scss"
 import Loader from "../../Loader";
 import ProductForm from "../productForm/ProductForm";
+import {
+    getBrands,
+    getCategories,
+  } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
 
 const initialState = {
     name: "",
@@ -29,6 +33,11 @@ const AddProduct = () => {
     const { name, category, brand, price, quantity, color, regularPrice } = product;
     const { categories, brands } = useSelector((state) => state.category);
 
+    useEffect(() => {
+        dispatch(getCategories());
+        dispatch(getBrands());
+      }, [dispatch]);
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -37,7 +46,8 @@ const AddProduct = () => {
 
 
     const saveProduct = async (e) => {
-        // e.preventDefault();
+        e.preventDefault();
+        console.log(product);
         // if (files.length < 1) {
         //   return toast.info("Please add an image");
         // }
@@ -79,9 +89,9 @@ const AddProduct = () => {
             // setDescription={setDescription}
             handleInputChange={handleInputChange}
             saveProduct={saveProduct}
-            // categories={categories}
+            categories={categories}
             // filteredBrands={filteredBrands}
-            // isEditing={false}
+            isEditing={false}
         />
       </div>
     </section>
