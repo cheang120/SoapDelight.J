@@ -24,14 +24,17 @@ const AddProduct = () => {
     const navigate = useNavigate();
 
     const [product, setProduct] = useState(initialState);
+
     const [productImage, setProductImage] = useState([]);
     const [files, setFiles] = useState([]);
     const [imagePreview, setImagePreview] = useState([]);
     const [description, setDescription] = useState("");
 
     const {isLoading} = useSelector((state) => state.product)
-    const { name, category, brand, price, quantity, color, regularPrice } = product;
     const { categories, brands } = useSelector((state) => state.category);
+
+    const { name, category, brand, price, quantity, color, regularPrice } = product;
+
 
     useEffect(() => {
         dispatch(getCategories());
@@ -72,6 +75,19 @@ const AddProduct = () => {
         // navigate("/admin/all-products");
       };
 
+      const [filteredBrands, setFilteredBrands] = useState([]);
+      function filterBrands(selectedCategory) {
+        const newBrands = brands.filter(
+          (brand) => brand.category === selectedCategory
+        );
+        setFilteredBrands(newBrands);
+      }
+
+      useEffect(() => {
+        filterBrands(category);
+        // console.log(filteredBrands);
+      }, [category]);
+
   return (
     <section>
       <div className='container'>
@@ -90,7 +106,7 @@ const AddProduct = () => {
             handleInputChange={handleInputChange}
             saveProduct={saveProduct}
             categories={categories}
-            // filteredBrands={filteredBrands}
+            filteredBrands={filteredBrands}
             isEditing={false}
         />
       </div>

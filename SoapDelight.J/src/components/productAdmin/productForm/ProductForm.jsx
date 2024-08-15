@@ -6,7 +6,8 @@ const ProductForm = ({
     product,
     handleInputChange, 
     categories,
-    isEditing
+    isEditing,
+    filteredBrands
 }) => {
   return (
 <div className="max-w-md   bg-white p-8 shadow-lg rounded-lg">
@@ -34,7 +35,6 @@ const ProductForm = ({
                 value={product?.category}
                 onChange={handleInputChange}
             >
-                <option value="">Select Category</option>
                     {isEditing ? (
                     <option>{product?.category}</option>
                 ) : (
@@ -44,6 +44,27 @@ const ProductForm = ({
                     categories.map((cat) => (
                         <option key={cat._id} value={cat._name}>
                         {cat.name}
+                        </option>
+                    ))}
+                </select>
+
+                <label>Product Brand:</label>
+                <select
+                    name="brand"
+                    value={product?.brand}
+                    className="form-control"
+                    onChange={handleInputChange}
+                >
+                    {isEditing ? (
+                    <option>{product?.brand}</option>
+                    ) : (
+                    <option>Select Brand</option>
+                    )}
+
+                    {filteredBrands.length > 0 &&
+                    filteredBrands.map((brand) => (
+                        <option key={brand._id} value={brand.name}>
+                        {brand.name}
                         </option>
                     ))}
                 </select>
