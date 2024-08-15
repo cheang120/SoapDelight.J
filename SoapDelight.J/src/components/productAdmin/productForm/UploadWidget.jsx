@@ -24,7 +24,15 @@ const UploadWidget = () => {
     
         // FOR BUG IN CHROME
         e.target.value = "";
-      };
+    };
+
+    const removeImage = (image) => {
+        const imageIndex = selectedImages.indexOf(image);
+        setSelectedImages(selectedImages.filter((img) => img !== image));
+    
+        setImages(images.filter((img, index) => index !== imageIndex));
+        URL.revokeObjectURL(image);
+    };
 
   return (
     <div>
@@ -53,7 +61,7 @@ const UploadWidget = () => {
                                 <div className='flex justify-between'>
                                     <p className='flex items-center justify-center px-10'>{index + 1}</p>
                                     <button className="--btn" onClick={() => removeImage(image)}>
-                                        <BsTrash size={25} />
+                                        <BsTrash size={25} onClick={() => removeImage(image)}/>
                                     </button>
                                 </div>
 
