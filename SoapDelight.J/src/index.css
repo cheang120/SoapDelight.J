@@ -64,6 +64,26 @@
     background: #007bff;
   }
 
+  .--btn-secondary {
+    color: #fff;
+    border: 1px solid #fff;
+    background: transparent;
+  }
+  .--btn-danger {
+    color: #fff;
+    background: orangered;
+  }
+  
+  .--btn-success {
+    color: #fff;
+    background: #28a745;
+  }
+  
+  .--btn-red {
+    color: #fff;
+    background: rgba(189, 9, 9, 0.847);
+  }
+
   .--hr {
     border-bottom: 1px solid #ccc;
     margin-bottom: 1rem;
@@ -84,6 +104,16 @@
   padding: 1rem;
 }
 
+/* Center All */
+.--center-all {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  margin: auto;
+  text-align: center;
+}
 
 
 /* Margin */
