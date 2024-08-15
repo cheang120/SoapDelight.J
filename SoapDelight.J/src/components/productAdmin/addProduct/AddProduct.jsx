@@ -109,8 +109,8 @@ const AddProduct = () => {
         <h3 className='--mt'>Add New Product</h3>
 
         <ProductForm         
-            // files={files}
-            // setFiles={setFiles}
+            files={files}
+            setFiles={setFiles}
             product={product}
             // productImage={productImage}
             // imagePreview={imagePreview}

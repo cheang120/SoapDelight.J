@@ -2,6 +2,7 @@ import React from 'react'
 import "./ProductForm.scss"
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import UploadWidget from './UploadWidget';
 
 const ProductForm = ({
     saveProduct, 
@@ -12,11 +13,14 @@ const ProductForm = ({
     filteredBrands,
     description,
     setDescription,
+    files,
+    setFiles
 }) => {
     
   return (
     <div className="max-w-md   bg-white p-8 shadow-lg rounded-lg">
-        <h3 className="text-xl font-bold mb-4">Upload Widget Placeholder</h3>
+        {/* <h3 className="text-xl font-bold mb-4">Upload Widget Placeholder</h3> */}
+        <UploadWidget files={files} setFiles={setFiles} />
 
         <form onSubmit={saveProduct}>
             <div className="mb-4">
