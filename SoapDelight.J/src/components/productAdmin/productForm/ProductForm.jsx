@@ -1,5 +1,7 @@
 import React from 'react'
 import "./ProductForm.scss"
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const ProductForm = ({
     saveProduct, 
@@ -7,7 +9,9 @@ const ProductForm = ({
     handleInputChange, 
     categories,
     isEditing,
-    filteredBrands
+    filteredBrands,
+    description,
+    setDescription,
 }) => {
   return (
 <div className="max-w-md   bg-white p-8 shadow-lg rounded-lg">
@@ -47,12 +51,15 @@ const ProductForm = ({
                         </option>
                     ))}
                 </select>
+        </div>
 
-                <label>Product Brand:</label>
+        <div className="mb-4">
+
+                <label className="block text-gray-700 text-sm font-bold mb-2">Product Brand:</label>
                 <select
                     name="brand"
                     value={product?.brand}
-                    className="form-control"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onChange={handleInputChange}
                 >
                     {isEditing ? (
@@ -70,6 +77,71 @@ const ProductForm = ({
                 </select>
         </div>
 
+        <div className="mb-4">
+            <label  className="block text-gray-700 text-sm font-bold mb-2">Product Color:</label>
+            <input
+                type="text"
+                placeholder="Color"
+                name="color"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+                value={product?.color}
+                onChange={handleInputChange}
+            />        
+        </div>
+
+        <div className="mb-4">
+            <label  className="block text-gray-700 text-sm font-bold mb-2">Regular Price:</label>
+            <input
+                type="number"
+                placeholder="Regular Price"
+                name="regularPrice"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+                value={product?.regularPrice}
+                onChange={handleInputChange}
+            />      
+        </div>
+
+        <div className="mb-4">
+            <label  className="block text-gray-700 text-sm font-bold mb-2">Product Price:</label>
+            <input
+                type="number"
+                placeholder="Regular Price"
+                name="price"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+                value={product?.price}
+                onChange={handleInputChange}
+            />      
+        </div>
+
+        <div className="mb-4">
+            <label  className="block text-gray-700 text-sm font-bold mb-2">Product Quantity:</label>
+            <input
+                type="number"
+                placeholder="Regular Quantity"
+                name="quantity"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+                value={product?.quantity}
+                onChange={handleInputChange}
+            />      
+        </div>
+
+        <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">Product Description:</label>
+            <ReactQuill
+                theme="snow"
+                value={description}
+                onChange={setDescription}
+                modules={ProductForm.modules}
+                formats={ProductForm.formats}
+                
+            />
+        </div>
+
+
         <div className="mt-6">
             <button 
                 type="submit" 
@@ -81,5 +153,42 @@ const ProductForm = ({
 </div>
   )
 }
+
+ProductForm.modules = {
+    toolbar: [
+      [{ header: "1" }, { header: "2" }, { font: [] }],
+      [{ size: [] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [{ align: [] }],
+      [{ color: [] }, { background: [] }],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["clean"],
+    ],
+  };
+  ProductForm.formats = [
+    "header",
+    "font",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "blockquote",
+    "color",
+    "background",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "video",
+    "image",
+    "code-block",
+    "align",
+  ];
 
 export default ProductForm

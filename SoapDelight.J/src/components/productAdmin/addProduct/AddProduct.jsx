@@ -50,7 +50,9 @@ const AddProduct = () => {
 
     const saveProduct = async (e) => {
         e.preventDefault();
-        console.log(product);
+        // console.log(product);
+        // console.log(description);
+
         // if (files.length < 1) {
         //   return toast.info("Please add an image");
         // }
@@ -101,8 +103,8 @@ const AddProduct = () => {
             // productImage={productImage}
             // imagePreview={imagePreview}
             // setImagePreview={setImagePreview}
-            // description={description}
-            // setDescription={setDescription}
+            description={description}
+            setDescription={setDescription}
             handleInputChange={handleInputChange}
             saveProduct={saveProduct}
             categories={categories}
