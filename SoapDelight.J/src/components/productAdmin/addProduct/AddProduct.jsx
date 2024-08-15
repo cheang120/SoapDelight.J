@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "./AddProduce.scss"
-import Loader from "../../Loader";
+// import Loader from "../../Loader";
 import ProductForm from "../productForm/ProductForm";
 import {
     getBrands,
     getCategories,
   } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
+  import {
+    createProduct,
+    // selectIsLoading,
+  } from "../../../redux/features/product/productSlice";
 
 const initialState = {
     name: "",
@@ -47,6 +51,13 @@ const AddProduct = () => {
         setProduct({ ...product, [name]: value });
       };
 
+      const generateKSKU = (category) => {
+        const letter = category.slice(0, 3).toUpperCase();
+        const number = Date.now();
+        const sku = letter + "-" + number;
+        return sku;
+      };
+
 
     const saveProduct = async (e) => {
         e.preventDefault();
@@ -56,25 +67,26 @@ const AddProduct = () => {
         // if (files.length < 1) {
         //   return toast.info("Please add an image");
         // }
+
     
-        // const formData = {
-        //   name: name,
-        //   sku: generateKSKU(category),
-        //   category: category,
-        //   brand: brand,
-        //   color: color,
-        //   quantity: Number(quantity),
-        //   regularPrice: regularPrice,
-        //   price: price,
-        //   description: description,
-        //   image: files,
-        // };
+        const formData = {
+          name: name,
+          sku: generateKSKU(category),
+          category: category,
+          brand: brand,
+          color: color,
+          quantity: Number(quantity),
+          regularPrice: regularPrice,
+          price: price,
+          description: description,
+          // image: files,
+        };
     
-        // // console.log(formData);
+        // console.log(formData);
     
-        // await dispatch(createProduct(formData));
+        await dispatch(createProduct(formData));
     
-        // navigate("/admin/all-products");
+        navigate("/productAdmin/all-products");
       };
 
       const [filteredBrands, setFilteredBrands] = useState([]);
@@ -93,7 +105,7 @@ const AddProduct = () => {
   return (
     <section>
       <div className='container'>
-        {isLoading && <Loader />}
+        {/* {isLoading && <Loader />} */}
         <h3 className='--mt'>Add New Product</h3>
 
         <ProductForm         
