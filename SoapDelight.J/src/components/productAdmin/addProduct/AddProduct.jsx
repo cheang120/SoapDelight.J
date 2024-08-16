@@ -24,6 +24,8 @@ const initialState = {
   };
 
 const AddProduct = () => {
+  const { currentUser } = useSelector((state) => state.user);
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -39,11 +41,17 @@ const AddProduct = () => {
 
     const { name, category, brand, price, quantity, color, regularPrice } = product;
 
+    const userRole = currentUser.role
+    console.log(userRole);
 
-    useEffect(() => {
+    if (userRole === 'author') {
+      useEffect(() => {
         dispatch(getCategories());
         dispatch(getBrands());
       }, [dispatch]);
+    }
+
+ 
 
 
     const handleInputChange = (e) => {
@@ -102,30 +110,39 @@ const AddProduct = () => {
         // console.log(filteredBrands);
       }, [category]);
 
-  return (
-    <section>
-      <div className='container'>
-        {/* {isLoading && <Loader />} */}
-        <h3 className='--mt'>Add New Product</h3>
+      if (userRole === 'author') {
+        return (
+          <section>
+            <div className='container'>
+              {/* {isLoading && <Loader />} */}
+              <h3 className='--mt'>Add New Product</h3>
+      
+              <ProductForm         
+                  files={files}
+                  setFiles={setFiles}
+                  product={product}
+                  // productImage={productImage}
+                  // imagePreview={imagePreview}
+                  // setImagePreview={setImagePreview}
+                  description={description}
+                  setDescription={setDescription}
+                  handleInputChange={handleInputChange}
+                  saveProduct={saveProduct}
+                  categories={categories}
+                  filteredBrands={filteredBrands}
+                  isEditing={false}
+              />
+            </div>
+          </section>
+        )
+      } else {
+        return (
+          <h2>You are not admin, please login as Admin</h2>
 
-        <ProductForm         
-            files={files}
-            setFiles={setFiles}
-            product={product}
-            // productImage={productImage}
-            // imagePreview={imagePreview}
-            // setImagePreview={setImagePreview}
-            description={description}
-            setDescription={setDescription}
-            handleInputChange={handleInputChange}
-            saveProduct={saveProduct}
-            categories={categories}
-            filteredBrands={filteredBrands}
-            isEditing={false}
-        />
-      </div>
-    </section>
-  )
+        )
+      }
+
+
 }
 
 export default AddProduct
