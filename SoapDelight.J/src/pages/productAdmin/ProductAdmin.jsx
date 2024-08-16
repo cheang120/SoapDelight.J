@@ -14,28 +14,42 @@ import EditProduct from "../../components/productAdmin/editProduct/EditProduct.j
 // import OrderDetails from "../../components/admin/orderDetails/OrderDetails";
 // import Coupon from "../../components/admin/coupon/Coupon";
 // import Category from "../../components/admin/category/Category";
+import {useDispatch, useSelector} from 'react-redux'
+
 
 export const ProductAdmin = () => {
-  return (
-    <div className={styles.admin}>
-      <div className={styles.navbar}>
-        <Navbar />
-      </div>
-      <div className={styles.content}>
-        <Routes>
-          <Route path="home" element={<AdminHome />} />
+  const { currentUser } = useSelector((state) => state.user);
+  const userRole = currentUser.role
+    // console.log(userRole);
+    if (userRole === 'author'){
+      return (
+        <div className={styles.admin}>
+          <div className={styles.navbar}>
+            <Navbar />
+          </div>
+          <div className={styles.content}>
+            <Routes>
+              <Route path="home" element={<AdminHome />} />
+    
+              <Route path="all-products" element={<ViewProducts />} />
+              <Route path="add-product" element={<AddProduct />} />
+              <Route path="edit-product/:id" element={<EditProduct />} />
+              {/* <Route path="orders" element={<Orders />} /> */}
+              {/* <Route path="order-details/:id" element={<OrderDetails />} /> */}
+              {/* <Route path="coupon" element={<Coupon />} /> */}
+              <Route path="category" element={<Category />} />
+              <Route path="brand" element={<Brand />} />
+            </Routes>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex justify-center h-96 items-center">
+          <p>Please Login as Admin User!</p>
+        </div>
+      )
+    }
 
-          <Route path="all-products" element={<ViewProducts />} />
-          <Route path="add-product" element={<AddProduct />} />
-          <Route path="edit-product/:id" element={<EditProduct />} />
-          {/* <Route path="orders" element={<Orders />} /> */}
-          {/* <Route path="order-details/:id" element={<OrderDetails />} /> */}
-          {/* <Route path="coupon" element={<Coupon />} /> */}
-          <Route path="category" element={<Category />} />
-          <Route path="brand" element={<Brand />} />
-        </Routes>
-      </div>
-    </div>
-  );
 };
 
