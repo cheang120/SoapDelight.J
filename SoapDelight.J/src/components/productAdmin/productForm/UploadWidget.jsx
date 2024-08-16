@@ -4,11 +4,14 @@ import { BsTrash } from "react-icons/bs";
 import { toast } from "react-toastify";
 
 
-const UploadWidget = () => {
+const UploadWidget = ({ files, setFiles }) => {
     const [selectedImages, setSelectedImages] = useState([]);
     const [images, setImages] = useState([]);
     const [progress, setProgress] = useState(0);
     const [uploading, setUploading] = useState(false);
+
+    const upload_preset = import.meta.env.VITE_REACT_APP_UPLOAD_PRESET
+    const url = "https://api.cloudinary.com/v1_1/dozg9wdh1/image/upload"
 
     const addImages = (e) => {
         const selectedFiles = e.target.files;
@@ -33,6 +36,49 @@ const UploadWidget = () => {
         setImages(images.filter((img, index) => index !== imageIndex));
         URL.revokeObjectURL(image);
     };
+
+
+
+    const uploadImages = async () => {
+        setUploading(true);
+        // console.log(images);
+        let imageUrls = [];
+        const formData = new FormData();
+        for (let i = 0; i < images.length; i++) {
+          let file = images[i];
+          formData.append("file", file);
+          formData.append("upload_preset", upload_preset);
+          formData.append("folder", "soapdelight-product");
+    
+          fetch(url, {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => {
+              return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+              imageUrls.push(data.secure_url);
+              setProgress(imageUrls.length);
+    
+            if (imageUrls.length === images.length) {
+                setFiles((prevFiles) => prevFiles.concat(imageUrls));
+                setUploading(false);
+                console.log(files);
+                toast.success("Image upload complete");
+                setImages([]);
+                setSelectedImages([]);
+                setProgress(0);
+              }
+            })
+            .catch((error) => {
+              setUploading(false);
+              toast.error(error.message);
+              console.log(error);
+            });
+        }
+      };
 
   return (
     <div>
@@ -64,9 +110,9 @@ const UploadWidget = () => {
                         <button
                             className="--btn --btn-danger"
                             // disabled={uploading}
-                            // onClick={() => {
-                            // uploadImages();
-                            // }}
+                            onClick={() => {
+                            uploadImages();
+                            }}
                         >
                             {/* {uploading
                             ? `Uploading... ${progress} of ${selectedImages.length}`
