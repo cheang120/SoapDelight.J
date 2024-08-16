@@ -109,17 +109,16 @@ const UploadWidget = ({ files, setFiles }) => {
                     <div className="--center-all">
                         <button
                             className="--btn --btn-danger"
-                            // disabled={uploading}
+                            disabled={uploading}
                             onClick={() => {
                             uploadImages();
                             }}
                         >
-                            {/* {uploading
+                            {uploading
                             ? `Uploading... ${progress} of ${selectedImages.length}`
                             : `Upload ${selectedImages.length} Image${
                                 selectedImages.length === 1 ? "" : "s"
-                                }`} */}
-                                Upload Image
+                            }`}
                         </button>
                     </div>
             ))
