@@ -3,6 +3,7 @@ import "./ProductForm.scss"
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import UploadWidget from './UploadWidget';
+import { BsTrash } from 'react-icons/bs';
 
 const ProductForm = ({
     saveProduct, 
@@ -16,6 +17,11 @@ const ProductForm = ({
     files,
     setFiles
 }) => {
+
+    const removeImage = (image) => {
+        console.log(image);
+        setFiles(files.filter((img, index) => img !== image));
+      };
     
   return (
     <div className="max-w-md   bg-white p-8 shadow-lg rounded-lg">
@@ -23,6 +29,26 @@ const ProductForm = ({
         <UploadWidget files={files} setFiles={setFiles} />
 
         <form onSubmit={saveProduct}>
+            <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Product Images:</label>
+                <div className='slide-container'>
+                    <aside>
+                        {files.length > 0 &&
+                            files.map((image) => (
+                                <div key={image} className="thumbnail">
+                                    <img src={image} alt="productImage"  className='h-32 mb-5'/>
+                                    <div>
+                                        <BsTrash size={25} className='thumbnailIcon' onClick={() => removeImage(image)}/>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                        {files.length < 1 && (
+                            <p className='--m'>No image set for this poduct.</p>
+                        )}
+                    </aside>
+                </div>
+            </div>
             <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Product Name:</label>
                 <input

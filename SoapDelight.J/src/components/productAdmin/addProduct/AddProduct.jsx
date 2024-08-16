@@ -64,9 +64,9 @@ const AddProduct = () => {
         // console.log(product);
         // console.log(description);
 
-        // if (files.length < 1) {
-        //   return toast.info("Please add an image");
-        // }
+        if (files.length < 1) {
+          return toast.info("Please add an image");
+        }
 
     
         const formData = {
@@ -79,7 +79,7 @@ const AddProduct = () => {
           regularPrice: regularPrice,
           price: price,
           description: description,
-          // image: files,
+          image: files,
         };
     
         // console.log(formData);
