@@ -92,6 +92,25 @@ export const getProduct = createAsyncThunk(
   }
 );
 
+// Update product
+export const updateProduct = createAsyncThunk(
+  "products/updateProduct",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await productService.updateProduct(id, formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      console.log(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const productSlice = createSlice({
     name: "product",
     initialState,
@@ -231,21 +250,22 @@ const productSlice = createSlice({
           state.message = action.payload;
           toast.error(action.payload);
         })
-        // .addCase(updateProduct.pending, (state) => {
-        //   state.isLoading = true;
-        // })
-        // .addCase(updateProduct.fulfilled, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isSuccess = true;
-        //   state.isError = false;
-        //   toast.success("Product updated successfully");
-        // })
-        // .addCase(updateProduct.rejected, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isError = true;
-        //   state.message = action.payload;
-        //   toast.error(action.payload);
-        // })
+        // Update Product
+        .addCase(updateProduct.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(updateProduct.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.isSuccess = true;
+          state.isError = false;
+          toast.success("Product updated successfully");
+        })
+        .addCase(updateProduct.rejected, (state, action) => {
+          state.isLoading = false;
+          state.isError = true;
+          state.message = action.payload;
+          toast.error(action.payload);
+        })
         // .addCase(reviewProduct.pending, (state) => {
         //   state.isLoading = true;
         // })
