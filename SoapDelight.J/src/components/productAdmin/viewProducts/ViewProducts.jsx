@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {useDispatch, useSelector} from 'react-redux'
-import { getProducts } from '../../../redux/features/product/productSlice'
+import { deleteProduct, getProducts } from '../../../redux/features/product/productSlice'
 import { selectIsLoggedIn } from '../../../redux/features/auth/authSlice'
 import Search from '../../search/Search.jsx'
 import { Spinner } from "../../../components/Loader.jsx";
@@ -34,6 +34,29 @@ const ViewProducts = () => {
       }
       // console.log(products);
     },[isLoggedIn,dispatch])
+
+    const delProduct = async (id) => {
+      console.log(id);
+      await dispatch(deleteProduct(id));
+      await dispatch(getProducts());
+    };
+
+    const confirmDelete = (id) => {
+      confirmAlert({
+        title: "Delete Product",
+        message: "Are you sure you want to delete this product.",
+        buttons: [
+          {
+            label: "Delete",
+            onClick: () => delProduct(id),
+          },
+          {
+            label: "Cancel",
+            // onClick: () => alert('Click No')
+          },
+        ],
+      });
+    };
 
   // Begin Pagination
   const itemsPerPage = 5;
