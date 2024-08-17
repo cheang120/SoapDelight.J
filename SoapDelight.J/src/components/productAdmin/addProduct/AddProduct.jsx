@@ -9,9 +9,11 @@ import {
     getCategories,
   } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
   import {
+    RESET_PROD,
     createProduct,
     // selectIsLoading,
   } from "../../../redux/features/product/productSlice";
+import { toast } from "react-toastify";
 
 const initialState = {
     name: "",
@@ -36,7 +38,7 @@ const AddProduct = () => {
     const [imagePreview, setImagePreview] = useState([]);
     const [description, setDescription] = useState("");
 
-    const {isLoading} = useSelector((state) => state.product)
+    const {isLoading, message} = useSelector((state) => state.product)
     const { categories, brands } = useSelector((state) => state.category);
 
     const { name, category, brand, price, quantity, color, regularPrice } = product;
@@ -94,8 +96,15 @@ const AddProduct = () => {
     
         await dispatch(createProduct(formData));
     
-        navigate("/productAdmin/all-products");
+        // navigate("/productAdmin/all-products");
       };
+
+      useEffect(() => {
+        if (message === "Product added successfully"){
+          navigate("/productAdmin/all-products");
+        }
+        dispatch(RESET_PROD())
+      },[message, navigate,dispatch])
 
       const [filteredBrands, setFilteredBrands] = useState([]);
       function filterBrands(selectedCategory) {

@@ -77,6 +77,12 @@ const productSlice = createSlice({
     name: "product",
     initialState,
     reducers: {
+      RESET_PROD(state) {
+        state.isError = false;
+        state.isSuccess = false;
+        state.isLoading = false;
+        state.message = ""
+      },
     //   CALC_STORE_VALUE(state, action) {
     //     const products = action.payload;
     //     const array = [];
@@ -142,8 +148,13 @@ const productSlice = createSlice({
           state.isSuccess = true;
           state.isError = false;
           console.log(action.payload);
+          if (action.payload && action.payload.hasOwnProperty("message")) {
+            return toast.error(action.payload.message)
+          } else {
+            state.message = "Product added successfully"
+            toast.success("Product added successfully");
+          }
           state.products.push(action.payload);
-          toast.success("Product added successfully");
         })
         .addCase(createProduct.rejected, (state, action) => {
           state.isLoading = false;
@@ -264,6 +275,7 @@ const productSlice = createSlice({
   });
 
   export const {
+    RESET_PROD,
     // CALC_STORE_VALUE,
     // CALC_OUTOFSTOCK,
     // CALC_CATEGORY,
