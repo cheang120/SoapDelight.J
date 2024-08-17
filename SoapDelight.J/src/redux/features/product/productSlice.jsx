@@ -258,7 +258,12 @@ const productSlice = createSlice({
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          toast.success("Product updated successfully");
+          if (action.payload && action.payload.hasOwnProperty("message")) {
+            return toast.error(action.payload.message)
+          } else {
+            state.message = "Product updated successfully"
+            toast.success("Product updated successfully");
+          }
         })
         .addCase(updateProduct.rejected, (state, action) => {
           state.isLoading = false;
@@ -322,8 +327,8 @@ const productSlice = createSlice({
     // GET_PRICE_RANGE,
   } = productSlice.actions;
   
-//   export const selectIsLoading = (state) => state.product.isLoading;
-//   export const selectProduct = (state) => state.product.product;
+  export const selectIsLoading = (state) => state.product.isLoading;
+  export const selectProduct = (state) => state.product.product;
 //   export const selectProducts = (state) => state.product.products;
 //   export const selectTotalStoreValue = (state) => state.product.totalStoreValue;
 //   export const selectOutOfStock = (state) => state.product.outOfStock;
