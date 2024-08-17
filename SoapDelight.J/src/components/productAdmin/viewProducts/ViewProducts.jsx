@@ -126,7 +126,7 @@ const ViewProducts = () => {
                           </Link>
                         </span>
                         <span className="text-green-600 hover:text-green-900 ml-4">
-                          <Link to={`/admin/edit-product/${_id}`}>
+                          <Link to={`/productAdmin/edit-product/${_id}`}>
                             <FaEdit size={20} />
                           </Link>
                         </span>
