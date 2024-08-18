@@ -42,6 +42,8 @@ const EditProduct = () => {
     dispatch(getBrands());
   }, [dispatch]);
 
+
+
   // Filter Brands based on selectedCategory
   const [filteredBrands, setFilteredBrands] = useState([]);
 
@@ -59,17 +61,17 @@ const EditProduct = () => {
 
 
 
-  // useEffect(() => {
-  //   setProduct(productEdit);
+  useEffect(() => {
+    setProduct(productEdit);
 
-  //   if (productEdit && productEdit.image) {
-  //     setFiles(productEdit.image);
-  //   }
+    if (productEdit && productEdit.image) {
+      setFiles(productEdit.image);
+    }
 
-  //   setDescription(
-  //     productEdit && productEdit.description ? productEdit.description : ""
-  //   );
-  // }, [productEdit]);
+    setDescription(
+      productEdit && productEdit.description ? productEdit.description : ""
+    );
+  }, [productEdit]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -113,21 +115,23 @@ const EditProduct = () => {
     <div>
       {/* {isLoading && <Loader />} */}
       <h3 className="--mt">Edit Product</h3>
-      {/* <ProductForm
+      <ProductForm
+        saveProduct={saveProduct}
+        product={product}
+        handleInputChange={handleInputChange}
+        categories={categories}
+        isEditing={true}
+        filteredBrands={filteredBrands}
+        description={description}
         files={files}
         setFiles={setFiles}
-        product={product}
+
         productImage={productImage}
         imagePreview={imagePreview}
         setImagePreview={setImagePreview}
-        description={description}
         setDescription={setDescription}
-        handleInputChange={handleInputChange}
-        saveProduct={saveProduct}
-        categories={categories}
-        filteredBrands={filteredBrands}
-        isEditing={true}
-      /> */}
+
+      />
     </div>
   );
 };

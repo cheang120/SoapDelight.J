@@ -27,7 +27,7 @@ EventEmitter.defaultMaxListeners = 20;
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://soapdelight-j.onrender.com"],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
     allowedHeaders: ['Authorization', 'Content-Type', 'On-behalf-of', 'x-sg-elas-acl'],
     credentials: true,
   })

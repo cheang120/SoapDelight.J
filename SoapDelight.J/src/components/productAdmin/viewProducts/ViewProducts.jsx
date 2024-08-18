@@ -27,7 +27,12 @@ const ViewProducts = () => {
   const userRole = currentUser.role
     // console.log(userRole);
 
+
+    
   if (userRole === 'author'){
+
+
+    
     useEffect(() => {
       if (isLoggedIn) {
         dispatch(getProducts())
@@ -40,6 +45,7 @@ const ViewProducts = () => {
       await dispatch(deleteProduct(id));
       await dispatch(getProducts());
     };
+    // console.log(products);
 
     const confirmDelete = (id) => {
       confirmAlert({
@@ -110,6 +116,7 @@ const ViewProducts = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentItems.map((product, index) => {
+                  console.log(product);
                   const { _id, name, category, price, quantity } = product;
                   return (
                     <tr key={_id}>
