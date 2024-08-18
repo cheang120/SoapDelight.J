@@ -24,21 +24,26 @@ const ViewProducts = () => {
     (state) => state.product
   );
 
+  // useEffect(()=>{
+  //   dispatch(getProducts())
+  //   console.log(products);
+  // },[dispatch])
+
+  // console.log(products);
   const userRole = currentUser.role
     // console.log(userRole);
 
-
-    
   if (userRole === 'author'){
 
 
     
     useEffect(() => {
-      if (isLoggedIn) {
-        dispatch(getProducts())
-      }
       // console.log(products);
-    },[isLoggedIn,dispatch])
+      // if (isLoggedIn) {
+        dispatch(getProducts())
+      // }
+      // console.log(products);
+    },[dispatch])
 
     const delProduct = async (id) => {
       console.log(id);
@@ -116,7 +121,7 @@ const ViewProducts = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentItems.map((product, index) => {
-                  console.log(product);
+                  // console.log(product);
                   const { _id, name, category, price, quantity } = product;
                   return (
                     <tr key={_id}>
