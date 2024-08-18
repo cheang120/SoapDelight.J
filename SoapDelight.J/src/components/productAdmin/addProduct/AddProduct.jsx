@@ -39,27 +39,27 @@ const AddProduct = () => {
     const [description, setDescription] = useState("");
 
     const {isLoading, message} = useSelector((state) => state.product)
-    // const { categories, brands } = useSelector((state) => state.category);
+    const { categories, brands } = useSelector((state) => state.category);
 
     const { name, category, brand, price, quantity, color, regularPrice } = product;
 
-    // const userRole = currentUser.role
+    const userRole = currentUser.role
     // console.log(userRole);
 
-    // if (userRole === 'author') {
-    //   useEffect(() => {
-    //     dispatch(getCategories());
-    //     dispatch(getBrands());
-    //   }, [dispatch]);
-    // }
+    if (userRole === 'author') {
+      useEffect(() => {
+        dispatch(getCategories());
+        dispatch(getBrands());
+      }, [dispatch]);
+    }
 
  
 
 
-    // const handleInputChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setProduct({ ...product, [name]: value });
-    //   };
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProduct({ ...product, [name]: value });
+      };
 
       const generateKSKU = (category) => {
         const letter = category.slice(0, 3).toUpperCase();
@@ -106,18 +106,18 @@ const AddProduct = () => {
         dispatch(RESET_PROD())
       },[message, navigate,dispatch])
 
-      // const [filteredBrands, setFilteredBrands] = useState([]);
-      // function filterBrands(selectedCategory) {
-      //   const newBrands = brands.filter(
-      //     (brand) => brand.category === selectedCategory
-      //   );
-      //   setFilteredBrands(newBrands);
-      // }
+      const [filteredBrands, setFilteredBrands] = useState([]);
+      function filterBrands(selectedCategory) {
+        const newBrands = brands.filter(
+          (brand) => brand.category === selectedCategory
+        );
+        setFilteredBrands(newBrands);
+      }
 
-      // useEffect(() => {
-      //   filterBrands(category);
-      //   // console.log(filteredBrands);
-      // }, [category]);
+      useEffect(() => {
+        filterBrands(category);
+        // console.log(filteredBrands);
+      }, [category]);
 
       if (userRole === 'author') {
         return (
@@ -136,10 +136,10 @@ const AddProduct = () => {
                   // setImagePreview={setImagePreview}
                   description={description}
                   setDescription={setDescription}
-                  // handleInputChange={handleInputChange}
+                  handleInputChange={handleInputChange}
                   saveProduct={saveProduct}
-                  // categories={categories}
-                  // filteredBrands={filteredBrands}
+                  categories={categories}
+                  filteredBrands={filteredBrands}
                   isEditing={false}
               />
             </div>
