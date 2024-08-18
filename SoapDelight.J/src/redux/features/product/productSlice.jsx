@@ -185,12 +185,12 @@ const productSlice = createSlice({
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          console.log(action.payload);
+          // console.log(action.payload);
           if (action.payload && action.payload.hasOwnProperty("message")) {
             return toast.error(action.payload.message)
           } else {
-            state.message = "Product added successfully"
-            toast.success("Product added successfully");
+            state.message = "Product created successfully"
+            toast.success("Product created successfully");
           }
           state.products.push(action.payload);
         })
@@ -208,7 +208,7 @@ const productSlice = createSlice({
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          console.log(action.payload);
+          // console.log(action.payload);
           state.products = action.payload;
         })
         .addCase(getProducts.rejected, (state, action) => {

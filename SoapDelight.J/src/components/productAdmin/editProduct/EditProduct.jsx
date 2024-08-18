@@ -14,6 +14,7 @@ import {
   getBrands,
   getCategories,
 } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
+import Loader from "../../Loader";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -29,7 +30,7 @@ const EditProduct = () => {
   const [imagePreview, setImagePreview] = useState([]);
   const [description, setDescription] = useState("");
 
-  const { categories, brands } = useSelector((state) => state.category);
+  // const { categories, brands } = useSelector((state) => state.category);
 
 
   useEffect(() => {
@@ -37,27 +38,27 @@ const EditProduct = () => {
   }, [dispatch, id]);
 
 
-  useEffect(() => {
-    dispatch(getCategories());
-    dispatch(getBrands());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getCategories());
+  //   dispatch(getBrands());
+  // }, [dispatch]);
 
 
 
   // Filter Brands based on selectedCategory
-  const [filteredBrands, setFilteredBrands] = useState([]);
+  // const [filteredBrands, setFilteredBrands] = useState([]);
 
-  function filterBrands(selectedCategoryName) {
-    const newBrands = brands.filter(
-      (brand) => brand.category === selectedCategoryName
-    );
-    setFilteredBrands(newBrands);
-  }
+  // function filterBrands(selectedCategoryName) {
+  //   const newBrands = brands.filter(
+  //     (brand) => brand.category === selectedCategoryName
+  //   );
+  //   setFilteredBrands(newBrands);
+  // }
 
-  useEffect(() => {
-    filterBrands(product?.category);
-    // console.log(filteredBrands);
-  }, [product?.category]);
+  // useEffect(() => {
+  //   filterBrands(product?.category);
+  //   // console.log(filteredBrands);
+  // }, [product?.category]);
 
 
 
@@ -73,10 +74,10 @@ const EditProduct = () => {
     );
   }, [productEdit]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProduct({ ...product, [name]: value });
-  };
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setProduct({ ...product, [name]: value });
+  // };
 
   const saveProduct = async (e) => {
     e.preventDefault();
@@ -113,19 +114,19 @@ const EditProduct = () => {
 
   return (
     <div>
-      {/* {isLoading && <Loader />} */}
+      {isLoading && <Loader />}
       <h3 className="--mt">Edit Product</h3>
       <ProductForm
         saveProduct={saveProduct}
         product={product}
-        handleInputChange={handleInputChange}
-        categories={categories}
+        setProduct={setProduct}
+        // handleInputChange={handleInputChange}
+        // categories={categories}
         isEditing={true}
-        filteredBrands={filteredBrands}
+        // filteredBrands={filteredBrands}
         description={description}
         files={files}
         setFiles={setFiles}
-
         productImage={productImage}
         imagePreview={imagePreview}
         setImagePreview={setImagePreview}

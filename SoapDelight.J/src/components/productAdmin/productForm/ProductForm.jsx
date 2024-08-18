@@ -1,22 +1,59 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import "./ProductForm.scss"
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import UploadWidget from './UploadWidget';
 import { BsTrash } from 'react-icons/bs';
+import { useSelector,useDispatch } from 'react-redux';
+import { getBrands, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
+import { selectProduct } from '../../../redux/features/product/productSlice';
 
 const ProductForm = ({
     saveProduct, 
-    product,
-    handleInputChange, 
-    categories,
     isEditing,
-    filteredBrands,
+    product,
+    setProduct,
+    // handleInputChange, 
+    // categories,
+    // filteredBrands,
     description,
     setDescription,
     files,
     setFiles
 }) => {
+    const dispatch = useDispatch();
+    const [filteredBrands, setFilteredBrands] = useState([]);
+
+    const { categories, brands } = useSelector((state) => state.category);
+
+    const userRole = currentUser.role
+    // console.log(userRole);
+
+    if (userRole === 'author') {
+      useEffect(() => {
+        dispatch(getCategories());
+        dispatch(getBrands());
+      }, [dispatch]);
+    }
+
+
+    
+    function filterBrands(selectedCategory) {
+      const newBrands = brands.filter(
+        (brand) => brand.category === selectedCategory
+      );
+      setFilteredBrands(newBrands);
+    }
+
+    useEffect(() => {
+      filterBrands(product?.category);
+      // console.log(filteredBrands);
+    }, [product?.category]);
+
+    const handleInputChange = (e) => {
+    const { name, value } = e.target;
+        selectProduct({ ...product, [name]: value });
+    };
 
     const removeImage = (image) => {
         console.log(image);
