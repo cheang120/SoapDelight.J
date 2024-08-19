@@ -14,7 +14,7 @@ import {
   getBrands,
   getCategories,
 } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
-import Loader from "../../Loader";
+// import Loader from "../../Loader";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -74,10 +74,10 @@ const EditProduct = () => {
     );
   }, [productEdit]);
 
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setProduct({ ...product, [name]: value });
-  // };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProduct({ ...product, [name]: value });
+  };
 
   const saveProduct = async (e) => {
     e.preventDefault();
@@ -114,13 +114,13 @@ const EditProduct = () => {
 
   return (
     <div>
-      {isLoading && <Loader />}
+      {/* {isLoading && <Loader />} */}
       <h3 className="--mt">Edit Product</h3>
       <ProductForm
         saveProduct={saveProduct}
         product={product}
         setProduct={setProduct}
-        // handleInputChange={handleInputChange}
+        handleInputChange={handleInputChange}
         // categories={categories}
         isEditing={true}
         // filteredBrands={filteredBrands}
