@@ -12,9 +12,9 @@ import EditProduct from "../../components/productAdmin/editProduct/EditProduct.j
 // import Home from "../../components/admin/home/Home";
 // import Orders from "../../components/admin/orders/Orders";
 // import OrderDetails from "../../components/admin/orderDetails/OrderDetails";
-// import Coupon from "../../components/admin/coupon/Coupon";
 // import Category from "../../components/admin/category/Category";
 import {useDispatch, useSelector} from 'react-redux'
+import Coupon from "../../components/productAdmin/coupon/Coupon.jsx";
 
 
 export const ProductAdmin = () => {
@@ -36,7 +36,7 @@ export const ProductAdmin = () => {
               <Route path="edit-product/:id" element={<EditProduct />} />
               {/* <Route path="orders" element={<Orders />} /> */}
               {/* <Route path="order-details/:id" element={<OrderDetails />} /> */}
-              {/* <Route path="coupon" element={<Coupon />} /> */}
+              <Route path="coupon" element={<Coupon />} />
               <Route path="category" element={<Category />} />
               <Route path="brand" element={<Brand />} />
             </Routes>

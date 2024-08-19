@@ -44,6 +44,11 @@ const Navbar = () => {
                     Brand
                 </NavLink>
             </li>
+            <li>
+            <NavLink to="/productAdmin/coupon" className={activeLink}>
+              Coupon
+            </NavLink>
+          </li>
         </ul>
       </nav>
     </div>
