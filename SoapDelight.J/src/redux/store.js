@@ -8,6 +8,8 @@ import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import categoryReducer from "../redux/features/categoryAndBrand/categoryAndBrandSlice";
 import productReducer from "../redux/features/product/productSlice"
+import couponReducer from "../redux/features/coupon/couponSlice"
+
 
 // Combine all reducers into a single root reducer
 const rootReducer = combineReducers({
@@ -16,7 +18,8 @@ const rootReducer = combineReducers({
   theme: themeReducer,
   filter: filterReducer,
   category: categoryReducer, // Ensure categoryReducer is included here
-  product: productReducer
+  product: productReducer,
+  coupon:couponReducer
 });
 
 // Persist configuration
