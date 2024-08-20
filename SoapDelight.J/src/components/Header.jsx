@@ -8,6 +8,7 @@ import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
 import { HiOutlineMenuAlt3, HiUser } from "react-icons/hi";
 import { FaShoppingCart, FaTimes, FaUserCircle } from "react-icons/fa";
+import { AdminOnlyLink } from './hiddenLink/AdminOnlyRoute';
 // import { Sidebar } from 'flowbite-react';
 
 
@@ -147,6 +148,13 @@ export default function Header() {
 
             </Link>
           )}
+          {/* <AdminOnlyLink>
+            <Link to='/productAdmin/home'>
+
+              <Dropdown.Item>ProductAdmin</Dropdown.Item>
+
+            </Link>
+          </AdminOnlyLink> */}
             <Dropdown.Divider />
             <Dropdown.Item 
               onClick={handleSignout}

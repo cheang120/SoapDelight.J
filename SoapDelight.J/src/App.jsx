@@ -19,6 +19,7 @@ import Forgot from './pages/Forgot'
 import Reset from './pages/Reset'
 import { Card } from './components/Card'
 import {ProductAdmin} from './pages/productAdmin/ProductAdmin'
+import AdminOnlyRoute from './components/hiddenLink/AdminOnlyRoute'
 
 
 axios.defaults.withCredentials = true
@@ -56,7 +57,15 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route element={<PrivateRoute />} >
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path='/productAdmin/*' element={<ProductAdmin />} />
+          <Route 
+            path='/productAdmin/*' 
+            element={
+               <AdminOnlyRoute>
+                <ProductAdmin />
+               </AdminOnlyRoute>
+            } 
+          
+          />
         </Route>
 
         <Route path="/verify/:verificationToken" element={<Verify />} />
