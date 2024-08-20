@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import Card from "../../card/Card";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from "react-redux";
-import { createCoupon } from "../../../redux/features/coupon/couponSlice";
+import { createCoupon, getCoupons } from "../../../redux/features/coupon/couponSlice";
 // import Loader from "../../loader/Loader";
 import { toast } from "react-toastify";
 
-const CreateCoupon = () => {
+const CreateCoupon = ({reloadCoupon}) => {
   const [name, setName] = useState("");
   const [discount, setDiscount] = useState(0);
   const [expiresAt, setExpiresAt] = useState(new Date());
@@ -34,11 +34,14 @@ const CreateCoupon = () => {
     dispatch(createCoupon(formData));
     setName("");
     setDiscount(0);
+
   };
 
+  useEffect(() => {
+    dispatch(getCoupons());
+  }, [dispatch]);
   return (
 <>
-  <div className="border-b-2 border-gray-300 my-4"></div>
   <div className="mb-8">
     <h3 className="text-2xl font-semibold text-gray-800 mb-2">Create Coupon</h3>
     <p className="text-gray-600 mb-4">

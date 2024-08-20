@@ -51,6 +51,26 @@ export const getCoupons = createAsyncThunk(
     }
   );
 
+
+// Delete a Product
+export const deleteCoupon = createAsyncThunk(
+    "coupons/delete",
+    async (id, thunkAPI) => {
+      try {
+        return await couponService.deleteCoupon(id);
+      } catch (error) {
+        const message =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        console.log(message);
+        return thunkAPI.rejectWithValue(message);
+      }
+    }
+);
+
 const couponSlice = createSlice({
   name: "coupon",
   initialState,
@@ -110,22 +130,22 @@ const couponSlice = createSlice({
     //     toast.error(action.payload);
     //   })
       //   Delete coupon
-    //   .addCase(deleteCoupon.pending, (state) => {
-    //     state.isLoading = true;
-    //   })
-    //   .addCase(deleteCoupon.fulfilled, (state, action) => {
-    //     state.isLoading = false;
-    //     state.isSuccess = true;
-    //     state.isError = false;
-    //     toast.success(action.payload);
-    //     console.log(action.payload);
-    //   })
-    //   .addCase(deleteCoupon.rejected, (state, action) => {
-    //     state.isLoading = false;
-    //     state.isError = true;
-    //     state.message = action.payload;
-    //     toast.error(action.payload);
-    //   });
+      .addCase(deleteCoupon.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteCoupon.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        toast.success(action.payload);
+        console.log(action.payload);
+      })
+      .addCase(deleteCoupon.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      });
   },
 });
 

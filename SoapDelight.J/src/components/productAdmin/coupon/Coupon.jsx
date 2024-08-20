@@ -4,11 +4,15 @@ import CouponList from "./CouponList";
 import "./Coupon.scss";
 
 const Coupon = () => {
+  const reloadCoupon = () => {
+    dispatch(getCategories());
+  };
   return (
     <section>
       <div className="container coupon">
+      <CreateCoupon reloadCoupon={reloadCoupon} />
         <CouponList />
-        <CreateCoupon />
+
       </div>
     </section>
   );
