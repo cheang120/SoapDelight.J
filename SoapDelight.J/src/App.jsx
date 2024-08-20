@@ -21,6 +21,7 @@ import { Card } from './components/Card'
 import {ProductAdmin} from './pages/productAdmin/ProductAdmin'
 import AdminOnlyRoute from './components/hiddenLink/AdminOnlyRoute'
 import NotFound from './pages/404/NotFound'
+import Product from './pages/shop/Product'
 
 
 axios.defaults.withCredentials = true
@@ -75,6 +76,8 @@ function App() {
         <Route path="/forgotpassword" element={<Forgot />} />
         <Route path='/resetPassword/:resetToken' element={<Reset />} />
         <Route path='*' element={<NotFound />} />
+
+        <Route path="/shop" element={<Product />} />
       </Routes>
       <FooterCom />
     </BrowserRouter>
