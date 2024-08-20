@@ -15,7 +15,7 @@ const CouponList = () => {
 
   useEffect(() => {
     dispatch(getCoupons());
-    dispatch(getCoupon("NEW_YEAR"))
+    // dispatch(getCoupon("NEW_YEAR"))
   }, [dispatch]);
   // console.log(coupons.length);
 
