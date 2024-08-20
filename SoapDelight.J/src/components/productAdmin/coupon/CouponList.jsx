@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteCoupon,
+  getCoupon,
   getCoupons,
 } from "../../../redux/features/coupon/couponSlice";
 import { FaTrashAlt } from "react-icons/fa";
@@ -14,6 +15,7 @@ const CouponList = () => {
 
   useEffect(() => {
     dispatch(getCoupons());
+    dispatch(getCoupon("NEW_YEAR"))
   }, [dispatch]);
   // console.log(coupons.length);
 

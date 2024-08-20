@@ -51,6 +51,25 @@ export const getCoupons = createAsyncThunk(
     }
   );
 
+// Get a product
+export const getCoupon = createAsyncThunk(
+    "coupons/getCoupon",
+    async (couponName, thunkAPI) => {
+      try {
+        return await couponService.getCoupon(couponName);
+      } catch (error) {
+        const message =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        console.log(message);
+        return thunkAPI.rejectWithValue(message);
+      }
+    }
+);
+
 
 // Delete a Product
 export const deleteCoupon = createAsyncThunk(
@@ -112,23 +131,23 @@ const couponSlice = createSlice({
         toast.error(action.payload);
       })
       //   Get single coupons
-    //   .addCase(getCoupon.pending, (state) => {
-    //     state.isLoading = true;
-    //   })
-    //   .addCase(getCoupon.fulfilled, (state, action) => {
-    //     state.isLoading = false;
-    //     state.isSuccess = true;
-    //     state.isError = false;
-    //     state.coupon = action.payload;
-    //     toast.success("Coupon applied.");
-    //     console.log(action.payload);
-    //   })
-    //   .addCase(getCoupon.rejected, (state, action) => {
-    //     state.isLoading = false;
-    //     state.isError = true;
-    //     state.message = action.payload;
-    //     toast.error(action.payload);
-    //   })
+      .addCase(getCoupon.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getCoupon.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.coupon = action.payload;
+        toast.success("Coupon applied.");
+        console.log(action.payload);
+      })
+      .addCase(getCoupon.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
       //   Delete coupon
       .addCase(deleteCoupon.pending, (state) => {
         state.isLoading = true;
