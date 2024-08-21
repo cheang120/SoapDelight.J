@@ -1,11 +1,23 @@
-import React from 'react'
+import React from "react";
+import StarRatings from "react-star-ratings";
 
-const ProductRating = () => {
+const ProductRating = ({ averageRating, noOfRatings }) => {
   return (
-    <div>
-      ProductRating
-    </div>
-  )
-}
+    <>
+      {averageRating > 0 && (
+        <>
+          <StarRatings
+            starDimension="20px"
+            starSpacing="2px"
+            starRatedColor="#F6B01E"
+            rating={averageRating}
+            editing={false}
+          />
+          ({noOfRatings})
+        </>
+      )}
+    </>
+  );
+};
 
-export default ProductRating
+export default ProductRating;

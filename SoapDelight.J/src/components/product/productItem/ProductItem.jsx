@@ -3,13 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styles from "./ProductItem.module.scss";
 import ProductRating from "../productRating/ProductRating";
-import { shortenText } from "../../../utils";
+import { calculateAverageRating, shortenText } from "../../../utils";
 import DOMPurify from "dompurify";
 
 
 const ProductItem = ({
     product,grid,_id,name,price, image,regularPrice
 }) => {
+    const dispatch = useDispatch();
+    const averageRating = calculateAverageRating(product.ratings);
+
   return (
     <div className={grid ? `${styles.grid} mb-5` : `${styles.list} mb-5` }>
       <Link to={`product-details/${_id}`}>
@@ -24,8 +27,8 @@ const ProductItem = ({
             {` $${price} `}
           </p>
           <ProductRating
-            // averageRating={averageRating}
-            // noOfRatings={product?.ratings.length}
+            averageRating={averageRating}
+            noOfRatings={product?.ratings.length}
           />
         <h4>{shortenText(name, 18)}</h4>
 
