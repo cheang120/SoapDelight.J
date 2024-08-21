@@ -3,7 +3,7 @@ import styles from "./ProductList.module.scss";
 import { BsFillGridFill } from "react-icons/bs";
 import { FaListAlt } from "react-icons/fa";
 import Search from "../../search/Search";
-// import ProductItem from "../productItem/ProductItem";
+import ProductItem from "../productItem/ProductItem";
 import { useDispatch, useSelector } from "react-redux";
 // import {
 //   FILTER_BY_SEARCH,
@@ -86,11 +86,11 @@ const ProductList = ({ products }) => {
       </div>
 
       <div className={grid ? `${styles.grid}` : `${styles.list}`}>
-        {/* {products.length === 0 ? (
+        {products.length === 0 ? (
           <p>No product found.</p>
         ) : (
           <>
-            {currentItems.map((product) => {
+            {products.map((product) => {
               return (
                 <div key={product._id}>
                   <ProductItem {...product} grid={grid} product={product} />
@@ -98,7 +98,7 @@ const ProductList = ({ products }) => {
               );
             })}
           </>
-        )} */}
+        )}
       </div>
       {/* <ReactPaginate
         breakLabel="..."
