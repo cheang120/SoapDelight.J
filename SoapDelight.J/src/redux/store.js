@@ -8,6 +8,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import categoryReducer from "../redux/features/categoryAndBrand/categoryAndBrandSlice";
 import productReducer from "../redux/features/product/productSlice"
+import filtersReducer from '../redux/features/product/filtersSlice'
 import couponReducer from "../redux/features/coupon/couponSlice"
 
 
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   user: userReducer,
   theme: themeReducer,
   filter: filterReducer,
+  filters:filtersReducer,
   category: categoryReducer, // Ensure categoryReducer is included here
   product: productReducer,
   coupon:couponReducer
