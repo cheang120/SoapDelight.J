@@ -7,7 +7,7 @@
       text-align: left;
       width: 80%;
       height: 3rem;
-      font-size: 1.5rem;
+      font-size: 1rem;
       border: none;
       background-color: transparent;
       cursor: pointer;
@@ -38,6 +38,8 @@
     .filter {
       .category button {
         width: 100%;
+        font-size: 1rem;
+
       }
       .brand {
         select {
