@@ -5,10 +5,8 @@ import { FaListAlt } from "react-icons/fa";
 import Search from "../../search/Search";
 import ProductItem from "../productItem/ProductItem";
 import { useDispatch, useSelector } from "react-redux";
-
 import ReactPaginate from "react-paginate";
 import { FILTER_BY_SEARCH, SORT_PRODUCTS, selectFilteredProducts } from "../../../redux/features/product/filtersSlice";
-// import { FILTER_BY_SEARCH, selectFilteredProducts } from "../../../redux/features/product/productFilterSlice";
 
 
 const ProductList = ({ products }) => {
