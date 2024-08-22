@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "./ProductFilter.module.scss";
 import {
+  FILTER_BY_BRAND,
   // FILTER_BY_BRAND,
   FILTER_BY_CATEGORY,
   // FILTER_BY_PRICE,
@@ -23,10 +24,16 @@ const ProductFilter = () => {
     ...new Set(products?.map((product) => product.category)),
   ];
 
-  const filterProducts = (cat) => {
-    setCategory(cat);
-    dispatch(FILTER_BY_CATEGORY({ products, category: cat }));
-  };
+  useEffect(() => {
+    dispatch(FILTER_BY_BRAND({ products, brand }));
+  }, [dispatch, products, brand]);
+
+  // console.log(allBrands);
+
+  // const filterProducts = (cat) => {
+  //   setCategory(cat);
+  //   dispatch(FILTER_BY_CATEGORY({ products, category: cat }));
+  // };
 
   const filterProductCategory = (cat) => {
     // console.log(cat);
@@ -59,7 +66,18 @@ const ProductFilter = () => {
           )
       })}
       </div>
-
+      <h4>Brand</h4>
+      <div className={styles.brand}>
+        <select value={brand} onChange={(e) => setBrand(e.target.value)}>
+          {allBrands.map((brand, index) => {
+            return (
+              <option key={index} value={brand}>
+                {brand}
+              </option>
+            );
+          })}
+        </select>
+      </div>
     </div>
   )
 }
