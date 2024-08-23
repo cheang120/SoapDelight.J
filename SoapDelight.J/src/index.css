@@ -219,3 +219,14 @@
   margin: auto;
   text-align: center;
 }
+
+
+.rc-slider-mark {
+  position: absolute;
+  top: 18px;
+  left: 26px;
+  width: 100%;
+  font-size: 12px;
+}
+
+

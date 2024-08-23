@@ -40,7 +40,7 @@ const Product = () => {
 
   return (
     <section>
-      <div className={`container ${styles.product}`}>
+      <div className={`container ${styles.product} mx-auto`}>
         
         <aside
           className={

@@ -161,19 +161,19 @@ const productSlice = createSlice({
     //     const uniqueCategory = [...new Set(array)];
     //     state.category = uniqueCategory;
     //   },
-    //   GET_PRICE_RANGE(state, action) {
-    //     const { products } = action.payload;
-    //     const array = [];
-    //     products.map((product) => {
-    //       const price = product.price;
-    //       return array.push(price);
-    //     });
-    //     const max = Math.max(...array);
-    //     const min = Math.min(...array);
+      GET_PRICE_RANGE(state, action) {
+        const { products } = action.payload;
+        const array = [];
+        products.map((product) => {
+          const price = product.price;
+          return array.push(price);
+        });
+        const max = Math.max(...array);
+        const min = Math.min(...array);
   
-    //     state.minPrice = min;
-    //     state.maxPrice = max;
-    //   },
+        state.minPrice = min;
+        state.maxPrice = max;
+      },
     },
     extraReducers: (builder) => {
       builder
@@ -323,7 +323,7 @@ const productSlice = createSlice({
     // CALC_STORE_VALUE,
     // CALC_OUTOFSTOCK,
     // CALC_CATEGORY,
-    // GET_PRICE_RANGE,
+    GET_PRICE_RANGE,
   } = productSlice.actions;
   
   export const selectIsLoading = (state) => state.product.isLoading;

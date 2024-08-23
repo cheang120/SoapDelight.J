@@ -5,8 +5,13 @@ import {
   FILTER_BY_BRAND,
   // FILTER_BY_BRAND,
   FILTER_BY_CATEGORY,
+  FILTER_BY_PRICE,
   // FILTER_BY_PRICE,
+  // GET_PRICE_RANGE
 } from "../../../redux/features/product/filtersSlice";
+import { GET_PRICE_RANGE } from "../../../redux/features/product/productSlice";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
 
 
 const ProductFilter = () => {
@@ -28,12 +33,12 @@ const ProductFilter = () => {
     dispatch(FILTER_BY_BRAND({ products, brand }));
   }, [dispatch, products, brand]);
 
-  // console.log(allBrands);
+  useEffect(() => {
+    dispatch(GET_PRICE_RANGE({ products }));
+  }, [dispatch, products]);
+  console.log(minPrice,maxPrice);
 
-  // const filterProducts = (cat) => {
-  //   setCategory(cat);
-  //   dispatch(FILTER_BY_CATEGORY({ products, category: cat }));
-  // };
+  // console.log(allBrands);
 
   const filterProductCategory = (cat) => {
     // console.log(cat);
@@ -41,6 +46,11 @@ const ProductFilter = () => {
     dispatch(FILTER_BY_CATEGORY({ products:products, category: cat }));
     
   }
+
+  useEffect(() => {
+    dispatch(FILTER_BY_PRICE({ products, price }));
+    // console.log(price);
+  }, [dispatch, products, price]);
 
   // console.log(allCategories);
   const allBrands = [
@@ -78,6 +88,26 @@ const ProductFilter = () => {
           })}
         </select>
       </div>
+      <h4>Price</h4>
+      <div className={styles.price}>
+          <Slider
+            range
+            marks={{
+              1: `${price[0]}`,
+              1000: `${price[1]}`,
+            }}
+            min={minPrice}
+            max={maxPrice}
+            defaultValue={[minPrice, maxPrice]}
+            tipFormatter={(value) => `$${value}`}
+            tipProps={{
+              placement: "top",
+              visible: true,
+            }}
+            value={price}
+            onChange={(price) => setPrice(price)}
+          />
+        </div>
     </div>
   )
 }
