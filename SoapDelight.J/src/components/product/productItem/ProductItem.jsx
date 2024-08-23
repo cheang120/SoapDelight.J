@@ -15,7 +15,7 @@ const ProductItem = ({
 
   return (
     <div className={grid ? `${styles.grid} mb-5` : `${styles.list} mb-5` }>
-      <Link to={`product-details/${_id}`}>
+      <Link to={`/product-details/${_id}`}>
         <div className={styles.img}>
           <img src={image[0]} alt={name} />
         </div>

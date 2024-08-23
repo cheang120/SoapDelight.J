@@ -22,6 +22,7 @@ import {ProductAdmin} from './pages/productAdmin/ProductAdmin'
 import AdminOnlyRoute from './components/hiddenLink/AdminOnlyRoute'
 import NotFound from './pages/404/NotFound'
 import Product from './pages/shop/Product'
+import ProductDetails from './components/product/productDetails/ProductDetails'
 
 
 axios.defaults.withCredentials = true
@@ -78,6 +79,8 @@ function App() {
         <Route path='*' element={<NotFound />} />
 
         <Route path="/shop" element={<Product />} />
+        <Route path="/product-details/:id" element={<ProductDetails />} />
+
       </Routes>
       <FooterCom />
     </BrowserRouter>
