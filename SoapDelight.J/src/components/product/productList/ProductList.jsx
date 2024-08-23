@@ -20,17 +20,21 @@ const ProductList = ({ products }) => {
   // console.log(products);
 
   //   Begin Pagination
-  const [currentItems, setCurrentItems] = useState([]);
-  const [pageCount, setPageCount] = useState(0);
+  // const [currentItems, setCurrentItems] = useState([]);
+  // const [pageCount, setPageCount] = useState(0);
+    const itemsPerPage = 9;
+
   const [itemOffset, setItemOffset] = useState(0);
-  const itemsPerPage = 9;
+  const endOffset = itemOffset + itemsPerPage
+  const currentItems = filteredProducts.slice(itemOffset, endOffset)
+  const pageCount = Math.ceil(products.length / itemsPerPage)
 
-//   useEffect(() => {
-//     const endOffset = itemOffset + itemsPerPage;
+  // useEffect(() => {
+  //   const endOffset = itemOffset + itemsPerPage;
 
-//     setCurrentItems(filteredProducts.slice(itemOffset, endOffset));
-//     setPageCount(Math.ceil(filteredProducts.length / itemsPerPage));
-//   }, [itemOffset, itemsPerPage, filteredProducts]);
+  //   setCurrentItems(filteredProducts.slice(itemOffset, endOffset));
+  //   setPageCount(Math.ceil(filteredProducts.length / itemsPerPage));
+  // }, [itemOffset, itemsPerPage, filteredProducts]);
 
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % filteredProducts.length;
@@ -60,7 +64,7 @@ const ProductList = ({ products }) => {
 
           <p>
             <b>
-                {products.length}
+                {currentItems.length}
             </b> Products found.
           </p>
         </div>
@@ -89,7 +93,7 @@ const ProductList = ({ products }) => {
           <p>No product found.</p>
         ) : (
           <>
-            {filteredProducts.map((product) => {
+            {currentItems.map((product) => {
               return (
                 <div key={product._id} className="border m-4">
                   <ProductItem {...product} grid={grid} product={product} />
@@ -99,7 +103,7 @@ const ProductList = ({ products }) => {
           </>
         )}
       </div>
-      {/* <ReactPaginate
+      <ReactPaginate
         breakLabel="..."
         nextLabel="Next"
         onPageChange={handlePageClick}
@@ -107,12 +111,12 @@ const ProductList = ({ products }) => {
         pageCount={pageCount}
         previousLabel="Prev"
         renderOnZeroPageCount={null}
-        containerClassName="pagination"
-        pageLinkClassName="page-num"
-        previousLinkClassName="page-num"
-        nextLinkClassName="page-num"
-        activeLinkClassName="activePage"
-      /> */}
+        containerClassName="flex justify-center items-center space-x-2 mb-5"
+        pageLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
+        previousLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
+        nextLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
+        activeLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-white bg-blue-500"
+      />
     </div>
   );
 };
