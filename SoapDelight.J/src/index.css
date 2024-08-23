@@ -229,4 +229,31 @@
   font-size: 12px;
 }
 
+.rc-slider-dot {
+  left: 0 !important;
+}
 
+/* @media screen and (max-width: 700px) {
+  ._product_ebtfy_1 ._filter_ebtfy_5 {
+      width: 40%;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      position: absolute;
+      left: 0%;
+      padding: 1rem;
+      z-index: 99;
+      padding-left:0.5rem;
+      padding-right:0.5rem
+  }
+} */
+/* @media screen and (min-width: 700px) {
+
+._product_ebtfy_1 ._filter_ebtfy_5 {
+  width: 20%;
+  height: -moz-max-content;
+  height: max-content;
+  padding: 3rem 0rem 3rem 0rem;
+  border: 1px solid #ccc;
+  transition: all 0.3s;
+}
+} */

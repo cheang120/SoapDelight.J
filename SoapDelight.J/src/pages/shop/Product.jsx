@@ -40,11 +40,11 @@ const Product = () => {
 
   return (
     <section>
-      <div className={`container ${styles.product} mx-auto`}>
+      <div className={`container ${styles.product} mx-auto flex flex-wrap`}>
         
         <aside
           className={
-            showFilter ? `${styles.filter} ${styles.show}` : `${styles.filter}`
+            showFilter ? `w-full ${styles.filter} ${styles.show}` : `w-full  ${styles.filter}`
           }
         >
           {isLoading ? null : <ProductFilter />}
