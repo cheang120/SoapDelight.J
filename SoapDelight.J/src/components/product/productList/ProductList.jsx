@@ -91,7 +91,7 @@ const ProductList = ({ products }) => {
           <>
             {filteredProducts.map((product) => {
               return (
-                <div key={product._id}>
+                <div key={product._id} className="border m-4">
                   <ProductItem {...product} grid={grid} product={product} />
                 </div>
               );

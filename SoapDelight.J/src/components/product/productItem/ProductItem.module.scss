@@ -73,7 +73,10 @@
     }
   
     .content {
-      position: relative;
+      // position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
       padding: 1rem;
       width: 65%;
       .details {
@@ -89,9 +92,9 @@
         }
       }
       button {
-        position: absolute;
+        // position: absolute;
         bottom: 1rem;
-        left: 1rem;
+        left: 20%;
       }
     }
   }

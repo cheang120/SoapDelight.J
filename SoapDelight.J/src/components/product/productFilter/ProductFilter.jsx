@@ -65,7 +65,7 @@ const ProductFilter = () => {
     setPrice([minPrice, maxPrice]);
   };
   return (
-<div className="py-4 px-2">
+<div className="py-4 px-1">
   <h4 className="mt-4 text-lg font-semibold">Categories</h4>
   <div className="mt-2">
     {allCategories.map((cat, index) => (
@@ -77,7 +77,7 @@ const ProductFilter = () => {
         }`}
         onClick={() => filterProductCategory(cat)}
       >
-        &#8250; {cat}
+        {cat}
       </button>
     ))}
   </div>
