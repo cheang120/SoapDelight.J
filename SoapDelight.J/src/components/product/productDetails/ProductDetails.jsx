@@ -11,6 +11,7 @@ import {
      calculateAverageRating, 
     //  getCartQuantityById 
 } from "../../../utils/index.jsx";
+import Card from "../../card/Card.jsx";
 
 
 const ProductDetails = () => {
@@ -101,7 +102,7 @@ const ProductDetails = () => {
 
                             <ProductRating
                                 averageRating={averageRating}
-                                // noOfRatings={product?.ratings.length}
+                                noOfRatings={product?.ratings.length}
                             />
                             <div className="--underline"></div>
                             <div className={styles.property}>
@@ -176,18 +177,22 @@ const ProductDetails = () => {
                             </div>
                             <div className="--underline"></div>
                             <p>
-                            <b>Product Description:</b>
+                                <b>Product Description:</b>
                             </p>
                             <div
-                                dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(product?.description),
-                                }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(product?.description),
+                                    }}
                             ></div>
                             <div className="--underline"></div>
                         </div>
                     </div>
                 </>
             )}
+            {/* Review section */}
+            <Card>
+                <h3>Product Review</h3>
+            </Card>
         </div>    
     </section>
   )
