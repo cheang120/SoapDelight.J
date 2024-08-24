@@ -12,7 +12,7 @@ import {
     //  getCartQuantityById 
 } from "../../../utils/index.jsx";
 import Card from "../../card/Card.jsx";
-import { ADD_TO_CART, selectCartItems } from "../../../redux/features/cart/cartSlice.jsx";
+import { ADD_TO_CART, DECREASE_CART, selectCartItems } from "../../../redux/features/cart/cartSlice.jsx";
 
 
 const ProductDetails = () => {
@@ -58,7 +58,7 @@ const ProductDetails = () => {
       };
     
       const decreaseCart = (product) => {
-        // dispatch(DECREASE_CART(product));
+        dispatch(DECREASE_CART(product));
         // dispatch(CALCULATE_TOTAL_QUANTITY());
         // dispatch(
         //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
@@ -151,7 +151,7 @@ const ProductDetails = () => {
                             <div className={styles.count}>
                                 {isCartAdded < 0 ? null : (
                                     <>
-                                        <button className="--btn">
+                                        <button className="--btn" onClick={() => decreaseCart(product)}>
                                             -
                                         </button>
                                         <p>
