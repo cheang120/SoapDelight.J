@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify';
+import { getCartQuantityById } from '../../../utils';
 
 const initialState = {
     cartItems: localStorage.getItem("cartItems")
@@ -15,16 +16,20 @@ const initialState = {
     message: "",
 }
 
+
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
     ADD_TO_CART(state, action) {
         // console.log(action.payload);
-        // const cartQuantity = getCartQuantityById(
-        //   state.cartItems,
-        //   action.payload._id
-        // );
+        // const product = action.payload
+        // console.log(product);
+        const cartQuantity = getCartQuantityById(
+          state.cartItems,
+          action.payload._id
+        );
         // console.log(cartQuantity, action.payload);
   
         const productIndex = state.cartItems.findIndex(
@@ -34,19 +39,16 @@ const cartSlice = createSlice({
         if (productIndex >= 0) {
           // Item already exists in the cart
           // Increase the cartQuantity
-        //   if (cartQuantity === action.payload.quantity) {
-        //     state.cartItems[productIndex].cartQuantity += 0;
-        //     toast.info("Max number of product reached!!!");
-        //   } else {
-        //     state.cartItems[productIndex].cartQuantity += 1;
-        //     toast.info(`${action.payload.name} increased by one`, {
-        //       position: "top-left",
-        //     });
-        //   }
+          if (cartQuantity === action.payload.quantity) {
+            state.cartItems[productIndex].cartQuantity += 0;
+            toast.info("Max number of product reached!!!");
+          } else {
             state.cartItems[productIndex].cartQuantity += 1;
-            toast.info(`${action.payload.name} increased by one`, {
+            toast.success(`${action.payload.name} increased by one`, {
               position: "top-left",
             });
+          }
+
         } else {
           // Item doesn't exists in the cart
           // Add item to the cart

@@ -19,6 +19,15 @@ export const shortenText = (text, n) => {
 //       };
 //     });
 //   }
+
+export const getCartQuantityById = (products, id) => {
+  for (let i=0; i < products.length; i++) {
+      if (products[i]._id === id) {
+          return products[i].cartQuantity
+      }
+  }
+  return 0
+}
   
   // Calculate average Product rating
   export function calculateAverageRating(ratings) {
@@ -37,12 +46,5 @@ export const shortenText = (text, n) => {
     return totalStars / ratings.length;
   }
   
-//   export function getCartQuantityById(products, id) {
-//     for (let i = 0; i < products.length; i++) {
-//       if (products[i]._id === id) {
-//         return products[i].cartQuantity;
-//       }
-//     }
-//     return 0; // If the _id is not found, return 0 or any default value
-//   }
+
   
