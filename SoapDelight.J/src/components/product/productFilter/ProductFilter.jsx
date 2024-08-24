@@ -86,7 +86,7 @@ const ProductFilter = () => {
     <select
       value={brand}
       onChange={(e) => setBrand(e.target.value)}
-      className="w-full md:w-4/5 p-2 border border-gray-400 rounded outline-none text-base font-light"
+      className="w-full  p-2 border border-gray-400 rounded outline-none text-base font-light"
     >
       {allBrands.map((brand, index) => (
         <option key={index} value={brand}>
