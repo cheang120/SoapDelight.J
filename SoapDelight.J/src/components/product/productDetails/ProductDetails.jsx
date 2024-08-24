@@ -12,13 +12,13 @@ import {
     //  getCartQuantityById 
 } from "../../../utils/index.jsx";
 import Card from "../../card/Card.jsx";
-import { ADD_TO_CART } from "../../../redux/features/cart/cartSlice.jsx";
+import { ADD_TO_CART, selectCartItems } from "../../../redux/features/cart/cartSlice.jsx";
 
 
 const ProductDetails = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
-    // const cartItems = useSelector(selectCartItems);
+    const cartItems = useSelector(selectCartItems);
     const [imageIndex, setImageIndex] = useState(0);
     const { product, isLoading } = useSelector((state) => state.product);
 
@@ -44,10 +44,10 @@ const ProductDetails = () => {
 
       const averageRating = calculateAverageRating(product?.ratings);
 
-    //   const cart = cartItems.find((cart) => cart._id === id);
-    //   const isCartAdded = cartItems.findIndex((cart) => {
-    //     return cart._id === id;
-    //   });
+      const cart = cartItems.find((cart) => cart._id === id);
+      const isCartAdded = cartItems.findIndex((cart) => {
+        return cart._id === id;
+      });
 
       const addToCart = (product) => {
         dispatch(ADD_TO_CART(product));
@@ -79,7 +79,7 @@ const ProductDetails = () => {
                     <div className={styles.details}>
                         <div className={styles.img}>
                             <img 
-                                src={product.image[imageIndex]} 
+                                src={product?.image[imageIndex]} 
                                 alt={product?.name} 
                                 className={styles.pImg}
 
@@ -149,6 +149,19 @@ const ProductDetails = () => {
                                 <p>{product?.sold}</p>
                             </div>
                             <div className={styles.count}>
+                                {isCartAdded < 0 ? null : (
+                                    <>
+                                        <button className="--btn">
+                                            -
+                                        </button>
+                                        <p>
+                                            <b>{cart.cartQuantity}</b>
+                                        </p>
+                                        <button className="--btn" onClick={() => addToCart(product)}>
+                                            +
+                                        </button>
+                                    </>
+                                )}
 
                             </div>
                             <div className="--flex-start">
