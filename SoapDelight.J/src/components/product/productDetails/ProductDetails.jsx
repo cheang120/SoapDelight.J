@@ -12,6 +12,7 @@ import {
     //  getCartQuantityById 
 } from "../../../utils/index.jsx";
 import Card from "../../card/Card.jsx";
+import { ADD_TO_CART } from "../../../redux/features/cart/cartSlice.jsx";
 
 
 const ProductDetails = () => {
@@ -49,7 +50,7 @@ const ProductDetails = () => {
     //   });
 
       const addToCart = (product) => {
-        // dispatch(ADD_TO_CART(product));
+        dispatch(ADD_TO_CART(product));
         // dispatch(CALCULATE_TOTAL_QUANTITY());
         // dispatch(
         //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })

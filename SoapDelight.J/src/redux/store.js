@@ -10,6 +10,7 @@ import categoryReducer from "../redux/features/categoryAndBrand/categoryAndBrand
 import productReducer from "../redux/features/product/productSlice"
 import filtersReducer from '../redux/features/product/filtersSlice'
 import couponReducer from "../redux/features/coupon/couponSlice"
+import cartReducer from "./features/cart/cartSlice"
 
 
 // Combine all reducers into a single root reducer
@@ -21,7 +22,8 @@ const rootReducer = combineReducers({
   filters:filtersReducer,
   category: categoryReducer, // Ensure categoryReducer is included here
   product: productReducer,
-  coupon:couponReducer
+  coupon:couponReducer,
+  cart:cartReducer
 });
 
 // Persist configuration
