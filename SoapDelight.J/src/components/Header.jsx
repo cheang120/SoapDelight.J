@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { HiOutlineMenuAlt3, HiUser } from "react-icons/hi";
 import { FaShoppingCart, FaTimes, FaUserCircle } from "react-icons/fa";
 import { AdminOnlyLink } from './hiddenLink/AdminOnlyRoute';
+import { CALCULATE_TOTAL_QUANTITY, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
 // import { Sidebar } from 'flowbite-react';
 
 
@@ -21,6 +22,10 @@ export default function Header() {
   const { theme } = useSelector((state) => state.theme);
   const [showMenu, setShowMenu] = useState(false);
   const [scrollPage, setScrollPage] = useState(false);
+  const cartTotalQuantity = useSelector(selectCartTotalQuantity);
+  const cartItems = useSelector(selectCartItems);
+
+
   // const role = obj?.role;
   // console.log(userRole);
   // console.log(currentUser);
@@ -74,8 +79,7 @@ export default function Header() {
     <span className='flex'>
       <FaShoppingCart size={20} className='text-purple-500'/> 
       <p className='ml-1 text-purple-500'>
-        {/* {cartTotalQuantity} */}
-        3
+        {cartTotalQuantity}
       </p>
     </span>
   );
@@ -87,6 +91,11 @@ export default function Header() {
   //   const searchQuery = urlParams.toString();
   //   navigate(`/search?${searchQuery}`);
   // };
+
+  useEffect(() => {
+    // dispatch(CALCULATE_SUBTOTAL({ coupon }));
+    dispatch(CALCULATE_TOTAL_QUANTITY());
+  }, [cartItems, dispatch]);
 
   return (
     <Navbar
