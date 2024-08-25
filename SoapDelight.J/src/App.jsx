@@ -17,7 +17,7 @@ import {getLoginStatus, selectIsLoggedIn, selectUser} from "./redux/features/aut
 import Verify from './components/Verify'
 import Forgot from './pages/Forgot'
 import Reset from './pages/Reset'
-import { Card } from './components/Card'
+// import { Card } from './components/Card'
 import {ProductAdmin} from './pages/productAdmin/ProductAdmin'
 import AdminOnlyRoute from './components/hiddenLink/AdminOnlyRoute'
 import NotFound from './pages/404/NotFound'
@@ -74,7 +74,7 @@ function App() {
 
         <Route path="/verify/:verificationToken" element={<Verify />} />
         <Route path="/projects" element={<Projects />} />
-        <Route path="/cart" element={<Card />} />
+        {/* <Route path="/cart" element={<Card />} /> */}
         <Route path="/forgotpassword" element={<Forgot />} />
         <Route path='/resetPassword/:resetToken' element={<Reset />} />
         <Route path='*' element={<NotFound />} />

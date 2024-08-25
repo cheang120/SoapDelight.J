@@ -82,13 +82,27 @@ const cartSlice = createSlice({
           });
         }
         localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-      },
+    },
+
+    REMOVE_FROM_CART(state, action) {
+        const newCartItem = state.cartItems.filter(
+          (item) => item._id !== action.payload._id
+        );
+  
+        state.cartItems = newCartItem;
+        toast.success(`${action.payload.name} removed from cart`, {
+          position: "top-left",
+        });
+  
+        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+    },
   }
 });
 
 export const {
     ADD_TO_CART,
-    DECREASE_CART
+    DECREASE_CART,
+    REMOVE_FROM_CART
 } = cartSlice.actions
 
 export const selectCartItems = (state) => state.cart.cartItems;
