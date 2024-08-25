@@ -5,12 +5,22 @@ import styles from "./ProductItem.module.scss";
 import ProductRating from "../productRating/ProductRating";
 import { calculateAverageRating, shortenText } from "../../../utils";
 import DOMPurify from "dompurify";
+import { ADD_TO_CART, selectCartItems } from "../../../redux/features/cart/cartSlice";
 
 
 const ProductItem = ({
     product,grid,_id,name,price, image,regularPrice
 }) => {
     const dispatch = useDispatch();
+    const cartItems = useSelector(selectCartItems);
+
+    const addToCart = (product) => {
+      dispatch(ADD_TO_CART(product));
+      // dispatch(CALCULATE_TOTAL_QUANTITY());
+      // dispatch(
+      //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+      // );
+    };
     const averageRating = calculateAverageRating(product.ratings);
 
   return (

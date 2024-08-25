@@ -3,7 +3,7 @@ import styles from './Cart.module.scss'
 import './Radio.scss'
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_TO_CART, DECREASE_CART, REMOVE_FROM_CART, selectCartItems } from '../../redux/features/cart/cartSlice';
+import { ADD_TO_CART, CLEAR_CART, DECREASE_CART, REMOVE_FROM_CART, selectCartItems } from '../../redux/features/cart/cartSlice';
 import { FaTrashAlt } from "react-icons/fa";
 
 const Cart = () => {
@@ -37,6 +37,11 @@ const Cart = () => {
     // dispatch(
     //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
     // );
+  };
+
+  const clearCart = () => {
+    dispatch(CLEAR_CART());
+    // dispatch(saveCartDB({ cartItems: [] }));
   };
   return (
     <section>
@@ -112,6 +117,86 @@ const Cart = () => {
                 })}
               </tbody>
             </table>
+            <div className={styles.summary}>
+              <button className="--btn --btn-danger" onClick={clearCart}>
+                Clear Cart
+              </button>
+              <div className={styles.checkout}>
+                <div>
+                  <Link to="/shop">&larr; Continue shopping</Link>
+                </div>
+                <br />
+                {/* <Card cardClass={styles.card}>
+                  <p>
+                    <b> {`Cart item(s): ${cartTotalQuantity}`}</b>
+                  </p>
+                  <div className={styles.text}>
+                    <h4>Subtotal:</h4>
+                    <h3>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
+                  </div>
+                  <VerifyCoupon />
+                  <div className="--underline --mb"></div>
+                  <p>Please choose a payment method</p>
+                  <form className="--form-control" onSubmit={setPayment}>
+                    <label htmlFor={"stripe"} className="radio-label">
+                      <input
+                        className="radio-input"
+                        type="radio"
+                        name={"paymentMethod"}
+                        id={"stripe"}
+                        value={"stripe"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <span className="custom-radio" />
+                      Stripe
+                    </label>
+                    <label htmlFor={"flutterwave"} className="radio-label">
+                      <input
+                        className="radio-input"
+                        type="radio"
+                        name={"paymentMethod"}
+                        id={"flutterwave"}
+                        value={"flutterwave"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <span className="custom-radio" />
+                      Flutterwave
+                    </label>
+                    <label htmlFor={"paypal"} className="radio-label">
+                      <input
+                        className="radio-input"
+                        type="radio"
+                        name={"paymentMethod"}
+                        id={"paypal"}
+                        value={"paypal"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <span className="custom-radio" />
+                      Paypal
+                    </label>
+                    <label htmlFor={"wallet"} className="radio-label">
+                      <input
+                        className="radio-input"
+                        type="radio"
+                        name={"paymentMethod"}
+                        id={"wallet"}
+                        value={"wallet"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <span className="custom-radio" />
+                      Wallet
+                    </label>
+                    <button
+                      type="submit"
+                      className="--btn --btn-primary --btn-block"
+                    >
+                      Checkout
+                    </button>
+                  </form>
+                  <p>Tax an shipping calculated at checkout</p>
+                </Card> */}
+              </div>
+            </div>
           </>
         )}
       </div>
