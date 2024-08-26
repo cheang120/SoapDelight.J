@@ -3,7 +3,7 @@ import styles from './Cart.module.scss'
 import './Radio.scss'
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_TO_CART, CALCULATE_TOTAL_QUANTITY, CLEAR_CART, DECREASE_CART, REMOVE_FROM_CART, selectCartItems, selectCartTotalAmount, selectCartTotalQuantity } from '../../redux/features/cart/cartSlice';
+import { ADD_TO_CART, CALCULATE_SUBTOTAL, CALCULATE_TOTAL_QUANTITY, CLEAR_CART, DECREASE_CART, REMOVE_FROM_CART, selectCartItems, selectCartTotalAmount, selectCartTotalQuantity } from '../../redux/features/cart/cartSlice';
 import { FaTrashAlt } from "react-icons/fa";
 import Card from '../../components/card/Card';
 
@@ -13,6 +13,7 @@ const Cart = () => {
   const cartItems = useSelector(selectCartItems);
   const cartTotalAmount = useSelector(selectCartTotalAmount);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
+  console.log(cartTotalAmount);
   // const isLoggedIn = useSelector(selectIsLoggedIn);
   // const [paymentMethod, setPaymentMethod] = useState("");
   const increaseCart = (cart) => {
@@ -47,8 +48,10 @@ const Cart = () => {
 
   // const { coupon } = useSelector((state) => state.coupon);
   useEffect(() => {
-    // dispatch(CALCULATE_SUBTOTAL({ coupon }));
+    dispatch(CALCULATE_SUBTOTAL());
     dispatch(CALCULATE_TOTAL_QUANTITY());
+
+
   }, [cartItems, dispatch]);
   return (
     <section>
@@ -137,11 +140,11 @@ const Cart = () => {
                   <p>
                     <b> {`Cart item(s): ${cartTotalQuantity}`}</b>
                   </p>
-                  {/* <div className={styles.text}>
+                  <div className={styles.text}>
                     <h4>Subtotal:</h4>
-                    <h3>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
+                    <h3>{`${cartTotalAmount?.toFixed(2)}`}</h3>
                   </div>
-                  <VerifyCoupon />
+                  {/* <VerifyCoupon />
                   <div className="--underline --mb"></div>
                   <p>Please choose a payment method</p>
                   <form className="--form-control" onSubmit={setPayment}>
