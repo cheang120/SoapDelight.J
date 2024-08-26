@@ -116,6 +116,28 @@ const cartSlice = createSlice({
         }, 0);
         state.cartTotalQuantity = totalQuantity;
     },
+    CALCULATE_SUBTOTAL(state, action) {
+        const array = [];
+        state.cartItems.map((item) => {
+          const { price, cartQuantity } = item;
+          const cartItemAmount = price * cartQuantity;
+          return array.push(cartItemAmount);
+        });
+        const totalAmount = array.reduce((a, b) => {
+          return a + b;
+        }, 0);
+        state.cartTotalAmount = totalAmount
+        // state.fixedCartTotalAmount = totalAmount;
+        // if (action.payload && action.payload.coupon !== null) {
+        //   const discountedTotalAmount = applyDiscount(
+        //     totalAmount,
+        //     action.payload.coupon.discount
+        //   );
+        //   state.cartTotalAmount = discountedTotalAmount;
+        // } else {
+        //   state.cartTotalAmount = totalAmount;
+        // }
+      },
   }
 });
 
@@ -124,7 +146,10 @@ export const {
     DECREASE_CART,
     REMOVE_FROM_CART,
     CLEAR_CART,
-    CALCULATE_TOTAL_QUANTITY
+    CALCULATE_SUBTOTAL,
+
+    CALCULATE_TOTAL_QUANTITY,
+    // CALCULATE_SUBTOTAL
 } = cartSlice.actions
 
 export const selectCartItems = (state) => state.cart.cartItems;
