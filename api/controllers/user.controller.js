@@ -82,6 +82,35 @@ export const signout = (req, res, next) => {
     }
   }
 
+  export const saveCart = asyncHandler(async(req,res) => {
+    // res.send("Correct")
+    const {cartItems} = req.body
+
+    const user = await User.findById(req.user._id)
+
+    if (user) {
+      user.cartItems = cartItems
+      user.save()
+      res.status(200).json({message: "Cart Saved"})
+    }else {
+      res.status(404)
+      throw new Error("User not found!")
+    }
+  })
+
+  export const getCart = asyncHandler(async(req,res)=>{
+    // res.send("..")
+
+    const user = await User.findById(req.user._id)
+
+    if (user) {
+      res.status(200).json(user.cartItems)
+    }else {
+      res.status(404)
+      throw new Error("User not found!")
+    }
+  })
+
   export const getUsers = async (req, res, next) => {
     res.send("get users")
   }

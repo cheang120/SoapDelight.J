@@ -3,7 +3,7 @@ import styles from './Cart.module.scss'
 import './Radio.scss'
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_TO_CART, CALCULATE_SUBTOTAL, CALCULATE_TOTAL_QUANTITY, CLEAR_CART, DECREASE_CART, REMOVE_FROM_CART, selectCartItems, selectCartTotalAmount, selectCartTotalQuantity } from '../../redux/features/cart/cartSlice';
+import { ADD_TO_CART, CALCULATE_SUBTOTAL, CALCULATE_TOTAL_QUANTITY, CLEAR_CART, DECREASE_CART, REMOVE_FROM_CART, saveCartDB, selectCartItems, selectCartTotalAmount, selectCartTotalQuantity } from '../../redux/features/cart/cartSlice';
 import { FaTrashAlt } from "react-icons/fa";
 import Card from '../../components/card/Card';
 
@@ -22,28 +22,28 @@ const Cart = () => {
     //   return toast.info("Max number of product reached!!!");
     // }
     dispatch(ADD_TO_CART(cart));
-    // dispatch(
-    //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-    // );
+    dispatch(
+      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+    );
   };
 
   const decreaseCart = (cart) => {
     dispatch(DECREASE_CART(cart));
-    // dispatch(
-    //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-    // );
+    dispatch(
+      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+    );
   };
 
   const removeFromCart = (cart) => {
     dispatch(REMOVE_FROM_CART(cart));
-    // dispatch(
-    //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-    // );
+    dispatch(
+      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+    );
   };
 
   const clearCart = () => {
     dispatch(CLEAR_CART());
-    // dispatch(saveCartDB({ cartItems: [] }));
+    dispatch(saveCartDB({ cartItems: [] }));
   };
 
   // const { coupon } = useSelector((state) => state.coupon);

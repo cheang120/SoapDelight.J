@@ -1,6 +1,7 @@
 import express from 'express'
 import { google, signin, signup ,getUser, signout,getUsers,loginStatus, upgradeUser,sendAutomatedEmail,sendVerificationEmail,verifyUser ,forgotPassword,resetPassword, deleteUser} from '../controllers/auth.controller.js'
 import { authorOnly, protect,adminOnly } from '../middleware/auth.middleware.js'
+import { getCart, saveCart } from '../controllers/user.controller.js'
 
 const router = express.Router()
 
@@ -19,6 +20,10 @@ router.post("/sendVerificationEmail",sendVerificationEmail);
 router.patch('/verify/:verificationToken',verifyUser )
 router.post('/forgotPassword', forgotPassword)
 router.patch('/resetPassword/:resetToken',resetPassword )
+
+// Cart
+router.get("/getCart", protect,getCart)
+router.patch("/saveCart", protect, saveCart)
 
 
 export default router

@@ -12,7 +12,7 @@ import {
     //  getCartQuantityById 
 } from "../../../utils/index.jsx";
 import Card from "../../card/Card.jsx";
-import { ADD_TO_CART, DECREASE_CART, selectCartItems } from "../../../redux/features/cart/cartSlice.jsx";
+import { ADD_TO_CART, DECREASE_CART, saveCartDB, selectCartItems } from "../../../redux/features/cart/cartSlice.jsx";
 
 
 const ProductDetails = () => {
@@ -40,30 +40,30 @@ const ProductDetails = () => {
           auto();
         }
         return () => clearInterval(slideInterval);
-      }, [imageIndex, slideInterval, product]);
+    }, [imageIndex, slideInterval, product]);
 
-      const averageRating = calculateAverageRating(product?.ratings);
+    const averageRating = calculateAverageRating(product?.ratings);
 
-      const cart = cartItems.find((cart) => cart._id === id);
-      const isCartAdded = cartItems.findIndex((cart) => {
+    const cart = cartItems.find((cart) => cart._id === id);
+    const isCartAdded = cartItems.findIndex((cart) => {
         return cart._id === id;
-      });
+    });
 
-      const addToCart = (product) => {
+    const addToCart = (product) => {
         dispatch(ADD_TO_CART(product));
         // dispatch(CALCULATE_TOTAL_QUANTITY());
-        // dispatch(
-        //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-        // );
-      };
+        dispatch(
+          saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+        );
+    };
     
-      const decreaseCart = (product) => {
+    const decreaseCart = (product) => {
         dispatch(DECREASE_CART(product));
         // dispatch(CALCULATE_TOTAL_QUANTITY());
-        // dispatch(
-        //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-        // );
-      };
+        dispatch(
+          saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+        );
+    };
 
   return (
     <section>

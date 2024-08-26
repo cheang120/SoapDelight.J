@@ -545,3 +545,32 @@ export const upgradeUser = async (req, res, next) => {
       next(error); // 确保捕获到的错误被传递到全局错误处理器
     }
   }
+
+  export const saveCart = asyncHandler(async(req,res) => {
+    // res.send("Correct")
+    const {cartItems} = req.body
+
+    const user = await User.findById(req.user._id)
+
+    if (user) {
+      user.cartItems = cartItems
+      user.save()
+      res.status(200).json({message: "Cart Saved"})
+    }else {
+      res.status(404)
+      throw new Error("User not found!")
+    }
+  })
+
+  export const getCart = asyncHandler(async(req,res)=>{
+    // res.send("..")
+
+    const user = await User.findById(req.user._id)
+
+    if (user) {
+      res.status(200).json(user.cartItems)
+    }else {
+      res.status(404)
+      throw new Error("User not found!")
+    }
+  })

@@ -51,6 +51,18 @@ const userSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
     },
+    address: {
+      type: Object,
+      // address, state, country
+    },
+    // wishlist: [{ type: ObjectId, ref: "Product" }],
+    // balance: {
+    //   type: Number,
+    //   default: 0,
+    // },
+    cartItems: {
+      type: [Object],
+    },
   },
   { timestamps: true }
 );

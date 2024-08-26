@@ -1,6 +1,8 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify';
 import { getCartQuantityById } from '../../../utils';
+import cartService from './cartService';
+const FRONTEND_URL = import.meta.env.FRONTEND_URL
 
 const initialState = {
     cartItems: localStorage.getItem("cartItems")
@@ -16,6 +18,41 @@ const initialState = {
     message: "",
 }
 
+// Save Cart To DB
+export const saveCartDB = createAsyncThunk(
+  "cart/saveCartDB",
+  async (cartData, thunkAPI) => {
+    try {
+      return await cartService.saveCartDB(cartData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Get Cart from DB
+export const getCartDB = createAsyncThunk(
+  "cart/getCartDB",
+  async (_, thunkAPI) => {
+    try {
+      return await cartService.getCartDB();
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 
 const cartSlice = createSlice({
@@ -138,7 +175,48 @@ const cartSlice = createSlice({
         //   state.cartTotalAmount = totalAmount;
         // }
       },
-  }
+  },
+  extraReducers: (builder) => {
+    builder
+      // Save Cart To DB
+      .addCase(saveCartDB.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(saveCartDB.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        console.log(action.payload);
+      })
+      .addCase(saveCartDB.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
+      // Get Cart From DB
+      .addCase(getCartDB.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getCartDB.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        localStorage.setItem("cartItems", JSON.stringify(action.payload));
+        if (action.payload.length > 0) {
+          window.location.href = FRONTEND_URL + "/cart";
+        } else {
+          window.location.href = FRONTEND_URL;
+        }
+        console.log(action.payload);
+      })
+      .addCase(getCartDB.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      });
+  },
 });
 
 export const {

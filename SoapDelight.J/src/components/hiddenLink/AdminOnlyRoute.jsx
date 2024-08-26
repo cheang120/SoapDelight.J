@@ -1,6 +1,7 @@
 import React, { Children } from 'react'
 import { useSelector } from 'react-redux'
 import { selectUser } from '../../redux/features/auth/authSlice'
+import { Link } from 'react-router-dom';
 
 const AdminOnlyRoute = ({children}) => {
     const { currentUser } = useSelector((state) => state.user);
@@ -10,7 +11,7 @@ const AdminOnlyRoute = ({children}) => {
     // const userRole = user.role
     const userRole = currentUser ? currentUser.role : null;
 
-    if (userRole === "author") {
+    if (userRole === "author" || userRole === "admin") {
         return children
     }
 

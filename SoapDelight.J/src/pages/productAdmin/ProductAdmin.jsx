@@ -21,7 +21,7 @@ export const ProductAdmin = () => {
   const { currentUser } = useSelector((state) => state.user);
   const userRole = currentUser.role
     // console.log(userRole);
-    if (userRole === 'author'){
+    if (userRole === 'author' || userRole === 'admin'){
       return (
         <div className={styles.admin}>
           <div className={styles.navbar}>
