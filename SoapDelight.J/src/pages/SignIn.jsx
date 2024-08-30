@@ -8,6 +8,8 @@ import { FaTimes } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
+import { getCartDB } from '../redux/features/cart/cartSlice';
+// import { getCartDB } from '../redux/features/cart/cartSlice';
 
 
 const initialState = {
@@ -127,14 +129,19 @@ const [uCase, setUCase] = useState(false)
       // setLoading(false);
       if(res.ok) {
         dispatch(signInSuccess(data))
+        dispatch(getCartDB());
+
         navigate('/dashboard?tab=profile');
       }
+              // dispatch(getCartDB());
+
     } catch (error) {
       // setErrorMessage(error.message);
       // setLoading(false);
       dispatch(signInFailure(data.message))
 
     }
+
   };
   return (
     <div className='min-h-screen mt-20'>

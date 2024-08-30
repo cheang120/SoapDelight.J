@@ -9,8 +9,8 @@ import { useEffect, useState } from 'react';
 import { HiOutlineMenuAlt3, HiUser } from "react-icons/hi";
 import { FaShoppingCart, FaTimes, FaUserCircle } from "react-icons/fa";
 import { AdminOnlyLink } from './hiddenLink/AdminOnlyRoute';
-import { CALCULATE_TOTAL_QUANTITY, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
-// import { Sidebar } from 'flowbite-react';
+import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
+// import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
 
 
 export default function Header() {
@@ -24,6 +24,8 @@ export default function Header() {
   const [scrollPage, setScrollPage] = useState(false);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const cartItems = useSelector(selectCartItems);
+
+ 
 
 
   // const role = obj?.role;
@@ -74,6 +76,14 @@ export default function Header() {
   const hideMenu = () => {
     setShowMenu(false);
   };
+
+  useEffect(() => {
+    // dispatch(getCartDB());
+    dispatch(CALCULATE_TOTAL_QUANTITY())
+  },[dispatch,cartItems])
+
+  // console.log(JSON.parse(localStorage.getItem("cartItems")));
+
 
   const cart = (
     <span className='flex'>

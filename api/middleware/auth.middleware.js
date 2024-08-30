@@ -61,7 +61,7 @@ export const verifiedOnly  = async (req, res, next) => {
 export const authorOnly  = async (req, res, next) => {
   // console.log(req.user);
   // res.send('user')
-  if (req.user.role === "author" || req.user.role === "admin") {
+  if (req.user && req.user.role === "author" || req.user && req.user.role === "admin") {
     next();
   } else {
 

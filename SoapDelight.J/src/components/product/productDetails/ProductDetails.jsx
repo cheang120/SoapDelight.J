@@ -60,9 +60,9 @@ const ProductDetails = () => {
     const decreaseCart = (product) => {
         dispatch(DECREASE_CART(product));
         // dispatch(CALCULATE_TOTAL_QUANTITY());
-        dispatch(
-          saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-        );
+        // dispatch(
+        //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+        // );
     };
 
   return (

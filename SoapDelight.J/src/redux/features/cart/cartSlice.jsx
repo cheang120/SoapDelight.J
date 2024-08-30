@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify';
 import { getCartQuantityById } from '../../../utils';
 import cartService from './cartService';
-const FRONTEND_URL = import.meta.env.FRONTEND_URL
+const FRONTEND_URL = import.meta.env.VITE_REACT_APP_FRENTEND_URL
 
 const initialState = {
     cartItems: localStorage.getItem("cartItems")
@@ -39,6 +39,7 @@ export const saveCartDB = createAsyncThunk(
 // Get Cart from DB
 export const getCartDB = createAsyncThunk(
   "cart/getCartDB",
+  
   async (_, thunkAPI) => {
     try {
       return await cartService.getCartDB();
@@ -140,7 +141,7 @@ const cartSlice = createSlice({
         });
   
         localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-      },
+    },
     CALCULATE_TOTAL_QUANTITY(state, action) {
         const array = [];
         state.cartItems?.map((item) => {
@@ -153,6 +154,7 @@ const cartSlice = createSlice({
         }, 0);
         state.cartTotalQuantity = totalQuantity;
     },
+
     CALCULATE_SUBTOTAL(state, action) {
         const array = [];
         state.cartItems.map((item) => {
@@ -193,6 +195,7 @@ const cartSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         toast.error(action.payload);
+        console.log(action.payload);
       })
       // Get Cart From DB
       .addCase(getCartDB.pending, (state) => {
@@ -203,12 +206,15 @@ const cartSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         localStorage.setItem("cartItems", JSON.stringify(action.payload));
-        if (action.payload.length > 0) {
-          window.location.href = FRONTEND_URL + "/cart";
-        } else {
-          window.location.href = FRONTEND_URL;
-        }
-        console.log(action.payload);
+        // console.log(action.payload.length);
+        // console.log(action.payload);
+
+        // if (action.payload.length > 0 ) {
+        //   // window.location.href =  FRONTEND_URL+"/cart";
+        // } else {
+        //   // window.location.href = FRONTEND_URL;
+        // }
+
       })
       .addCase(getCartDB.rejected, (state, action) => {
         state.isLoading = false;
