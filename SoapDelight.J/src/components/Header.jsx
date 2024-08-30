@@ -63,6 +63,8 @@ export default function Header() {
         console.log(data.message);
       } else {
         dispatch(signoutSuccess());
+        localStorage.setItem("cartItems", JSON.stringify([]));
+
       }
     } catch (error) {
       console.log(error.message);

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Avatar, Button, Dropdown, Navbar, TextInput } from 'flowbite-react';
 import { productData } from "../../components/carousel/data.jsx";
 import CarouselItem from "../../components/carousel/CarouselItem";
@@ -9,6 +9,11 @@ import HomeInfoBox from "./HomeInfoBox";
 import Slider from '../../components/slider/slider.jsx'
 import ProductCarousel from '../../components/carousel/Carousel.jsx';
 import ProductCategory from '../../components/productCategory/ProductCategory.jsx';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  getProducts,
+  // selectProducts,
+} from "../../redux/features/product/productSlice.jsx";
 
 const PageHeading = ({ heading, btnText }) => {
   return (
@@ -47,34 +52,63 @@ const PageHeading = ({ heading, btnText }) => {
 // ));
 
 const Home = () => {
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(getProducts());
-  // }, [dispatch]);
-  // const { products } = useSelector((state) => state.product);
-  // const latest = products
-  //   ?.filter((item, index) => {
-  //     return item.quantity > 0;
-  //   })
-  //   ?.filter((item, index) => index < 6);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getProducts());
+  }, [dispatch]);
+  const { products } = useSelector((state) => state.product);
+  const latest = products
+    ?.filter((product, index) => {
+      return product.quantity > 0;
+    })
+    ?.filter((product, index) => index < 6);
 
-  // const phones = products
-  //   ?.filter((item, index) => {
-  //     return item.category === "Phone";
-  //   })
-  //   ?.filter((item, index) => index < 6);
+  const phones = products
+    ?.filter((product) => {
+      return product.quantity > 0
+    })
+    ?.filter((product, index) => {
+      return product.category === "Phone";
+    })
+    ?.filter((product, index) => index < 6);
 
 
-    const productss = productData.map((item)=>(
+    const latestProducts = latest.map((item)=>(
       <div key={item.id}>
         <CarouselItem 
           name={item.name}
-          url={item.imageurl}
+          url={item.image[0]}
           price={item.price}
+          regularPrice={item.regularPrice}
           description={item.description}
+          product={item}
         />
       </div>
     ))
+
+    const phoneProducts = phones.map((item)=>(
+      <div key={item.id}>
+        <CarouselItem 
+          name={item.name}
+          url={item.image[0]}
+          price={item.price}
+          regularPrice={item.regularPrice}
+          description={item.description}
+          product={item}
+        />
+      </div>
+    ))
+
+    // const productss = productData.map((item)=>(
+    //   <div key={item.id}>
+    //     <CarouselItem 
+    //       name={item.name}
+    //       url={item.imageurl}
+    //       price={item.price}
+    //       description={item.description}
+    //     />
+    //   </div>
+    // ))
 
   return (
     <div className='flex flex-col'>
@@ -83,7 +117,7 @@ const Home = () => {
         <div className="max-w-[1000px] mx-auto px-5">
           <HomeInfoBox />
           <PageHeading heading={"Latest Products"} btnText={"Shop Now >>>"} />
-          <ProductCarousel products={productss}  />
+          <ProductCarousel products={latestProducts}  />
         </div>
       </section>
       <section className='bg-gray-100'>
@@ -95,7 +129,7 @@ const Home = () => {
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5 pt-5">
           <PageHeading heading={"Mobile Phone"} btnText={"Shop Now >>>"} />
-          <ProductCarousel products={productss}  />
+          <ProductCarousel products={phoneProducts}  />
         </div>
       </section>
     </div>
