@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from "./Cart.module.scss";
 import { FaTrashAlt } from 'react-icons/fa';
 import { Card } from 'flowbite-react';
+import VerifyCoupon from '../../components/verifyCoupon/VerifyCoupon';
 
 
 const Cart = () => {
@@ -148,15 +149,16 @@ const Cart = () => {
                   <Link to="/shop">&larr; Continue shopping</Link>
                 </div>
                 <br />
-                <Card className={styles.card}>
-                  <p>
-                    <b> {`Cart item(s): ${cartTotalQuantity}`}</b>
-                  </p>
-                  <div className={styles.text}>
-                    <h4>Subtotal:</h4>
-                    <h3>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
-                  </div>
-                </Card>
+                  <Card className={styles.card}>
+                    <p>
+                      <b> {`Cart item(s): ${cartTotalQuantity}`}</b>
+                    </p>
+                    <div className={styles.text}>
+                      <h4>Subtotal:</h4>
+                      <h3>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
+                    </div>
+                    <VerifyCoupon />
+                  </Card>
 
               </div>
             </div>
