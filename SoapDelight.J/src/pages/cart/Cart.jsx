@@ -8,6 +8,7 @@ import styles from "./Cart.module.scss";
 import { FaTrashAlt } from 'react-icons/fa';
 import { Card } from 'flowbite-react';
 import VerifyCoupon from '../../components/verifyCoupon/VerifyCoupon';
+import PaymentOption from '../../components/paymentOption/PaymentOption';
 
 
 const Cart = () => {
@@ -162,6 +163,9 @@ const Cart = () => {
                       <h3>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
                     </div>
                     <VerifyCoupon />
+                    <div className="--underline --my"></div>
+                    
+                    <PaymentOption />
                   </Card>
 
               </div>
