@@ -17,6 +17,8 @@ const Cart = () => {
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const cartTotalAmount = useSelector(selectCartTotalAmount);
   const isError = useSelector((state) => state.cart.isError);
+  const { coupon } = useSelector((state) => state.coupon);
+
 
 
   useEffect(() => {
@@ -27,9 +29,11 @@ const Cart = () => {
   // const { coupon } = useSelector((state) => state.coupon);
   useEffect(() => {
 
-    dispatch(CALCULATE_SUBTOTAL());
+    dispatch(CALCULATE_SUBTOTAL({coupon}));
     dispatch(CALCULATE_TOTAL_QUANTITY());
-  }, [cartItems, dispatch ]);
+    
+  }, [cartItems, dispatch, coupon ]);
+
 
 
   const increaseCart = (cart) => {

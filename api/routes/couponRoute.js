@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.post("/createCoupon", protect, authorOnly, createCoupon);
 router.get("/getCoupons", protect, authorOnly,getCoupons)
-router.get("/:couponName", protect, authorOnly,getCoupon)
+router.get("/:couponName", protect,getCoupon)
 router.delete("/:id", protect, authorOnly,deleteCoupon)
 
 
