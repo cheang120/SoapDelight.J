@@ -1,6 +1,6 @@
 import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PasswordInput from '../components/PasswordInput';
 import OAuth from '../components/OAuth';
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -8,7 +8,7 @@ import { FaTimes } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
-import { getCartDB } from '../redux/features/cart/cartSlice';
+import { getCartDB, saveCartDB } from '../redux/features/cart/cartSlice';
 // import { getCartDB } from '../redux/features/cart/cartSlice';
 
 
@@ -32,7 +32,10 @@ export default function SignIn() {
   const dispatch = useDispatch()
   const navigate = useNavigate();
 
-
+  const {isLoading, isLoggedIn, isSuccess} = useSelector((state) => state.user)
+  const [urlParams] = useSearchParams()
+  const redirect = urlParams.get("redirect")
+  // console.log(urlParams.get("redirect"));
 
 // Validate email
 const validateEmail = (email) => {
@@ -129,9 +132,17 @@ const [uCase, setUCase] = useState(false)
       // setLoading(false);
       if(res.ok) {
         dispatch(signInSuccess(data))
+        if (redirect === 'cart') {
+          dispatch(
+            saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+          );
+          return navigate("/cart")
+        }
         dispatch(getCartDB());
 
         navigate('/dashboard?tab=profile');
+        // navigate('/cart');
+
       }
               // dispatch(getCartDB());
 

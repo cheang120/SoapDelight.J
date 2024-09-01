@@ -45,16 +45,20 @@ const userSlice = createSlice({
         signInSuccess: (state, action) => {
             state.currentUser = action.payload;
             state.loading = false;
+            state.isLoggedIn = true;
             state.error = null
         },
         signInFailure: (state,action) => {
             state.loading = false;
+            state.isLoggedIn = false;
             state.error = action.payload
         },
         signoutSuccess: (state) => {
             state.currentUser = null;
             state.error = null;
             state.loading = false;
+            state.isLoggedIn = false;
+
           },
         updateStart: (state) => {
             state.loading = true;
@@ -163,5 +167,7 @@ export const {
     resetSuccess,
     resetFailure
 } = userSlice.actions
+export const selectIsLoggedIn = (state) => state.user.isLoggedIn
+
 
 export default userSlice.reducer
