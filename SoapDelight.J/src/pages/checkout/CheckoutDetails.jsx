@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Card from '../../components/card/Card'
 import styles from "./CheckoutForm.module.scss"
 import { SAVE_BILLING_ADDRESS, SAVE_SHIPPING_ADDRESS, selectBillingAddress, selectPaymentMethod, selectShippingAddress } from "../../redux/features/checkout/checkoutSlice";
+import { toast } from "react-toastify";
+import CheckoutSummary from "../../components/checkout/checkoutSummary/CheckoutSummary";
 
 const initialAddressState = {
     name: "",
@@ -28,6 +30,11 @@ const CheckoutDetails = () => {
     const shipAddress = useSelector(selectShippingAddress);
     const billAddress = useSelector(selectBillingAddress);
 
+
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const handleShipping = (e) => {
         const { name, value } = e.target;
         setShippingAddress({
@@ -45,6 +52,27 @@ const CheckoutDetails = () => {
         });
     };
 
+
+
+    // useEffect(() => {
+    //     if (Object.keys(shipAddress).length > 0) {
+    //       setShippingAddress({ ...shipAddress });
+    //     }
+    //     if (Object.keys(billAddress).length > 0) {
+    //       setBillingAddress({ ...billAddress });
+    //     }
+    // }, [shipAddress, billAddress]);
+
+    useEffect(() => {
+        if (shipAddress && Object.keys(shipAddress).length > 0) {
+          setShippingAddress({ ...shipAddress });
+        }
+        if (billAddress && Object.keys(billAddress).length > 0) {
+          setBillingAddress({ ...billAddress });
+        }
+      }, [shipAddress, billAddress]);
+      
+
     const handleSubmit = (e) => {
         e.preventDefault();
         dispatch(SAVE_SHIPPING_ADDRESS(shippingAddress));
@@ -54,7 +82,7 @@ const CheckoutDetails = () => {
           navigate("/cart");
         }
         if (paymentMethod === "stripe") {
-          navigate("/checkout");
+          navigate("/checkout-stripe");
         }
         if (paymentMethod === "flutterwave") {
           navigate("/checkout-flutterwave");
@@ -244,7 +272,7 @@ const CheckoutDetails = () => {
           </div>
           <div>
             <Card cardClass={styles.card}>
-              {/* <CheckoutSummary /> */}
+              <CheckoutSummary />
             </Card>
           </div>
         </form>
