@@ -3,7 +3,7 @@ const router = express.Router();
 import { protect, adminOnly,authorOnly } from "../middleware/auth.middleware.js";
 import {
   createOrder, getOrder, getOrders, updateOrderStatus,
-  // payWithStripe,
+  payWithStripe,
   // payWithFlutterwave,
   // verifyFlwPayment,
   // payWithWallet,
@@ -16,7 +16,7 @@ router.patch("/:id", protect, authorOnly, updateOrderStatus);
 router.get("/", protect, getOrders);
 router.get("/:id", protect, getOrder);
 
-// router.post("/create-payment-intent", payWithStripe);
+router.post("/create-payment-intent", payWithStripe);
 // router.post("/payWithFlutterwave", payWithFlutterwave);
 // router.post("/payWithWallet", protect, payWithWallet);
 
