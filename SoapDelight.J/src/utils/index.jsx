@@ -45,6 +45,16 @@ export const getCartQuantityById = (products, id) => {
   
     return totalStars / ratings.length;
   }
+
+// Extract id and cart quantity from cartItems
+export function extractIdAndCartQuantity(products) {
+  return products.map(function (product) {
+    return {
+      _id: product._id,
+      cartQuantity: product.cartQuantity,
+    };
+  });
+}
   
 
   
