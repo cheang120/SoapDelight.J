@@ -43,6 +43,7 @@ export const Checkout = () => {
     const productIDs = extractIdAndCartQuantity(cartItems)
   
     useEffect(() => {
+        const amountInCents = Math.round(totalAmount * 100);
       fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/order/create-payment-intent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,6 +54,7 @@ export const Checkout = () => {
             billing: billingAddress,
             description,
             coupon,
+            amount: amountInCents,
             }),
         })
             .then((res) => {
@@ -66,6 +68,7 @@ export const Checkout = () => {
                 // setDpmCheckerLink(data.dpmCheckerLink);
             })
             .catch((error) => {
+                console.error("Checkout initialization error:", error); // Log the error details
                 setMessage("Failed to initialize checkout!")
                 toast.error("Something went wrong!")
             })

@@ -136,8 +136,9 @@ export const payWithStripe = asyncHandler(async (req, res) => {
 
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: orderAmount,
-    currency: "usd",
+    // amount: orderAmount,
+    amount: Math.round(orderAmount * 100),
+    currency: "hkd",
     automatic_payment_methods: {
       enabled: true,
     },
