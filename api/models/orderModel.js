@@ -32,13 +32,13 @@ const orderSchema = new mongoose.Schema(
       trim: true,
     },
     cartItems: {
-        type:String,
-    //   type: [Object],
+        // type:String,
+      type: [Object],
       required: [true],
     },
     shippingAddress: {
-    //   type: Object,
-    type:String,
+      type: Object,
+    // type:String,
       required: true,
     },
     coupon: {

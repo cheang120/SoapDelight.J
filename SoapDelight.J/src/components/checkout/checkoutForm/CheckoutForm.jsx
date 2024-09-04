@@ -9,14 +9,29 @@ import Card from "../../card/Card";
 import CheckoutSummary from "../checkoutSummary/CheckoutSummary";
 import { Spinner } from "../../Loader";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { selectCartItems, selectCartTotalAmount } from "../../../redux/features/cart/cartSlice";
+import { selectPaymentMethod, selectShippingAddress } from "../../../redux/features/checkout/checkoutSlice";
+import { createOrder } from "../../../redux/features/order/OrderSlice";
 
 export default function CheckoutForm({dpmCheckerLink}) {
   const stripe = useStripe();
   const elements = useElements();
+  const { coupon } = useSelector((state) => state.coupon);
 
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const shippingAddress = useSelector(selectShippingAddress);
+  const paymentMethod = useSelector(selectPaymentMethod);
+
+  const cartItems = useSelector(selectCartItems);
+  const cartTotalAmount = useSelector(selectCartTotalAmount);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!stripe) {
@@ -33,21 +48,21 @@ export default function CheckoutForm({dpmCheckerLink}) {
   }, [stripe]);
 
   const saveOrder = async () => {
-    console.log("Order saved!");
-    // const today = new Date();
-    // const formData = {
-    //   orderDate: today.toDateString(),
-    //   orderTime: today.toLocaleTimeString(),
-    //   orderAmount: cartTotalAmount,
-    //   orderStatus: "Order Placed...",
-    //   cartItems,
-    //   shippingAddress,
-    //   paymentMethod,
-    //   coupon: coupon != null ? coupon : { name: "nil" },
-    // };
+    // console.log("Order saved!");
+    const today = new Date();
+    const formData = {
+      orderDate: today.toDateString(),
+      orderTime: today.toLocaleTimeString(),
+      orderAmount: cartTotalAmount,
+      orderStatus: "Order Placed...",
+      cartItems,
+      shippingAddress,
+      paymentMethod,
+      coupon: coupon != null ? coupon : { name: "nil" },
+    };
     // console.log(formData);
-    // dispatch(createOrder(formData));
-    // navigate("/checkout-success");
+    dispatch(createOrder(formData));
+    navigate("/checkout-success");
   };
 
   const handleSubmit = async (e) => {
