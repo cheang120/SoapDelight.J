@@ -72,7 +72,7 @@ const Cart = () => {
 
 
   return (
-    <section>
+    <section className='min-h-screen'>
       <div className={`container ${styles.table} m-auto`}>
         <h2>Shopping Cart</h2>
         {JSON.parse(localStorage.getItem("cartItems"))?.length === 0 ? (

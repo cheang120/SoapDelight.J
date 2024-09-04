@@ -7,7 +7,8 @@ import {
 } from "@stripe/react-stripe-js";
 import Card from "../../card/Card";
 import CheckoutSummary from "../checkoutSummary/CheckoutSummary";
-// import { Spinner } from "../../Loader";
+import { Spinner } from "../../Loader";
+import { toast } from "react-toastify";
 
 export default function CheckoutForm({dpmCheckerLink}) {
   const stripe = useStripe();
@@ -91,7 +92,7 @@ export default function CheckoutForm({dpmCheckerLink}) {
 
   return (
     <>
-    <section>
+    <section className="min-h-screen">
       <div className={`container m-auto ${styles.checkout}`}>
         <h2>Checkout</h2>
         <form onSubmit={handleSubmit} className="flex gap-4">
@@ -105,7 +106,7 @@ export default function CheckoutForm({dpmCheckerLink}) {
               <h3>Stripe Checkout</h3>
               <PaymentElement
                 id={styles["payment-element"]} 
-                // options={paymentElementOptions}
+                options={paymentElementOptions}
               />
               <button
                 disabled={isLoading || !stripe || !elements}
