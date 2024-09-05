@@ -16,13 +16,13 @@ const CheckoutSuccess = () => {
     <>
       <Confetti />
 
-      <section>
-        <div className="container">
-          <h2>Checkout Successful</h2>
-          <p>Thank you for your purchase</p>
+      <section style={{height:"100vh"}}>
+        <div className="container m-auto py-1 px-3">
+          <h3 className="mt-14 text-2xl mb-6">Checkout Successful</h3>
+          <p className="mb-8">Thank you for your purchase</p>
           <br />
 
-          <button className="--btn --btn-primary">
+          <button className=" --btn --btn-primary">
             <Link to="/order-history">View Order Status</Link>
           </button>
         </div>
