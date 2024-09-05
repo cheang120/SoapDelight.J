@@ -7,15 +7,16 @@ const PageMenu = () => {
     <div>
       <nav className=" --p --mb">
         <ul className="home-links">
-          <li>
+          {/* <li>
             <NavLink to="/dashboard?tab=profile" >Profile</NavLink>
-          </li>
+          </li> */}
           <li>
             <NavLink to="/wallet">My Wallet</NavLink>
           </li>
           <li>
             <NavLink to="/wishlist">Wishlist</NavLink>
           </li>
+
         </ul>
       </nav>
     </div>

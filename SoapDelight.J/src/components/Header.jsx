@@ -163,12 +163,19 @@ export default function Header() {
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             {(userRole === 'author' ||  userRole === 'admin')  && (
-            <Link to='/productAdmin/home'>
-
-              <Dropdown.Item>ProductAdmin</Dropdown.Item>
-
-            </Link>
-          )}
+              <Link to='/productAdmin/home'>
+                <Dropdown.Item>ProductAdmin</Dropdown.Item>
+              </Link>
+              
+              
+            )}
+            {(userRole === 'author' ||  userRole === 'admin')  && (
+              <Link to='/order-history'>
+                <Dropdown.Item>My Orders</Dropdown.Item>
+              </Link>
+              
+              
+            )}
           {/* <AdminOnlyLink>
             <Link to='/productAdmin/home'>
 

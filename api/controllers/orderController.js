@@ -6,7 +6,7 @@ import { calculateTotalPrice } from "../utils/index.js";
 // const { calculateTotalPrice } = require("../utils");
 // const Product = require("../models/productModel");
 // const stripe = require("stripe")(process.env.xwSTRIPE_PRIVATE_KEY);
-// const axios = require("axios");
+import axios from "axios"
 // const User = require("../models/userModel");
 // const Transaction = require("../models/transactionModel");
 // const { orderSuccessEmail } = require("../emailTemplates/orderTemplate");
@@ -64,7 +64,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 export const getOrders = asyncHandler(async (req, res) => {
   let orders;
 
-  if (req.user.role === "admin") {
+  if (req.user.role === "author") {
     orders = await Order.find().sort("-createdAt");
     return res.status(200).json(orders);
   }
@@ -81,7 +81,7 @@ export const getOrder = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Order not found");
   }
-  if (req.user.role === "admin") {
+  if (req.user.role === "author") {
     return res.status(200).json(order);
   }
   // Match Order to its user

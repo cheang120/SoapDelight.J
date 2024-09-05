@@ -23,6 +23,26 @@
   --color-danger: orangered;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+
+
+/* section {
+  width: 100%;
+  padding: 4rem 0;
+} */
+
+.container {
+  /* max-width: 1000px; */
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 .--flex-between {
     display: flex;
     justify-content: space-between;

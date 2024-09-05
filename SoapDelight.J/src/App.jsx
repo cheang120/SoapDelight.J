@@ -27,7 +27,7 @@ import Cart from './pages/cart/Cart'
 import CheckoutDetails from './pages/checkout/CheckoutDetails'
 import { Checkout } from './pages/checkout/Checkout'
 import CheckoutSuccess from './pages/checkout/CheckoutSuccess'
-import Order from './pages/order/Order'
+import OrderHistory from './pages/order/OrderHistory'
 import OrderDetails from './pages/order/OrderDetails'
 
 
@@ -73,7 +73,22 @@ function App() {
                 <ProductAdmin />
                </AdminOnlyRoute>
             } 
-          
+          />
+          <Route 
+            path='/order-history/*' 
+            element={
+               <AdminOnlyRoute>
+                <OrderHistory />
+               </AdminOnlyRoute>
+            } 
+          />
+          <Route 
+            path='/order-details/:id/*' 
+            element={
+               <AdminOnlyRoute>
+                <OrderDetails />
+               </AdminOnlyRoute>
+            } 
           />
         </Route>
 
@@ -89,8 +104,6 @@ function App() {
 
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout-success" element={<CheckoutSuccess />} />
-        <Route path="/order-history" element={<Order />} />
-        <Route path="/checkout-details/:id" element={<OrderDetails />} />
         <Route path="/checkout-details" element={<CheckoutDetails />} />
         <Route path="/checkout-stripe" element={<Checkout />} />
 
