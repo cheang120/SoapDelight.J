@@ -161,7 +161,9 @@ const orderSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        toast.success("Order updated successfully");
+        // toast.success("Order updated successfully");
+        toast.success(action.payload)
+        console.log(action.payload);
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
         state.isLoading = false;

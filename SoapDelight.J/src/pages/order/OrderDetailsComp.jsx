@@ -50,7 +50,7 @@ const OrderDetailsComp = ({orderPageLink}) => {
       <div className='py-4'>
           <Link to={orderPageLink}>&larr; Back To Orders</Link>
         </div>
-      <div className=" mx-auto" ref={pdfRef}>
+      <div className="px-5 mx-auto overflow-x-scroll" ref={pdfRef}>
         <h2 className='text-xl'>Order Details</h2>
         <br />
         <div className='table'>
@@ -108,7 +108,9 @@ const OrderDetailsComp = ({orderPageLink}) => {
                           <b>{name}</b>
                         </p>
                         <img
-                          src={image[0]}
+                          // src={image[0]}
+                          src={Array.isArray(image) && image.length > 0 ? image[0] : 'defaultImage.png'}
+
                           alt={name}
                           style={{ width: "100px" }}
                         />

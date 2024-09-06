@@ -17,6 +17,7 @@ const ProductCarousel = ({ products }) => {
         autoPlaySpeed={3000}
         customTransition="all 500ms ease"
         transitionDuration={1000}
+        key={item.id || index}
       >
         {products}
       </Carousel>

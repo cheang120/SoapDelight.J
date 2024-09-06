@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import OrderDetailsComp from '../../../pages/order/OrderDetailsComp'
+import ChangeOrderStatus from '../changeOrderStatus/ChangeOrderStatus'
 
 const OrderDetails = () => {
   return (
@@ -13,7 +14,10 @@ const OrderDetails = () => {
     //     <br />
     //   </div>
     // </div>
-    <OrderDetailsComp orderPageLink={"/productAdmin/orders"}/>
+    <>
+      <OrderDetailsComp orderPageLink={"/productAdmin/orders"}/>
+      <ChangeOrderStatus />
+    </>
   )
 }
 
