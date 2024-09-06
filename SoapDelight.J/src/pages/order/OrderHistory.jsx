@@ -23,8 +23,8 @@ const OrderHistory = () => {
   };
 
   return (
-    <section style={{height:"100%"}} className='p-3'>
-      <div className={`container order mx-auto mt-10 h-max overflow-y-scroll overflow-x-scroll`}>
+    <section style={{height:"100%"}} className='p-3 --mh-100vh'>
+      <div className={`container order mx-auto mt-10 h-max  overflow-x-scroll` }>
         <h2 className='text-2xl mb-4'>Your Order History</h2>
         <p>
           Open an order to leave a <b>Product Review</b>
@@ -32,7 +32,7 @@ const OrderHistory = () => {
         <br />
         <>
           {isLoading && <Loader />}
-          <div className={"table"}>
+          <div className={"table "}>
             {orders.length === 0 ? (
               <p style={{height:"100vh"}}>No order found</p>
             ) : (
@@ -52,6 +52,7 @@ const OrderHistory = () => {
                       _id,
                       orderDate,
                       orderTime,
+                      user,
                       orderAmount,
                       orderStatus,
                     } = order;

@@ -169,13 +169,12 @@ export default function Header() {
               
               
             )}
-            {(userRole === 'author' ||  userRole === 'admin')  && (
               <Link to='/order-history'>
                 <Dropdown.Item>My Orders</Dropdown.Item>
               </Link>
               
               
-            )}
+            
           {/* <AdminOnlyLink>
             <Link to='/productAdmin/home'>
 

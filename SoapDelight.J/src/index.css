@@ -178,6 +178,17 @@
   min-height: 100vh;
 }
 
+/* Center All */
+.--center-all {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  margin: auto;
+  text-align: center;
+}
+
 
 /* Margin */
 .--m {

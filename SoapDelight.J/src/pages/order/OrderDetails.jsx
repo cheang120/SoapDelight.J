@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
 import { getOrder } from '../../redux/features/order/OrderSlice';
 import { Spinner } from 'flowbite-react';
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+
 
 const OrderDetails = () => {
   const pdfRef = useRef();
@@ -18,36 +21,37 @@ const OrderDetails = () => {
     dispatch(getOrder(id));
   }, [dispatch, id]);
 
-  // const downloadPDF = () => {
-  //   const input = pdfRef.current;
-  //   html2canvas(input).then((canvas) => {
-  //     const imgData = canvas.toDataURL("image/png");
-  //     const pdf = new jsPDF("p", "mm", "a4", true);
-  //     const pdfWidth = pdf.internal.pageSize.getWidth();
-  //     const pdfHeight = pdf.internal.pageSize.getHeight();
-  //     const imageWidth = canvas.width;
-  //     const imageHeight = canvas.height;
-  //     const ratio = Math.min(pdfWidth / imageWidth, pdfHeight / imageHeight);
-  //     const imgX = (pdfWidth - imageWidth * ratio) / 2;
-  //     const imgY = 30;
-  //     pdf.addImage(
-  //       imgData,
-  //       "PNG",
-  //       imgX,
-  //       imgY,
-  //       imageWidth * ratio,
-  //       imageHeight * ratio
-  //     );
-  //     pdf.save(`shopitoInvoice.pdf`);
-  //   });
-  // };
+  const downloadPDF = () => {
+    const input = pdfRef.current;
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4", true);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imageWidth = canvas.width;
+      const imageHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imageWidth, pdfHeight / imageHeight);
+      const imgX = (pdfWidth - imageWidth * ratio) / 2;
+      const imgY = 30;
+      pdf.addImage(
+        imgData,
+        "PNG",
+        imgX,
+        imgY,
+        imageWidth * ratio,
+        imageHeight * ratio
+      );
+      pdf.save(`soapDelightInvoice.pdf`);
+    });
+  };
+
   return (
-    <section className='py-10'>
-      <div className="container mx-auto">
-        <h2 className='text-xl'>Order Details</h2>
-        <div className='py-4'>
+    <section className='py-10 container'>
+      <div className='py-4'>
           <Link to="/order-history">&larr; Back To Orders</Link>
         </div>
+      <div className=" mx-auto" ref={pdfRef}>
+        <h2 className='text-xl'>Order Details</h2>
         <br />
         <div className='table'>
           {isLoading && order === null ? (
@@ -81,10 +85,61 @@ const OrderDetails = () => {
                 <br />
                 Country: {order?.shippingAddress.country}
               </p>
+              <br />
+              <table>
+              <thead>
+                <tr>
+                  <th>s/n</th>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order?.cartItems?.map((cart, index) => {
+                  const { _id, name, price, image, cartQuantity } = cart;
+                  return (
+                    <tr key={_id}>
+                      <td>{index + 1}</td>
+                      <td>
+                        <p>
+                          <b>{name}</b>
+                        </p>
+                        <img
+                          src={image[0]}
+                          alt={name}
+                          style={{ width: "100px" }}
+                        />
+                      </td>
+                      <td>{price}</td>
+                      <td>
+                        {cartQuantity}
+                      </td>
+                      <td>{(price * cartQuantity).toFixed(2)}</td>
+                      <td className={"icons"}>
+                        {/* <Link to={`/review-product/${_id}`}> */}
+                            <button className="--btn --btn-primary">
+                              Review Product
+                            </button>
+                        {/* </Link> */}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
             </>
           )}
         </div>
+
       </div>
+      <div className='my-6 flex justify-center'>
+          <button className="--btn --btn-primary" onClick={downloadPDF}>
+              Download PDF
+          </button>
+        </div>
     </section>
   )
 }

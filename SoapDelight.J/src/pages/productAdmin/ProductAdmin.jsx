@@ -10,11 +10,12 @@ import ViewProducts from "../../components/productAdmin/viewProducts/ViewProduct
 import EditProduct from "../../components/productAdmin/editProduct/EditProduct.jsx";
 // import AdminHome from "../../components/productAdmin/adminHome/AdminHome.jsx";
 // import Home from "../../components/admin/home/Home";
-// import Orders from "../../components/admin/orders/Orders";
 // import OrderDetails from "../../components/admin/orderDetails/OrderDetails";
 // import Category from "../../components/admin/category/Category";
 import {useDispatch, useSelector} from 'react-redux'
 import Coupon from "../../components/productAdmin/coupon/Coupon.jsx";
+import Orders from "../../components/productAdmin/orders/Orders.jsx";
+import OrderDetails from "../../components/productAdmin/orders/OrderDetails.jsx";
 
 
 export const ProductAdmin = () => {
@@ -34,8 +35,8 @@ export const ProductAdmin = () => {
               <Route path="all-products" element={<ViewProducts />} />
               <Route path="add-product" element={<AddProduct />} />
               <Route path="edit-product/:id" element={<EditProduct />} />
-              {/* <Route path="orders" element={<Orders />} /> */}
-              {/* <Route path="order-details/:id" element={<OrderDetails />} /> */}
+              <Route path="orders" element={<Orders />} />
+              <Route path="order-details/:id" element={<OrderDetails />} />
               <Route path="coupon" element={<Coupon />} />
               <Route path="category" element={<Category />} />
               <Route path="brand" element={<Brand />} />

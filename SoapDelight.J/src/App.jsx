@@ -74,7 +74,7 @@ function App() {
                </AdminOnlyRoute>
             } 
           />
-          <Route 
+          {/* <Route 
             path='/order-history/*' 
             element={
                <AdminOnlyRoute>
@@ -89,7 +89,7 @@ function App() {
                 <OrderDetails />
                </AdminOnlyRoute>
             } 
-          />
+          /> */}
         </Route>
 
         <Route path="/verify/:verificationToken" element={<Verify />} />
@@ -104,6 +104,8 @@ function App() {
 
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout-success" element={<CheckoutSuccess />} />
+        <Route path="/order-history" element={<OrderHistory />} />
+        <Route path="/order-details/:id" element={<OrderDetails />} />
         <Route path="/checkout-details" element={<CheckoutDetails />} />
         <Route path="/checkout-stripe" element={<Checkout />} />
 
