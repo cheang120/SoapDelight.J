@@ -1,7 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js"
-import { calculateTotalPrice } from "../utils/index.js";
+import { calculateTotalPrice, updateProductQuantity } from "../utils/index.js";
 // import calculateTotalPrice from "../utils"
 import axios from "axios"
 import Stripe from "stripe"
@@ -51,6 +51,9 @@ export const createOrder = asyncHandler(async (req, res) => {
     paymentMethod,
     coupon,
   });
+
+  // Update product quantity 
+  await updateProductQuantity(cartItems)
 
   // Send Order Email to the user
   const subject = "SoapDelight.J Order Placed";

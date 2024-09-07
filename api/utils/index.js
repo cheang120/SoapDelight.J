@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import Stripe from "stripe"
+import Product from '../models/productModel.js'
+// import Product from '../models/productModel'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 
@@ -50,3 +52,20 @@ export const calculateTotalPrice = (products, cartItems) => {
 }
 
 
+export const updateProductQuantity = async(cartItems) => {
+    let bulkOption = cartItems.map((product) => {
+        return {
+            updateOne: {
+                filter: { _id: product._id },
+                update: {
+                    $inc: {
+                        quantity: -product.cartQuantity,
+                        sold: +product.cartQuantity
+                    }
+                }
+            }
+        }
+    })
+    await Product.bulkWrite(bulkOption, {})
+
+}
