@@ -3,15 +3,11 @@ import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js"
 import { calculateTotalPrice } from "../utils/index.js";
 // import calculateTotalPrice from "../utils"
-// const { calculateTotalPrice } = require("../utils");
-// const Product = require("../models/productModel");
-// const stripe = require("stripe")(process.env.xwSTRIPE_PRIVATE_KEY);
 import axios from "axios"
-// const User = require("../models/userModel");
-// const Transaction = require("../models/transactionModel");
-// const { orderSuccessEmail } = require("../emailTemplates/orderTemplate");
-// const sendEmail = require("../utils/sendEmail");
 import Stripe from "stripe"
+// import sendGmail from "../utils/sendGmail.js";
+import { orderSuccessEmail } from "../emailTemplate/orderTemplate.js";
+import { sendGmail } from "../utils/sendGmail.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export const createOrder = asyncHandler(async (req, res) => {
@@ -26,6 +22,13 @@ export const createOrder = asyncHandler(async (req, res) => {
     paymentMethod,
     coupon,
   } = req.body;
+  console.log(cartItems);
+
+    // 檢查 cartItems 是否為數組
+    if (!Array.isArray(cartItems)) {
+      res.status(400);
+      throw new Error("cartItems 應該是一個數組");
+    }
 
   //   Validation
   if (!cartItems || !orderStatus || !shippingAddress || !paymentMethod) {
@@ -50,12 +53,15 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
 
   // Send Order Email to the user
-  // const subject = "Shopito Order Placed";
-  // const send_to = req.user.email;
-  // const template = orderSuccessEmail(req.user.name, cartItems);
-  // const reply_to = "donaldzee.ng@gmail.com";
+  const subject = "SoapDelight.J Order Placed";
+  const send_to = req.user.email;
+  // console.log(send_to);
+  const template = orderSuccessEmail(req.user.name, cartItems);
+  // const template = "template"
+  const reply_to = "no_reply@gmail.com";
+  console.log('Template:', template);
 
-  // await sendEmail(subject, send_to, template, reply_to);
+  await sendGmail(subject, send_to,reply_to, template );
 
   res.status(201).json({ message: "Order Created" });
 });

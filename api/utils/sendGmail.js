@@ -1,9 +1,9 @@
-const nodemailer = require("nodemailer")
-const MailGen = require("mailgen")
+import nodemailer from "nodemailer";
+import MailGen from "mailgen";
+import fs from "fs";
 
 
-
-const sendGmail = async(subject, send_to, template, cc) => {
+export const sendGmail = async(subject, send_to,reply_to, template, cc) => {
         // Create Email Transporter
         const Transporter = nodemailer.createTransport({
             service:"gmail",
@@ -15,6 +15,11 @@ const sendGmail = async(subject, send_to, template, cc) => {
             }
         })
 
+          // 验证模板参数
+  if (!template || !template.body) {
+    throw new Error("Please provide parameters for generating transactional e-mails.");
+  }
+
           // Create Template With MailGen
         const mailGenerator = new MailGen({
             theme: "salted",
@@ -24,11 +29,11 @@ const sendGmail = async(subject, send_to, template, cc) => {
             },
         });
         const emailTemplate = mailGenerator.generate(template);
-        require("fs").writeFileSync("preview.html", emailTemplate, "utf8");
+        fs.writeFileSync("preview.html", emailTemplate, "utf8");
 
           // Options f0r sending email
         const options = {
-            from: process.env.EMAIL_USER,
+            from: process.env.EMAIL_USER_G,
             to: send_to,
             replyTo: reply_to,
             subject,
@@ -37,7 +42,7 @@ const sendGmail = async(subject, send_to, template, cc) => {
         };
 
           // Send Email
-        transporter.sendMail(options, function (err, info) {
+          Transporter.sendMail(options, function (err, info) {
             if (err) {
             console.log(err);
             } else {
@@ -48,4 +53,4 @@ const sendGmail = async(subject, send_to, template, cc) => {
 
 
 
-module.exports = sendGmail
+// module.exports = sendGmail
