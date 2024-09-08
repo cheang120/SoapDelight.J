@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
         type: String,
         default:"+853"
     },
+    balance: {
+      type: Number,
+      default:"0"
+  },
     bio: {
         type: String,
         default: "bio",

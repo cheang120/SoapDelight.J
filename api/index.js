@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import transactionRoute from "./routes/transactionRoute.js"
 import userRoutes from './routes/user.route.js';
 import authRoutes from './routes/auth.route.js';
 import productRoute from './routes/productRoute.js'
@@ -35,9 +36,13 @@ app.use(
 
 app.use(express.static(path.join(__dirname, '/SoapDelight.J/dist')));
 
-app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use("/api/transaction", transactionRoute);
+
+app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoute);
