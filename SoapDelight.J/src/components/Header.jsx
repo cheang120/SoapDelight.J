@@ -91,11 +91,7 @@ export default function Header() {
     </span>
   );
 
-  const wishlist = (
-    <span className='flex'>
-      <FaHeart size={20} className='text-red-500'/> 
-    </span>
-  );
+
 
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -109,6 +105,12 @@ export default function Header() {
     // dispatch(CALCULATE_SUBTOTAL({ coupon }));
     dispatch(CALCULATE_TOTAL_QUANTITY());
   }, [cartItems, dispatch]);
+
+  const wishlist = (
+    <span className='flex'>
+      <FaHeart size={20} className='text-red-500'/> 
+    </span>
+  );
 
   return (
     <Navbar
