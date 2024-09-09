@@ -72,6 +72,15 @@ const Home = () => {
     })
     ?.filter((product, index) => index < 6);
 
+    const soaps = products
+    ?.filter((product) => {
+      return product.quantity > 0
+    })
+    ?.filter((product, index) => {
+      return product.category === "Soap";
+    })
+    ?.filter((product, index) => index < 6);
+
 
     const latestProducts = latest.map((item)=>(
       <div key={item.id}>
@@ -87,6 +96,19 @@ const Home = () => {
     ))
 
     const phoneProducts = phones.map((item)=>(
+      <div key={item.id}>
+        <CarouselItem 
+          name={item.name}
+          url={item.image[0]}
+          price={item.price}
+          regularPrice={item.regularPrice}
+          description={item.description}
+          product={item}
+        />
+      </div>
+    ))
+
+    const soapProducts = soaps.map((item)=>(
       <div key={item.id}>
         <CarouselItem 
           name={item.name}
@@ -130,6 +152,12 @@ const Home = () => {
         <div className="max-w-[1000px] mx-auto px-5 pt-5">
           <PageHeading heading={"Mobile Phone"} btnText={"Shop Now >>>"} />
           <ProductCarousel products={phoneProducts}  />
+        </div>
+      </section>
+      <section className=''>
+        <div className="max-w-[1000px] mx-auto px-5 pt-5">
+          <PageHeading heading={"Soap"} btnText={"Shop Now >>>"} />
+          <ProductCarousel products={soapProducts}  />
         </div>
       </section>
     </div>

@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import Stripe from "stripe"
 import Product from '../models/productModel.js'
 // import Product from '../models/productModel'
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 
 export const generateToken = (id) => {

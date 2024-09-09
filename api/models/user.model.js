@@ -67,6 +67,9 @@ const userSchema = new mongoose.Schema(
     cartItems: {
       type: [Object],
     },
+    stripeCustomerId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

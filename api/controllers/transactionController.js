@@ -1,13 +1,11 @@
-// const asyncHandler = require("express-async-handler");
-// const Transaction = require("../models/transactionModel");
-// const User = require("../models/userModel");
-// const { stripe } = require("../utils");
-// const axios = require("axios");
 import asyncHandler from "express-async-handler";
 import Transaction from "../models/transactionModel.js";
-// import { stripe } from "../utils/index.js";
+import {stripe}  from "../utils/index.js";
 import axios from "axios";
 import User from "../models/user.model.js";
+import Stripe from "stripe";
+
+
 
 // Transfer Funds
 export const transferFund = asyncHandler(async (req, res) => {
@@ -79,117 +77,120 @@ export const getUserTransactions = asyncHandler(async (req, res) => {
 });
 
 // Deposit Funds With Stripe
-// export const depositFundStripe = asyncHandler(async (req, res) => {
-//   const { amount } = req.body;
-//   console.log(amount);
-//   const user = await User.findById(req.user._id);
+export const depositFundStripe = asyncHandler(async (req, res) => {
+    // res.send("correct")
 
-//   // Create stripe customer
-//   if (!user.stripeCustomerId) {
-//     const customer = await stripe.customers.create({ email: user.email });
-//     user.stripeCustomerId = customer.id;
-//     user.save();
-//   }
+  const { amount } = req.body;
+  console.log(amount);
+  const user = await User.findById(req.user._id);
 
-//   // Create Stripe Session
-//   const session = await stripe.checkout.sessions.create({
-//     mode: "payment",
-//     payment_method_types: ["card"],
-//     line_items: [
-//       {
-//         price_data: {
-//           currency: "usd",
-//           product_data: {
-//             name: "Shopito Wallet Deposit",
-//             description: `Make a deposit of $${amount} to shopito wallet`,
-//           },
-//           unit_amount: amount * 100,
-//         },
-//         quantity: 1,
-//       },
-//     ],
-//     customer: user.stripeCustomerId,
-//     success_url:
-//       process.env.FRONTEND_URL + `/wallet?payment=successful&amount=${amount}`,
-//     cancel_url: process.env.FRONTEND_URL + "/wallet?payment=failed",
-//   });
+  // Create stripe customer
+  if (!user.stripeCustomerId) {
+    const customer = await stripe.customers.create({ email: user.email });
+    user.stripeCustomerId = customer.id;
+    user.save();
+  }
 
-//   // console.log(session);
+  // Create Stripe Session
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "hkd",
+          product_data: {
+            name: "SoapDelight.J Wallet Deposit",
+            description: `Make a deposit of $${amount} to SoapDelight.J wallet`,
+          },
+          unit_amount: amount * 100,
+        },
+        quantity: 1,
+      },
+    ],
+    customer: user.stripeCustomerId,
+    success_url:
+      import.meta.env.FRONTEND_URL + `/wallet?payment=successful&amount=${amount}`,
+    cancel_url: import.meta.env.FRONTEND_URL + "/wallet?payment=failed",
+  });
+
+  // console.log(session);
 //   console.log(session.amount_total);
 
-//   return res.json(session);
-// });
+  return res.json(session);
+});
 
 // Deposit Fund Stripe
-// export const depositFund = async (customer, data, description, source) => {
-//   await Transaction.create({
-//     amount:
-//       source === "stripe" ? data.amount_subtotal / 100 : data.amount_subtotal,
-//     sender: "Self",
-//     receiver: customer.email,
-//     description: description,
-//     status: "success",
-//   });
+export const depositFund = async (customer, data, description, source) => {
+  await Transaction.create({
+    amount:
+      source === "stripe" ? data.amount_subtotal / 100 : data.amount_subtotal,
+    sender: "Self",
+    receiver: customer.email,
+    description: description,
+    status: "success",
+  });
 
-//   // increase the receiver's balance
-//   await User.findOneAndUpdate(
-//     { email: customer.email },
-//     {
-//       $inc: {
-//         balance:
-//           source === "stripe"
-//             ? data.amount_subtotal / 100
-//             : data.amount_subtotal,
-//       },
-//     }
-//   );
-// };
+  // increase the receiver's balance
+  await User.findOneAndUpdate(
+    { email: customer.email },
+    {
+      $inc: {
+        balance:
+          source === "stripe"
+            ? data.amount_subtotal / 100
+            : data.amount_subtotal,
+      },
+    }
+  );
+};
 
 // stripe webhook
 // const endpointSecret =
 //   "whsec_c22fcc4d163d10c1cdcaa13c55aa2cec4ad64c5279e7631856ec96852e6d9d5a";
-// export const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 
-// export const webhook = asyncHandler(async (req, res) => {
+export const webhook = asyncHandler(async (req, res) => {
+    // res.send("Correct")
 //   console.log("Webhook start");
-//   const sig = req.headers["stripe-signature"];
+  const sig = req.headers["stripe-signature"];
 
-//   let event;
-//   let data;
-//   let eventType;
+  let event;
+  let data;
+  let eventType;
 
-//   try {
-//     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-//     console.log("Webhook verified");
-//   } catch (err) {
-//     console.log("Verif Error ZT", err);
-//     res.status(400).send(`Webhook Error: ${err.message}`);
-//     return;
-//   }
-//   data = event.data.object;
-//   eventType = event.type;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log("Webhook verified");
+  } catch (err) {
+    console.log("Webhook error", err);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return;
+  }
+  data = event.data.object;
+  eventType = event.type;
 
-//   // Handle the event
-//   if (eventType === "checkout.session.completed") {
-//     stripe.customers
-//       .retrieve(data.customer)
-//       .then(async (customer) => {
-//         console.log(customer.email);
-//         console.log("data:", data.amount_total);
-//         const description = "Stripe Deposit";
-//         const source = "stripe";
-//         // save the transaction
-//         try {
-//           depositFund(customer, data, description, source);
-//         } catch (error) {
-//           console.log(err);
-//         }
-//       })
-//       .catch((err) => console.log(err.message));
-//   }
+  // Handle the event
+  if (eventType === "checkout.session.completed") {
+    stripe.customers
+      .retrieve(data.customer)
+      .then(async (customer) => {
+        console.log(customer.email);
+        console.log("data:", data.amount_total);
+        const description = "Stripe Deposit";
+        const source = "stripe";
+        // save the transaction
+        try {
+          depositFund(customer, data, description, source);
+        } catch (error) {
+          console.log(err);
+        }
+      })
+      .catch((err) => console.log(err.message));
+  }
 
-//   res.send().end();
-// });
+  res.send().end();
+});
 
 // Deposit Fund FLW
 // export const depositFundFLW = asyncHandler(async (req, res) => {
