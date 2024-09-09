@@ -13,6 +13,7 @@ import {
 } from "../../../utils/index.jsx";
 import Card from "../../card/Card.jsx";
 import { ADD_TO_CART, DECREASE_CART, saveCartDB, selectCartItems } from "../../../redux/features/cart/cartSlice.jsx";
+import { addToWishlist } from "../../../redux/features/auth/authSlice.js";
 
 
 const ProductDetails = () => {
@@ -64,6 +65,16 @@ const ProductDetails = () => {
         //   saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
         // );
     };
+
+    const addWishlist = (product) => {
+        const productData = {
+          productId: product._id,
+        };
+        console.log(productData);
+        dispatch(addToWishlist(productData));
+    };
+    // const averageRating = calculateAverageRating(product?.ratings);
+
 
   return (
     <section>
