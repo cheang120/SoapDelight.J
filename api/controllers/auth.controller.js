@@ -574,3 +574,40 @@ export const upgradeUser = async (req, res, next) => {
       throw new Error("User not found!")
     }
   })
+
+    // Add product to wishlist
+export const addToWishlist = asyncHandler(async (req, res) => {
+  res.send("correct")
+  // const { productId } = req.body;
+
+  // await User.findOneAndUpdate(
+  //   { email: req.user.email },
+  //   { $addToSet: { wishlist: productId } }
+  // );
+
+  // res.json({ message: "Product added to wishlist" });
+});
+
+//
+export const removeFromWishlist = asyncHandler(async (req, res) => {
+  res.send("correct")
+
+  // const { productId } = req.params;
+  // await User.findOneAndUpdate(
+  //   { email: req.user.email },
+  //   { $pull: { wishlist: productId } }
+  // );
+
+  // res.json({ message: "Product removed to wishlist" });
+});
+
+// Get Wishlist
+export const getWishlist = asyncHandler(async (req, res) => {
+  res.send("correct")
+
+  // const list = await User.findOne({ email: req.user.email })
+  //   .select("wishlist")
+  //   .populate("wishlist");
+
+  // res.json(list);
+});

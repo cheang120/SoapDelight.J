@@ -1,7 +1,7 @@
-
-
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs'
+
+const { ObjectId } = mongoose.Schema.Types;
 
 const userSchema = new mongoose.Schema(
   {
@@ -59,11 +59,11 @@ const userSchema = new mongoose.Schema(
       type: Object,
       // address, state, country
     },
-    // wishlist: [{ type: ObjectId, ref: "Product" }],
-    // balance: {
-    //   type: Number,
-    //   default: 0,
-    // },
+    wishlist: [{ type: ObjectId, ref: "Product" }],
+    balance: {
+      type: Number,
+      default: 0,
+    },
     cartItems: {
       type: [Object],
     },

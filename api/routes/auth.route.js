@@ -1,5 +1,5 @@
 import express from 'express'
-import { google, signin, signup ,getUser, signout,getUsers,loginStatus, upgradeUser,sendAutomatedEmail,sendVerificationEmail,verifyUser ,forgotPassword,resetPassword, deleteUser} from '../controllers/auth.controller.js'
+import { google, signin, signup ,getUser, signout,getUsers,loginStatus, upgradeUser,sendAutomatedEmail,sendVerificationEmail,verifyUser ,forgotPassword,resetPassword, deleteUser, addToWishlist, getWishlist, removeFromWishlist} from '../controllers/auth.controller.js'
 import { authorOnly, protect,adminOnly } from '../middleware/auth.middleware.js'
 import { getCart, saveCart } from '../controllers/user.controller.js'
 
@@ -24,6 +24,11 @@ router.patch('/resetPassword/:resetToken',resetPassword )
 // Cart
 router.get("/getCart", protect,getCart)
 router.patch("/saveCart", protect, saveCart)
+
+// Wishlist
+router.post("/addToWishlist", protect, addToWishlist)
+router.get("/getWishlist", protect, getWishlist);
+router.put("/wishlist/:productId", protect, removeFromWishlist);
 
 
 export default router

@@ -118,3 +118,4 @@ export const signout = (req, res, next) => {
   export const loginStatus = async (req,res,next) => {
     res.send("get login status")
   }
+
