@@ -193,7 +193,8 @@ export const webhook = asyncHandler(async (req, res) => {
 });
 
 // Deposit Fund FLW
-// export const depositFundFLW = asyncHandler(async (req, res) => {
+export const depositFundFLW = asyncHandler(async (req, res) => {
+    res.send("correct")
 //   const { transaction_id } = req.query;
 
 //   // Confirm transaction
@@ -228,7 +229,7 @@ export const webhook = asyncHandler(async (req, res) => {
 //   } else {
 //     res.redirect(failureURL);
 //   }
-// });
+});
 
 // module.exports = {
 //   transferFund,
