@@ -40,7 +40,7 @@ app.use(express.static(path.join(__dirname, '/SoapDelight.J/dist')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use("/api/transaction", transactionRoute);
+// app.use("/api/transaction", transactionRoute);
 
 app.use(express.json());
 
