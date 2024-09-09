@@ -8,7 +8,7 @@ import { FaTimes } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
-import { getCartDB, saveCartDB } from '../redux/features/cart/cartSlice';
+import { getCartDB } from '../redux/features/cart/cartSlice';
 // import { getCartDB } from '../redux/features/cart/cartSlice';
 
 

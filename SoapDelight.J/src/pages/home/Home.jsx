@@ -22,7 +22,7 @@ const PageHeading = ({ heading, btnText }) => {
         <h2 className="--fw-thin">{heading}</h2>
         <Button               
           gradientDuoTone='purpleToPink'
-          className="text-[1rem] mb-2  font-normal  px-2 mr-1  border border-transparent rounded-md cursor-pointer flex justify-center items-center transition-all duration-300"
+          className="text-[1rem] mb-2  font-normal  mr-1  border border-transparent rounded-md cursor-pointer flex justify-center items-center transition-all duration-300"
         >
           {btnText}
         </Button>

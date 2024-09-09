@@ -28,7 +28,7 @@ const Wishlist = () => {
 
   return (
     <>
-      <section>
+      <section className="mb-10">
         {/* {isLoading && <Loader />} */}
         <div className="container min-h-screen">
           <h2 className="text-2xl my-5">My Wishlist</h2>
