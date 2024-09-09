@@ -7,11 +7,12 @@ import {
 } from "../../redux/features/auth/authSlice";
 import "./Wishlist.scss"
 import ProductItem from "../../components/product/productItem/ProductItem";
+import Loader from "../../components/Loader";
 
 const Wishlist = () => {
   const [grid, setGrid] = useState(true);
   const dispatch = useDispatch();
-  const { wishlist, isLoading } = useSelector((state) => state.auth);
+  const { wishlist = [], isLoading } = useSelector((state) => state.auth);
 
   const removeWishlist = async (product) => {
     const productId = product._id;
@@ -29,7 +30,7 @@ const Wishlist = () => {
   return (
     <>
       <section className="mb-10">
-        {/* {isLoading && <Loader />} */}
+        {isLoading && <Loader />}
         <div className="container min-h-screen">
           <h2 className="text-2xl my-5">My Wishlist</h2>
           <div className="--underline"></div>
