@@ -7,9 +7,10 @@ import { toggleTheme } from '../redux/theme/themeSlice';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
 import { HiOutlineMenuAlt3, HiUser } from "react-icons/hi";
-import { FaShoppingCart, FaTimes, FaUserCircle } from "react-icons/fa";
+import { FaShoppingCart, FaTimes, FaUserCircle,FaRegHeart,FaHeart } from "react-icons/fa";
 import { AdminOnlyLink } from './hiddenLink/AdminOnlyRoute';
 import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
+import Wishlist from '../pages/wishlist/Wishlist';
 // import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
 
 
@@ -24,15 +25,9 @@ export default function Header() {
   const [scrollPage, setScrollPage] = useState(false);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const cartItems = useSelector(selectCartItems);
+  const [hovered, setHovered] = useState(false);
 
- 
-
-
-  // const role = obj?.role;
-  // console.log(userRole);
-  // console.log(currentUser);
   const userRole = currentUser ? currentUser.role : null;
-
 
   // const [searchTerm, setSearchTerm] = useState('');
 
@@ -93,6 +88,12 @@ export default function Header() {
       <p className='ml-1 text-purple-500'>
         {cartTotalQuantity}
       </p>
+    </span>
+  );
+
+  const wishlist = (
+    <span className='flex'>
+      <FaHeart size={20} className='text-red-500'/> 
     </span>
   );
 
@@ -225,6 +226,9 @@ export default function Header() {
         </Navbar.Link>
         <Navbar.Link active={path === '/cart'} as={'div'} className='none cursor-pointer'>
           <Link to='/cart'>{cart}</Link>
+        </Navbar.Link>
+        <Navbar.Link active={path === '/wishlist'} as={'div'} className='none cursor-pointer'>
+          <Link to='/wishlist'>{wishlist}</Link>
         </Navbar.Link>
       </Navbar.Collapse>
     </Navbar>

@@ -29,6 +29,7 @@ import { Checkout } from './pages/checkout/Checkout'
 import CheckoutSuccess from './pages/checkout/CheckoutSuccess'
 import OrderHistory from './pages/order/OrderHistory'
 import OrderDetails from './pages/order/OrderDetails'
+import Wishlist from './pages/wishlist/Wishlist'
 
 
 axios.defaults.withCredentials = true
@@ -108,7 +109,7 @@ function App() {
         <Route path="/order-details/:id" element={<OrderDetails />} />
         <Route path="/checkout-details" element={<CheckoutDetails />} />
         <Route path="/checkout-stripe" element={<Checkout />} />
-
+        <Route path="/wishlist" element={<Wishlist />} />
 
       </Routes>
       <FooterCom />

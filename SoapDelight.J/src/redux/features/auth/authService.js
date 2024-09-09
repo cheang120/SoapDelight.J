@@ -41,14 +41,31 @@ const resetPassword = async (userData, resetToken) => {
     return response.data.message;
 };
 
-// Get Login Status
-// const getLoginStatus = async () => {
-//     const response = await axios.get(API_URL + "loginStatus");
-//     return response.data;
-// };
+// ADD TO WISHLIST
+ const addToWishlist = async (productData) => {
+    const response = await axios.post(API_URL + "addToWishlist", productData, {
+      withCredentials: true,
+    });
+    return response.data.message;
+  };
+  
+  // Get Wishlist
+   const getWishlist = async () => {
+    const response = await axios.get(API_URL + "getWishlist");
+  
+    return response.data;
+  };
+  
+  // Remove From Wishlist
+   const removeFromWishlist = async (productId) => {
+    const response = await axios.put(API_URL + `wishlist/${productId}`);
+  
+    return response.data.message;
+  };
+
 
 const authService = {
-    signup,verifyUser,sendVerificationEmail,forgotPassword,resetPassword
+    signup,verifyUser,sendVerificationEmail,forgotPassword,resetPassword,addToWishlist,getWishlist,removeFromWishlist
 }
 
 export default authService

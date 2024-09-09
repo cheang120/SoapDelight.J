@@ -10,6 +10,7 @@ const initialState = {
     isSuccess:false,
     message:"",
     user:null,
+    wishlist:[],
     users:[],
     twoFactor:false,
     isError:false,
@@ -150,21 +151,6 @@ export const getLoginStatus = createAsyncThunk(
   }
 );
 
-// getUsers
-// export const getUsers = createAsyncThunk(
-//   "auth/getUsers",
-//   async (_, thunkAPI) => {
-//     try {
-//       return await authService.getUsers();
-//     } catch (error) {
-//       const message =
-//         (error.response && error.response.data && error.response.data.message) ||
-//         error.message ||
-//         error.toString();
-//       return thunkAPI.rejectWithValue(message);
-//     }
-//   }
-// );
 
 export const getUsers = createAsyncThunk('auth/getUsers', async () => {
   try {
@@ -223,7 +209,59 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+// ADD TO WISHLIST
+export const addToWishlist = createAsyncThunk(
+  "auth/addToWishlist",
+  async (productData, thunkAPI) => {
+    try {
+      return await authService.addToWishlist(productData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
+// Get Wishlist
+export const getWishlist = createAsyncThunk(
+  "auth/getWishlist",
+  async (_, thunkAPI) => {
+    try {
+      return await authService.getWishlist();
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// remove from Wishlist
+export const removeFromWishlist = createAsyncThunk(
+  "auth/removeFromWishlist",
+  async (productId, thunkAPI) => {
+    try {
+      return await authService.removeFromWishlist(productId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 
 const authSlice = createSlice({
@@ -576,7 +614,55 @@ const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         toast.error(action.payload);
-      });
+      })
+      // Add to wishlist
+      .addCase(addToWishlist.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addToWishlist.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = action.payload;
+        toast.success(action.payload);
+        console.log(action.payload);
+      })
+      .addCase(addToWishlist.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
+      // getWishlist
+      .addCase(getWishlist.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getWishlist.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.wishlist = action.payload.wishlist;
+      })
+      .addCase(getWishlist.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
+      // removeFromWishlist
+      .addCase(removeFromWishlist.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(removeFromWishlist.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = action.payload;
+        toast.success(action.payload);
+      })
+      .addCase(removeFromWishlist.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
 
 
       
