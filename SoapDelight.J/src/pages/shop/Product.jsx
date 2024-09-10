@@ -39,7 +39,7 @@ const Product = () => {
   };
 
   return (
-    <section>
+    <section className="mt-10">
       <div className={`container ${styles.product} mx-auto flex flex-wrap`}>
         
         <aside
