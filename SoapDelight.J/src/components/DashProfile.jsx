@@ -212,7 +212,7 @@ const DashProfile = () => {
     <div className='flex w-full'>
       {/* {!currentUser.isVerified && <Notification email={user.email} />} */}
       <div className='max-w-lg mx-auto p-3 w-full'>
-      <PageMenu />
+      {/* <PageMenu /> */}
 
       <h1 className='my-7 text-center font-semibold text-3xl'>profile</h1>
 
@@ -223,6 +223,7 @@ const DashProfile = () => {
             onChange={handleImageChange}
             ref={filePickerRef}
             hidden
+            // className='hidden'
         />
 
         <div 

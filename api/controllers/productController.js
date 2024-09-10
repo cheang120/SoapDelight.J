@@ -147,7 +147,7 @@ export const reviewProduct = asyncHandler(async(req,res,next) => {
     star,
     review,
     reviewDate,
-    name: req.user.name,
+    name: req.user.username,
     userID: req.user._id,
   });
   product.save();

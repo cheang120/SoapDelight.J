@@ -24,6 +24,7 @@
     "nodemailer-express-handlebars": "^6.1.2",
     "rc-slider": "^11.1.5",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-circular-progressbar": "^2.1.0",
     "react-confetti": "^6.1.0",
     "react-confirm-alert": "^3.0.6",
