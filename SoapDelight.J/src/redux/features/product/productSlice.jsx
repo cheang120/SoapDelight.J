@@ -111,6 +111,62 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
+// Review product
+export const reviewProduct = createAsyncThunk(
+  "products/reviewProduct",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await productService.reviewProduct(id, formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      console.log(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+// Review product
+export const deleteReview = createAsyncThunk(
+  "products/deleteReview",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await productService.deleteReview(id, formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      console.log(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Update Review
+export const updateReview = createAsyncThunk(
+  "products/updateReview",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await productService.updateReview(id, formData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      console.log(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const productSlice = createSlice({
     name: "product",
     initialState,
@@ -270,51 +326,51 @@ const productSlice = createSlice({
           state.message = action.payload;
           toast.error(action.payload);
         })
-        // .addCase(reviewProduct.pending, (state) => {
-        //   state.isLoading = true;
-        // })
-        // .addCase(reviewProduct.fulfilled, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isSuccess = true;
-        //   state.isError = false;
-        //   toast.success(action.payload);
-        // })
-        // .addCase(reviewProduct.rejected, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isError = true;
-        //   state.message = action.payload;
-        //   toast.error(action.payload);
-        // })
-        // .addCase(deleteReview.pending, (state) => {
-        //   state.isLoading = true;
-        // })
-        // .addCase(deleteReview.fulfilled, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isSuccess = true;
-        //   state.isError = false;
-        //   toast.success(action.payload);
-        // })
-        // .addCase(deleteReview.rejected, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isError = true;
-        //   state.message = action.payload;
-        //   toast.error(action.payload);
-        // })
-        // .addCase(updateReview.pending, (state) => {
-        //   state.isLoading = true;
-        // })
-        // .addCase(updateReview.fulfilled, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isSuccess = true;
-        //   state.isError = false;
-        //   toast.success(action.payload);
-        // })
-        // .addCase(updateReview.rejected, (state, action) => {
-        //   state.isLoading = false;
-        //   state.isError = true;
-        //   state.message = action.payload;
-        //   toast.error(action.payload);
-        // });
+        .addCase(reviewProduct.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(reviewProduct.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.isSuccess = true;
+          state.isError = false;
+          toast.success(action.payload);
+        })
+        .addCase(reviewProduct.rejected, (state, action) => {
+          state.isLoading = false;
+          state.isError = true;
+          state.message = action.payload;
+          toast.error(action.payload);
+        })
+        .addCase(deleteReview.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(deleteReview.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.isSuccess = true;
+          state.isError = false;
+          toast.success(action.payload);
+        })
+        .addCase(deleteReview.rejected, (state, action) => {
+          state.isLoading = false;
+          state.isError = true;
+          state.message = action.payload;
+          toast.error(action.payload);
+        })
+        .addCase(updateReview.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(updateReview.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.isSuccess = true;
+          state.isError = false;
+          toast.success(action.payload);
+        })
+        .addCase(updateReview.rejected, (state, action) => {
+          state.isLoading = false;
+          state.isError = true;
+          state.message = action.payload;
+          toast.error(action.payload);
+        });
     },
   });
 
