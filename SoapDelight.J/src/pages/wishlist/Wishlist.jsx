@@ -41,7 +41,7 @@ const Wishlist = () => {
               <>
                 {wishlist.map((product) => {
                   return (
-                    <div key={product._id}>
+                    <div key={product._id} className="my-5">
                       <ProductItem {...product} grid={grid} product={product} />
                       <button
                         className="--btn --btn-danger --btn-block"

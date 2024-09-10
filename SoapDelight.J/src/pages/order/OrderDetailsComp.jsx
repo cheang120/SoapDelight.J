@@ -121,11 +121,11 @@ const OrderDetailsComp = ({orderPageLink}) => {
                       </td>
                       <td>{(price * cartQuantity).toFixed(2)}</td>
                       <td className={"icons"}>
-                        {/* <Link to={`/review-product/${_id}`}> */}
+                        <Link to={`/review-product/${_id}`}>
                             <button className="--btn --btn-primary">
                               Review Product
                             </button>
-                        {/* </Link> */}
+                        </Link>
                       </td>
                     </tr>
                   )

@@ -30,6 +30,7 @@ import CheckoutSuccess from './pages/checkout/CheckoutSuccess'
 import OrderHistory from './pages/order/OrderHistory'
 import OrderDetails from './pages/order/OrderDetails'
 import Wishlist from './pages/wishlist/Wishlist'
+import ReviewProduct from './pages/reviewProduct/ReviewProduct'
 
 
 axios.defaults.withCredentials = true
@@ -110,6 +111,7 @@ function App() {
         <Route path="/checkout-details" element={<CheckoutDetails />} />
         <Route path="/checkout-stripe" element={<Checkout />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/review-product/:id" element={<ReviewProduct />} />
 
       </Routes>
       <FooterCom />
