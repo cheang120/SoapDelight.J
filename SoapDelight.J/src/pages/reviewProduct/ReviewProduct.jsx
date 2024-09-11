@@ -12,6 +12,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./ReviewProducts.module.scss";
 import { deleteReview, getProduct, reviewProduct } from "../../redux/features/product/productSlice";
 import { Spinner } from "../../components/Loader";
+import axios from 'axios';  // Add this line
+
 
 const ReviewProduct = () => {
     const dispatch = useDispatch();
@@ -30,7 +32,7 @@ const ReviewProduct = () => {
     useEffect(() => {
         dispatch(getProduct(id));
       }, [dispatch, id]);
-    console.log(product);
+    // console.log(product);
 
     const submitReview = async (e) => {
         e.preventDefault();
@@ -49,15 +51,7 @@ const ReviewProduct = () => {
         navigate(-1);
     };
     
-    const delReview = async (e) => {
-        const formData = {
-          userID: user._id,
-        };
-        console.log(id);
-        console.log(formData);
-        await dispatch(deleteReview({ id, formData }));
-        navigate(-1);
-      };
+
     const startEdit = async () => {
         setIsEditing(true);
         setRate(userReview[0].star);
@@ -81,14 +75,16 @@ const ReviewProduct = () => {
         await dispatch(updateReview({ id, formData }));
         navigate(-1);
       };
+
       // console.log(product?.ratings);
     useEffect(() => {
-        // console.log(product.ratings);
+        console.log(product.ratings);
         const reviewed = product?.ratings.filter((rev) => {
-          return rev.userID === username?._id;
+          return rev.userID
         });
         // console.log(rev.userID);
         setUserReview(reviewed);
+        // console.log(userReview.length);
     }, [product, username]);
     
     const changeStar = (newRating, user) => {
@@ -96,24 +92,78 @@ const ReviewProduct = () => {
 
       };
 
+      const delReview = async (userID) => {
+        // console.log(user);
+        const formData = {
+          userID: userID, // 傳遞評論的用戶ID
+        };
+        console.log(id); // 驗證產品ID是否正確
+
+        await dispatch(deleteReview({ id, formData })); // 發送刪除評論的請求
+        navigate(-1); // 返回上一頁
+    };
+
+
   return (
     <section>
         <div className="container review">
-            <h2>Review Products</h2>
+            <h2 className="text-2xl p-5">Review Products</h2>
             {isLoading && product === null ? (
                 <Spinner />
             ) : (
-                <>
+                <div className="p-5">
                     <p>
                         <b>Product name:</b> {product?.name}
                     </p>
                     <img src={product?.image[0]} alt="product" style={{width:"100px"}} />
-                </>
+                </div>
             )}
             {userReview?.length > 0 && !isEditing ? (
+              <div className="my-5">
                 <Card cardClass={"card"}>
+                  <div className="p-5">
                     <h3>Product Reviews</h3>
+                    <div>
+                    {userReview.map((item, index) => {
+                      const { star, review, reviewDate, name, userID } = item;
+                      return (
+                        <div key={index} className="review --flex-between">
+                          <div className="my-5">
+                            {/* <StarsRating value={rate} /> */}
+                            <StarRating
+                              starDimension="20px"
+                              starSpacing="2px"
+                              starRatedColor="#F6B01E"
+                              rating={star}
+                              changeRating={changeStar}
+                              editing={false}
+                            />
+                            <p>{review}</p>
+                            <span>
+                              <b>{reviewDate}</b>
+                            </span>
+                            <br />
+                            <span>
+                              <b>by: {name}</b>
+                            </span>
+                          </div>
+                          <div className="flex">
+                            <FaEdit
+                              color="green"
+                              size={25}
+                              onClick={() => startEdit()}
+                            />
+                            <BsTrash color="red" size={25} onClick={() => delReview(userID)} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  </div>
+                    
                 </Card>
+              </div>
+
             ) : (
                 <Card cardClass={"card --width-500px --p"}>
                     <form style={{width:"500px"}}>

@@ -39,10 +39,11 @@ const reviewProduct = async (id, formData) => {
 };
 
 // Review Product
-const deleteReview = async (id, formData) => {
-  const response = await axios.patch(`${API_URL}deleteReview/${id}`, formData);
+const deleteReview = async (id,formData ) => {
+  const response = await axios.patch(`${API_URL}deleteReview/${id}`,formData);
   return response.data.message;
 };
+
 
 // Review Product
 const updateReview = async (id, formData) => {

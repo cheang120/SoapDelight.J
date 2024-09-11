@@ -12,7 +12,7 @@ router.delete("/:id",protect,authorOnly,  deleteProduct)
 router.patch("/:id",protect,authorOnly, updateProduct)
 
 router.patch("/review/:id",protect, reviewProduct)
-router.delete("/deleteReview/:id", protect, deleteReview);
+router.patch("/deleteReview/:id", protect, deleteReview);
 router.patch("/updateReview/:id", protect, updateReview);
 
 

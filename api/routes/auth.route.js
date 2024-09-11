@@ -16,7 +16,7 @@ router.get('/loginStatus', loginStatus)
 router.post('/upgradeUser', protect, adminOnly, upgradeUser)
 router.post('/sendAutomatedEmail', protect, sendAutomatedEmail)
 
-router.post("/sendVerificationEmail",sendVerificationEmail);
+router.post('/sendVerificationEmail',sendVerificationEmail);
 router.patch('/verify/:verificationToken',verifyUser )
 router.post('/forgotPassword', forgotPassword)
 router.patch('/resetPassword/:resetToken',resetPassword )

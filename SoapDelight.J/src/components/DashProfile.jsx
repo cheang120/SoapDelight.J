@@ -148,6 +148,8 @@ const DashProfile = () => {
         },
         body: JSON.stringify(formData),
       });
+      const data = await res.json();
+
       await fetch('/api/auth/sendVerificationEmail', {
         method: 'POST',
         headers: {
@@ -155,8 +157,7 @@ const DashProfile = () => {
         },
         body: JSON.stringify({ email: formData.email }),
       });
-      const data = await res.json();
-      // console.log(data);
+      console.log(data.email);
       if (!res.ok) {
         dispatch(updateFailure(data.message));
         setUpdateUserError(data.message);
