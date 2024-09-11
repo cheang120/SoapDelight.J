@@ -158,7 +158,7 @@ const Reset = () => {
                         id="password2"
                         onChange={handleChange}
                     />
-                    <div className="absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
+                    <div className="absolute top-14 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
                         {showPassword2 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
                     </div>
                 </div>

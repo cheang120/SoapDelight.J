@@ -83,16 +83,16 @@ const Forgot = () => {
                 className="block w-full mb-5 border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
                 />
 
-                <div className="flex items-center justify-between w-full mb-5">
-                <p className="hover:text-blue-500">
-                    <Link to="/">Home</Link>
-                </p>
-                <Button type="submit" gradientDuoTone='purpleToPink' className="text-lg font-normal px-2 py-1  rounded-md cursor-pointer flex items-center justify-center transition duration-300 --btn-primary --btn-block">
-                    Get Reset Email
-                </Button>
-                <p className="hover:text-blue-500">
-                    <Link to="/sign-in">Login</Link>
-                </p>
+                <div className="flex flex-col md:flex-row items-center justify-between w-3/4 md:w-full mb-5 gap-6 md:gap-10">
+                  <p className="hover:text-blue-500">
+                      <Link to="/">Home</Link>
+                  </p>
+                  <Button type="submit" gradientDuoTone='purpleToPink' className="text-lg font-normal px-2 py-1  rounded-md cursor-pointer flex items-center justify-center transition duration-300 --btn-primary --btn-block">
+                      Get Reset Email
+                  </Button>
+                  <p className="hover:text-blue-500">
+                      <Link to="/sign-in">Login</Link>
+                  </p>
                 </div>
             </form>
             </div>
