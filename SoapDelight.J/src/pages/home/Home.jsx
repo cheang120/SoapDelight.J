@@ -14,8 +14,10 @@ import {
   getProducts,
   // selectProducts,
 } from "../../redux/features/product/productSlice.jsx";
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const PageHeading = ({ heading, btnText }) => {
+  const navigate = useNavigate();
   return (
     <>
       <div className="--flex-between">
@@ -23,6 +25,7 @@ const PageHeading = ({ heading, btnText }) => {
         <Button               
           gradientDuoTone='purpleToPink'
           className="text-[1rem] mb-2  font-normal  mr-1  border border-transparent rounded-md cursor-pointer flex justify-center items-center transition-all duration-300"
+          onClick={() => navigate("/shop")}
         >
           {btnText}
         </Button>
@@ -53,6 +56,7 @@ const PageHeading = ({ heading, btnText }) => {
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     dispatch(getProducts());
   }, [dispatch]);
@@ -138,7 +142,7 @@ const Home = () => {
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5">
           <HomeInfoBox />
-          <PageHeading heading={"Latest Products"} btnText={"Shop Now >>>"} />
+          <PageHeading heading={"Latest Products"} btnText={"Shop Now >>>"}  />
           <ProductCarousel products={latestProducts}  />
         </div>
       </section>
