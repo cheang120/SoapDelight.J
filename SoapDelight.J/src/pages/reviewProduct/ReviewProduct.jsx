@@ -10,7 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import "./ReviewProducts.module.scss";
-import { deleteReview, getProduct, reviewProduct } from "../../redux/features/product/productSlice";
+import { deleteReview, getProduct, reviewProduct, updateReview } from "../../redux/features/product/productSlice";
 import { Spinner } from "../../components/Loader";
 import axios from 'axios';  // Add this line
 
@@ -64,7 +64,7 @@ const ReviewProduct = () => {
         if (rate === 0 || review === "") {
           return toast.error("Please enter rating and review");
         }
-    const formData = {
+      const formData = {
           star: rate,
           review,
           reviewDate: date,
