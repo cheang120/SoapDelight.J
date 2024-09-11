@@ -142,9 +142,9 @@ export default function Header() {
     <Link
       to='/'
       className={`relative ${path === '/' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
-      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/' ? 'after:w-full' : 'hover:after:w-full'}
-    `}
+        after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
+        after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/' ? 'after:w-full' : 'hover:after:w-full'}
+      `}
     >
       Home
     </Link>
