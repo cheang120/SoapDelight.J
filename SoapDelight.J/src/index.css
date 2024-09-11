@@ -235,6 +235,10 @@
   margin: 0 2rem;
 }
 
+.--mauto{
+  margin: 0 auto;
+}
+
 .--underline {
   border-bottom: 1px solid #ccc;
 }

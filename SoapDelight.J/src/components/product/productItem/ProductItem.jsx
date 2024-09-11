@@ -55,14 +55,14 @@ const ProductItem = ({
         )}
         {product?.quantity > 0 ? (
           <button
-            className="--btn --btn-primary"
+            className={`--btn --btn-primary ${grid ? "w-full" : "w-3/4 --mauto"}`}
             onClick={() => addToCart(product)}
           >
             Add To Cart
           </button>
         ) : (
           <button
-            className="--btn --btn-red"
+            className={`--btn --btn-red ${grid ? "w-full" : "w-3/4 --mauto"}`}
             onClick={() => toast.error("Sorry, Product is out of stock")}
           >
             Out Of Stock
