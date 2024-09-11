@@ -7,12 +7,10 @@ import { toggleTheme } from '../redux/theme/themeSlice';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useEffect, useState } from 'react';
 import { HiOutlineMenuAlt3, HiUser } from "react-icons/hi";
-import { FaShoppingCart, FaTimes, FaUserCircle,FaRegHeart,FaHeart } from "react-icons/fa";
+import { FaShoppingCart, FaTimes, FaUserCircle, FaRegHeart, FaHeart } from "react-icons/fa";
 import { AdminOnlyLink } from './hiddenLink/AdminOnlyRoute';
 import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
 import Wishlist from '../pages/wishlist/Wishlist';
-// import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
-
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -25,19 +23,8 @@ export default function Header() {
   const [scrollPage, setScrollPage] = useState(false);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const cartItems = useSelector(selectCartItems);
-  const [hovered, setHovered] = useState(false);
 
   const userRole = currentUser ? currentUser.role : null;
-
-  // const [searchTerm, setSearchTerm] = useState('');
-
-  // useEffect(() => {
-  //   const urlParams = new URLSearchParams(location.search);
-  //   const searchTermFromUrl = urlParams.get('searchTerm');
-  //   if (searchTermFromUrl) {
-  //     setSearchTerm(searchTermFromUrl);
-  //   }
-  // }, [location.search]);
 
   const fixNavbar = () => {
     if (window.scrollY > 50) {
@@ -59,94 +46,53 @@ export default function Header() {
       } else {
         dispatch(signoutSuccess());
         localStorage.setItem("cartItems", JSON.stringify([]));
-
       }
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  const toggleMenu = () => {
-    setShowMenu(!showMenu);
-  };
-
-  const hideMenu = () => {
-    setShowMenu(false);
-  };
-
   useEffect(() => {
-    // dispatch(getCartDB());
-    dispatch(CALCULATE_TOTAL_QUANTITY())
-  },[dispatch,cartItems])
-
-  // console.log(JSON.parse(localStorage.getItem("cartItems")));
-
+    dispatch(CALCULATE_TOTAL_QUANTITY());
+  }, [dispatch, cartItems]);
 
   const cart = (
-    <span className='flex'>
-      <FaShoppingCart size={20} className='text-purple-500'/> 
-      <p className='ml-1 text-purple-500'>
+    <span className='flex  '>
+      <FaShoppingCart size={20}  />
+      <p className='ml-1'>
         {cartTotalQuantity}
       </p>
     </span>
   );
 
-
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   const urlParams = new URLSearchParams(location.search);
-  //   urlParams.set('searchTerm', searchTerm);
-  //   const searchQuery = urlParams.toString();
-  //   navigate(`/search?${searchQuery}`);
-  // };
-
-  useEffect(() => {
-    // dispatch(CALCULATE_SUBTOTAL({ coupon }));
-    dispatch(CALCULATE_TOTAL_QUANTITY());
-  }, [cartItems, dispatch]);
-
   const wishlist = (
     <span className='flex'>
-      <FaHeart size={20} className='text-red-500'/> 
+      <FaHeart size={20}  />
     </span>
   );
 
   return (
     <Navbar
       className={`
-        border-b-2 list-none z-50
-        ${scrollPage ? 'z-50 fixed top-0 w-full  transition-all duration-500 bg-white' : 'null'}
+        list-none z-50 sticky top-0 backdrop-filter backdrop-blur-lg bg-white bg-opacity-70
+        ${scrollPage ? 'shadow-md' : ''}
       `}
     >
       <Link
         to='/'
         className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
       >
-        {/* <img src="/logo.svg" alt="SoapDelight.J" className='w-10 ' /> */}
-        <p className='text-purple-500'>Soap<span className='text-yellow-400'>Delight.J</span></p>
+        <img src="/logo.svg" alt="SoapDelight.J" className='w-14 h-14 ' />
       </Link>
-      {/* <form 
-        // onSubmit={handleSubmit}
-      >
-        <TextInput
-          type='text'
-          placeholder='Search...'
-          rightIcon={AiOutlineSearch}
-          className='hidden sm:inline'
-          // value={searchTerm}
-          // onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </form> */}
 
       <div className='flex gap-2 md:order-2'>
         <Button
-          className='w-12 h-10 '
+          className='w-12 h-10 border-purple-500 shadow-md'
           color='gray'
           pill
           onClick={() => dispatch(toggleTheme())}
         >
-          {theme === 'light' ? <FaSun /> : <FaMoon />}
+          {theme === 'light' ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-purple-500" />}
         </Button>
         {currentUser ? (
           <Dropdown
@@ -165,30 +111,16 @@ export default function Header() {
             <Link to={'/dashboard?tab=profile'}>
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
-            {(userRole === 'author' ||  userRole === 'admin')  && (
+            {(userRole === 'author' || userRole === 'admin') && (
               <Link to='/productAdmin/home'>
                 <Dropdown.Item>ProductAdmin</Dropdown.Item>
               </Link>
-              
-              
             )}
-              <Link to='/order-history'>
-                <Dropdown.Item>My Orders</Dropdown.Item>
-              </Link>
-              
-              
-            
-          {/* <AdminOnlyLink>
-            <Link to='/productAdmin/home'>
-
-              <Dropdown.Item>ProductAdmin</Dropdown.Item>
-
+            <Link to='/order-history'>
+              <Dropdown.Item>My Orders</Dropdown.Item>
             </Link>
-          </AdminOnlyLink> */}
             <Dropdown.Divider />
-            <Dropdown.Item 
-              onClick={handleSignout}
-            >
+            <Dropdown.Item onClick={handleSignout}>
               Sign out
             </Dropdown.Item>
           </Dropdown>
@@ -204,35 +136,67 @@ export default function Header() {
       </div>
 
       <Navbar.Collapse>
-        {/* <form 
-          // onSubmit={handleSubmit}
-        >
-          <TextInput
-            type='text'
-            placeholder='Search...'
-            rightIcon={AiOutlineSearch}
-            className='block sm:hidden mb-10'
-            // value={searchTerm}
-            // onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </form> */}
+  <Navbar.Link active={path === '/'} as={'div'}>
+    <Link
+      to='/'
+      className={`relative ${path === '/' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
+      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
+      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/' ? 'after:w-full' : 'hover:after:w-full'}
+    `}
+    >
+      Home
+    </Link>
+  </Navbar.Link>
 
-        <Navbar.Link active={path === '/'} as={'div'} >
-          <Link to='/' >Home</Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/about'} as={'div'}>
-          <Link to='/about'>About</Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/projects'} as={'div'}>
-          <Link to='/projects'>Projects</Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/cart'} as={'div'} className='none cursor-pointer'>
-          <Link to='/cart'>{cart}</Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/wishlist'} as={'div'} className='none cursor-pointer'>
-          <Link to='/wishlist'>{wishlist}</Link>
-        </Navbar.Link>
-      </Navbar.Collapse>
+  <Navbar.Link active={path === '/about'} as={'div'}>
+    <Link
+      to='/about'
+      className={`relative ${path === '/about' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
+      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
+      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/about' ? 'after:w-full' : 'hover:after:w-full'}
+    `}
+    >
+      About
+    </Link>
+  </Navbar.Link>
+
+  <Navbar.Link active={path === '/projects'} as={'div'}>
+    <Link
+      to='/projects'
+      className={`relative ${path === '/projects' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
+      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
+      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/projects' ? 'after:w-full' : 'hover:after:w-full'}
+    `}
+    >
+      Projects
+    </Link>
+  </Navbar.Link>
+
+  <Navbar.Link active={path === '/cart'} as={'div'}>
+    <Link
+      to='/cart'
+      className={`relative ${path === '/cart' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
+      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
+      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/cart' ? 'after:w-full' : 'hover:after:w-full'}
+    `}
+    >
+      {cart}
+    </Link>
+  </Navbar.Link>
+
+  <Navbar.Link active={path === '/wishlist'} as={'div'}>
+    <Link
+      to='/wishlist'
+      className={`relative ${path === '/wishlist' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
+      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
+      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/wishlist' ? 'after:w-full' : 'hover:after:w-full'}
+    `}
+    >
+      {wishlist}
+    </Link>
+  </Navbar.Link>
+</Navbar.Collapse>
+
     </Navbar>
   );
 }
