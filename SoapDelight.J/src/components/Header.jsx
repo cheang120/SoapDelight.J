@@ -136,7 +136,9 @@ export default function Header() {
       </div>
 
       <Navbar.Collapse>
-  <Navbar.Link active={path === '/'} as={'div'}>
+  <Navbar.Link active={path === '/'} as={'div'}
+    className={` relative ${path === '/' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
+  >
     <Link
       to='/'
       className={`relative ${path === '/' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
@@ -148,19 +150,23 @@ export default function Header() {
     </Link>
   </Navbar.Link>
 
-  <Navbar.Link active={path === '/about'} as={'div'}>
+  <Navbar.Link active={path === '/shop'} as={'div'} 
+        className={` relative ${path === '/shop' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
+  >
     <Link
-      to='/about'
-      className={`relative ${path === '/about' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
+      to='/shop'
+      className={` relative ${path === '/shop' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
       after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/about' ? 'after:w-full' : 'hover:after:w-full'}
+      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/shop' ? 'after:w-full' : 'hover:after:w-full'}
     `}
     >
-      About
+      Shop
     </Link>
   </Navbar.Link>
 
-  <Navbar.Link active={path === '/projects'} as={'div'}>
+  <Navbar.Link active={path === '/projects'} as={'div'}
+    className={` relative ${path === '/projects' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
+  >
     <Link
       to='/projects'
       className={`relative ${path === '/projects' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
@@ -172,7 +178,9 @@ export default function Header() {
     </Link>
   </Navbar.Link>
 
-  <Navbar.Link active={path === '/cart'} as={'div'}>
+  <Navbar.Link active={path === '/cart'} as={'div'}
+      className={` relative ${path === '/cart' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
+  >
     <Link
       to='/cart'
       className={`relative ${path === '/cart' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
@@ -184,7 +192,9 @@ export default function Header() {
     </Link>
   </Navbar.Link>
 
-  <Navbar.Link active={path === '/wishlist'} as={'div'}>
+  <Navbar.Link active={path === '/wishlist'} as={'div'}
+      className={` relative ${path === '/wishlist' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
+  >
     <Link
       to='/wishlist'
       className={`relative ${path === '/wishlist' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
