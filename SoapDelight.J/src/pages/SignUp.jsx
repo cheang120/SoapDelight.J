@@ -222,22 +222,22 @@ const [uCase, setUCase] = useState(false)
 
 
   return (
-    <div className='min-h-screen mt-20'>
+    <div className='min-h-screen my-20 mx-auto px-10'>
       <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7  mx-auto flex-col md:flex-row md:items-center gap-10'>
         {/* left */}
-        <div className='flex-1'>
+        <div className='flex-1 px-10'>
           <Link to='/' className='font-bold dark:text-white text-4xl'>
-            <span className=' py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
+            <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
               SoapDelight.J
             </span>
           </Link>
           <p className='text-sm mt-5'>
-          SoapDelight.J為您帶來全新的澳門品牌，致力於提供品質天然的手工護膚品及手工皂。我們的產品以天然植物草本為基礎， 避免使用人工合成的有害防腐劑和硅油等成分。我們的手工皂和護膚品經過精心製作，不僅能夠潔淨肌膚，還能提供滋養和保護， 讓您的肌膚焕發健康光彩。 品牌故事源於一位媽媽對小朋友的愛與關懷。她希望為自己的小朋友提供天然的護膚體驗。 透過學習芳療和手工護膚品的知識，開始製作天然手工護膚品，並將自己的愛和熱情注入其中。 選擇SoapDelight.J， 您將獲得一個全新的護膚體驗。我們的產品不僅能保護和滋養肌膚，還能提供舒緩和放鬆的芳香療效。讓您的肌膚在天然的芳香中得到愛和呵護。 我們相信，天然是最好的選擇。讓SoapDelight.J成為您護膚品選擇的首選，讓您的肌膚感受到天然植物的美好。
+            SoapDelight.J為您帶來全新的澳門品牌，致力於提供品質天然的手工護膚品及手工皂。我們的產品以天然植物草本為基礎， 避免使用人工合成的有害防腐劑和硅油等成分。我們的手工皂和護膚品經過精心製作，不僅能夠潔淨肌膚，還能提供滋養和保護， 讓您的肌膚焕發健康光彩。 品牌故事源於一位媽媽對小朋友的愛與關懷。她希望為自己的小朋友提供天然的護膚體驗。 透過學習芳療和手工護膚品的知識，開始製作天然手工護膚品，並將自己的愛和熱情注入其中。 選擇SoapDelight.J， 您將獲得一個全新的護膚體驗。我們的產品不僅能保護和滋養肌膚，還能提供舒緩和放鬆的芳香療效。讓您的肌膚在天然的芳香中得到愛和呵護。 我們相信，天然是最好的選擇。讓SoapDelight.J成為您護膚品選擇的首選，讓您的肌膚感受到天然植物的美好。
           </p>
         </div>
 
         {/* right */}
-        <div className='flex-1'>
+        <div className='flex-1 px-10'>
           <form 
             className='flex flex-col gap-4' 
             onSubmit={handleSignup}
@@ -249,6 +249,7 @@ const [uCase, setUCase] = useState(false)
                 placeholder='Username'
                 id='username'
                 onChange={handleChange}
+
               />
             </div>
             <div>
@@ -274,7 +275,7 @@ const [uCase, setUCase] = useState(false)
 
                 onChange={handleChange}
               />
-              <div className=" absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
+              <div className=" absolute top-14 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
                 {showPassword1 ? (
                   <AiOutlineEyeInvisible size={20} />
                 ) : (
@@ -296,7 +297,7 @@ const [uCase, setUCase] = useState(false)
                 // value={value}
                 onChange={handleChange}
               />
-              <div className=" absolute inset-y-11 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
+              <div className=" absolute top-14 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
                 {showPassword2 ? (
                   <AiOutlineEyeInvisible size={20} />
                 ) : (

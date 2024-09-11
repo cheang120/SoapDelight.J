@@ -61,11 +61,19 @@ const Home = () => {
     dispatch(getProducts());
   }, [dispatch]);
   const { products } = useSelector((state) => state.product);
-  const latest = products
-    ?.filter((product, index) => {
-      return product.quantity > 0;
+  // const latest = products
+  //   ?.filter((product, index) => {
+  //     return product.quantity > 0;
+  //   })
+  //   ?.filter((product, index) => index < 6);
+    const latest = products
+    ?.filter((product) => {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);  // 設定為一個月前
+      const productDate = new Date(product.createdAt);  // 假設 'createdAt' 是產品的上架日期
+      return product.quantity > 0 && productDate >= oneMonthAgo;
     })
-    ?.filter((product, index) => index < 6);
+    ?.slice(0, 6);  // 只取前6個
 
   const phones = products
     ?.filter((product) => {

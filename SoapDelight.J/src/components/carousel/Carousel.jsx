@@ -13,10 +13,10 @@ const ProductCarousel = ({ products }) => {
         showDots={false}
         responsive={responsive}
         infinite={true}
-        autoPlay={false}
-        // autoPlaySpeed={3000}
-        // customTransition="all 500ms ease"
-        // transitionDuration={1000}
+        autoPlay={true}
+        autoPlaySpeed={3000}
+        customTransition="all 500ms ease"
+        transitionDuration={1000}
         // key={item.id || index}
       >
         {products}
