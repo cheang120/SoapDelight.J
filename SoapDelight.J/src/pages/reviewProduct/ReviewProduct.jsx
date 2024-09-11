@@ -56,7 +56,8 @@ const ReviewProduct = () => {
         setIsEditing(true);
         setRate(userReview[0].star);
         setReview(userReview[0].review);
-      };
+    };
+
     const editReview = async (e) => {
         e.preventDefault();
         const today = new Date();
@@ -74,7 +75,7 @@ const ReviewProduct = () => {
         // console.log(formData);
         await dispatch(updateReview({ id, formData }));
         navigate(-1);
-      };
+    };
 
       // console.log(product?.ratings);
     useEffect(() => {
@@ -134,6 +135,7 @@ const ReviewProduct = () => {
                               starDimension="20px"
                               starSpacing="2px"
                               starRatedColor="#F6B01E"
+                              // starHoverColor="#F6B01E"
                               rating={star}
                               changeRating={changeStar}
                               editing={false}

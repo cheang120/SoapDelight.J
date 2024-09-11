@@ -178,46 +178,46 @@ const productSlice = createSlice({
         state.isLoading = false;
         state.message = ""
       },
-    //   CALC_STORE_VALUE(state, action) {
-    //     const products = action.payload;
-    //     const array = [];
-    //     products.map((item) => {
-    //       const { price, quantity } = item;
-    //       const productValue = price * quantity;
-    //       return array.push(productValue);
-    //     });
-    //     const totalValue = array.reduce((a, b) => {
-    //       return a + b;
-    //     }, 0);
-    //     state.totalStoreValue = totalValue;
-    //   },
-    //   CALC_OUTOFSTOCK(state, action) {
-    //     const products = action.payload;
-    //     const array = [];
-    //     products.map((item) => {
-    //       const { quantity } = item;
+      CALC_STORE_VALUE(state, action) {
+        const products = action.payload;
+        const array = [];
+        products.map((item) => {
+          const { price, quantity } = item;
+          const productValue = price * quantity;
+          return array.push(productValue);
+        });
+        const totalValue = array.reduce((a, b) => {
+          return a + b;
+        }, 0);
+        state.totalStoreValue = totalValue;
+      },
+      CALC_OUTOFSTOCK(state, action) {
+        const products = action.payload;
+        const array = [];
+        products.map((item) => {
+          const { quantity } = item;
   
-    //       return array.push(quantity);
-    //     });
-    //     let count = 0;
-    //     array.forEach((number) => {
-    //       if (number === 0 || number === "0") {
-    //         count += 1;
-    //       }
-    //     });
-    //     state.outOfStock = count;
-    //   },
-    //   CALC_CATEGORY(state, action) {
-    //     const products = action.payload;
-    //     const array = [];
-    //     products.map((item) => {
-    //       const { category } = item;
+          return array.push(quantity);
+        });
+        let count = 0;
+        array.forEach((number) => {
+          if (number === 0 || number === "0") {
+            count += 1;
+          }
+        });
+        state.outOfStock = count;
+      },
+      CALC_CATEGORY(state, action) {
+        const products = action.payload;
+        const array = [];
+        products.map((item) => {
+          const { category } = item;
   
-    //       return array.push(category);
-    //     });
-    //     const uniqueCategory = [...new Set(array)];
-    //     state.category = uniqueCategory;
-    //   },
+          return array.push(category);
+        });
+        const uniqueCategory = [...new Set(array)];
+        state.category = uniqueCategory;
+      },
       GET_PRICE_RANGE(state, action) {
         const { products } = action.payload;
         const array = [];
@@ -377,20 +377,20 @@ const productSlice = createSlice({
 
   export const {
     RESET_PROD,
-    // CALC_STORE_VALUE,
-    // CALC_OUTOFSTOCK,
-    // CALC_CATEGORY,
+    CALC_STORE_VALUE,
+    CALC_OUTOFSTOCK,
+    CALC_CATEGORY,
     GET_PRICE_RANGE,
   } = productSlice.actions;
   
   export const selectIsLoading = (state) => state.product.isLoading;
   export const selectProduct = (state) => state.product.product;
-//   export const selectProducts = (state) => state.product.products;
-//   export const selectTotalStoreValue = (state) => state.product.totalStoreValue;
-//   export const selectOutOfStock = (state) => state.product.outOfStock;
-//   export const selectCategory = (state) => state.product.category;
+  export const selectProducts = (state) => state.product.products;
+  export const selectTotalStoreValue = (state) => state.product.totalStoreValue;
+  export const selectOutOfStock = (state) => state.product.outOfStock;
+  export const selectCategory = (state) => state.product.category;
   
-//   export const selectMinPrice = (state) => state.product.minPrice;
-//   export const selectMaxPrice = (state) => state.product.maxPrice;
+  export const selectMinPrice = (state) => state.product.minPrice;
+  export const selectMaxPrice = (state) => state.product.maxPrice;
   
   export default productSlice.reducer;
