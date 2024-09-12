@@ -160,7 +160,7 @@ const [uCase, setUCase] = useState(false)
         {/* left */}
         <div className='flex-1 px-10 md:px-4 flex flex-col items-center'>
           <Link to='/' className='font-bold dark:text-white text-4xl mb-5'>
-            <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
+            <span className='px-2 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
               SoapDelight.J
             </span>
           </Link>
@@ -202,7 +202,7 @@ const [uCase, setUCase] = useState(false)
                 // name='password'
                 onChange={handleChange}
               />
-              <div className=" absolute top-14 cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
+              <div className=" absolute top-[50%] cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
                 {showPassword1 ? (
                   <AiOutlineEyeInvisible size={20} />
                 ) : (

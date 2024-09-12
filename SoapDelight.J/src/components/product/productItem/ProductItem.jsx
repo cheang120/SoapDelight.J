@@ -26,8 +26,8 @@ const ProductItem = ({
   return (
     <div className={grid ? `${styles.grid} mb-5` : `${styles.list} mb-5` }>
       <Link to={`/product-details/${_id}`}>
-        <div className={styles.img}>
-          <img src={image[0]} alt={name} />
+        <div className={`${styles.img} h-full flex justify-center`}>
+          <img src={image[0]} alt={name} className=""/>
         </div>
       </Link>
       <div className={styles.content}>
