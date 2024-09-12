@@ -36,11 +36,11 @@ const Slider = () => {
   };
 
   // 開始自動播放
-  // const startAutoScroll = () => {
-  //   slideInterval.current = setInterval(() => {
-  //     setCurrentSlide((prev) => (prev === slideLength - 1 ? 0 : prev + 1)); // 循環播放
-  //   }, intervalTime);
-  // };
+  const startAutoScroll = () => {
+    slideInterval.current = setInterval(() => {
+      setCurrentSlide((prev) => (prev === slideLength - 1 ? 0 : prev + 1)); // 循環播放
+    }, intervalTime);
+  };
 
   // 停止自動播放
   const stopAutoScroll = () => {
@@ -54,13 +54,13 @@ const Slider = () => {
   }, []);
 
   useEffect(() => {
-    // startAutoScroll(); // 啟動自動播放
+    startAutoScroll(); // 啟動自動播放
     return () => stopAutoScroll(); // 組件卸載時清除 interval
   }, []);
 
   useEffect(() => {
     stopAutoScroll(); // 停止自動播放
-    // startAutoScroll(); // 重新啟動自動播放
+    startAutoScroll(); // 重新啟動自動播放
   }, [currentSlide]);
 
   // const currentPath = sliderData[currentSlide]?.path;
