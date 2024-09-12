@@ -15,7 +15,7 @@ const PaymentOption = () => {
     console.log("Is Logged In:", isLoggedIn);
     const setPayment = (e) => {
         e.preventDefault()
-        console.log(paymentMethod);
+        // console.log(paymentMethod);
         if (paymentMethod === "") {
             return toast.error("Please select a payment method.")
         }
@@ -29,13 +29,13 @@ const PaymentOption = () => {
     }
   return (
     <>
-      <p>Please choose a payment method</p>
+      {/* <p>Please choose a payment method</p> */}
       <form 
         className="--form-control" 
         onSubmit={setPayment}
       >
         <div className='flex flex-col gap-2'>
-            <div className='flex w-full'>
+            {/* <div className='flex w-full'>
                 <label 
                     htmlFor={"stripe"} 
                     className="radio-label"
@@ -51,9 +51,9 @@ const PaymentOption = () => {
                     <span className="custom-radio" ></span>
                     Stripe
                 </label>
-            </div>
+            </div> */}
 
-            <div className='flex w-full'>
+            {/* <div className='flex w-full'>
 
                 <label htmlFor={"flutterwave"} className="radio-label">
                             <input
@@ -67,9 +67,9 @@ const PaymentOption = () => {
                             <span className="custom-radio" />
                             Flutterwave
                 </label>
-            </div>
+            </div> */}
 
-            <div className='flex w-full'>
+            {/* <div className='flex w-full'>
                 <label htmlFor={"paypal"} className="radio-label">
                             <input
                                 className="radio-input"
@@ -82,9 +82,9 @@ const PaymentOption = () => {
                             <span className="custom-radio" />
                             Paypal
                 </label>
-            </div>
+            </div> */}
 
-            <div className='flex w-full'>
+            {/* <div className='flex w-full'>
                 <label htmlFor={"wallet"} className="radio-label">
                             <input
                                 className="radio-input"
@@ -97,7 +97,7 @@ const PaymentOption = () => {
                             <span className="custom-radio" />
                             Wallet
                 </label>
-            </div>
+            </div> */}
         </div>
 
 
@@ -109,6 +109,9 @@ const PaymentOption = () => {
         <button
             type="submit"
             className="--btn --btn-primary --btn-block"
+            id={"stripe"}
+            value={"stripe"}
+            onChange={(e) => setPaymentMethod(e.target.value)}
         >
             Checkout
         </button>

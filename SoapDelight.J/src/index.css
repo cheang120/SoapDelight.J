@@ -321,7 +321,7 @@ input {
   border: 2px solid #805490 !important; /* border-gray-300 */
   background-color: #f9fafb; /* bg-gray-50 */
   color: #111827; /* text-gray-900 */
-  padding: 1rem 1.5rem !important; /* p-2.5 */
+  padding: 0.5rem 1.5rem !important; /* p-2.5 */
   font-size: 0.875rem; /* text-sm */
   transition: border-color 0.2s, box-shadow 0.2s; /* Smooth transitions */
   border-radius: 10rem !important; /* Increased border-radius for more rounded corners */

@@ -155,10 +155,10 @@ const [uCase, setUCase] = useState(false)
 
   };
   return (
-    <div className='min-h-screen my-20 mx-auto px-10'>
-      <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7 py-3  mx-auto flex-col md:flex-row md:items-center gap-10'>
+    <div className='min-h-screen my-20 mx-auto px-10 w-4/5'>
+      <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7 py-3  mx-auto flex-col md:flex-row md:items-center gap-10 md:gap-6'>
         {/* left */}
-        <div className='flex-1 px-10 flex flex-col items-center'>
+        <div className='flex-1 px-10 md:px-4 flex flex-col items-center'>
           <Link to='/' className='font-bold dark:text-white text-4xl mb-5'>
             <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
               SoapDelight.J
@@ -176,7 +176,7 @@ const [uCase, setUCase] = useState(false)
         </div>
 
         {/* right */}
-        <div className='flex-1 px-10'>
+        <div className='flex-1 px-10 md:px-4'>
           <form 
             className='flex flex-col gap-4' 
             onSubmit={handleSubmit}
