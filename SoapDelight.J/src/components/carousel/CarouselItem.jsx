@@ -44,7 +44,7 @@ const CarouselItem = ({
     <div className=" p-4 shadow-lg rounded-lg bg-white mx-2 mb-10">
       <Link 
         to={`/product-details/${product._id}`}
-        className="flex min-h-80 max-h-80"
+        className="flex min-h-[24rem] max-h-[24rem]"
       >
         <div className="flex flex-col w-full">
           <img className=" w-full h-48 object-cover rounded-t-lg" src={url} alt="product" />
