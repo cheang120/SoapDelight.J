@@ -16,6 +16,7 @@ import {
 } from "../../redux/features/product/productSlice.jsx";
 import { Navigate, useNavigate } from 'react-router-dom';
 
+
 const PageHeading = ({ heading, btnText }) => {
   const navigate = useNavigate();
   return (
@@ -147,6 +148,7 @@ const Home = () => {
   return (
     <div className='flex flex-col'>
       <Slider />
+
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5">
           <HomeInfoBox />
