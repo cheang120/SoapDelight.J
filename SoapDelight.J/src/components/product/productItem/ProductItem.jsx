@@ -30,7 +30,7 @@ const ProductItem = ({
           <img src={image[0]} alt={name} className=""/>
         </div>
       </Link>
-      <div className={styles.content}>
+      <div className={`${styles.content} `}>
         <div className={styles.details}>
           <p>
             <span>{regularPrice > 0 && <del>${regularPrice}</del>}</span>
@@ -48,14 +48,14 @@ const ProductItem = ({
           <div
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(
-                shortenText(product?.description, 200)
+                shortenText(product?.description, 60)
               ),
             }}
           ></div>
         )}
         {product?.quantity > 0 ? (
           <button
-            className={`--btn --btn-primary ${grid ? "w-full" : "w-3/4 --mauto"}`}
+            className={`--btn --btn-primary ${grid ? "w-full" : "md:w-3/4 text-[1rem] --mauto"}`}
             onClick={() => addToCart(product)}
           >
             Add To Cart

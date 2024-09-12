@@ -15,6 +15,7 @@
   .radio-input {
     margin: 0;
     visibility: hidden;
+    padding-left: 0 !important;
   }
   
   .radio-input:checked + span {

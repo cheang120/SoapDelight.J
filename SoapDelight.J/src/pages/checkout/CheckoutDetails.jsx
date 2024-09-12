@@ -77,22 +77,22 @@ const CheckoutDetails = () => {
         e.preventDefault();
         dispatch(SAVE_SHIPPING_ADDRESS(shippingAddress));
         dispatch(SAVE_BILLING_ADDRESS(billingAddress));
-        if (paymentMethod === "") {
-          toast.info("Please select a payment method!!!")
-          navigate("/cart");
-        }
+        // if (paymentMethod === "") {
+        //   toast.info("Please select a payment method!!!")
+        //   navigate("/cart");
+        // }
         if (paymentMethod === "stripe") {
           navigate("/checkout-stripe");
         }
-        if (paymentMethod === "flutterwave") {
-          navigate("/checkout-flutterwave");
-        }
-        if (paymentMethod === "paypal") {
-          navigate("/checkout-paypal");
-        }
-        if (paymentMethod === "wallet") {
-          navigate("/checkout-wallet");
-        }
+        // if (paymentMethod === "flutterwave") {
+        //   navigate("/checkout-flutterwave");
+        // }
+        // if (paymentMethod === "paypal") {
+        //   navigate("/checkout-paypal");
+        // }
+        // if (paymentMethod === "wallet") {
+        //   navigate("/checkout-wallet");
+        // }
     
         // return toast.error("No payment method selected");
       };

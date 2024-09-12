@@ -35,10 +35,10 @@ const PaymentOption = () => {
         onSubmit={setPayment}
       >
         <div className='flex flex-col gap-2'>
-            {/* <div className='flex w-full'>
+            <div className='flex w-full'>
                 <label 
                     htmlFor={"stripe"} 
-                    className="radio-label"
+                    // className="radio-label"
                 >
                     <input
                         className="radio-input"
@@ -49,9 +49,9 @@ const PaymentOption = () => {
                         onChange={(e) => setPaymentMethod(e.target.value)}
                     />
                     <span className="custom-radio" ></span>
-                    Stripe
+                    Confirm Order
                 </label>
-            </div> */}
+            </div>
 
             {/* <div className='flex w-full'>
 
@@ -110,6 +110,7 @@ const PaymentOption = () => {
             type="submit"
             className="--btn --btn-primary --btn-block"
             id={"stripe"}
+            name={"paymentMethod"}
             value={"stripe"}
             onChange={(e) => setPaymentMethod(e.target.value)}
         >

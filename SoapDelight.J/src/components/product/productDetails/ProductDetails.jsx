@@ -89,8 +89,8 @@ const ProductDetails = () => {
                 <Spinner />
             ) : (
                 <>
-                    <div className={styles.details}>
-                        <div className={styles.img}>
+                    <div className={`${styles.details} `}>
+                        <div className={`${styles.img} my-4`}>
                             <img 
                                 src={product?.image[imageIndex]} 
                                 alt={product?.name} 
@@ -111,7 +111,7 @@ const ProductDetails = () => {
                                 })}
                             </div>
                         </div>
-                        <div className={styles.content}>
+                        <div className={`${styles.content} my-4`}>
                             <h3>{product?.name}</h3>
 
                             <ProductRating
@@ -217,51 +217,51 @@ const ProductDetails = () => {
                 </>
             )}
             {/* Review section */}
-            <Card cardClass={styles.card}>
-          <h3>Product Reviews</h3>
-          <ProductRating
-            averageRating={averageRating}
-            noOfRatings={product?.ratings.length}
-          />
-          <div className="--underline"></div>
-          <div className={styles.ratings}>
-            {product !== null && product?.ratings.length > 0 && (
-              <ProductRatingSummary ratings={product?.ratings} />
-            )}
+            <Card cardClass={`${styles.card} mb-5`}>
+                <h3>Product Reviews</h3>
+                <ProductRating
+                    averageRating={averageRating}
+                    noOfRatings={product?.ratings.length}
+                />
+                <div className="--underline"></div>
+                <div className={styles.ratings}>
+                    {product !== null && product?.ratings.length > 0 && (
+                    <ProductRatingSummary ratings={product?.ratings} />
+                    )}
 
-            <div className="--m">
-              {product?.ratings.length === 0 ? (
-                <p>There are no reviews for this product yet.</p>
-              ) : (
-                <>
-                  {product?.ratings.map((item, index) => {
-                    const { star, review, reviewDate, name, userID } = item;
-                    return (
-                      <div key={index} className={styles.review}>
-                        {/* <StarsRating value={star} style={{ fontSize: 10 }} /> */}
-                        <StarRating
-                          starDimension="20px"
-                          starSpacing="2px"
-                          starRatedColor="#F6B01E"
-                          rating={star}
-                          editing={false}
-                        />
-                        <p>{review}</p>
-                        <span>
-                          <b>{reviewDate}</b>
-                        </span>
-                        <br />
-                        <span>
-                          <b>by: {name}</b>
-                        </span>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
-            </div>
-          </div>
-        </Card>
+                    <div className="--m">
+                    {product?.ratings.length === 0 ? (
+                        <p>There are no reviews for this product yet.</p>
+                    ) : (
+                        <>
+                        {product?.ratings.map((item, index) => {
+                            const { star, review, reviewDate, name, userID } = item;
+                            return (
+                            <div key={index} className={styles.review}>
+                                {/* <StarsRating value={star} style={{ fontSize: 10 }} /> */}
+                                <StarRating
+                                starDimension="20px"
+                                starSpacing="2px"
+                                starRatedColor="#F6B01E"
+                                rating={star}
+                                editing={false}
+                                />
+                                <p>{review}</p>
+                                <span>
+                                <b>{reviewDate}</b>
+                                </span>
+                                <br />
+                                <span>
+                                <b>by: {name}</b>
+                                </span>
+                            </div>
+                            );
+                        })}
+                        </>
+                    )}
+                    </div>
+                </div>
+            </Card>
         </div>    
     </section>
   )
