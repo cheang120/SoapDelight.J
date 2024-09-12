@@ -223,10 +223,10 @@ const ProductDetails = () => {
                     averageRating={averageRating}
                     noOfRatings={product?.ratings.length}
                 />
-                <div className="--underline"></div>
-                <div className={styles.ratings}>
+                <div className="mt-5 --underline"></div>
+                <div className={`${styles.ratings} flex flex-col md:flex-row`}>
                     {product !== null && product?.ratings.length > 0 && (
-                    <ProductRatingSummary ratings={product?.ratings} />
+                        <ProductRatingSummary ratings={product?.ratings} />
                     )}
 
                     <div className="--m">
