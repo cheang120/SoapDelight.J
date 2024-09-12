@@ -87,7 +87,7 @@ const Slider = () => {
       const { image, heading, desc, path } = slide;
       return (
         <div key={index} className="relative min-w-full ">
-          <img src={image} alt={`${index}`} className="h-[60rem] w-full" />
+          <img src={image} alt={`${index}`} className=" w-full" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white  p-6 md:p-8 lg:p-12 transition-transform duration-1000 ease-in-out shadow-lg">
             <div className="z-40 flex flex-col items-center text-center space-y-4 max-w-lg bg-black bg-opacity-40">
               <div className="flex flex-col items-center justify-center relative p-10 md:p-12 lg:p-16 ">
