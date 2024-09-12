@@ -94,8 +94,8 @@ const ProductDetails = () => {
                             <img 
                                 src={product?.image[imageIndex]} 
                                 alt={product?.name} 
-                                className={styles.pImg}
-
+                                className={`${styles.pImg} w-full min-h-[30rem] max-h-[30rem] md:min-h-[40rem] md:max-h-[40rem]`}
+                        
                             />
                             <div className={styles.smallImg}>
                                 {product?.image.map((img,index) => {

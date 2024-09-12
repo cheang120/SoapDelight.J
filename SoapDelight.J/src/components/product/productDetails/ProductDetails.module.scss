@@ -15,12 +15,12 @@
       .img {
         width: 50%;
         margin-right: 1rem;
-        height: 350px;
+        height: 100%;
         border: 1px solid #ccc;
         border-radius: 3px;
         .pImg {
-          width: 100%;
-          height: 350px;
+          // width: 100%;
+          // height: 100%;
           object-fit: cover;
           transform: translateX(3rem);
           animation: slide 0.5s forwards;

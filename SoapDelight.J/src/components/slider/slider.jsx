@@ -69,12 +69,12 @@ const Slider = () => {
 <div className="relative w-full overflow-hidden bg-dark">
   {/* 左箭頭按鈕 */}
   <AiOutlineArrowLeft
-    className="absolute top-1/2 left-4 transform -translate-y-1/2 text-3xl cursor-pointer z-10 text-white border-2 border-orange-600 rounded-full bg-transparent hover:bg-white hover:text-orange-600"
+    className="absolute top-1/2 left-4 transform -translate-y-1/2 text-3xl cursor-pointer z-10 text-white border-2 border-purple-400 rounded-full bg-transparent hover:bg-white hover:text-purple-600"
     onClick={prevSlide}
   />
   {/* 右箭頭按鈕 */}
   <AiOutlineArrowRight
-    className="absolute top-1/2 right-4 transform -translate-y-1/2 text-3xl cursor-pointer z-10 text-white border-2 border-orange-600 rounded-full bg-transparent hover:bg-white hover:text-orange-600"
+    className="absolute top-1/2 right-4 transform -translate-y-1/2 text-3xl cursor-pointer z-10 text-white border-2 border-purple-400 rounded-full bg-transparent hover:bg-white hover:text-purple-600"
     onClick={nextSlide}
   />
 
@@ -87,20 +87,20 @@ const Slider = () => {
       const { image, heading, desc, path } = slide;
       return (
         <div key={index} className="relative min-w-full ">
-          <img src={image} alt={`${index}`} className="h-full w-full" />
+          <img src={image} alt={`${index}`} className="h-[60rem] w-full" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white  p-6 md:p-8 lg:p-12 transition-transform duration-1000 ease-in-out shadow-lg">
             <div className="z-40 flex flex-col items-center text-center space-y-4 max-w-lg bg-black bg-opacity-40">
-              <div className="flex flex-col items-center justify-center relative p-10 ">
+              <div className="flex flex-col items-center justify-center relative p-10 md:p-12 lg:p-16 ">
                 <span className="absolute top-0 left-0 w-full h-full"></span>
-                <span className="absolute top-0 left-0 w-[30%] h-[2px] bg-[#50dfdb] animate-span1"></span>
-                <span className="absolute bottom-0 right-0 w-[30%] h-[2px] bg-[#50dfdb] animate-span2"></span>
-                <span className="absolute top-0 left-0 w-[2px] h-[30%] bg-[#50dfdb] animate-span3"></span>
-                <span className="absolute bottom-0 right-0 w-[2px] h-[30%] bg-[#50dfdb] animate-span4"></span>
+                <span className="absolute top-0 left-0 w-[30%] h-[2px] bg-yellow-400 animate-span1"></span>
+                <span className="absolute bottom-0 right-0 w-[30%] h-[2px] bg-yellow-400 animate-span2"></span>
+                <span className="absolute top-0 left-0 w-[2px] h-[30%] bg-yellow-400 animate-span3"></span>
+                <span className="absolute bottom-0 right-0 w-[2px] h-[30%] bg-yellow-400 animate-span4"></span>
                 <h2 className="text-xl md:text-3xl lg:text-4xl font-bold mb-4">{heading}</h2>
                 <p className="text-sm md:text-lg lg:text-xl mb-4">{desc}</p>
                 <hr className="h-px bg-white w-16 my-4" />
                 <button
-                  className="z-40 px-4 py-2 text-sm md:px-6 md:py-3 md:text-base bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  className="z-40 px-4 py-2 text-sm md:px-6 md:py-3 md:text-basefocus:outline-none bg-gradient-to-r from-purple-500 to-pink-500 text-white focus:ring-4 focus:ring-purple-200 enabled:hover:bg-gradient-to-l dark:focus:ring-purple-800 rounded-md "
                   onClick={() => navigate(path)}
                 >
                   Shop Now
