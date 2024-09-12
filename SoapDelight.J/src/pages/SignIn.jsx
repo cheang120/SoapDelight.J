@@ -155,7 +155,7 @@ const [uCase, setUCase] = useState(false)
 
   };
   return (
-    <div className='min-h-screen my-20 mx-auto px-10 w-4/5'>
+    <div className='min-h-screen my-20 mx-auto px-10 md:w-4/5'>
       <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7 py-3  mx-auto flex-col md:flex-row md:items-center gap-10 md:gap-6'>
         {/* left */}
         <div className='flex-1 px-10 md:px-4 flex flex-col items-center'>
