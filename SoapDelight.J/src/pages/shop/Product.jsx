@@ -45,8 +45,8 @@ const Product = () => {
       <aside
         className={`${
           showFilter
-            ? "fixed top-20 left-4 w-64 h-[80vh] bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
-            : "fixed -left-full top-20 w-64 h-[80vh] bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
+            ? "fixed top-20 left-4 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
+            : "fixed -left-full top-20 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
         }`}
       >
         {isLoading ? null : <ProductFilter />}
