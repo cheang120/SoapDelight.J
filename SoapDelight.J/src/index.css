@@ -479,3 +479,11 @@ input::placeholder {
   left: 50% !important;
 }
 
+._table_pg0p5_1 table tr:nth-child(even) {
+  background-color: rgb(75, 85, 99);
+}
+
+._table_pg0p5_1 table td._icons_pg0p5_24 > * {
+  margin-right: 0;
+  cursor: pointer;
+}

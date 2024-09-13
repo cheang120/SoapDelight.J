@@ -29,26 +29,29 @@ const Wishlist = () => {
 
   return (
     <>
-      <section className="mb-10">
+      <section className="mb-10 dark:bg-gray-900 dark:text-white">
         {isLoading && <Loader />}
-        <div className="container min-h-screen">
-          <h2 className="text-2xl my-5">My Wishlist</h2>
-          <div className="--underline"></div>
-          <div className={grid ? `${styles.grid}` : `${styles.list}`}>
+        <div className="container min-h-screen ">
+          <h2 className="text-2xl my-5 dark:text-white">My Wishlist</h2>
+          <div className="--underline dark:bg-gray-800"></div>
+          <div className={grid ? `${styles.grid} dark:bg-gray-900` : `${styles.list} dark:bg-gray-900`}>
             {wishlist.length === 0 ? (
-              <p>No product found in your wishlist...</p>
+              <p className="dark:text-gray-300">No product found in your wishlist...</p>
             ) : (
               <>
                 {wishlist.map((product) => {
                   return (
-                    <div key={product._id} className="my-5">
+                    <div key={product._id} className="my-5 dark:bg-gray-800 dark:text-white p-4 rounded-lg">
                       <ProductItem {...product} grid={grid} product={product} />
-                      <button
-                        className="--btn --btn-danger --btn-block"
-                        onClick={() => removeWishlist(product)}
-                      >
-                        Romove From Wishlist
-                      </button>
+                      <div className="w-full flex justify-center">
+                        <button
+                          className="--btn --btn-danger  dark:bg-red-600 dark:hover:bg-red-700 dark:border-none dark:text-white"
+                          onClick={() => removeWishlist(product)}
+                        >
+                          Romove From Wishlist
+                        </button>
+                      </div>
+
                     </div>
                   );
                 })}

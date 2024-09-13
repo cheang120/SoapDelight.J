@@ -89,7 +89,7 @@ const Cart = () => {
         ) : (
           <>
             <table>
-              <thead>
+              <thead className="bg-gray-200 dark:bg-gray-700">
                 <tr>
                   <th>s/n</th>
                   <th>Product</th>
@@ -103,7 +103,7 @@ const Cart = () => {
                 {JSON.parse(localStorage.getItem("cartItems"))?.map((cart, index) => {
                   const { _id, name, price, image, cartQuantity } = cart;
                   return (
-                    <tr key={_id}>
+                    <tr key={_id} className="border-b dark:border-gray-600">
                       <td>{index + 1}</td>
                       <td>
                         <p>
@@ -137,11 +137,13 @@ const Cart = () => {
                       </td>
                       <td>{(price * cartQuantity).toFixed(2)}</td>
                       <td className={styles.icons}>
+                        <div className='py-2 px-6'>
                         <FaTrashAlt
                           size={19}
                           color="red"
                           onClick={() => removeFromCart(cart)}
                         />
+                        </div>
                       </td>
                     </tr>
                   )
