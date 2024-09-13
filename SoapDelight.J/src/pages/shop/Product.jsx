@@ -40,15 +40,17 @@ const Product = () => {
 
   return (
     <section className="mt-10">
-      <div className={`container ${styles.product} mx-auto flex flex-wrap`}>
+      <div className={`container ${styles.product} mx-auto flex flex-wrap justify-center`}>
         
-        <aside
-          className={
-            showFilter ? `w-full ${styles.filter} ${styles.show} dark:bg-gray-800 dark:text-white` : `w-full  ${styles.filter}`
-          }
-        >
-          {isLoading ? null : <ProductFilter />}
-        </aside>
+      <aside
+        className={`${
+          showFilter
+            ? "fixed top-20 left-4 w-64 h-[80vh] bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
+            : "fixed -left-full top-20 w-64 h-[80vh] bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
+        }`}
+      >
+        {isLoading ? null : <ProductFilter />}
+      </aside>
 
         <div className={styles.content}>
           {isLoading ? <Spinner /> : <ProductList products={products} />}

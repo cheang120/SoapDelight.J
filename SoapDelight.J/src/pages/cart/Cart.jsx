@@ -103,7 +103,7 @@ const Cart = () => {
                 {JSON.parse(localStorage.getItem("cartItems"))?.map((cart, index) => {
                   const { _id, name, price, image, cartQuantity } = cart;
                   return (
-                    <tr key={_id} className="border-b dark:border-gray-600">
+                    <tr key={_id} className="border-b even:dark:bg-gray-700 dark:border-gray-600">
                       <td>{index + 1}</td>
                       <td>
                         <p>
@@ -159,7 +159,7 @@ const Cart = () => {
                   <Link to="/shop">&larr; Continue shopping</Link>
                 </div>
                 <br />
-                  <Card className={styles.card}>
+                  <Card className={`${styles.card} mb-5`}>
                     <p>
                       <b> {`Cart item(s): ${cartTotalQuantity}`}</b>
                     </p>
