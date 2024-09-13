@@ -469,10 +469,13 @@ input::placeholder {
   background: var(--primary);
 }
 
-.rc-slider-mark-text  {
-  left: 0 !important;
+
+
+.rc-slider-mark > span:first-child  {
+  left: -30% !important;
 }
-.rc-slider-mark{
-  display: flex !important;
-  justify-content: space-between !important;
+
+.rc-slider-mark > span:last-child  {
+  left: 50% !important;
 }
+

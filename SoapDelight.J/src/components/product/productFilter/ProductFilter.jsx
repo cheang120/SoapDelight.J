@@ -96,7 +96,7 @@ const ProductFilter = () => {
     </select>
   </div>
   <h4 className="mt-4 text-lg font-semibold">Price</h4>
-  <div className="mt-2 px-4">
+  <div className="mt-2 px-4 ">
     <Slider
       range
       marks={{
