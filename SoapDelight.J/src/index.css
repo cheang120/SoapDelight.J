@@ -468,3 +468,11 @@ input::placeholder {
 .swiper-pagination .swiper-pagination-bullet-active {
   background: var(--primary);
 }
+
+.rc-slider-mark-text  {
+  left: 0 !important;
+}
+.rc-slider-mark{
+  display: flex !important;
+  justify-content: space-between !important;
+}

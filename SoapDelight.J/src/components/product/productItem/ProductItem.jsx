@@ -24,52 +24,51 @@ const ProductItem = ({
     const averageRating = calculateAverageRating(product.ratings);
 
   return (
-    <div className={grid ? `${styles.grid} mb-5` : `${styles.list} mb-5` }>
-      <Link to={`/product-details/${_id}`}>
-        <div className={`${styles.img} h-full flex justify-center`}>
-          <img src={image[0]} alt={name} className=""/>
-        </div>
-      </Link>
-      <div className={`${styles.content} `}>
-        <div className={styles.details}>
-          <p>
-            <span>{regularPrice > 0 && <del>${regularPrice}</del>}</span>
-            {` $${price} `}
-          </p>
-          <ProductRating
-            averageRating={averageRating}
-            noOfRatings={product?.ratings.length}
-          />
-        <h4>{shortenText(name, 18)}</h4>
-
-        </div>
-        {!grid && (
-          // <p className={styles.desc}>{shortenText(description, 200)}</p>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(
-                shortenText(product?.description, 60)
-              ),
-            }}
-          ></div>
-        )}
-        {product?.quantity > 0 ? (
-          <button
-            className={`--btn --btn-primary ${grid ? "w-full" : "md:w-3/4 text-[1rem] --mauto"}`}
-            onClick={() => addToCart(product)}
-          >
-            Add To Cart
-          </button>
-        ) : (
-          <button
-            className={`--btn --btn-red ${grid ? "w-full" : "w-3/4 --mauto"}`}
-            onClick={() => toast.error("Sorry, Product is out of stock")}
-          >
-            Out Of Stock
-          </button>
-        )}        
-      </div>
+<div className={grid ? `${styles.grid} mb-5` : `${styles.list} mb-5`}>
+  <Link to={`/product-details/${_id}`}>
+    <div className={`${styles.img} h-full flex justify-center`}>
+      <img src={image[0]} alt={name} className="" />
     </div>
+  </Link>
+
+  <div className={`${styles.content}`}>
+    <div className={styles.details}>
+      <p>
+        <span>{regularPrice > 0 && <del>${regularPrice}</del>}</span>
+        {` $${price} `}
+      </p>
+
+      <ProductRating averageRating={averageRating} noOfRatings={product?.ratings.length} />
+
+      <h4>{shortenText(name, 18)}</h4>
+    </div>
+
+    {!grid && (
+      <div
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(shortenText(product?.description, 60)),
+        }}
+      ></div>
+    )}
+
+    {product?.quantity > 0 ? (
+      <button
+        className={`--btn --btn-primary ${grid ? "w-full" : "md:w-3/4 text-[1rem] --mauto"}`}
+        onClick={() => addToCart(product)}
+      >
+        Add To Cart
+      </button>
+    ) : (
+      <button
+        className={`--btn --btn-red ${grid ? "w-full" : "w-3/4 --mauto"}`}
+        onClick={() => toast.error("Sorry, Product is out of stock")}
+      >
+        Out Of Stock
+      </button>
+    )}
+  </div>
+</div>
+
   )
 }
 
