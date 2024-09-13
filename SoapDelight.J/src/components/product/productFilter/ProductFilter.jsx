@@ -65,7 +65,7 @@ const ProductFilter = () => {
     setPrice([minPrice, maxPrice]);
   };
   return (
-<div className="py-4 px-1">
+<div className="py-4 px-1 dark:bg-gray-800 dark:text-white">
   <h4 className="mt-4 text-lg font-semibold">Categories</h4>
   <div className="mt-2">
     {allCategories.map((cat, index) => (
@@ -86,10 +86,10 @@ const ProductFilter = () => {
     <select
       value={brand}
       onChange={(e) => setBrand(e.target.value)}
-      className="w-full  p-2 border border-gray-400 rounded outline-none text-base font-light"
+      className="w-full  p-2 border border-gray-400 rounded outline-none text-base font-light dark:bg-gray-800 dark:text-white"
     >
       {allBrands.map((brand, index) => (
-        <option key={index} value={brand}>
+        <option key={index} value={brand} >
           {brand}
         </option>
       ))}

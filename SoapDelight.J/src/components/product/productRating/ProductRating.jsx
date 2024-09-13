@@ -5,7 +5,7 @@ const ProductRating = ({ averageRating, noOfRatings }) => {
   return (
     <>
       {averageRating > 0 && (
-        <>
+        <div className="flex gap-2">
           <StarRatings
             starDimension="20px"
             starSpacing="2px"
@@ -13,8 +13,11 @@ const ProductRating = ({ averageRating, noOfRatings }) => {
             rating={averageRating}
             editing={false}
           />
+          <div>
           ({noOfRatings})
-        </>
+          </div>
+          
+        </div>
       )}
     </>
   );

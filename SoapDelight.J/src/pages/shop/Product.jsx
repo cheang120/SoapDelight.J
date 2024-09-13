@@ -44,7 +44,7 @@ const Product = () => {
         
         <aside
           className={
-            showFilter ? `w-full ${styles.filter} ${styles.show}` : `w-full  ${styles.filter}`
+            showFilter ? `w-full ${styles.filter} ${styles.show} dark:bg-gray-800 dark:text-white` : `w-full  ${styles.filter}`
           }
         >
           {isLoading ? null : <ProductFilter />}

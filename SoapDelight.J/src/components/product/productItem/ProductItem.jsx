@@ -24,7 +24,7 @@ const ProductItem = ({
     const averageRating = calculateAverageRating(product.ratings);
 
   return (
-<div className={grid ? `${styles.grid} mb-5 w-3/4` : `${styles.list} mb-5`}>
+<div className={grid ? `${styles.grid} mb-5 w-3/4 mx-auto` : `${styles.list} mb-5 dark:bg-gray-800 dark:text-white`}>
   <Link to={`/product-details/${_id}`}>
     <div className={`${styles.img} h-full flex justify-center`}>
       <img src={image[0]} alt={name} className="" />
