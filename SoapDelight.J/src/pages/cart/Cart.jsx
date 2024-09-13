@@ -74,7 +74,7 @@ const Cart = () => {
   return (
     <section className='min-h-screen'>
       <div className={`container ${styles.table} m-auto`}>
-        <h2 className='px-10 py-5 text-2xl'>Shopping Cart</h2>
+        <h2 className=' py-5 text-2xl'>Shopping Cart</h2>
         {JSON.parse(localStorage.getItem("cartItems"))?.length === 0 ? (
                 <>
                   <div className='p-10'>

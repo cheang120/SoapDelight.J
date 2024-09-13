@@ -41,7 +41,7 @@ const CarouselItem = ({
 
   const desc = removeHTMLTags(description);
   return (
-    <div className=" p-4 shadow-lg rounded-lg bg-white mx-2 mb-10">
+    <div className=" p-4 shadow-lg rounded-lg bg-white dark:bg-gray-800 mx-2 mb-10">
       <Link 
         to={`/product-details/${product._id}`}
         className="flex min-h-[24rem] max-h-[24rem]"
@@ -49,18 +49,18 @@ const CarouselItem = ({
         <div className="flex flex-col w-full">
           <img className=" w-full h-48 object-cover rounded-t-lg" src={url} alt="product" />
           {/* <p className="price">{`$${price}`}</p> */}
-          <p className=" mt-2 text-gray-700 text-lg">
-            <span className="text-red-500 line-through mr-2" x-show="regularPrice > 0">
+          <p className=" mt-2 text-gray-700 dark:text-gray-300 text-lg">
+            <span className="text-red-500 dark:text-red-400 line-through mr-2" x-show="regularPrice > 0">
               {regularPrice > 0 && <del>${regularPrice}</del>}
             </span>
             {` $${price} `}
           </p>
 
-          <h4 className="font-semibold text-xl mt-2">
+          <h4 className="font-semibold text-xl mt-2 dark:text-white">
             {shortenText(name, 18)}
             {/* {name} */}
           </h4>
-          <p className="mt-1 text-gray-600">
+          <p className="mt-1 text-gray-600 dark:text-gray-400">
             {shortenText(desc, 26)}
             {/* {description} */}
           </p>

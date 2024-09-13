@@ -199,9 +199,9 @@ const Home = () => {
           <ProductCarousel products={latestProducts}  />
         </div>
       </section>
-      <section className='bg-gray-100'>
+      <section className='bg-gray-100 dark:bg-gray-800 py-8'>
         <div className="max-w-[1000px] mx-auto px-5">
-          <h3 className='text-xl mt-5'>Categories</h3>
+          <h3 className='text-2xl my-5'>Categories</h3>
           <ProductCategory />
         </div>
       </section>

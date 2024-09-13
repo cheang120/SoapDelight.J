@@ -34,7 +34,7 @@ const HomeInfoBox = ({ icon, heading, text }) => {
     <div className="infoboxes mb-8 mt-8 justify-evenly">
       {data.map((item, index) => {
         return (
-          <div className="infobox" key={index}>
+          <div className="infobox my-4" key={index}>
             <div className="icon">{item.icon}</div>
             <div className="text">
               <h4>{item.heading}</h4>

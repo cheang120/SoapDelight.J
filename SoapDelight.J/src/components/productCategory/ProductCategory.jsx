@@ -23,7 +23,7 @@ const categories = [
 const Category = ({ title, image }) => {
   const navigate = useNavigate();
   return (
-    <div className="category">
+    <div className="category dark:bg-gray-500">
       <h3>{title}</h3>
       <img src={image} alt="img" />
       <button className="--btn" onClick={() => navigate("/shop")}>
@@ -35,7 +35,7 @@ const Category = ({ title, image }) => {
 
 const ProductCategory = () => {
   return (
-    <div className="categories">
+    <div className="categories dark:bg-gray-800">
       {categories.map((cat) => {
         return (
           <div key={cat.id} className="--flex-center">
