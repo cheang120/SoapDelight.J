@@ -95,7 +95,7 @@ const ProductList = ({ products }) => {
           <>
             {currentItems.map((product) => {
               return (
-                <div key={product._id} className="border m-4">
+                <div key={product._id} className=" m-4">
                   <ProductItem {...product} grid={grid} product={product} />
                 </div>
               );
