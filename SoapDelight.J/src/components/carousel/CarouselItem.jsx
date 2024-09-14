@@ -51,7 +51,7 @@ const CarouselItem = ({
           {/* <p className="price">{`$${price}`}</p> */}
           <p className=" mt-2 text-gray-700 dark:text-gray-300 text-lg">
             <span className="text-red-500 dark:text-red-400 line-through mr-2" x-show="regularPrice > 0">
-              {regularPrice > 0 && <del>${regularPrice}</del>}
+              {regularPrice > price && <del>${regularPrice}</del>}
             </span>
             {` $${price} `}
           </p>

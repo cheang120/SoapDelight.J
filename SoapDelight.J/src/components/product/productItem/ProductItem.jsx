@@ -55,7 +55,7 @@ const ProductItem = ({
         <div className={`${styles.details} mb-2`}>
           <p className="flex items-center justify-center mb-1">
             <span>
-              {regularPrice > 0 && (
+              {regularPrice > price && (
                 <del className="text-red-500 mr-2">${regularPrice}</del>
               )}
             </span>

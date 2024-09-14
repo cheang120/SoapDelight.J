@@ -199,12 +199,12 @@ const Home = () => {
           <ProductCarousel products={latestProducts}  />
         </div>
       </section>
-      <section className='bg-gray-100 dark:bg-gray-800 py-8'>
+      {/* <section className='bg-gray-100 dark:bg-gray-800 py-8'>
         <div className="max-w-[1000px] mx-auto px-5">
           <h3 className='text-2xl my-5'>Categories</h3>
           <ProductCategory />
         </div>
-      </section>
+      </section> */}
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5 pt-5">
           <PageHeading heading={"Personal Care"} btnText={"Shop Now >>>"} />
