@@ -164,7 +164,7 @@ export default function Header() {
     </Link>
   </Navbar.Link>
 
-  <Navbar.Link active={path === '/projects'} as={'div'}
+  {/* <Navbar.Link active={path === '/projects'} as={'div'}
     className={` relative ${path === '/projects' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
   >
     <Link
@@ -176,7 +176,7 @@ export default function Header() {
     >
       Projects
     </Link>
-  </Navbar.Link>
+  </Navbar.Link> */}
 
   <Navbar.Link active={path === '/cart'} as={'div'}
       className={` relative ${path === '/cart' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
