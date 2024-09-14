@@ -61,7 +61,7 @@ export default function FooterCom() {
           </div> */}
           <div className='w-1/3 flex items-center justify-center'>
             <Footer.Copyright
-              href='#'
+              href='https://www.carreyportfolio.lol/'
               by="babycode"
               year={new Date().getFullYear()}
             />
