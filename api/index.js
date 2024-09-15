@@ -31,6 +31,7 @@ app.use(
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
     allowedHeaders: ['Authorization', 'Content-Type', 'On-behalf-of', 'x-sg-elas-acl'],
     credentials: true,
+    domain:  ".soapdelight-j.store"
   })
 );
 
