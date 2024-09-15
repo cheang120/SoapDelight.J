@@ -202,45 +202,48 @@ export const verifyUser = async (req, res) => {
   res.status(200).json({ message: "Account Verification Successful" });
 };
 
-export const signin = asyncHandler( async (req, res, next) => {
+export const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  // console.log(password);
-  // console.log(email);
 
   if (!email || !password || email === '' || password === '') {
-    next(errorHandler(400, 'All fields are required'));
+    return next(errorHandler(400, 'All fields are required'));
   }
 
   try {
     const validUser = await User.findOne({ email });
-    // console.log(validUser);
     if (!validUser) {
       return next(errorHandler(404, 'User not found'));
     }
+
     const validPassword = await bcryptjs.compare(password, validUser.password);
-    // console.log(password);
-    // console.log(validUser.password);
     if (!validPassword) {
       return next(errorHandler(400, 'Invalid password'));
     }
 
+    // Generate JWT token
     const token = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.JWT_SECRET
     );
 
+    // Extract user data without password
     const { password: pass, ...rest } = validUser._doc;
 
+    // Set cookie with security settings for production
     res
       .status(200)
       .cookie('access_token', token, {
-        httpOnly: true,
+        httpOnly: true,  // Prevents client-side access to the cookie
+        secure: process.env.NODE_ENV === "production", // Ensure cookie is sent over HTTPS in production
+        domain: process.env.NODE_ENV === "production" ? ".soapdelight-j.store" : undefined, // Set domain for cross-domain cookies
+        sameSite: "none",  // Allows cross-site cookies
       })
       .json(rest);
   } catch (error) {
     next(error);
   }
 });
+
 
 export const google = async (req, res, next) => {
   const { email, name, googlePhotoUrl } = req.body;
