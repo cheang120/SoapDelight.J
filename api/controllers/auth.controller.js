@@ -236,11 +236,8 @@ export const signin = asyncHandler( async (req, res, next) => {
       .status(200)
       .cookie('access_token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',  // 在生产环境中通过HTTPS发送
-        domain: process.env.NODE_ENV === 'production' ? '.soapdelight-j.store' : undefined,  // 跨域设置
-        sameSite: 'none',  // 允许跨站点发送cookie
       })
-      .json({ success: true, user: rest });
+      .json(rest);
   } catch (error) {
     next(error);
   }
