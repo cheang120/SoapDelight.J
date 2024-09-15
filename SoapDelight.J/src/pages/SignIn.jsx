@@ -123,6 +123,7 @@ const [uCase, setUCase] = useState(false)
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
       const data = await res.json();
       if (data.success === false) {

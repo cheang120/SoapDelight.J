@@ -226,7 +226,8 @@ export const signin = asyncHandler( async (req, res, next) => {
 
     const token = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
     );
 
     const { password: pass, ...rest } = validUser._doc;
@@ -235,8 +236,11 @@ export const signin = asyncHandler( async (req, res, next) => {
       .status(200)
       .cookie('access_token', token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',  // 在生产环境中通过HTTPS发送
+        domain: process.env.NODE_ENV === 'production' ? '.soapdelight-j.store' : undefined,  // 跨域设置
+        sameSite: 'none',  // 允许跨站点发送cookie
       })
-      .json(rest);
+      .json({ success: true, user: rest });
   } catch (error) {
     next(error);
   }
