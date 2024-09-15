@@ -235,6 +235,8 @@ export const signin = asyncHandler( async (req, res, next) => {
       .status(200)
       .cookie('access_token', token, {
         httpOnly: true,
+        domain: ".soapdelight-j.store" ,
+        sameSite: "lax", 
       })
       .json(rest);
   } catch (error) {

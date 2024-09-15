@@ -97,8 +97,6 @@ const [uCase, setUCase] = useState(false)
     return timesIcon
   }
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
