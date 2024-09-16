@@ -6,7 +6,7 @@ import { errorHandler } from '../utils/error.js';
 
 export const protect  = async (req, res, next) => {
   const token = req.cookies.access_token
-  console.log(token);
+  // console.log(token);
   // res.send("token")
 
   
