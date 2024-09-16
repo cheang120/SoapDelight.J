@@ -63,8 +63,8 @@ export const signup = async (req, res, next) => {
     path:"/",
     httpOnly:true,
     expires: new Date(Date.now() + 1000 * 86400),
-    // sameSite:"none",
-    // secure:true,
+    sameSite:"none",
+    secure:true,
   })
   
   // console.log(token);
@@ -224,23 +224,18 @@ export const signin = asyncHandler( async (req, res, next) => {
       return next(errorHandler(400, 'Invalid password'));
     }
 
-    const token = generateToken(validUser._id);
-    console.log(token);
-
-    // const token = jwt.sign(
-    //   { id: validUser._id, isAdmin: validUser.isAdmin },
-    //   process.env.JWT_SECRET,
-    //   { expiresIn: '1d' }
-    // );
+    const token = jwt.sign(
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      process.env.JWT_SECRET
+    );
 
     const { password: pass, ...rest } = validUser._doc;
-    
+
     res
       .status(200)
-      .cookie('token', token, {
+      .cookie('access_token', token, {
         httpOnly: true,
-        // sameSite: 'none'
-        expires: new Date(Date.now() + 1000 * 86400),
+
       })
       .json(rest);
   } catch (error) {
