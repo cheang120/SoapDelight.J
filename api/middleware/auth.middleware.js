@@ -3,15 +3,27 @@ import User from '../models/user.model.js';
 
 import jwt from "jsonwebtoken";
 import { errorHandler } from '../utils/error.js';
+const generateToken = (id) => {
+  return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn:"1d"})
+}
 
 export const protect  = async (req, res, next) => {
-  const token = req.cookies.access_token
+  // const { email } = req.body;
+  // const validUser = await User.findOne({ email });
+  // const token = generateToken(validUser._id);
+    const token = req.cookies.token
+
+    console.log(token);
+  // const token = req.cookies.access_token
   // console.log(token);
   // res.send("token")
 
   
   try {
-    const token = req.cookies.access_token;
+    // const token = generateToken(validUser._id);
+    const token = req.cookies.token
+
+    // const token = req.cookies.access_token;
     if (!token) {
       // res.status(401);
       // throw new Error("Not authorized, please login");

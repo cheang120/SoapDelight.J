@@ -224,20 +224,23 @@ export const signin = asyncHandler( async (req, res, next) => {
       return next(errorHandler(400, 'Invalid password'));
     }
 
-    const token = jwt.sign(
-      { id: validUser._id, isAdmin: validUser.isAdmin },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
+    const token = generateToken(validUser._id);
+    console.log(token);
+
+    // const token = jwt.sign(
+    //   { id: validUser._id, isAdmin: validUser.isAdmin },
+    //   process.env.JWT_SECRET,
+    //   { expiresIn: '1d' }
+    // );
 
     const { password: pass, ...rest } = validUser._doc;
-
+    
     res
       .status(200)
-      .cookie('access_token', token, {
+      .cookie('token', token, {
         httpOnly: true,
         // sameSite: 'none'
-        
+        expires: new Date(Date.now() + 1000 * 86400),
       })
       .json(rest);
   } catch (error) {
