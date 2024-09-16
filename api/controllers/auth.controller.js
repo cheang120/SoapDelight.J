@@ -63,8 +63,8 @@ export const signup = async (req, res, next) => {
     path:"/",
     httpOnly:true,
     expires: new Date(Date.now() + 1000 * 86400),
-    sameSite:"none",
-    secure:true,
+    // sameSite:"none",
+    // secure:true,
   })
   
   // console.log(token);
