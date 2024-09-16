@@ -237,6 +237,7 @@ export const signin = asyncHandler( async (req, res, next) => {
       .cookie('access_token', token, {
         httpOnly: true,
         // sameSite: 'none'
+        
       })
       .json(rest);
   } catch (error) {
