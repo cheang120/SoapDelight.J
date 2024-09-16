@@ -3,20 +3,20 @@
 export const sliderData = [
     {
       image: "https://res.cloudinary.com/dozg9wdh1/image/upload/v1726129802/soapdelight-product/orxlzrn6k5avwjscjlds.webp",
-      heading: "Plant-based Nourishing Lotion",
-      desc: "Best-Selling Product.",
+      heading: "柔白養膚乳",
+      desc: "暢銷產品",
       path:"/product-details/66c29d281a2e7089630967a3"
     },
     {
       image: "https://res.cloudinary.com/dozg9wdh1/image/upload/v1726128936/soapdelight-product/q8ipvbi8m8rdgh14qghu.webp",
-      heading: "Neroli Moisturising Cleansing Foam",
-      desc: "Almost Sold Out.",
+      heading: "橙花潔顏泡泡",
+      desc: "即將售完",
       path:"/product-details/66d82f502b47d48a8c013252"
     },
     {
       image: "https://res.cloudinary.com/dozg9wdh1/image/upload/v1726129971/soapdelight-product/ossinyfuxzebqpt41d3c.webp",
-      heading: "Rose Brightening Facial oil",
-      desc: "Discounted Products.",
+      heading: "玫瑰亮白精華油",
+      desc: "特價產品",
       path:"/product-details/66c29cef1a2e708963096797"
     },
     // {

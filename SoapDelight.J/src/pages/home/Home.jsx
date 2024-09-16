@@ -108,7 +108,7 @@ const Home = () => {
       return product.quantity > 0
     })
     ?.filter((product, index) => {
-      return product.category === "Candle";
+      return product.category === "香薰蠟";
     })
     ?.filter((product, index) => index < 6);
 
@@ -219,7 +219,7 @@ const Home = () => {
       </section>
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5 pt-5">
-          <PageHeading heading={"Candle"} btnText={"Shop Now >>>"} />
+          <PageHeading heading={"香薰蠟"} btnText={"Shop Now >>>"} />
           <ProductCarousel products={candleProducts}  />
         </div>
       </section>
