@@ -85,12 +85,12 @@ const ProductItem = ({
           <button
             className={`${
               grid
-                ? "w-full bg-blue-500 text-white py-2 mt-auto rounded hover:bg-blue-600"
-                : "w-full md:w-3/4 text-[1rem] bg-blue-500 text-white py-2 rounded hover:bg-blue-600 mx-auto block"
+                ? "w-full bg-pink-500 text-white py-2 mt-auto rounded hover:bg-pink-600"
+                : "w-full md:w-3/4 text-[1rem] bg-pink-500 text-white py-2 rounded hover:bg-pink-600 mx-auto block"
             }`}
             onClick={() => addToCart(product)}
           >
-            Add To Cart
+            加入購物車
           </button>
         ) : (
           <button

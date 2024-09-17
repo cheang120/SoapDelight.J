@@ -165,7 +165,7 @@ const ViewProducts = () => {
           pageLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
           previousLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
           nextLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-          activeLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-white bg-blue-500"
+          activeLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-white bg-pink-500"
         />
 
         </div>

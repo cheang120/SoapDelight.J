@@ -27,7 +27,7 @@ const Category = ({ title, image }) => {
       <h3>{title}</h3>
       <img src={image} alt="img" />
       <button className="--btn" onClick={() => navigate("/shop")}>
-        {"Shop Now >>>"}
+        {"立即選購 >>>"}
       </button>
     </div>
   );

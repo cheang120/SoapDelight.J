@@ -68,10 +68,10 @@ const CarouselItem = ({
 
       </Link>
       <button
-        className=" w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+        className=" w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600"
         onClick={() => addToCart(product)}
       >
-        Add To Cart
+        加入購物車
       </button>
     </div>
   );

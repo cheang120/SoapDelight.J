@@ -103,7 +103,7 @@ const Slider = () => {
                   className="z-40 px-4 py-2 text-sm md:px-6 md:py-3 md:text-basefocus:outline-none bg-gradient-to-r from-purple-500 to-pink-500 text-white focus:ring-4 focus:ring-purple-200 enabled:hover:bg-gradient-to-l dark:focus:ring-purple-800 rounded-md "
                   onClick={() => navigate(path)}
                 >
-                  Shop Now
+                  立即選購
                 </button>
               </div>
             </div>

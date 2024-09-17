@@ -120,7 +120,7 @@ const ProductList = ({ products }) => {
         pageLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
         previousLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200  dark:text-white"
         nextLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:text-gray-700 hover:bg-gray-200  dark:text-white"
-        activeLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-white bg-blue-500"
+        activeLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-white bg-pink-500"
       />
     </div>
   );

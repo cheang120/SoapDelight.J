@@ -155,7 +155,7 @@ export default function Header() {
         after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/' ? 'after:w-full' : 'hover:after:w-full'}
       `}
     >
-      Home
+      主頁
     </Link>
   </Navbar.Link>
 
@@ -169,7 +169,7 @@ export default function Header() {
       after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/shop' ? 'after:w-full' : 'hover:after:w-full'}
     `}
     >
-      Shop
+      選購
     </Link>
   </Navbar.Link>
 
@@ -183,7 +183,7 @@ export default function Header() {
       after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/contact' ? 'after:w-full' : 'hover:after:w-full'}
     `}
     >
-      Contact Us
+      聯絡我們
     </Link>
   </Navbar.Link>
 

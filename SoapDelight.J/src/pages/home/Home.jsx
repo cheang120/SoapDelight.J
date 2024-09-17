@@ -195,7 +195,7 @@ const Home = () => {
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5">
           <HomeInfoBox />
-          <PageHeading heading={"Latest Products"} btnText={"Shop Now >>>"}  />
+          <PageHeading heading={"最新產品"} btnText={"立即選購 >>>"}  />
           <ProductCarousel products={latestProducts}  />
         </div>
       </section>
@@ -207,19 +207,19 @@ const Home = () => {
       </section> */}
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5 pt-5">
-          <PageHeading heading={"Personal Care"} btnText={"Shop Now >>>"} />
+          <PageHeading heading={"個人護理"} btnText={"立即選購 >>>"} />
           <ProductCarousel products={personalCareProducts}  />
         </div>
       </section>
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5 pt-5">
-          <PageHeading heading={"Soap"} btnText={"Shop Now >>>"} />
+          <PageHeading heading={"手作皂"} btnText={"立即選購 >>>"} />
           <ProductCarousel products={soapProducts}  />
         </div>
       </section>
       <section className=''>
         <div className="max-w-[1000px] mx-auto px-5 pt-5">
-          <PageHeading heading={"香薰蠟"} btnText={"Shop Now >>>"} />
+          <PageHeading heading={"香薰蠟"} btnText={"立即選購 >>>"} />
           <ProductCarousel products={candleProducts}  />
         </div>
       </section>
@@ -230,10 +230,6 @@ const Home = () => {
           </button>
         </a>
       </div> */}
-
-
-
-
     </div>
   )
 }
