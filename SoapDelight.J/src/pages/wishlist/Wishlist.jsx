@@ -29,7 +29,7 @@ const Wishlist = () => {
 
   return (
     <>
-      <section className="mb-10 dark:bg-gray-900 dark:text-white">
+      <section className="mb-10 dark:bg-gray-900 dark:text-white py-10">
         {isLoading && <Loader />}
         <div className="container min-h-screen ">
           <h2 className="text-2xl my-5 dark:text-white">My Wishlist</h2>

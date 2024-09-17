@@ -79,9 +79,9 @@ const ProductDetails = () => {
 
 
   return (
-    <section>
+    <section className="mt-10">
         <div className={`container ${styles.product}`}>
-            <h2>Product Details</h2>
+            <h2 className="py-10 text-2xl">Product Details</h2>
             <div>
                 <Link to="/shop">&larr; Back To Products</Link>
             </div>
