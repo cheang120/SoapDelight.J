@@ -212,10 +212,6 @@ const [uCase, setUCase] = useState(false)
               </div>
             </div>
 
-
-
- 
-
             {/* Password Strength */}
             <div className='rounded overflow-hidden p-1 mb-1'>
                 <ul className=''>

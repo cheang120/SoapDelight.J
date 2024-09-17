@@ -13,6 +13,7 @@ import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQu
 import Wishlist from '../pages/wishlist/Wishlist';
 
 export default function Header() {
+  const [showHeader, setShowHeader] = useState(false);
   const path = useLocation().pathname;
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,11 +27,20 @@ export default function Header() {
 
   const userRole = currentUser ? currentUser.role : null;
 
+  // const fixNavbar = () => {
+  //   if (window.scrollY > 50) {
+  //     setScrollPage(true);
+  //   } else {
+  //     setScrollPage(false);
+  //   }
+  // };
   const fixNavbar = () => {
     if (window.scrollY > 50) {
-      setScrollPage(true);
+      setShowHeader(true);  // 顯示 header
+      setScrollPage(true);   // 加上陰影效果
     } else {
-      setScrollPage(false);
+      setShowHeader(false);  // 隱藏 header
+      setScrollPage(false);  // 移除陰影效果
     }
   };
   window.addEventListener("scroll", fixNavbar);
@@ -73,10 +83,9 @@ export default function Header() {
 
   return (
     <Navbar
-      className={`
-        list-none z-50 sticky top-0 backdrop-filter backdrop-blur-lg bg-white bg-opacity-70
-        ${scrollPage ? 'shadow-md' : ''}
-      `}
+      className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-500 ease-in-out backdrop-filter backdrop-blur bg-white bg-opacity-90 ${
+        scrollPage ? 'shadow-md' : ''
+      } ${showHeader ? 'transform translate-y-0' : 'transform -translate-y-full'}`}
     >
       <Link
         to='/'
