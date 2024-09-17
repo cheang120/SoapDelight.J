@@ -6,6 +6,7 @@ import {store, persistor} from './redux/store.js'
 import {Provider} from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react';
 import ThemeProvider from './components/ThemeProvider.jsx'
+import WhatsAppButton from './components/WhatsappButton.jsx'
 
 
 
@@ -17,6 +18,7 @@ if (rootElement) {
       <Provider store={store}>
         <ThemeProvider>
           <App />
+          <WhatsAppButton />
         </ThemeProvider>
       </Provider>
     </PersistGate>
