@@ -164,6 +164,20 @@ export default function Header() {
     </Link>
   </Navbar.Link>
 
+  <Navbar.Link active={path === '/contact'} as={'div'} 
+        className={` relative ${path === '/contact' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
+  >
+    <Link
+      to='/contact'
+      className={` relative ${path === '/contact' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
+      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
+      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/contact' ? 'after:w-full' : 'hover:after:w-full'}
+    `}
+    >
+      Contact Us
+    </Link>
+  </Navbar.Link>
+
   {/* <Navbar.Link active={path === '/projects'} as={'div'}
     className={` relative ${path === '/projects' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
   >

@@ -9,6 +9,7 @@ import orderRoute  from "./routes/orderRoute.js";
 import categoryRoute from'./routes/categoryRoute.js'
 import brandRoute from './routes/brandRoute.js'
 import couponRoute from './routes/couponRoute.js'
+import contactRoute from './routes/contactRoute.js'
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -51,6 +52,7 @@ app.use("/api/category", categoryRoute);
 app.use("/api/brand", brandRoute)
 app.use("/api/coupon", couponRoute)
 app.use("/api/order", orderRoute)
+app.use('/api/contact', contactRoute);
 
 
 app.get('*', (req, res) => {

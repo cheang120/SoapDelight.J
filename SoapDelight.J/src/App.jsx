@@ -31,6 +31,7 @@ import OrderHistory from './pages/order/OrderHistory'
 import OrderDetails from './pages/order/OrderDetails'
 import Wishlist from './pages/wishlist/Wishlist'
 import ReviewProduct from './pages/reviewProduct/ReviewProduct'
+import Contact from './pages/Contact'
 
 
 axios.defaults.withCredentials = true
@@ -66,6 +67,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/contact" element={<Contact />} />
         <Route element={<PrivateRoute />} >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route 
