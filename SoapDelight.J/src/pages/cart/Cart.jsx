@@ -88,93 +88,95 @@ const Cart = () => {
                 </>
         ) : (
           <>
-            <table>
-              <thead className="bg-gray-200 dark:bg-gray-700">
-                <tr>
-                  <th>s/n</th>
-                  <th>Product</th>
-                  <th>Price</th>
-                  <th>Quantity</th>
-                  <th>Total</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {JSON.parse(localStorage.getItem("cartItems"))?.map((cart, index) => {
-                  const { _id, name, price, image, cartQuantity } = cart;
-                  return (
-                    <tr key={_id} className="border-b even:dark:bg-gray-700 dark:border-gray-600">
-                      <td>{index + 1}</td>
-                      <td>
-                        <p>
-                          <b>{name}</b>
-                        </p>
-                        <img
-                          src={image[0]}
-                          alt={name}
-                          style={{ width: "100px" }}
-                        />
-                      </td>
-                      <td>{price}</td>
-                      <td>
-                        <div className={styles.count}>
-                          <button
-                            className="--btn"
-                            onClick={() => decreaseCart(cart)}
-                          >
-                            -
-                          </button>
-                          <p>
-                            <b>{cartQuantity}</b>
+            <div className='overflow-x-auto'>
+              <table>
+                <thead className="bg-gray-200 dark:bg-gray-700">
+                  <tr>
+                    <th>s/n</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {JSON.parse(localStorage.getItem("cartItems"))?.map((cart, index) => {
+                    const { _id, name, price, image, cartQuantity } = cart;
+                    return (
+                      <tr key={_id} className="border-b even:dark:bg-gray-700 dark:border-gray-600">
+                        <td>{index + 1}</td>
+                        <td>
+                          <p className='w-80'>
+                            <b>{name}</b>
                           </p>
-                          <button
-                            className="--btn"
-                            onClick={() => increaseCart(cart)}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                      <td>{(price * cartQuantity).toFixed(2)}</td>
-                      <td className={styles.icons}>
-                        <div className='py-2 px-6'>
-                        <FaTrashAlt
-                          size={19}
-                          color="red"
-                          onClick={() => removeFromCart(cart)}
-                        />
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            <div className={styles.summary}>
-              <button className="--btn --btn-danger" onClick={clearCart}>
+                          <img
+                            src={image[0]}
+                            alt={name}
+                            style={{ width: "100px" }}
+                          />
+                        </td>
+                        <td>{price}</td>
+                        <td>
+                          <div className={styles.count}>
+                            <button
+                              className="--btn"
+                              onClick={() => decreaseCart(cart)}
+                            >
+                              -
+                            </button>
+                            <p>
+                              <b>{cartQuantity}</b>
+                            </p>
+                            <button
+                              className="--btn"
+                              onClick={() => increaseCart(cart)}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                        <td>{(price * cartQuantity).toFixed(2)}</td>
+                        <td className={styles.icons}>
+                          <div className='py-2 px-6'>
+                          <FaTrashAlt
+                            size={19}
+                            color="red"
+                            onClick={() => removeFromCart(cart)}
+                          />
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className='mt-10 flex flex-col md:flex-row md:justify-between items-center md:items-start'>
+              <button className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 md:mb-0' onClick={clearCart}>
                 Clear Cart
               </button>
-              <div className={styles.checkout}>
-                <div>
-                  <Link to="/shop">&larr; Continue shopping</Link>
+              <div className='w-full  md:w-1/2'>
+                <div className='text-center md:text-left'>
+                  <Link to="/shop" className='text-blue-500 hover:underline'>&larr; Continue shopping</Link>
                 </div>
                 <br />
-                  <Card className={`${styles.card} mb-5`}>
-                    <p>
-                      <b> {`Cart item(s): ${cartTotalQuantity}`}</b>
-                    </p>
-                    <div className={styles.text}>
-                      <h4>Subtotal:</h4>
-                      <h3>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
-                    </div>
-                    <VerifyCoupon />
-                    <div className="--underline --my"></div>
-                    
-                    <PaymentOption />
-                  </Card>
-
+                <Card className='bg-white p-4 shadow-lg rounded-lg mb-5'>
+                  <p className='text-lg font-bold'>
+                    {`Cart item(s): ${cartTotalQuantity}`}
+                  </p>
+                  <div className='flex justify-between items-center mt-4'>
+                    <h4 className='text-xl font-semibold'>Subtotal:</h4>
+                    <h3 className='text-2xl font-bold text-gray-700'>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
+                  </div>
+                  <VerifyCoupon />
+                  <div className='border-t border-gray-200 my-4'></div>
+                  <PaymentOption />
+                </Card>
               </div>
             </div>
+
             
 
           </>

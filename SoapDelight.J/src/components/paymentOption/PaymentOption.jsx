@@ -35,7 +35,7 @@ const PaymentOption = () => {
         onSubmit={setPayment}
       >
         <div className='flex flex-col gap-2'>
-            <div className='flex w-full'>
+            <div className='flex w-full mb-5'>
                 <label 
                     htmlFor={"stripe"} 
                     // className="radio-label"

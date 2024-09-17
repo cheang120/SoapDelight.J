@@ -47,7 +47,7 @@ const OrderDetails = ({orderPageLink}) => {
   };
 
   return (
-    <section>
+    <section className='mt-10'>
       <OrderDetailsComp orderPageLink={"/order-history"}/>
     </section>
   )

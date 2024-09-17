@@ -23,16 +23,17 @@ const OrderHistory = () => {
   };
 
   return (
-    <section style={{height:"100%"}} className='p-3 --mh-100vh'>
-      <div className={`container order mx-auto mt-10 h-max  overflow-x-scroll` }>
-        <h2 className='text-2xl mb-4'>Order History</h2>
-        <p>
-          Open an order to leave a <b>Product Review</b>
-        </p>
-        <br />
-        <ListOfOrders  openOrderDetails={openOrderDetails}/>
-      </div>
-    </section>
+<section className='mt-10 p-3 min-h-screen sm:min-h-[75vh] md:min-h-[50vh] lg:min-h-[40vh]'>
+  <div className={`container mx-auto mt-10 h-max overflow-x-scroll`}>
+    <h2 className='text-2xl mb-4'>Order History</h2>
+    <p>
+      Open an order to leave a <b>Product Review</b>
+    </p>
+    <br />
+    <ListOfOrders openOrderDetails={openOrderDetails} />
+  </div>
+</section>
+
   )
 }
 
