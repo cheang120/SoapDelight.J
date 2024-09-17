@@ -57,13 +57,12 @@ const contactForm = () => {
 
   return (
     <div className="max-w-lg mx-auto p-4 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
       {message && <p className="text-green-500 mb-4">{message}</p>}
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-            Username
+            聯絡人姓名
           </label>
           <input
             type="text"
@@ -77,7 +76,7 @@ const contactForm = () => {
         </div>
         <div className="mb-4">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
+            電郵
           </label>
           <input
             type="email"
@@ -91,7 +90,7 @@ const contactForm = () => {
         </div>
         <div className="mb-4">
           <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700">
-            WhatsApp
+            WhatsApp / 電話號碼
           </label>
           <input
             type="text"
@@ -105,7 +104,7 @@ const contactForm = () => {
         </div>
         <div className="mb-4">
           <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-            Content
+            內容
           </label>
           <textarea
             id="content"

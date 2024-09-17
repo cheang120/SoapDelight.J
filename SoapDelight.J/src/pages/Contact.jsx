@@ -4,8 +4,8 @@ import ContactForm from '../components/contactForm';
 
 const Contact = () => {
   return (
-    <div className="p-4">
-      <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
+    <div className="min-h-screen px-6 py-0 mt-5 ">
+      <h1 className="text-4xl font-bold mb-4 text-center">Contact Us</h1>
       <ContactForm />
     </div>
   );
