@@ -47,47 +47,52 @@ const data = [
         <h3 className="text-xl font-semibold mb-6">送貨方式</h3>
         <div className="space-y-6">
           <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
-            <h4 className="text-lg font-semibold">香港 本地送貨</h4>
+            <h4 className="text-lg font-semibold">澳門 本地送貨</h4>
             <p className="text-lg">+HKD 0.00</p>
-            <p className="text-lg">📦 順豐快遞 - 💲購物滿$400免運費，購物$400以下順豐到付方式寄出。</p>
-            <p className="text-lg">✔️ 可寄到指定住宅、工商地址、順豐站、智能櫃。</p>
-            <p className="text-lg">❤️ 一般出貨日期大概7至10日。</p>
+            <p className="text-lg">💲購物滿$400免運費；</p>
+            <p className="text-lg">✔️ 可商議到特定地點交收；</p>
+            <p className="text-lg">❤️ 一般出貨日期大概5至10日；</p>
             <p className="text-lg">
-              🌟 為免造成訂單混亂，下單後不設更改或後加合併夾單岀貨安排，免運費計算方法以每張訂單計算。
-            </p>
+              🌟 為避免訂單處理混亂，下單後不接受修改或合併訂單出貨安排；免運費的計算方式將以每張訂單為單位計算。
+            </p> 
           </div>
 
           <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
             <h4 className="text-lg font-semibold">國際送貨</h4>
             <div className="space-y-4">
               <div>
-                <h5 className="text-md font-semibold">澳門 空郵掛號</h5>
+                <h5 className="text-md font-semibold">香港 空郵掛號</h5>
                 <p className="text-lg">+HKD 50.00</p>
-                <p className="text-lg">🌟 請輸入身份證明文件上全名，收件時郵局職員會核對身份證。</p>
+                <p className="text-lg">🌟 請輸入身份證明文件上全名，收件時郵局職員會核對身份證;</p>
+                <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
               </div>
 
               <div>
                 <h5 className="text-md font-semibold">中國 大陸空郵掛號 (不能寄液體)</h5>
                 <p className="text-lg">+HKD 80.00</p>
-                <p className="text-lg">🌟 請輸入身份證明文件上全名，收件時郵局職員會核對身份證。</p>
+                <p className="text-lg">🌟 請輸入身份證明文件上全名，收件時郵局職員會核對身份證；</p>
+                <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
               </div>
 
               <div>
                 <h5 className="text-md font-semibold">台灣 空郵掛號 (不能寄液體)</h5>
                 <p className="text-lg">+HKD 180.00</p>
-                <p className="text-lg">🌟 請輸入身份證明文件上全名，收件時郵局職員會核對身份證。</p>
+                <p className="text-lg">🌟 請輸入身份證明文件上全名，收件時郵局職員會核對身份證；</p>
+                <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
               </div>
 
               <div>
                 <h5 className="text-md font-semibold">新加坡 空郵掛號 (不能寄液體)</h5>
                 <p className="text-lg">+HKD 219.00</p>
-                <p className="text-lg">🌟 請輸入身份證明文件上英文全名，收件時郵局職員會核對身份證。</p>
+                <p className="text-lg">🌟 請輸入身份證明文件上英文全名，收件時郵局職員會核對身份證；</p>
+                <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
               </div>
 
               <div>
                 <h5 className="text-md font-semibold">加拿大 空郵掛號 (不能寄液體)</h5>
                 <p className="text-lg">+HKD 339.00</p>
-                <p className="text-lg">🌟 請輸入身份證明文件上英文全名，收件時郵局職員會核對身份證。</p>
+                <p className="text-lg">🌟 請輸入身份證明文件上英文全名，收件時郵局職員會核對身份證；</p>
+                <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
               </div>
             </div>
           </div>
