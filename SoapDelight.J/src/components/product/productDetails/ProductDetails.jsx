@@ -183,7 +183,7 @@ const ProductDetails = () => {
                                         className="--btn --btn-primary"
                                         onClick={() => addToCart(product)}
                                     >
-                                    ADD TO CART
+                                    加入購物車
                                     </button>
                                 ) : (
                                     <button
