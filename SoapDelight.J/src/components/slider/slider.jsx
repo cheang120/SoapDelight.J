@@ -91,24 +91,25 @@ const Slider = () => {
             <img src={image} alt={`${index}`} className="object-cover w-full h-full" />
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white  p-6 md:p-8 lg:p-12 transition-transform duration-1000 ease-in-out shadow-lg">
-            <div className="z-40 flex flex-col items-center text-center space-y-4 max-w-lg bg-black bg-opacity-40">
-              <div className="flex flex-col items-center justify-center relative px-20 py-8  ">
-                <span className="absolute top-0 left-0 w-full h-full"></span>
-                <span className="absolute top-0 left-0 w-[30%] h-[2px] bg-yellow-400 animate-span1"></span>
-                <span className="absolute bottom-0 right-0 w-[30%] h-[2px] bg-yellow-400 animate-span2"></span>
-                <span className="absolute top-0 left-0 w-[2px] h-[30%] bg-yellow-400 animate-span3"></span>
-                <span className="absolute bottom-0 right-0 w-[2px] h-[30%] bg-yellow-400 animate-span4"></span>
-                <h2 className="text-xl md:text-3xl lg:text-4xl font-bold mb-4">{heading}</h2>
-                <p className="text-sm md:text-lg lg:text-xl mb-4">{desc}</p>
-                <hr className="h-px bg-white w-16 my-4" />
-                <button
-                  className="z-40 px-4 py-2 text-sm md:px-6 md:py-3 md:text-basefocus:outline-none bg-gradient-to-r from-purple-500 to-pink-500 text-white focus:ring-4 focus:ring-purple-200 enabled:hover:bg-gradient-to-l dark:focus:ring-purple-800 rounded-md "
-                  onClick={() => navigate(path)}
-                >
-                  立即選購
-                </button>
-              </div>
-            </div>
+          <div className="z-40 flex flex-col items-center text-center space-y-4 max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl bg-black bg-opacity-40">
+  <div className="flex flex-col items-center justify-center relative px-8 py-8 md:px-16 md:py-10 lg:px-24 lg:py-12 ">
+    <span className="absolute top-0 left-0 w-full h-full"></span>
+    <span className="absolute top-0 left-0 w-[30%] h-[2px] bg-yellow-400 animate-span1"></span>
+    <span className="absolute bottom-0 right-0 w-[30%] h-[2px] bg-yellow-400 animate-span2"></span>
+    <span className="absolute top-0 left-0 w-[2px] h-[30%] bg-yellow-400 animate-span3"></span>
+    <span className="absolute bottom-0 right-0 w-[2px] h-[30%] bg-yellow-400 animate-span4"></span>
+    <h2 className="text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4">{heading}</h2>
+    <p className="text-sm md:text-lg lg:text-xl xl:text-2xl mb-4">{desc}</p>
+    <hr className="h-px bg-white w-16 my-4" />
+    <button
+      className="z-40 px-4 py-2 text-sm md:px-6 md:py-3 lg:px-8 lg:py-4 xl:px-10 xl:py-5 text-base focus:outline-none bg-gradient-to-r from-purple-500 to-pink-500 text-white focus:ring-4 focus:ring-purple-200 enabled:hover:bg-gradient-to-l dark:focus:ring-purple-800 rounded-md"
+      onClick={() => navigate(path)}
+    >
+      立即選購
+    </button>
+  </div>
+</div>
+
           </div>
         </div>
       );
