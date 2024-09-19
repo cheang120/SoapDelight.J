@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {   ADD_TO_CART, CALCULATE_SUBTOTAL, CALCULATE_TOTAL_QUANTITY, CLEAR_CART, 
-  DECREASE_CART, REMOVE_FROM_CART, getCartDB, saveCartDB, selectCartItems, 
+  DECREASE_CART, REMOVE_FROM_CART, getCartDB, saveCartDB, selectCartItems, SET_SHIPPING_FEE,
   selectCartTotalAmount, selectCartTotalQuantity  } from '../../redux/features/cart/cartSlice';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,7 +19,17 @@ const Cart = () => {
   const cartTotalAmount = useSelector(selectCartTotalAmount);
   const isError = useSelector((state) => state.cart.isError);
   const { coupon } = useSelector((state) => state.coupon);
+  const [selectedShippingFee, setSelectedShippingFee] = useState(0);
+  const [selectedRegion, setSelectedRegion] = useState('');
 
+  const regions = {
+    英國: 439,
+    美國: 299,
+    中國: 99,
+    // 其他地區可自行添加
+  };
+
+  
 
 
   useEffect(() => {
@@ -35,6 +45,18 @@ const Cart = () => {
     
   }, [cartItems, dispatch, coupon ]);
 
+
+    // 處理郵寄地區選擇
+    const handleShippingChange = (region) => {
+      setSelectedRegion(region);
+      const shippingFee = regions[region];
+      dispatch(SET_SHIPPING_FEE(shippingFee));
+      dispatch(CALCULATE_SUBTOTAL({ coupon }));
+    };
+  
+  // 計算最終總價（購物車總額 + 郵寄費）
+  // const totalWithShipping = cartTotalAmount + selectedShippingFee;
+  const totalWithShipping = cartTotalAmount;
 
 
   const increaseCart = (cart) => {
@@ -171,8 +193,31 @@ const Cart = () => {
                     <h3 className='text-2xl font-bold text-gray-700'>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
                   </div>
                   <VerifyCoupon />
+
+                  {/* 地區選擇和郵費顯示 */}
+                  <div className='my-5'>
+                    <label>Choose your shipping region:</label>
+                    <select
+                      value={selectedRegion}
+                      onChange={(e) => handleShippingChange(e.target.value)}
+                      className='p-2 border rounded-md'
+                    >
+                      <option value="">Select a region</option>
+                      {Object.keys(regions).map((region) => (
+                        <option key={region} value={region}>
+                          {region} - ${regions[region]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                                  {/* 總價顯示（包含郵費） */}
+                  <h4 className='text-xl font-semibold'>
+                    {`Total with Shipping: $${totalWithShipping.toFixed(2)}`}
+                  </h4>
+                  
                   <div className='border-t border-gray-200 my-4'></div>
-                  <PaymentOption />
+                  <PaymentOption selectedShippingFee={selectedShippingFee}/>
                 </Card>
               </div>
             </div>

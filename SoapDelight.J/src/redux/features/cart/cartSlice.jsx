@@ -18,6 +18,7 @@ const initialState = {
     cartTotalQuantity: 0,
     cartTotalAmount: 0,
     initialCartTotalAmount: 0,
+    shippingFee: 0,
     previousURL: "",
     isError: false,
     isSuccess: false,
@@ -178,10 +179,14 @@ const cartSlice = createSlice({
             totalAmount,
             action.payload.coupon.discount
           );
-          state.cartTotalAmount = discountedTotalAmount;
+          state.cartTotalAmount = discountedTotalAmount + state.shippingFee;  // 加上郵寄費
         } else {
-          state.cartTotalAmount = totalAmount;
+          state.cartTotalAmount = totalAmount + state.shippingFee;  // 加上郵寄費
         }
+      },
+      SET_SHIPPING_FEE(state, action) {
+        state.shippingFee = action.payload;  // 设置邮寄费用
+        state.cartTotalAmount = state.initialCartTotalAmount + action.payload;  // 更新总金额
       },
   },
   extraReducers: (builder) => {
@@ -237,7 +242,7 @@ export const {
     REMOVE_FROM_CART,
     CLEAR_CART,
     CALCULATE_SUBTOTAL,
-
+    SET_SHIPPING_FEE,
     CALCULATE_TOTAL_QUANTITY,
     // CALCULATE_SUBTOTAL
 } = cartSlice.actions
@@ -246,5 +251,7 @@ export const selectCartItems = (state) => state.cart.cartItems;
 export const selectCartTotalQuantity = (state) => state.cart.cartTotalQuantity;
 
 export const selectCartTotalAmount = (state) => state.cart.cartTotalAmount;
+export const selectShippingFee = (state) => state.cart.shippingFee;  // 新增选择器
+
 
 export default cartSlice.reducer

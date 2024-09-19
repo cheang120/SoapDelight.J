@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { CountryDropdown } from "react-country-region-selector";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Card from '../../components/card/Card'
 import styles from "./CheckoutForm.module.scss"
 import { SAVE_BILLING_ADDRESS, SAVE_SHIPPING_ADDRESS, selectBillingAddress, selectPaymentMethod, selectShippingAddress } from "../../redux/features/checkout/checkoutSlice";
 import { toast } from "react-toastify";
 import CheckoutSummary from "../../components/checkout/checkoutSummary/CheckoutSummary";
+import { selectShippingFee } from "../../redux/features/cart/cartSlice";
 
 const initialAddressState = {
     name: "",
@@ -30,6 +31,13 @@ const CheckoutDetails = () => {
     const shipAddress = useSelector(selectShippingAddress);
     const billAddress = useSelector(selectBillingAddress);
 
+    const location = useLocation();
+    // const selectedShippingFee = location.state?.selectedShippingFee || 0;
+
+    // const [selectedShippingFee, setSelectedShippingFee] = useState(0);
+
+
+    const selectedShippingFee = useSelector(selectShippingFee);  // 从 Redux store 获取
 
 
     const dispatch = useDispatch();
@@ -71,31 +79,19 @@ const CheckoutDetails = () => {
           setBillingAddress({ ...billAddress });
         }
       }, [shipAddress, billAddress]);
-      
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
         dispatch(SAVE_SHIPPING_ADDRESS(shippingAddress));
         dispatch(SAVE_BILLING_ADDRESS(billingAddress));
-        // if (paymentMethod === "") {
-        //   toast.info("Please select a payment method!!!")
-        //   navigate("/cart");
-        // }
+
         if (paymentMethod === "stripe") {
           navigate("/checkout-stripe");
         }
-        // if (paymentMethod === "flutterwave") {
-        //   navigate("/checkout-flutterwave");
-        // }
-        // if (paymentMethod === "paypal") {
-        //   navigate("/checkout-paypal");
-        // }
-        // if (paymentMethod === "wallet") {
-        //   navigate("/checkout-wallet");
-        // }
-    
-        // return toast.error("No payment method selected");
+
       };
+
 
   return (
     <section>
@@ -272,7 +268,7 @@ const CheckoutDetails = () => {
           </div>
           <div>
             <Card cardClass={styles.card}>
-              <CheckoutSummary />
+              <CheckoutSummary selectedShippingFee={selectedShippingFee} />
             </Card>
           </div>
         </form>
