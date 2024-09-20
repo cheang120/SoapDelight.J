@@ -166,27 +166,41 @@ const cartSlice = createSlice({
 
     CALCULATE_SUBTOTAL(state, action) {
       const array = [];
+      const nonShippingItems = []; // 新增：用來存放非 Shipping 的產品
+    
+      // 遍历购物车的商品
       state.cartItems.map((item) => {
-        const { price, cartQuantity } = item;
+        const { price, cartQuantity, category } = item;
         const cartItemAmount = price * cartQuantity;
-        return array.push(cartItemAmount);
+        
+        array.push(cartItemAmount); // 添加所有商品金額
+    
+        // 只添加非 Shipping 类别的商品到 nonShippingItems
+        if (category !== "Shipping") {
+          nonShippingItems.push(cartItemAmount);
+        }
+    
+        return cartItemAmount;
       });
-
+    
       // 计算所有商品的总金额
       const totalAmount = array.reduce((a, b) => a + b, 0);
       state.initialCartTotalAmount = totalAmount;
-
-      // 计算折扣后的总金额（如果有优惠券）
+    
+      // 计算不含 Shipping 商品的总金额
+      const nonShippingTotalAmount = nonShippingItems.reduce((a, b) => a + b, 0);
+    
+      // 计算折扣后的总金额（只对非 Shipping 产品应用优惠券）
       if (action.payload && action.payload.coupon && action.payload.coupon.discount) {
         const discountedTotalAmount = applyDiscount(
-          totalAmount,
+          nonShippingTotalAmount,  // 修改：只对非 Shipping 产品应用折扣
           action.payload.coupon.discount
         );
-        state.cartTotalAmount = discountedTotalAmount;
+        state.cartTotalAmount = discountedTotalAmount + (totalAmount - nonShippingTotalAmount); // 非 Shipping 产品折扣后加上 Shipping 产品金额
       } else {
         state.cartTotalAmount = totalAmount;
       }
-
+    
       // 如果传递了邮寄费用，则计算含邮费的总金额
       if (action.payload && action.payload.shippingFee) {
         state.shippingFee = action.payload.shippingFee;  // 设置邮寄费用
@@ -195,6 +209,7 @@ const cartSlice = createSlice({
         state.totalWithShippingFee = state.cartTotalAmount;  // 没有邮寄费用时的总金额
       }
     },
+    
 
     // 更新购物车中的邮寄费用
     SET_SHIPPING_FEE(state, action) {
