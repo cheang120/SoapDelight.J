@@ -98,7 +98,9 @@ const ProductList = ({ products }) => {
           <p>No product found.</p>
         ) : (
           <>
-            {currentItems.map((product) => {
+            {currentItems
+              .filter((product) => product.category !== "Shipping")
+              .map((product) => {
               return (
                 <div key={product._id} className=" m-4 dark:bg-gray-800 dark:text-white">
                   <ProductItem {...product} grid={grid} product={product} />
