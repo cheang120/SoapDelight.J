@@ -24,8 +24,8 @@ const CheckoutSummary = ({ selectedShippingFee }) => {
 
 
     // 计算总金额（购物车总额 + 邮寄费）
-    const totalWithShipping = cartTotalAmount + (selectedShippingFee || 0);
-    console.log('Received Shipping Fee:', selectedShippingFee);
+    // const totalWithShipping = cartTotalAmount + (selectedShippingFee || 0);
+    // console.log('Received Shipping Fee:', selectedShippingFee);
 
     return (
         <div>
@@ -60,7 +60,7 @@ const CheckoutSummary = ({ selectedShippingFee }) => {
                         {/* 显示总金额（购物车总额 + 邮寄费用） */}
                         <div className={styles.text}>
                             <h4>总金额 (含邮费):</h4>
-                            <h3>{`$${totalWithShipping.toFixed(2)}`}</h3>
+                            {/* <h3>{`$${totalWithShipping.toFixed(2)}`}</h3> */}
                         </div>
 
 

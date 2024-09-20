@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import {   ADD_TO_CART, CALCULATE_SUBTOTAL, CALCULATE_TOTAL_QUANTITY, CLEAR_CART, 
-  DECREASE_CART, REMOVE_FROM_CART, getCartDB, saveCartDB, selectCartItems, SET_SHIPPING_FEE,
+import { ADD_TO_CART, CALCULATE_SUBTOTAL, CALCULATE_TOTAL_QUANTITY, CLEAR_CART, 
+  DECREASE_CART, REMOVE_FROM_CART, getCartDB, saveCartDB, selectCartItems, 
   selectCartTotalAmount, selectCartTotalQuantity  } from '../../redux/features/cart/cartSlice';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,16 +19,6 @@ const Cart = () => {
   const cartTotalAmount = useSelector(selectCartTotalAmount);  // 商品总价
   const isError = useSelector((state) => state.cart.isError);
   const { coupon } = useSelector((state) => state.coupon);
-  const [selectedShippingFee, setSelectedShippingFee] = useState(0);  // 邮寄费
-  const [selectedRegion, setSelectedRegion] = useState('');
-
-  // 定义不同地区的邮寄费用
-  const regions = {
-    本地: 0,
-    英國: 439,
-    美國: 299,
-    中國: 99,
-  };
 
   useEffect(() => {
     dispatch(getCartDB());
@@ -38,18 +28,6 @@ const Cart = () => {
     dispatch(CALCULATE_SUBTOTAL({ coupon }));
     dispatch(CALCULATE_TOTAL_QUANTITY());
   }, [cartItems, dispatch, coupon]);
-
-  // 处理邮寄地区选择
-  const handleShippingChange = (region) => {
-    setSelectedRegion(region);
-    const shippingFee = regions[region];  // 获取选定地区的邮寄费用
-    setSelectedShippingFee(shippingFee);  // 更新邮寄费用
-    dispatch(SET_SHIPPING_FEE(shippingFee));  // 更新邮寄费用到 redux 中
-    dispatch(CALCULATE_SUBTOTAL({ coupon }));  // 重新计算小计
-  };
-
-  // 最终总价：购物车商品总价 + 邮寄费
-  const totalWithShipping = cartTotalAmount + selectedShippingFee;
 
   return (
     <section className='min-h-screen'>
@@ -99,21 +77,21 @@ const Cart = () => {
                         <td>{price}</td>
                         <td>
                           <div className={styles.count}>
-                            <button
-                              className="--btn"
-                              onClick={() => decreaseCart(cart)}
-                            >
-                              -
-                            </button>
+                          <button
+                            className="--btn"
+                            onClick={() => dispatch(DECREASE_CART(cart))}  // 在点击时 dispatch action
+                          >
+                            -
+                          </button>
                             <p>
                               <b>{cartQuantity}</b>
                             </p>
-                            <button
-                              className="--btn"
-                              onClick={() => increaseCart(cart)}
-                            >
-                              +
-                            </button>
+                          <button
+                            className="--btn"
+                            onClick={() => dispatch(ADD_TO_CART(cart))}  // 在点击时 dispatch action
+                          >
+                            +
+                          </button>
                           </div>
                         </td>
                         <td>{(price * cartQuantity).toFixed(2)}</td>
@@ -122,7 +100,7 @@ const Cart = () => {
                           <FaTrashAlt
                             size={19}
                             color="red"
-                            onClick={() => removeFromCart(cart)}
+                            onClick={() => dispatch(REMOVE_FROM_CART(cart))} 
                           />
                           </div>
                         </td>
@@ -134,7 +112,10 @@ const Cart = () => {
             </div>
 
             <div className='mt-10 flex flex-col md:flex-row md:justify-between items-center md:items-start'>
-              <button className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 md:mb-0' onClick={CLEAR_CART}>
+              <button className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 md:mb-0'  onClick={() => {
+                dispatch(CLEAR_CART());
+                localStorage.removeItem("cartItems");  // Clear localStorage
+              }}>
                 Clear Cart
               </button>
               <div className='w-full md:w-1/2'>
@@ -147,7 +128,7 @@ const Cart = () => {
                     {`Cart item(s): ${cartTotalQuantity}`}
                   </p>
 
-                  {/* 分别显示购物车商品总价和邮寄费 */}
+                  {/* 显示购物车商品总价 */}
                   <div className='flex justify-between items-center mt-4'>
                     <h4 className='text-xl font-semibold'>Subtotal (Cart Total):</h4>
                     <h3 className='text-2xl font-bold text-gray-700'>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
@@ -155,36 +136,8 @@ const Cart = () => {
 
                   <VerifyCoupon />
 
-                  {/* 地区选择和邮费显示 */}
-                  <div className='my-5'>
-                    <label>Choose your shipping region:</label>
-                    <select
-                      value={selectedRegion}
-                      onChange={(e) => handleShippingChange(e.target.value)}
-                      className='p-2 border rounded-md'
-                    >
-                      <option value="">Select a region</option>
-                      {Object.keys(regions).map((region) => (
-                        <option key={region} value={region}>
-                          {region} - ${regions[region]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* 分别显示邮寄费 */}
-                  <div className='flex justify-between items-center'>
-                    <h4 className='text-xl font-semibold'>Shipping Fee:</h4>
-                    <h3 className='text-2xl font-bold text-gray-700'>{`$${selectedShippingFee.toFixed(2)}`}</h3>
-                  </div>
-
-                  {/* 总价显示（包含邮寄费） */}
-                  <h4 className='text-xl font-semibold mt-4'>
-                    {`Total with Shipping: $${totalWithShipping.toFixed(2)}`}
-                  </h4>
-                  
                   <div className='border-t border-gray-200 my-4'></div>
-                  <PaymentOption selectedShippingFee={selectedShippingFee}/>
+                  <PaymentOption />
                 </Card>
               </div>
             </div>
@@ -196,4 +149,3 @@ const Cart = () => {
 };
 
 export default Cart;
-

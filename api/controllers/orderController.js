@@ -132,7 +132,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
 // // Pay with stripe
 export const payWithStripe = asyncHandler(async (req, res) => {
-  const { items, shipping, description, coupon } = req.body;
+  const { items, shipping, description, coupon,shippingFee } = req.body;
   const products = await Product.find();
 
   let orderAmount;

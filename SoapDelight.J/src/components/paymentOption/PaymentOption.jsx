@@ -24,12 +24,12 @@ const PaymentOption = ({ selectedShippingFee }) => {
 
         // Navigate to the checkout-details page, passing the selectedShippingFee in the state
         if (isLoggedIn) {
-            navigate("/checkout-details", { state: { selectedShippingFee } });
+            navigate("/checkout-details");
         } else {
             navigate("/sign-in?redirect=cart");  // Redirect to sign-in page if not logged in
         }
     }
-    console.log(selectedShippingFee);
+    // console.log(selectedShippingFee);
 
     return (
         <>

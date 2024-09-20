@@ -41,7 +41,6 @@ const CheckoutDetails = () => {
     // const selectedShippingFee = useSelector(selectShippingFee);  // 从 Redux store 获取
     const location = useLocation();
     // const selectedShippingFee = location.state?.selectedShippingFee || 0;
-    console.log(selectedShippingFee); 
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -86,7 +85,6 @@ const CheckoutDetails = () => {
 
       };
       
-console.log(selectedShippingFee); 
   return (
     <section>
       <div className={`container m-auto ${styles.checkout}`}>

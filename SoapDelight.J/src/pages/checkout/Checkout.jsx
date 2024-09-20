@@ -69,7 +69,7 @@ export const Checkout = ({selectedShippingFee}) => {
       </section>
       {clientSecret && (
         <Elements options={options} stripe={stripePromise}>
-          <CheckoutForm selectedShippingFee={selectedShippingFee}/>
+          <CheckoutForm />
         </Elements>
       )}
     </>

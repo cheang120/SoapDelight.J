@@ -67,14 +67,15 @@ const Home = () => {
   //     return product.quantity > 0;
   //   })
   //   ?.filter((product, index) => index < 6);
-    const latest = products
-    ?.filter((product) => {
-      const oneMonthAgo = new Date();
-      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);  // 設定為一個月前
-      const productDate = new Date(product.createdAt);  // 假設 'createdAt' 是產品的上架日期
-      return product.quantity > 0 && productDate >= oneMonthAgo;
-    })
-    ?.slice(0, 6);  // 只取前6個
+  const latest = products
+  ?.filter((product) => {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);  // 設定為一個月前
+    const productDate = new Date(product.createdAt);  // 假設 'createdAt' 是產品的上架日期
+    // 排除 shipping 類別的產品
+    return product.quantity > 0 && productDate >= oneMonthAgo && product.category !== "Shipping";
+  })
+  ?.slice(0, 6);  // 只取前6個
 
   const phones = products
     ?.filter((product) => {
@@ -109,6 +110,15 @@ const Home = () => {
     })
     ?.filter((product, index) => {
       return product.category === "香薰蠟";
+    })
+    ?.filter((product, index) => index < 6);
+
+    const shipping = products
+    ?.filter((product) => {
+      return product.quantity > 0
+    })
+    ?.filter((product, index) => {
+      return product.category === "Shipping";
     })
     ?.filter((product, index) => index < 6);
 
@@ -165,6 +175,19 @@ const Home = () => {
     ))
 
     const candleProducts = candle.map((item)=>(
+      <div key={item.id}>
+        <CarouselItem 
+          name={item.name}
+          url={item.image[0]}
+          price={item.price}
+          regularPrice={item.regularPrice}
+          description={item.description}
+          product={item}
+        />
+      </div>
+    ))
+
+    const shippingProducts = shipping.map((item)=>(
       <div key={item.id}>
         <CarouselItem 
           name={item.name}

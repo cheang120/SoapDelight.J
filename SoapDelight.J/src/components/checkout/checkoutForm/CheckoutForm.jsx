@@ -11,11 +11,11 @@ import { Spinner } from "../../Loader";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { selectCartItems, selectCartTotalAmount, selectShippingFee } from "../../../redux/features/cart/cartSlice";
+import { selectCartItems, selectCartTotalAmount } from "../../../redux/features/cart/cartSlice";
 import { selectPaymentMethod, selectShippingAddress } from "../../../redux/features/checkout/checkoutSlice";
 import { createOrder } from "../../../redux/features/order/OrderSlice";
 
-export default function CheckoutForm({ dpmCheckerLink }) {
+export default function CheckoutForm({ dpmCheckerLink,selectedShippingFee }) {
   const stripe = useStripe();
   const elements = useElements();
   const { coupon } = useSelector((state) => state.coupon);
@@ -29,9 +29,6 @@ export default function CheckoutForm({ dpmCheckerLink }) {
 
   const cartItems = useSelector(selectCartItems);
   const cartTotalAmount = useSelector(selectCartTotalAmount);
-
-  const selectedShippingFee = useSelector(selectShippingFee); // 从 store 获取
-
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -107,8 +104,6 @@ export default function CheckoutForm({ dpmCheckerLink }) {
   const paymentElementOptions = {
     layout: "tabs"
   }
-  // console.log('Selected Shipping Fee:', totalWithShippingFee);
-  console.log('Selected Shipping Fee:', selectedShippingFee); // 打印出来检查
 
   return (
     <>
