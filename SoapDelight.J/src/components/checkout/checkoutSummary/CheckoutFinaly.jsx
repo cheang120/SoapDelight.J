@@ -1,43 +1,27 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { CALCULATE_SUBTOTAL, SET_SHIPPING_FEE, selectCartItems, selectCartTotalAmount, selectCartTotalQuantity } from '../../../redux/features/cart/cartSlice';
-import Card from '../../card/Card';
+import React from 'react';
 import styles from "./CheckoutSummary.module.scss";
-import { Link, useLocation } from 'react-router-dom';
+import Card from "../../card/Card";
+import { useSelector } from "react-redux";
+import { selectCartItems, selectCartTotalAmount, selectCartTotalQuantity } from "../../../redux/features/cart/cartSlice";
 import { CartDiscount } from '../../verifyCoupon/VerifyCoupon';
 
-
-const CheckoutSummary = ({ selectedShippingFee }) => {
-    const { coupon } = useSelector((state) => state.coupon);
+const CheckoutFinal = ({ selectedShippingFee, totalWithShipping }) => {
     const cartItems = useSelector(selectCartItems);
     const cartTotalAmount = useSelector(selectCartTotalAmount);
     const cartTotalQuantity = useSelector(selectCartTotalQuantity);
-    const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch(CALCULATE_SUBTOTAL({ coupon }));
-    }, [cartItems, dispatch, coupon]);
-
-    useEffect(() => {
-      dispatch(SET_SHIPPING_FEE(selectedShippingFee || 0));
-  }, [selectedShippingFee, dispatch]);
-
-
-    // 计算总金额（购物车总额 + 邮寄费）
-    const totalWithShipping = cartTotalAmount + (selectedShippingFee || 0);
-    console.log('Received Shipping Fee:', selectedShippingFee);
-
+    // 确保这两个值是数字，并且能够调用 `toFixed`
+    if (typeof totalWithShipping !== 'number' || typeof selectedShippingFee !== 'number') {
+        console.error('Invalid props:', { totalWithShipping, selectedShippingFee });
+        return <div>出现错误，请检查数据。</div>;
+    }
+    
     return (
         <div>
-            <h3>结账摘要</h3>
+            <h3>结账总结</h3>
             <div>
                 {cartItems.length === 0 ? (
-                    <>
-                        <p>你的购物车是空的。</p>
-                        <button className="--btn">
-                            <Link to="/#products">返回购物</Link>
-                        </button>
-                    </>
+                    <p>你的购物车是空的。</p>
                 ) : (
                     <div>
                         <p><b>{`购物车商品数量: ${cartTotalQuantity}`}</b></p>
@@ -63,9 +47,6 @@ const CheckoutSummary = ({ selectedShippingFee }) => {
                             <h3>{`$${totalWithShipping.toFixed(2)}`}</h3>
                         </div>
 
-
-
-
                         {/* 逐个显示购物车商品 */}
                         {cartItems.map((item, index) => {
                             const { _id, name, price, cartQuantity } = item;
@@ -85,5 +66,4 @@ const CheckoutSummary = ({ selectedShippingFee }) => {
     );
 }
 
-export default CheckoutSummary;
-
+export default CheckoutFinal;

@@ -16,98 +16,56 @@ const Cart = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
-  const cartTotalAmount = useSelector(selectCartTotalAmount);
+  const cartTotalAmount = useSelector(selectCartTotalAmount);  // 商品总价
   const isError = useSelector((state) => state.cart.isError);
   const { coupon } = useSelector((state) => state.coupon);
-  const [selectedShippingFee, setSelectedShippingFee] = useState(0);
+  const [selectedShippingFee, setSelectedShippingFee] = useState(0);  // 邮寄费
   const [selectedRegion, setSelectedRegion] = useState('');
 
+  // 定义不同地区的邮寄费用
   const regions = {
+    本地: 0,
     英國: 439,
     美國: 299,
     中國: 99,
-    // 其他地區可自行添加
   };
-
-  
-
 
   useEffect(() => {
     dispatch(getCartDB());
+  }, [cartItems, dispatch]);
 
-  },[cartItems,dispatch])
-
-  // const { coupon } = useSelector((state) => state.coupon);
   useEffect(() => {
-
-    dispatch(CALCULATE_SUBTOTAL({coupon}));
+    dispatch(CALCULATE_SUBTOTAL({ coupon }));
     dispatch(CALCULATE_TOTAL_QUANTITY());
-    
-  }, [cartItems, dispatch, coupon ]);
+  }, [cartItems, dispatch, coupon]);
 
-
-    // 處理郵寄地區選擇
-    const handleShippingChange = (region) => {
-      setSelectedRegion(region);
-      const shippingFee = regions[region];
-      dispatch(SET_SHIPPING_FEE(shippingFee));
-      dispatch(CALCULATE_SUBTOTAL({ coupon }));
-    };
-  
-  // 計算最終總價（購物車總額 + 郵寄費）
-  // const totalWithShipping = cartTotalAmount + selectedShippingFee;
-  const totalWithShipping = cartTotalAmount;
-
-
-  const increaseCart = (cart) => {
-    // const cartQuantity = getCartQuantityById(cartItems, cart._id);
-    // if (cartQuantity === cart.quantity) {
-    //   return toast.info("Max number of product reached!!!");
-    // }
-    dispatch(ADD_TO_CART(cart));
-    dispatch(
-      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-    );
+  // 处理邮寄地区选择
+  const handleShippingChange = (region) => {
+    setSelectedRegion(region);
+    const shippingFee = regions[region];  // 获取选定地区的邮寄费用
+    setSelectedShippingFee(shippingFee);  // 更新邮寄费用
+    dispatch(SET_SHIPPING_FEE(shippingFee));  // 更新邮寄费用到 redux 中
+    dispatch(CALCULATE_SUBTOTAL({ coupon }));  // 重新计算小计
   };
 
-  const decreaseCart = (cart) => {
-    dispatch(DECREASE_CART(cart));
-    dispatch(
-      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-    );
-  };
-
-  const removeFromCart = (cart) => {
-    dispatch(REMOVE_FROM_CART(cart));
-    dispatch(
-      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-    );
-  };
-
-  const clearCart = () => {
-    dispatch(CLEAR_CART());
-    dispatch(saveCartDB({ cartItems: [] }));
-  };
-
-
-  // console.log(JSON.parse(localStorage.getItem("cartItems")));
-
+  // 最终总价：购物车商品总价 + 邮寄费
+  const totalWithShipping = cartTotalAmount + selectedShippingFee;
 
   return (
     <section className='min-h-screen'>
       <div className={`container ${styles.table} m-auto`}>
-        <h2 className=' py-10 text-2xl'>Shopping Cart</h2>
+        <h2 className='py-10 text-2xl'>Shopping Cart</h2>
+
         {JSON.parse(localStorage.getItem("cartItems"))?.length === 0 ? (
-                <>
-                  <div className='p-10'>
-                      <p>Your cart is currently empty.</p>
-                      <br />
-                      <div>
-                        <Link to="/shop">&larr; Continue shopping</Link>
-                      </div>
-                  </div>
-                    
-                </>
+          <>
+            <div className='p-10'>
+              <p>Your cart is currently empty.</p>
+              <br />
+              <div>
+                <Link to="/shop">&larr; Continue shopping</Link>
+              </div>
+            </div>
+          </>
         ) : (
           <>
             <div className='overflow-x-auto'>
@@ -176,10 +134,10 @@ const Cart = () => {
             </div>
 
             <div className='mt-10 flex flex-col md:flex-row md:justify-between items-center md:items-start'>
-              <button className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 md:mb-0' onClick={clearCart}>
+              <button className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 md:mb-0' onClick={CLEAR_CART}>
                 Clear Cart
               </button>
-              <div className='w-full  md:w-1/2'>
+              <div className='w-full md:w-1/2'>
                 <div className='text-center md:text-left'>
                   <Link to="/shop" className='text-blue-500 hover:underline'>&larr; Continue shopping</Link>
                 </div>
@@ -188,13 +146,16 @@ const Cart = () => {
                   <p className='text-lg font-bold'>
                     {`Cart item(s): ${cartTotalQuantity}`}
                   </p>
+
+                  {/* 分别显示购物车商品总价和邮寄费 */}
                   <div className='flex justify-between items-center mt-4'>
-                    <h4 className='text-xl font-semibold'>Subtotal:</h4>
+                    <h4 className='text-xl font-semibold'>Subtotal (Cart Total):</h4>
                     <h3 className='text-2xl font-bold text-gray-700'>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
                   </div>
+
                   <VerifyCoupon />
 
-                  {/* 地區選擇和郵費顯示 */}
+                  {/* 地区选择和邮费显示 */}
                   <div className='my-5'>
                     <label>Choose your shipping region:</label>
                     <select
@@ -211,8 +172,14 @@ const Cart = () => {
                     </select>
                   </div>
 
-                                  {/* 總價顯示（包含郵費） */}
-                  <h4 className='text-xl font-semibold'>
+                  {/* 分别显示邮寄费 */}
+                  <div className='flex justify-between items-center'>
+                    <h4 className='text-xl font-semibold'>Shipping Fee:</h4>
+                    <h3 className='text-2xl font-bold text-gray-700'>{`$${selectedShippingFee.toFixed(2)}`}</h3>
+                  </div>
+
+                  {/* 总价显示（包含邮寄费） */}
+                  <h4 className='text-xl font-semibold mt-4'>
                     {`Total with Shipping: $${totalWithShipping.toFixed(2)}`}
                   </h4>
                   
@@ -221,14 +188,12 @@ const Cart = () => {
                 </Card>
               </div>
             </div>
-
-            
-
           </>
         )}
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Cart
+export default Cart;
+

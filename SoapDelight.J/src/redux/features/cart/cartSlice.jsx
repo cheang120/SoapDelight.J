@@ -19,6 +19,7 @@ const initialState = {
     cartTotalAmount: 0,
     initialCartTotalAmount: 0,
     shippingFee: 0,
+    totalWithShippingFee: 0,
     previousURL: "",
     isError: false,
     isSuccess: false,
@@ -164,30 +165,55 @@ const cartSlice = createSlice({
     },
 
     CALCULATE_SUBTOTAL(state, action) {
-        const array = [];
-        state.cartItems.map((item) => {
-          const { price, cartQuantity } = item;
-          const cartItemAmount = price * cartQuantity;
-          return array.push(cartItemAmount);
-        });
-        const totalAmount = array.reduce((a, b) => {
-          return a + b;
-        }, 0);
-        state.initialCartTotalAmount = totalAmount
-        if (action.payload && action.payload.coupon && action.payload.coupon.discount) {  
-          const discountedTotalAmount = applyDiscount(
-            totalAmount,
-            action.payload.coupon.discount
-          );
-          state.cartTotalAmount = discountedTotalAmount + state.shippingFee;  // 加上郵寄費
-        } else {
-          state.cartTotalAmount = totalAmount + state.shippingFee;  // 加上郵寄費
-        }
-      },
-      SET_SHIPPING_FEE(state, action) {
-        state.shippingFee = action.payload;  // 设置邮寄费用
-        state.cartTotalAmount = state.initialCartTotalAmount + action.payload;  // 更新总金额
-      },
+      const array = [];
+      state.cartItems.map((item) => {
+        const { price, cartQuantity } = item;
+        const cartItemAmount = price * cartQuantity;
+        return array.push(cartItemAmount);
+      });
+
+      // 计算所有商品的总金额
+      const totalAmount = array.reduce((a, b) => a + b, 0);
+      state.initialCartTotalAmount = totalAmount;
+
+      // 计算折扣后的总金额（如果有优惠券）
+      if (action.payload && action.payload.coupon && action.payload.coupon.discount) {
+        const discountedTotalAmount = applyDiscount(
+          totalAmount,
+          action.payload.coupon.discount
+        );
+        state.cartTotalAmount = discountedTotalAmount;
+      } else {
+        state.cartTotalAmount = totalAmount;
+      }
+
+      // 如果传递了邮寄费用，则计算含邮费的总金额
+      if (action.payload && action.payload.shippingFee) {
+        state.shippingFee = action.payload.shippingFee;  // 设置邮寄费用
+        state.totalWithShippingFee = state.cartTotalAmount + action.payload.shippingFee;  // 计算总金额（商品总额 + 邮寄费）
+      } else {
+        state.totalWithShippingFee = state.cartTotalAmount;  // 没有邮寄费用时的总金额
+      }
+    },
+
+    // 更新购物车中的邮寄费用
+    SET_SHIPPING_FEE(state, action) {
+      state.shippingFee = action.payload;
+      state.totalWithShippingFee = state.cartTotalAmount + action.payload;
+    },
+
+    // 更新购物车
+    UPDATE_CART(state, action) {
+      state.cartItems = action.payload;
+    },
+
+    // 清空购物车
+    CLEAR_CART(state) {
+      state.cartItems = [];
+      state.cartTotalAmount = 0;
+      state.totalWithShippingFee = 0;
+      state.shippingFee = 0;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -243,6 +269,7 @@ export const {
     CLEAR_CART,
     CALCULATE_SUBTOTAL,
     SET_SHIPPING_FEE,
+    UPDATE_CART,
     CALCULATE_TOTAL_QUANTITY,
     // CALCULATE_SUBTOTAL
 } = cartSlice.actions
@@ -251,7 +278,6 @@ export const selectCartItems = (state) => state.cart.cartItems;
 export const selectCartTotalQuantity = (state) => state.cart.cartTotalQuantity;
 
 export const selectCartTotalAmount = (state) => state.cart.cartTotalAmount;
-export const selectShippingFee = (state) => state.cart.shippingFee;  // 新增选择器
-
-
+export const selectShippingFee = (state) => state.cart.shippingFee;
+export const selectTotalWithShipping = (state) => state.cart.totalWithShippingFee;
 export default cartSlice.reducer

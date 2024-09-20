@@ -8,6 +8,7 @@ import { SAVE_BILLING_ADDRESS, SAVE_SHIPPING_ADDRESS, selectBillingAddress, sele
 import { toast } from "react-toastify";
 import CheckoutSummary from "../../components/checkout/checkoutSummary/CheckoutSummary";
 import { selectShippingFee } from "../../redux/features/cart/cartSlice";
+// import { selectShippingFee } from "../../redux/features/cart/cartSlice";
 
 const initialAddressState = {
     name: "",
@@ -31,14 +32,16 @@ const CheckoutDetails = () => {
     const shipAddress = useSelector(selectShippingAddress);
     const billAddress = useSelector(selectBillingAddress);
 
-    const location = useLocation();
     // const selectedShippingFee = location.state?.selectedShippingFee || 0;
+    const selectedShippingFee = useSelector(selectShippingFee); // 从 store 获取
 
     // const [selectedShippingFee, setSelectedShippingFee] = useState(0);
 
 
-    const selectedShippingFee = useSelector(selectShippingFee);  // 从 Redux store 获取
-
+    // const selectedShippingFee = useSelector(selectShippingFee);  // 从 Redux store 获取
+    const location = useLocation();
+    // const selectedShippingFee = location.state?.selectedShippingFee || 0;
+    console.log(selectedShippingFee); 
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -62,15 +65,6 @@ const CheckoutDetails = () => {
 
 
 
-    // useEffect(() => {
-    //     if (Object.keys(shipAddress).length > 0) {
-    //       setShippingAddress({ ...shipAddress });
-    //     }
-    //     if (Object.keys(billAddress).length > 0) {
-    //       setBillingAddress({ ...billAddress });
-    //     }
-    // }, [shipAddress, billAddress]);
-
     useEffect(() => {
         if (shipAddress && Object.keys(shipAddress).length > 0) {
           setShippingAddress({ ...shipAddress });
@@ -91,8 +85,8 @@ const CheckoutDetails = () => {
         }
 
       };
-
-
+      
+console.log(selectedShippingFee); 
   return (
     <section>
       <div className={`container m-auto ${styles.checkout}`}>
