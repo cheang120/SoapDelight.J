@@ -7,7 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { CartDiscount } from '../../verifyCoupon/VerifyCoupon';
 
 
-const CheckoutSummary = ({ selectedShippingFee }) => {
+const CheckoutSummary = () => {
     const { coupon } = useSelector((state) => state.coupon);
     const cartItems = useSelector(selectCartItems);
     const cartTotalAmount = useSelector(selectCartTotalAmount);
@@ -18,14 +18,8 @@ const CheckoutSummary = ({ selectedShippingFee }) => {
         dispatch(CALCULATE_SUBTOTAL({ coupon }));
     }, [cartItems, dispatch, coupon]);
 
-    useEffect(() => {
-      dispatch(SET_SHIPPING_FEE(selectedShippingFee || 0));
-  }, [selectedShippingFee, dispatch]);
-
-
-    // 计算总金额（购物车总额 + 邮寄费）
-    // const totalWithShipping = cartTotalAmount + (selectedShippingFee || 0);
-    // console.log('Received Shipping Fee:', selectedShippingFee);
+    // 篩選出類別為 "Shipping" 的產品
+    const shippingItems = cartItems.filter(item => item.category === "Shipping");
 
     return (
         <div>
@@ -51,33 +45,34 @@ const CheckoutSummary = ({ selectedShippingFee }) => {
                         {/* 使用优惠券的组件 */}
                         <CartDiscount />
 
-                        {/* 显示邮寄费用 */}
-                        <div className={styles.text}>
-                            <h4>邮寄费用:</h4>
-                            <h3>{`$${selectedShippingFee ? selectedShippingFee.toFixed(2) : 0}`}</h3>
-                        </div>
-
-                        {/* 显示总金额（购物车总额 + 邮寄费用） */}
-                        <div className={styles.text}>
-                            <h4>总金额 (含邮费):</h4>
-                            {/* <h3>{`$${totalWithShipping.toFixed(2)}`}</h3> */}
-                        </div>
-
-
-
+                                              {/* 显示 Shipping 相关的产品 */}
+                                              {shippingItems.length > 0 && (
+                            <div className={styles.text}>
+                                <h4>郵寄地點费用:</h4>
+                                {shippingItems.map((item) => (
+                                    <Card key={item._id} cardClass={styles.card}>
+                                        <h4>{item.name}</h4>
+                                        <p>费用: {item.price}</p>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
 
                         {/* 逐个显示购物车商品 */}
-                        {cartItems.map((item, index) => {
+                        {cartItems
+                        .filter(item => item.category !== "Shipping") // 排除類別為 "Shipping" 的產品
+                        .map((item, index) => {
                             const { _id, name, price, cartQuantity } = item;
                             return (
-                                <Card key={_id} cardClass={styles.card}>
-                                    <h4>商品: {name}</h4>
-                                    <p>数量: {cartQuantity}</p>
-                                    <p>单价: {price}</p>
-                                    <p>总价: {(price * cartQuantity).toFixed(2)}</p>
-                                </Card>
+                            <Card key={_id} cardClass={styles.card}>
+                                <h4>商品: {name}</h4>
+                                <p>数量: {cartQuantity}</p>
+                                <p>单价: {price}</p>
+                                <p>总价: {(price * cartQuantity).toFixed(2)}</p>
+                            </Card>
                             );
                         })}
+
                     </div>
                 )}
             </div>

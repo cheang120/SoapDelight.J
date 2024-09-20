@@ -260,7 +260,7 @@ const CheckoutDetails = () => {
           </div>
           <div>
             <Card cardClass={styles.card}>
-              <CheckoutSummary selectedShippingFee={selectedShippingFee} />
+              <CheckoutSummary />
             </Card>
           </div>
         </form>

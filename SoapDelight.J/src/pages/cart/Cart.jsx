@@ -9,6 +9,8 @@ import { FaTrashAlt } from 'react-icons/fa';
 import { Card } from 'flowbite-react';
 import VerifyCoupon from '../../components/verifyCoupon/VerifyCoupon';
 import PaymentOption from '../../components/paymentOption/PaymentOption';
+import CarouselItem from '../../components/carousel/CarouselItem';
+import ShippingCarouselItem from '../../components/carousel/ShippingCarousel';
 
 
 const Cart = () => {
@@ -19,6 +21,17 @@ const Cart = () => {
   const cartTotalAmount = useSelector(selectCartTotalAmount);  // 商品总价
   const isError = useSelector((state) => state.cart.isError);
   const { coupon } = useSelector((state) => state.coupon);
+
+  const products = useSelector((state) => state.product.products); // 获取所有产品
+
+
+  const shippingProducts = products.filter(product => product.category === "Shipping");
+  const [selectedShipping, setSelectedShipping] = useState(null);
+
+  const handleShippingChange = (e) => {
+    const selectedProduct = shippingProducts.find(product => product.id === e.target.value);
+    setSelectedShipping(selectedProduct);
+  };
 
   useEffect(() => {
     dispatch(getCartDB());
@@ -60,7 +73,7 @@ const Cart = () => {
                 </thead>
                 <tbody>
                   {JSON.parse(localStorage.getItem("cartItems"))?.map((cart, index) => {
-                    const { _id, name, price, image, cartQuantity } = cart;
+                    const { _id, name, price, image, cartQuantity,category } = cart;
                     return (
                       <tr key={_id} className="border-b even:dark:bg-gray-700 dark:border-gray-600">
                         <td>{index + 1}</td>
@@ -68,11 +81,13 @@ const Cart = () => {
                           <p className='w-80'>
                             <b>{name}</b>
                           </p>
-                          <img
-                            src={image[0]}
-                            alt={name}
-                            style={{ width: "100px" }}
-                          />
+                          {category !== 'Shipping' && (
+                            <img
+                              src={image[0]}
+                              alt={name}
+                              style={{ width: "100px" }}
+                            />
+                          )}
                         </td>
                         <td>{price}</td>
                         <td>
@@ -111,6 +126,8 @@ const Cart = () => {
               </table>
             </div>
 
+
+
             <div className='mt-10 flex flex-col md:flex-row md:justify-between items-center md:items-start'>
               <button className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 md:mb-0'  onClick={() => {
                 dispatch(CLEAR_CART());
@@ -135,6 +152,25 @@ const Cart = () => {
                   </div>
 
                   <VerifyCoupon />
+
+                  {shippingProducts.length > 0 && (
+                    <div>
+                      <h3 className='py-2 text-xl'>郵寄地點：</h3>
+                      <div className=''>
+                        {shippingProducts.map(item => (
+                          <ShippingCarouselItem 
+                            key={item.id}
+                            name={item.name}
+                            url={item.image[0]}
+                            price={item.price}
+                            regularPrice={item.regularPrice}
+                            description={item.description}
+                            product={item}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className='border-t border-gray-200 my-4'></div>
                   <PaymentOption />
