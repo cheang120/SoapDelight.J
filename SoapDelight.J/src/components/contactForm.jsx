@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const contactForm = () => {
+const ContactForm = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -56,12 +56,12 @@ const contactForm = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-4 bg-white shadow-md rounded-lg">
+    <div className="max-w-lg mx-auto p-4 bg-white dark:bg-gray-800 shadow-md rounded-lg">
       {message && <p className="text-green-500 mb-4">{message}</p>}
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             聯絡人姓名
           </label>
           <input
@@ -71,11 +71,11 @@ const contactForm = () => {
             value={formData.username}
             onChange={handleChange}
             required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+            className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:text-gray-300"
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             電郵
           </label>
           <input
@@ -85,11 +85,11 @@ const contactForm = () => {
             value={formData.email}
             onChange={handleChange}
             required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+            className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:text-gray-300"
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             WhatsApp / 電話號碼
           </label>
           <input
@@ -99,11 +99,11 @@ const contactForm = () => {
             value={formData.whatsapp}
             onChange={handleChange}
             required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+            className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:text-gray-300"
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             內容
           </label>
           <textarea
@@ -113,13 +113,13 @@ const contactForm = () => {
             onChange={handleChange}
             required
             rows="4"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+            className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:text-gray-300"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md dark:bg-blue-600 dark:hover:bg-blue-700"
         >
           {loading ? 'Sending...' : 'Send'}
         </button>
@@ -128,4 +128,4 @@ const contactForm = () => {
   );
 };
 
-export default contactForm;
+export default ContactForm;

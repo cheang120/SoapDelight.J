@@ -39,8 +39,8 @@ const Product = () => {
   };
 
   return (
-    <section className="mt-10">
-      <div className={`container ${styles.product} mx-auto flex flex-wrap justify-center`}>
+    <section className=" min-h-[70rem]">
+      <div className={`pt-10 mx-auto px-20  ${styles.product} mx-auto flex flex-wrap justify-center`}>
         
       <aside
         className={`${

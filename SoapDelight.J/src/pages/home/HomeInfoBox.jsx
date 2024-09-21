@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { BsCartCheck, BsFillCreditCardFill } from "react-icons/bs";
 import { FaTruck } from "react-icons/fa";
 
-
 // 模擬的資料
 const data = [
   {
@@ -10,8 +9,8 @@ const data = [
     heading: "付款及退款政策",
     modalContent: (
       <>
-        <h3 className="text-xl font-semibold mb-6">付款方式及政策</h3>
-        <ol className="list-decimal list-inside space-y-4 text-lg">
+        <h3 className="text-xl font-semibold mb-6 dark:text-gray-200">付款方式及政策</h3>
+        <ol className="list-decimal list-inside space-y-4 text-lg dark:text-gray-200">
           <li>當訂單確認並完成付款後，將不接受任何退款或修改請求；</li>
           <li>手工皂會在收到款項後的7天內發貨；</li>
           <li>護膚產品為即訂即製，收到款項後約需7-10天製作完成並寄出；</li>
@@ -22,7 +21,7 @@ const data = [
           <li>運費優惠僅適用於單筆訂單，購物滿指定金額可享免運服務，計算方式以每張訂單為準。</li>
         </ol>
         <div className="mt-6">
-          <h4 className="text-lg font-semibold">我們接受的付款方式：</h4>
+          <h4 className="text-lg font-semibold dark:text-gray-200">我們接受的付款方式：</h4>
           <div className="flex space-x-4 mt-4">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
@@ -44,20 +43,21 @@ const data = [
     heading: "送貨方式",
     modalContent: (
       <>
-        <h3 className="text-xl font-semibold mb-6">送貨方式</h3>
+        <h3 className="text-xl font-semibold mb-6 dark:text-gray-200">送貨方式</h3>
         <div className="space-y-6">
-          <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
+          <div className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 p-4 rounded-lg shadow-sm">
             <h4 className="text-lg font-semibold">澳門 本地送貨</h4>
             <p className="text-lg">+HKD 0.00</p>
             <p className="text-lg">💲購物滿$400免運費；</p>
             <p className="text-lg">✔️ 可商議到特定地點交收；</p>
             <p className="text-lg">❤️ 一般出貨日期大概5至10日；</p>
+            <p className="text-lg">🌟(本店只有用順豐寄貨，請勿填寫其他速遞公司代碼)</p>
             <p className="text-lg">
               🌟 為避免訂單處理混亂，下單後不接受修改或合併訂單出貨安排；免運費的計算方式將以每張訂單為單位計算。
-            </p> 
+            </p>
           </div>
 
-          <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
+          <div className="bg-gray-100 dark:bg-gray-700 dark:text-gray-200 p-4 rounded-lg shadow-sm">
             <h4 className="text-lg font-semibold">國際送貨</h4>
             <div className="space-y-4">
               <div>
@@ -94,6 +94,21 @@ const data = [
                 <p className="text-lg">🌟 請輸入身份證明文件上英文全名，收件時郵局職員會核對身份證；</p>
                 <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
               </div>
+
+              <div>
+                <h5 className="text-md font-semibold">澳洲 空郵掛號 (不能寄液體)</h5>
+                <p className="text-lg">+HKD 403.00</p>
+                <p className="text-lg">🌟 請輸入身份證明文件上英文全名，收件時郵局職員會核對身份證；</p>
+                <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
+              </div>
+
+              <div>
+                <h5 className="text-md font-semibold">英國 空郵掛號 (不能寄液體 | 税款由收件人承擔)</h5>
+                <p className="text-lg">+HKD 439.00</p>
+                <p className="text-lg">🌟 請輸入身份證明文件上英文全名，收件時郵局職員會核對身份證；</p>
+                <p className="text-lg">🌟 不設購物滿指定金額包運費。</p>
+              </div>
+
             </div>
           </div>
         </div>
@@ -140,20 +155,20 @@ const HomeInfoBox = () => {
   }, [isModalOpen]);
 
   return (
-    <div className="infoboxes mb-8 mt-8 justify-evenly">
+    <div className="infoboxes mb-8 mt-8 justify-evenly dark:bg-gray-900">
       {data.map((item, index) => (
         <div
-          className="infobox my-4 cursor-pointer"
+          className="infobox my-4 cursor-pointer dark:text-gray-200"
           key={index}
           onClick={() => handleModalOpen(item)}
         >
-      <div className="icon flex justify-center items-center h-16  mx-auto">
-        {item.icon}
-      </div>
-      <div className="text flex justify-center items-center h-16  mx-auto">
+          <div className="icon flex justify-center items-center h-16 mx-auto">
+            {item.icon}
+          </div>
+          <div className="text flex justify-center items-center h-16 mx-auto">
             <h4>{item.heading}</h4>
           </div>
-      </div>
+        </div>
       ))}
 
       {isModalOpen && activeItem && (
@@ -163,7 +178,7 @@ const HomeInfoBox = () => {
           }`}
         >
           <div
-            className={`bg-white p-8 rounded-lg shadow-lg w-4/5 max-w-4xl transform transition-transform duration-300 ${
+            className={`bg-white dark:bg-gray-800 dark:text-gray-200 p-8 rounded-lg shadow-lg w-4/5 max-w-4xl transform transition-transform duration-300 ${
               isAnimating ? "scale-100 opacity-100" : "scale-90 opacity-0"
             } max-h-[80vh] overflow-y-auto`}
           >

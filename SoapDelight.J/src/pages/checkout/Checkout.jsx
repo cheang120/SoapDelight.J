@@ -62,8 +62,8 @@ export const Checkout = ({selectedShippingFee}) => {
 
   return (
     <>
-      <section>
-        <div className="container">
+      <section className="">
+        <div className="px-20">
           {!clientSecret && <h3>Initializing checkout...</h3>}
         </div>
       </section>

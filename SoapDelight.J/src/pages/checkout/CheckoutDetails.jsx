@@ -86,9 +86,9 @@ const CheckoutDetails = () => {
       };
       
   return (
-    <section>
-      <div className={`container m-auto ${styles.checkout}`}>
-        <h2 className="mt-10 text-3xl">結帳明細</h2>
+    <section className="min-h-screen">
+      <div className={`px-20 pt-10  ${styles.checkout} `}>
+        <h2 className="text-3xl">結帳明細</h2>
         <form 
             onSubmit={handleSubmit}
         >
@@ -151,7 +151,7 @@ const CheckoutDetails = () => {
               {/* COUNTRY INPUT */}
               <label>Country</label>
               <CountryDropdown
-                className={styles.select}
+                className="bg-white text-black border border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
                 valueType="short"
                 value={shippingAddress.country}
                 onChange={(val) =>
@@ -163,7 +163,7 @@ const CheckoutDetails = () => {
                   })
                 }
               />
-              <label>Phone</label>
+              <label className="block text-black dark:text-white mt-4">Phone</label>
               <input
                 type="text"
                 placeholder="Phone"
@@ -171,7 +171,9 @@ const CheckoutDetails = () => {
                 name="phone"
                 value={shippingAddress.phone}
                 onChange={(e) => handleShipping(e)}
+                className="w-full bg-white text-black border border-gray-300 rounded-md p-2 mt-1 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
               />
+
             </Card>
             {/* BILLING ADDRESS */}
             <Card cardClass={styles.card}>
@@ -232,7 +234,7 @@ const CheckoutDetails = () => {
               {/* COUNTRY INPUT */}
               <label>Country</label>
               <CountryDropdown
-                className={styles.select}
+                className="bg-white text-black border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 "
                 valueType="short"
                 value={billingAddress.country}
                 onChange={(val) =>
@@ -244,6 +246,7 @@ const CheckoutDetails = () => {
                   })
                 }
               />
+
               <label>Phone</label>
               <input
                 type="text"

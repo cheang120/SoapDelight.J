@@ -133,7 +133,7 @@ const Cart = () => {
                 dispatch(CLEAR_CART());
                 localStorage.removeItem("cartItems");  // Clear localStorage
               }}>
-                Clear Cart
+                清除購物車
               </button>
               <div className='w-full md:w-1/2'>
                 <div className='text-center md:text-left'>
@@ -147,8 +147,8 @@ const Cart = () => {
 
                   {/* 显示购物车商品总价 */}
                   <div className='flex justify-between items-center mt-4'>
-                    <h4 className='text-xl font-semibold'>Subtotal (Cart Total):</h4>
-                    <h3 className='text-2xl font-bold text-gray-700'>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
+                    <h4 className='text-xl font-semibold dark:text-gray-200'>Subtotal (Cart Total):</h4>
+                    <h3 className='text-2xl font-bold dark:text-gray-200'>{`$${cartTotalAmount?.toFixed(2)}`}</h3>
                   </div>
 
                   <VerifyCoupon />

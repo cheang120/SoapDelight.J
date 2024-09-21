@@ -1,11 +1,10 @@
 import React from 'react';
 import ContactForm from '../components/contactForm';
-// import ContactForm from '../components/ContactForm';
 
 const Contact = () => {
   return (
-    <div className="min-h-screen px-6 py-0 mt-5 ">
-      <h1 className="text-4xl font-bold mb-4 text-center">聯絡我們</h1>
+    <div className="min-h-screen px-6 pt-10 bg-white dark:bg-gray-900">
+      <h1 className="text-4xl font-bold mb-4 text-center text-gray-900 dark:text-gray-200">聯絡我們</h1>
       <ContactForm />
     </div>
   );

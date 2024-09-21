@@ -108,8 +108,8 @@ export default function CheckoutForm({ dpmCheckerLink,selectedShippingFee }) {
   return (
     <>
       <section className="min-h-screen">
-        <div className={`container m-auto ${styles.checkout}`}>
-          <h2 className="mt-10 mb-5 text-3xl">結帳</h2>
+        <div className={`px-20 pt-10  ${styles.checkout}`}>
+          <h2 className=" mb-5 text-3xl">結帳</h2>
           <form onSubmit={handleSubmit} className="flex gap-4">
             <div>
               <Card cardClass={styles.card}>

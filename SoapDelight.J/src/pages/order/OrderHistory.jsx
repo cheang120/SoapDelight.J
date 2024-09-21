@@ -23,7 +23,7 @@ const OrderHistory = () => {
   };
 
   return (
-<section className='mt-10 p-3 min-h-screen sm:min-h-[75vh] md:min-h-[50vh] lg:min-h-[40vh]'>
+<section className='pt-10 min-h-screen  '>
   <div className={`container mx-auto mt-10 h-max overflow-x-scroll`}>
     <h2 className='text-2xl mb-4'>Order History</h2>
     <p>
