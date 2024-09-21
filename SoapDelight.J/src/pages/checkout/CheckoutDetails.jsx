@@ -88,7 +88,7 @@ const CheckoutDetails = () => {
   return (
     <section>
       <div className={`container m-auto ${styles.checkout}`}>
-        <h2>Checkout Details</h2>
+        <h2 className="mt-10 text-3xl">結帳明細</h2>
         <form 
             onSubmit={handleSubmit}
         >

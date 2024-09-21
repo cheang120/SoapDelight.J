@@ -54,7 +54,7 @@ const ShippingCarouselItem = ({
       </Link>
 
       {/* 横向排列价格、商品名和按钮 */}
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center">
 
         {/* 商品名称 */}
         <h4 className="font-semibold text-lg dark:text-white">

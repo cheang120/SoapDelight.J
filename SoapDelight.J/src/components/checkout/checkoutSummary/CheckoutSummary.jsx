@@ -23,13 +23,13 @@ const CheckoutSummary = () => {
 
     return (
         <div>
-            <h3>结账摘要</h3>
+            <h3 className='text-2xl mb-5'>結帳摘要</h3>
             <div>
-                {cartItems.length === 0 ? (
+                {cartItems.length === 0 ? ( 
                     <>
-                        <p>你的购物车是空的。</p>
+                        <p>你的購物車是空的</p>
                         <button className="--btn">
-                            <Link to="/#products">返回购物</Link>
+                            <Link to="/#products">返回購物</Link>
                         </button>
                     </>
                 ) : (
@@ -38,22 +38,26 @@ const CheckoutSummary = () => {
 
                         {/* 显示购物车金额 */}
                         <div className={styles.text}>
-                            <h4>购物车金额:</h4>
+                            <h4>購物車金額：</h4>
                             <h3>{`$${cartTotalAmount.toFixed(2)}`}</h3>
                         </div>
 
                         {/* 使用优惠券的组件 */}
                         <CartDiscount />
 
-                                              {/* 显示 Shipping 相关的产品 */}
-                                              {shippingItems.length > 0 && (
-                            <div className={styles.text}>
-                                <h4>郵寄地點费用:</h4>
+                        {/* 显示 Shipping 相关的产品 */}
+                        {shippingItems.length > 0 && (
+                            <div className={`${styles.text} flex`}>
+                                {/* <h4>郵寄地點费用:</h4> */}
                                 {shippingItems.map((item) => (
-                                    <Card key={item._id} cardClass={styles.card}>
-                                        <h4>{item.name}</h4>
-                                        <p>费用: {item.price}</p>
-                                    </Card>
+                                    // <Card key={item._id} cardClass={styles.card}>
+                                    //     <h4>{item.name}</h4>
+                                    //     <p>费用: {item.price}</p>
+                                    // </Card>
+                                    <div className={styles.text}>
+                                        <h4>郵寄费用：</h4>
+                                        <h3>({`$${item.price}.00`})</h3>
+                                    </div>
                                 ))}
                             </div>
                         )}
@@ -65,10 +69,10 @@ const CheckoutSummary = () => {
                             const { _id, name, price, cartQuantity } = item;
                             return (
                             <Card key={_id} cardClass={styles.card}>
-                                <h4>商品: {name}</h4>
-                                <p>数量: {cartQuantity}</p>
-                                <p>单价: {price}</p>
-                                <p>总价: {(price * cartQuantity).toFixed(2)}</p>
+                                <h4>商品：{name}</h4>
+                                <p>数量：{cartQuantity}</p>
+                                <p>單價：{price}</p>
+                                <p>總價：{(price * cartQuantity).toFixed(2)}</p>
                             </Card>
                             );
                         })}
