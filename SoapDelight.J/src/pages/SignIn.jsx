@@ -161,7 +161,7 @@ const [uCase, setUCase] = useState(false)
         {/* left */}
         <div className='flex-1 px-4 md:px-6 sm:px-10 flex flex-col items-center'>
           <Link to='/' className='font-bold dark:text-white text-4xl mb-5'>
-            <span className='px-2 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white text-lg sm:text-2xl lg:text-4xl'>
+            <span className='px-2 py-2 sm:px-3 sm:py-3 lg:px-5 lg:py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white text-lg sm:text-2xl lg:text-4xl'>
               SoapDelight.J
             </span>
           </Link>
