@@ -45,22 +45,7 @@ const CheckoutSummary = () => {
                         {/* 使用优惠券的组件 */}
                         <CartDiscount />
 
-                        {/* 显示 Shipping 相关的产品 */}
-                        {shippingItems.length > 0 && (
-                            <div className={`${styles.text} flex`}>
-                                {/* <h4>郵寄地點费用:</h4> */}
-                                {shippingItems.map((item) => (
-                                    // <Card key={item._id} cardClass={styles.card}>
-                                    //     <h4>{item.name}</h4>
-                                    //     <p>费用: {item.price}</p>
-                                    // </Card>
-                                    <div className={styles.text}> 
-                                        {/* <h4>其中郵寄费用：</h4> */}
-                                        {/* <h3>{`$${item.price}`}</h3> */}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+
 
                         {/* 逐个显示购物车商品 */}
                         {cartItems
