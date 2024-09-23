@@ -54,9 +54,9 @@ const CheckoutSummary = () => {
                                     //     <h4>{item.name}</h4>
                                     //     <p>费用: {item.price}</p>
                                     // </Card>
-                                    <div className={styles.text}>
-                                        <h4>郵寄费用：</h4>
-                                        <h3>({`$${item.price.toFixed(2)}`})</h3>
+                                    <div className={styles.text}> 
+                                        <h4>其中郵寄费用：</h4>
+                                        <h3>{`$${item.price}`}.00</h3>
                                     </div>
                                 ))}
                             </div>
