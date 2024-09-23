@@ -39,7 +39,7 @@ const CheckoutSummary = () => {
                         {/* 显示购物车金额 */}
                         <div className={styles.text}>
                             <h4>購物車金額：</h4>
-                            <h3>{`$${(cartTotalAmount || 0).toFixed(2)}`}</h3>
+                            <h3>{`$${(cartTotalAmount).toFixed(2)}`}</h3>
                         </div>
 
                         {/* 使用优惠券的组件 */}
