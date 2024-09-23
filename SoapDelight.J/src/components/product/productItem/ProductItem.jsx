@@ -27,7 +27,7 @@ const ProductItem = ({
     <div
       className={
         grid
-          ? "mb-5 w-full  mx-auto p-4 bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg h-[350px] flex flex-col justify-between"
+          ? "mb-5 mx-auto p-4 bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg h-[350px] flex flex-col justify-between"
           : `${styles.list} mb-5 dark:bg-gray-800 dark:text-white`
       }
     >
