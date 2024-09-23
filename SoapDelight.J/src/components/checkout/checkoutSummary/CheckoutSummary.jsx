@@ -56,7 +56,7 @@ const CheckoutSummary = () => {
                                     // </Card>
                                     <div className={styles.text}> 
                                         <h4>其中郵寄费用：</h4>
-                                        <h3>{`$${item.price}`}.00</h3>
+                                        <h3>{`$${item.price}`}</h3>
                                     </div>
                                 ))}
                             </div>
