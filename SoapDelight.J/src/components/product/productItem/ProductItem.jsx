@@ -44,7 +44,7 @@ const ProductItem = ({
             alt={name}
             className={`${
               grid
-                ? "object-cover w-full h-full transform transition-transform duration-300 hover:scale-105" // 添加 hover 效果
+                ? "object-cover  h-full transform transition-transform duration-300 hover:scale-105" // 添加 hover 效果
                 : ""
             }`}
           />

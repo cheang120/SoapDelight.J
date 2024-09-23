@@ -42,15 +42,15 @@ const Product = () => {
     <section className=" min-h-[70rem]">
       <div className={`pt-10 mx-auto px-20  ${styles.product} mx-auto flex flex-wrap justify-center`}>
         
-      <aside
-        className={`${
-          showFilter
-            ? "fixed top-20 left-4 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
-            : "fixed -left-full top-20 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
-        }`}
-      >
-        {isLoading ? null : <ProductFilter />}
-      </aside>
+        <aside
+          className={`${
+            showFilter
+              ? "fixed top-20 left-4 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
+              : "fixed -left-full top-20 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
+          }`}
+        >
+          {isLoading ? null : <ProductFilter />}
+        </aside>
 
         <div className={styles.content}>
           {isLoading ? <Spinner /> : <ProductList products={products} />}
