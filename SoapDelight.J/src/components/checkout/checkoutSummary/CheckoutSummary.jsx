@@ -49,7 +49,7 @@ const CheckoutSummary = () => {
 
                         {/* 逐个显示购物车商品 */}
                         {cartItems
-                        .filter(item => item.category !== "Shipping") // 排除類別為 "Shipping" 的產品
+                        .filter(item => item.category) // 排除類別為 "Shipping" 的產品
                         .map((item, index) => {
                             const { _id, name, price, cartQuantity } = item;
                             return (

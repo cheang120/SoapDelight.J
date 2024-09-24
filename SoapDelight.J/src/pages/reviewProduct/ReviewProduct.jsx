@@ -119,7 +119,7 @@ const ReviewProduct = () => {
                     <img src={product?.image[0]} alt="product" style={{width:"100px"}} />
                 </div>
             )}
-            {userReview?.length > 0 && !isEditing ? (
+            {userReview?.length < 0 && isEditing ? (
               <div className="my-5">
                 <Card cardClass={"card"}>
                   <div className="p-5">
