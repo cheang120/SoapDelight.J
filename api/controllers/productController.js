@@ -216,7 +216,8 @@ export const updateReview = asyncHandler(async (req, res) => {
           "ratings.$.review": review,
           "ratings.$.reviewDate": reviewDate,
         },
-      }
+      },
+      { new: true } 
     );
     console.log(updateReview);
   
