@@ -17,7 +17,7 @@ const Wishlist = () => {
 
   const removeWishlist = async (product) => {
     const productId = product._id;
-    console.log(productId);
+    // console.log(productId);
     await dispatch(removeFromWishlist(productId));
     await dispatch(getWishlist());
   };

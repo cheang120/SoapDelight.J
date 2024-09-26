@@ -81,6 +81,7 @@ const EditProduct = () => {
 
   const saveProduct = async (e) => {
     e.preventDefault();
+    console.log("Submitting form...");
     if (files.length < 1) {
       return toast.info("Please add an image");
     }

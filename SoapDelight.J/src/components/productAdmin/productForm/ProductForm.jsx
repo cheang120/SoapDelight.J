@@ -207,10 +207,10 @@ const ProductForm = ({
                 />
             </div>
 
-            <div className="mt-6">
+            <div className="mt-28">
                 <button
                     type="submit"
-                    className="w-full bg-pink-500 dark:bg-pink-700 text-white py-2 rounded-lg hover:bg-pink-600 dark:hover:bg-pink-800 transition duration-300"
+                    className="w-full bg-pink-500 dark:bg-pink-700 text-white py-2 rounded-lg hover:bg-pink-600 dark:hover:bg-pink-800 transition duration-300 z-50"
                 >
                     Save Product
                 </button>
