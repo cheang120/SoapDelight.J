@@ -27,6 +27,7 @@ const ProductDetails = () => {
 
     useEffect(() => {
         dispatch(getProduct(id));
+        window.scrollTo(0, 0);
       }, [dispatch, id]);
     //   console.log(product);
 

@@ -61,10 +61,8 @@ const CreateBrand = ({reloadBrands}) => {
       };
   return (
     <>
-    <div className="--underline"></div>
-    <br />
     <div className='--mb2'>
-        <h3>Create Brand</h3>
+        <h3 className='text-2xl pb-5'>Create Brand</h3>
         <p>
             Use the form to <b>Create a Brand.</b>
         </p>

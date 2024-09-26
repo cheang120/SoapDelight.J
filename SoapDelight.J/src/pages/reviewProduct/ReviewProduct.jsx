@@ -24,6 +24,7 @@ const ReviewProducts = () => {
 
   useEffect(() => {
     dispatch(getProduct(id));
+    window.scrollTo(0, 0);
   }, [dispatch, id]);
 
   const submitReview = async (e) => {
@@ -89,7 +90,7 @@ const ReviewProducts = () => {
   };
 
   return (
-    <section className="py-8 px-4 md:px-8 lg:px-16">
+    <section className="py-8 px-4 md:px-8 lg:px-16 min-h-[70rem]">
       <div className="container mx-auto">
         <h2 className="text-2xl font-bold mb-6">Review Products</h2>
         {isLoading && product === null ? (

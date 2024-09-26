@@ -8,6 +8,7 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 const CategoryList = () => {
   const { isLoading, categories = [] } = useSelector((state) => state.category || {});
   const dispatch = useDispatch();
+  window.scrollTo(0, 0);
 
     useEffect(() => {
         dispatch(getCategories());
@@ -36,7 +37,7 @@ const CategoryList = () => {
       };
 
   return (
-<div className="mb-8 p-4 bg-white shadow rounded-lg">
+<div className="mb-8 p-4 bg-white shadow rounded-lg min-h-screen" >
   <h3 className="text-xl font-semibold mb-4 text-gray-800">All Categories</h3>
   <div className="overflow-x-auto">
     {categories.length === 0 ? (

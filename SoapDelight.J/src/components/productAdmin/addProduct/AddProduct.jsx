@@ -26,6 +26,8 @@ const initialState = {
   };
 
 const AddProduct = () => {
+  window.scrollTo(0, 0);
+
   const { currentUser } = useSelector((state) => state.user);
 
     const dispatch = useDispatch();
@@ -122,9 +124,9 @@ const AddProduct = () => {
       if (userRole === 'author') {
         return (
           <section>
-            <div className='container'>
+            <div className='container min-h-screen'>
               {/* {isLoading && <Loader />} */}
-              <h3 className='--mt'>Add New Product</h3>
+              <h3 className='--mt text-2xl pb-5'>Add New Product</h3>
       
               <ProductForm         
                   files={files}

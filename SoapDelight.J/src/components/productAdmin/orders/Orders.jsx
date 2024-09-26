@@ -8,6 +8,7 @@ const Orders = () => {
   const { isLoading, isError, message, orders } = useSelector(
     (state) => state.order
   );
+  window.scrollTo(0, 0);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Orders = () => {
     navigate("/productAdmin/order-details/" + id);
   };
   return (
-    <div className='container order overflow-x-scroll'>
+    <div className='container order overflow-x-scroll min-h-screen'>
       <h2 className='text-2xl'>All Orders</h2>
         <p>
           Open an order to <b>Change Order Status.</b>

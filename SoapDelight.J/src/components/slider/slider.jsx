@@ -87,7 +87,7 @@ const Slider = () => {
       const { image, heading, desc, path } = slide;
       return (
         <div key={index} className="relative min-w-full max-h-[40rem] md:max-h-[70rem]">
-          <div className="aspect-w-4 aspect-h-3">
+          <div className="aspect-w-4 aspect-h-3 ">
             <img src={image} alt={`${index}`} className="object-cover w-full h-full" />
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white  p-6 md:p-8 lg:p-12 transition-transform duration-1000 ease-in-out shadow-lg">
@@ -102,7 +102,7 @@ const Slider = () => {
             <p className="text-sm md:text-lg lg:text-xl xl:text-2xl mb-4">{desc}</p>
             <hr className="h-px bg-white w-16 my-4" />
             <button
-              className="z-40 px-4 py-2 text-sm md:px-6 md:py-3 lg:px-8 lg:py-4 xl:px-10 xl:py-5 text-base focus:outline-none bg-gradient-to-r from-purple-500 to-pink-500 text-white focus:ring-4 focus:ring-purple-200 enabled:hover:bg-gradient-to-l dark:focus:ring-purple-800 rounded-md"
+              className="z-40 px-4 py-2 md:px-6 md:py-3 lg:px-8 lg:py-4 xl:px-10 xl:py-5 text-base focus:outline-none bg-gradient-to-r from-purple-500 to-pink-500 text-white focus:ring-4 focus:ring-purple-200 enabled:hover:bg-gradient-to-l dark:focus:ring-purple-800 rounded-md"
               onClick={() => navigate(path)}
             >
               立即選購

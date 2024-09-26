@@ -30,10 +30,9 @@ const CreateCategory = ({reloadCategory}) => {
 
   return (
     <>
-        <div className="--underline"></div>
         <br />
         <div className='--mb2'>
-            <h3>Create Category</h3>
+            <h3 className='text-2xl pb-5'>Create Category</h3>
             <p>
                 Use the form to <b>Create a Category.</b>
             </p>

@@ -14,12 +14,14 @@ const OrderDetails = ({orderPageLink}) => {
   const {id} = useParams()
   const dispatch = useDispatch()
 
+
   const { isLoading, order } = useSelector(
     (state) => state.order
   );
 
   useEffect(() => {
     dispatch(getOrder(id));
+    window.scrollTo(0, 0);
   }, [dispatch, id]);
 
   const downloadPDF = () => {

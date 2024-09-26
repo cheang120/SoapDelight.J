@@ -46,6 +46,8 @@ const DashProfile = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
 
+  window.scrollTo(0, 0);
+
 
 
   // console.log(imageFileUploadProgress,imageFileUploadError);

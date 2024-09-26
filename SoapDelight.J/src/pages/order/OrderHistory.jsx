@@ -16,6 +16,7 @@ const OrderHistory = () => {
 
   useEffect(() => {
     dispatch(getOrders());
+    window.scrollTo(0, 0);
   }, [dispatch]);
 
   const openOrderDetails = (id) => {

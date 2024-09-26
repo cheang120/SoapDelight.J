@@ -60,6 +60,7 @@ const Home = () => {
   const navigate = useNavigate();
   useEffect(() => {
     dispatch(getProducts());
+    window.scrollTo(0, 0);
   }, [dispatch]);
   const { products } = useSelector((state) => state.product);
   // const latest = products

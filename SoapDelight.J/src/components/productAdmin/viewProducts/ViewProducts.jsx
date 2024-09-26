@@ -17,6 +17,8 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 const ViewProducts = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [search, setSearch] = useState("");
+  window.scrollTo(0, 0);
+
 
   const dispatch = useDispatch()
   const isLoggedIn = useSelector(selectIsLoggedIn)
@@ -83,7 +85,7 @@ const ViewProducts = () => {
   // End Pagination
     
     return (
-      <section className="py-8">
+      <section className="py-8 min-h-screen">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -104,69 +106,69 @@ const ViewProducts = () => {
           {isLoading && <Spinner />}
 
           <div className='overflow-x-auto'>
-          {!isLoading && currentItems.length === 0 ? (
-            <p>-- No product found...</p>
-          ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">s/n</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentItems.map((product, index) => {
-                  // console.log(product);
-                  const { _id, name, category, price, quantity } = product;
-                  return (
-                    <tr key={_id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{shortenText(name,16) }</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{category}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{"$"}{price}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quantity}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{"$"}{price * quantity}</td>
-                      <td className="flex px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <span className="text-purple-600 hover:text-purple-900">
-                          <Link to={`/product-details/${_id}`}>
-                            <AiOutlineEye size={25} />
-                          </Link>
-                        </span>
-                        <span className="text-green-600 hover:text-green-900 ml-4">
-                          <Link to={`/productAdmin/edit-product/${_id}`}>
-                            <FaEdit size={20} />
-                          </Link>
-                        </span>
-                        <span className="text-red-600 hover:text-red-900 ml-4">
-                          <FaTrashAlt size={20} onClick={() => confirmDelete(_id)} />
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )} 
-        </div>
-        <ReactPaginate
-          breakLabel="..."
-          nextLabel="Next"
-          onPageChange={handlePageClick}
-          pageRangeDisplayed={3}
-          pageCount={pageCount}
-          previousLabel="Prev"
-          renderOnZeroPageCount={null}
-          containerClassName="flex justify-center items-center space-x-2 mt-4"
-          pageLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-          previousLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-          nextLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-          activeLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-white bg-pink-500"
-        />
+            {!isLoading && currentItems.length === 0 ? (
+              <p>-- No product found...</p>
+            ) : (
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">s/n</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Value</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                  {currentItems.map((product, index) => {
+                    const { _id, name, category, price, quantity } = product;
+                    return (
+                      <tr key={_id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{index + 1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{shortenText(name, 16)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{"$"}{price}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{quantity}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{"$"}{price * quantity}</td>
+                        <td className="flex px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <span className="text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-500">
+                            <Link to={`/product-details/${_id}`}>
+                              <AiOutlineEye size={25} />
+                            </Link>
+                          </span>
+                          <span className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-500 ml-4">
+                            <Link to={`/productAdmin/edit-product/${_id}`}>
+                              <FaEdit size={20} />
+                            </Link>
+                          </span>
+                          <span className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-500 ml-4">
+                            <FaTrashAlt size={20} onClick={() => confirmDelete(_id)} />
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+            )} 
+          </div>
+          <ReactPaginate
+            breakLabel="..."
+            nextLabel="Next"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={3}
+            pageCount={pageCount}
+            previousLabel="Prev"
+            renderOnZeroPageCount={null}
+            containerClassName="flex justify-center items-center space-x-2 mt-4"
+            pageLinkClassName="dark:text-gray-100 px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
+            previousLinkClassName="dark:text-gray-400 px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
+            nextLinkClassName="dark:text-gray-400 px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
+            activeLinkClassName="dark:text-gray-800 px-3 py-1 border border-gray-300 rounded-md text-white bg-pink-500"
+          />
 
         </div>
       </section>

@@ -10,6 +10,7 @@ import ProductItem from "../../components/product/productItem/ProductItem";
 import Loader from "../../components/Loader";
 
 const Wishlist = () => {
+  window.scrollTo(0, 0);
   const [grid, setGrid] = useState(true);
   const dispatch = useDispatch();
   const { wishlist = [], isLoading } = useSelector((state) => state.auth);

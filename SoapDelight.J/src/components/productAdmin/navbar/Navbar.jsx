@@ -9,8 +9,9 @@ const activeLink = ({ isActive }) => (isActive ? `${styles.active}` : "");
 
 
 const Navbar = () => {
-    const user = useSelector(selectUser)
-    const username = user?.username
+    const { currentUser } = useSelector((state) => state.user);
+
+    const username = currentUser.username
   return (
     <div className={styles.navbar}>
       <div className={styles.user}>

@@ -20,6 +20,8 @@ const UserList = () => {
 
   useEffect(() => {
     dispatch(getUsers());
+    window.scrollTo(0, 0);
+
   }, [dispatch]);
 
   useEffect(() => {

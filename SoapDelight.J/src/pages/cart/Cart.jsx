@@ -23,7 +23,7 @@ const Cart = () => {
   const { coupon } = useSelector((state) => state.coupon);
 
   const products = useSelector((state) => state.product.products); // 获取所有产品
-
+  window.scrollTo(0, 0);
 
   const shippingProducts = products.filter(product => product.category === "Shipping");
   const [selectedShipping, setSelectedShipping] = useState(null);

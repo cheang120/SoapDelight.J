@@ -23,6 +23,8 @@ const Home = () => {
   const products = useSelector(selectProducts);
   const orders = useSelector(selectOrders);
   const totalOrderAmount = useSelector(selectTotalOrderAmount);
+  window.scrollTo(0, 0);
+
   useEffect(() => {
     if (products.length === 0) {
       dispatch(getProducts());
@@ -36,8 +38,8 @@ const Home = () => {
   }, [dispatch, orders]);
 
   return (
-    <div className={styles.home}>
-      <h2>Admin Home</h2>
+    <div className={`${styles.home} min-h-screen`}>
+      <h2 className="text-2xl py-10">Admin Home</h2>
       <div className={styles["info-box"]}>
         <InfoBox
           cardClass={`${styles.card} ${styles.card1}`}

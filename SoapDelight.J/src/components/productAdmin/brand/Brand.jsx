@@ -9,6 +9,8 @@ import CreateBrand from "./CreateBrand";
 import BrandList from "./BrandList";
 
 const Brand = () => {
+  window.scrollTo(0, 0);
+
   const dispatch = useDispatch();
   const { brands } = useSelector((state) => state.category);
 
@@ -22,7 +24,7 @@ const Brand = () => {
 
   return (
     <section>
-      <div className="container coupon">
+      <div className="container coupon min-h-screen">
         <CreateBrand
          reloadBrands={reloadBrands} 
         />
