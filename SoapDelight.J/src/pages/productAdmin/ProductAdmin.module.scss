@@ -1,14 +1,25 @@
 .admin {
-    display: flex;
-  
-    .navbar {
-      width: 25%;
-      min-height: 80vh;
-          border-right: 1px solid #ccc;
-    }
-    .content {
-      width: 75%;
-      padding: 1rem;
-    }
+  display: flex;
+  flex-direction: row; /* 默认在桌面上为行布局 */
+
+  .navbar {
+    /* width: 25%; */ /* 如果需要可以取消注释并设置宽度 */
+    min-height: 80vh;
+    border-right: 1px solid #ccc;
   }
-  
+  .content {
+    /* width: 75%; */ /* 如果需要可以取消注释并设置宽度 */
+    padding: 1rem;
+  }
+
+  @media (max-width: 768px) { /* 在小于等于768px的屏幕尺寸下 */
+      flex-direction: column; /* 切换为列布局 */
+      .navbar {
+        border-right: none; /* 移除右边的边框 */
+        border-bottom: 1px solid #ccc; /* 添加底部边框 */
+      }
+      .content {
+        /* width: 100%; */ 
+      }
+  }
+}

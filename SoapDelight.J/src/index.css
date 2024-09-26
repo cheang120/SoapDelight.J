@@ -524,3 +524,9 @@ input::placeholder {
 .dark .ql-snow .ql-fill {
   fill: #e5e7eb; /* dark mode 工具栏填充图标颜色 */
 }
+
+._admin_4wb5c_1 ._navbar_4wb5c_4 {
+  width: 25%;
+  min-height: 80vh;
+  border-right: 1px solid #ccc;
+}
