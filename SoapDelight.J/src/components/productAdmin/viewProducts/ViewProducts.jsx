@@ -36,9 +36,6 @@ const ViewProducts = () => {
     // console.log(userRole);
 
   if (userRole === 'author'){
-
-
-    
     useEffect(() => {
       // console.log(products);
       // if (isLoggedIn) {
@@ -46,6 +43,8 @@ const ViewProducts = () => {
       // }
       // console.log(products);
     },[dispatch])
+
+
 
     const delProduct = async (id) => {
       // console.log(id);
@@ -70,16 +69,19 @@ const ViewProducts = () => {
         ],
       });
     };
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   // Begin Pagination
   const itemsPerPage = 5;
   const [itemOffset, setItemOffset] = useState(0);
   const endOffset = itemOffset + itemsPerPage;
-  const currentItems = products.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(products.length / itemsPerPage);
+  const currentItems = filteredProducts.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(filteredProducts.length / itemsPerPage);
 
   const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % products.length;
+    const newOffset = (event.selected * itemsPerPage) % filteredProducts.length;
     setItemOffset(newOffset);
   };
   // End Pagination

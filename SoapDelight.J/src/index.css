@@ -502,3 +502,25 @@ input::placeholder {
   cursor: pointer;
 }
 
+/* 自定义 ReactQuill 的工具栏和编辑器的 dark mode 样式 */
+.dark .ql-toolbar {
+  background-color: #1f2937; /* dark mode 工具栏背景 */
+  border-color: #374151; /* dark mode 工具栏边框颜色 */
+}
+
+.dark .ql-container {
+  background-color: #111827; /* dark mode 编辑器背景 */
+  color: #e5e7eb; /* dark mode 编辑器文本颜色 */
+}
+
+.dark .ql-snow .ql-picker {
+  color: #e5e7eb; /* dark mode 工具栏选择器文本颜色 */
+}
+
+.dark .ql-snow .ql-stroke {
+  stroke: #e5e7eb; /* dark mode 工具栏图标颜色 */
+}
+
+.dark .ql-snow .ql-fill {
+  fill: #e5e7eb; /* dark mode 工具栏填充图标颜色 */
+}

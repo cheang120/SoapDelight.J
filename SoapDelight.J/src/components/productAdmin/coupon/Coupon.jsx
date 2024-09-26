@@ -12,7 +12,7 @@ const Coupon = () => {
   return (
     <section>
       <div className="container coupon min-h-screen">
-      <CreateCoupon reloadCoupon={reloadCoupon} />
+        <CreateCoupon reloadCoupon={reloadCoupon} />
         <CouponList />
 
       </div>

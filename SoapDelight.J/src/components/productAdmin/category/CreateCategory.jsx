@@ -30,16 +30,15 @@ const CreateCategory = ({reloadCategory}) => {
 
   return (
     <>
-        <br />
-        <div className='--mb2'>
+        <div className='--mb2 pt-5'>
             <h3 className='text-2xl pb-5'>Create Category</h3>
-            <p>
+            <p className='mb-5'>
                 Use the form to <b>Create a Category.</b>
             </p>
-            <div className="max-w-md  bg-white p-8 shadow-lg rounded-lg"> 
+            <div className="max-w-md bg-white dark:bg-gray-800 p-8 shadow-lg rounded-lg">
                 <form onSubmit={saveCategory}>
-                    <div className="mb-4"> 
-                        <label className="block text-gray-700 text-sm font-bold mb-2"> 
+                    <div className="mb-4">
+                        <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
                             Category Name:
                         </label>
                         <input
@@ -49,19 +48,19 @@ const CreateCategory = ({reloadCategory}) => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                         />
                     </div>
-                    <div className="mt-6"> 
-                        <button 
-                            type="submit" 
-                            className="w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 transition duration-300"> 
+                    <div className="mt-6">
+                        <button
+                            type="submit"
+                            className="w-full bg-pink-500 dark:bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-600 dark:hover:bg-pink-700 transition duration-300"
+                        >
                             Save Category
                         </button>
                     </div>
                 </form>
             </div>
-
         </div>
     </>
   )
