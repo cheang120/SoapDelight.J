@@ -102,7 +102,7 @@ const ProductList = ({ products }) => {
               .filter((product) => product.category !== "Shipping")
               .map((product) => {
               return (
-                <div key={product._id} className=" m-4 dark:bg-gray-800 dark:text-white">
+                <div key={product._id} className=" my-4 dark:bg-gray-800 dark:text-white">
                   <ProductItem {...product} grid={grid} product={product} />
                 </div>
               );

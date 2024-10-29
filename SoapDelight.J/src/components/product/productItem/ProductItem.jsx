@@ -35,7 +35,7 @@ const ProductItem = ({
         <div
           className={`${
             grid
-              ? "flex justify-center items-center overflow-hidden mb-2 rounded-md h-48" // 图片容器
+              ? " flex justify-center items-center overflow-hidden mb-2 rounded-md h-48" // 图片容器
               : `${styles.img} flex justify-center mb-2`
           }`}
         >
@@ -44,7 +44,7 @@ const ProductItem = ({
             alt={name}
             className={`${
               grid
-                ? "object-cover  h-full transform transition-transform duration-300 hover:scale-105" // 添加 hover 效果
+                ? "w-60 object-cover  h-full transform transition-transform duration-300 hover:scale-105" // 添加 hover 效果
                 : ""
             }`}
           />
