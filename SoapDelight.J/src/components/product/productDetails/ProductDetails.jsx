@@ -81,7 +81,7 @@ const ProductDetails = () => {
 
   return (
     <section className="min-h-[70rem]">
-        <div className={`pt-10 mx-auto px-20 ${styles.product}`}>
+        <div className={`pt-10 mx-auto px-10 ${styles.product}`}>
             <h2 className="py-10 text-2xl">Product Details</h2>
             <div>
                 <Link to="/shop">&larr; Back To Products</Link>

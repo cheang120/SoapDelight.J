@@ -41,6 +41,7 @@ const Cart = () => {
     dispatch(CALCULATE_SUBTOTAL({ coupon }));
     dispatch(CALCULATE_TOTAL_QUANTITY());
   }, [cartItems, dispatch, coupon]);
+  // console.log(cartItems)
 
   return (
     <section className='min-h-screen'>
