@@ -1,28 +1,17 @@
-.infoboxes {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    //   margin-right: 5px;
-  }
-  .infobox {
-    width: 23rem;
-    height: auto;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    //   margin-right: 2rem;
-    display: flex;
-    cursor: pointer;
-  
-    .icon {
-      width: 35%;
-    }
-    .text {
-      h4 {
-        //   color: #aaa;
-        font-size: 1.8rem;
-        font-weight: 300;
-      }
-    }
-  }
-  
+.home-page {
+  overflow-x: hidden;
+}
+
+.home-hero-frame {
+  position: relative;
+}
+
+.home-hero-frame::before {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 1.5rem;
+  pointer-events: none;
+  z-index: 1;
+}

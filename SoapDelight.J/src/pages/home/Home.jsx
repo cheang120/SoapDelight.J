@@ -1,269 +1,327 @@
-import React, { useEffect } from 'react'
-import { Avatar, Button, Dropdown, Navbar, TextInput } from 'flowbite-react';
-import { productData } from "../../components/carousel/data.jsx";
-import CarouselItem from "../../components/carousel/CarouselItem";
-
-import "./Home.scss";
-import HomeInfoBox from "./HomeInfoBox";
-
-import Slider from '../../components/slider/slider.jsx'
-import ProductCarousel from '../../components/carousel/Carousel.jsx';
-import ProductCategory from '../../components/productCategory/ProductCategory.jsx';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  getProducts,
-  // selectProducts,
-} from "../../redux/features/product/productSlice.jsx";
-import { Navigate, useNavigate } from 'react-router-dom';
+  FaHandHoldingHeart,
+  FaLeaf,
+  FaMapMarkerAlt,
+  FaRegClock,
+  FaRegCreditCard,
+  FaSeedling,
+  FaShippingFast,
+} from "react-icons/fa";
+import "./Home.scss";
+import { getProducts } from "../../redux/features/product/productSlice.jsx";
+import ProductItem from "../../components/product/productItem/ProductItem";
+import { Spinner } from "../../components/Loader";
 
+const trustPoints = [
+  { title: "小批量手作", icon: FaHandHoldingHeart },
+  { title: "天然植物基礎", icon: FaLeaf },
+  { title: "澳門本地品牌", icon: FaMapMarkerAlt },
+  { title: "日常溫柔護理", icon: FaSeedling },
+];
 
-const PageHeading = ({ heading, btnText }) => {
-  const navigate = useNavigate();
-  return (
-    <>
-      <div className="--flex-between">
-        <h2 className="--fw-thin">{heading}</h2>
-        <Button               
-          gradientDuoTone='purpleToPink'
-          className="text-[1rem] mb-2  font-normal  mr-1  border border-transparent rounded-md cursor-pointer flex justify-center items-center transition-all duration-300"
-          onClick={() => navigate("/shop")}
-        >
-          {btnText}
-        </Button>
-      </div>
-      <div className="--hr" />
-    </>
-  );
-};
-// const latestProducts = [
-//   <div key="1">产品 1</div>,
-//   <div key="2">产品 2</div>,
-//   <div key="3">产品 3</div>,
-// ];
+const categoryCards = [
+  {
+    title: "個人護理",
+    caption: "Daily skincare essentials",
+    terms: ["個人護理", "Personal Care"],
+    to: "/shop?category=%E5%80%8B%E4%BA%BA%E8%AD%B7%E7%90%86",
+  },
+  {
+    title: "手作皂",
+    caption: "Gentle handmade soap",
+    terms: ["手作皂", "Soap"],
+    to: "/shop?category=%E6%89%8B%E4%BD%9C%E7%9A%82",
+  },
+  {
+    title: "香薰蠟",
+    caption: "Soft aroma for slow evenings",
+    terms: ["香薰蠟", "Candle"],
+    to: "/shop?category=%E9%A6%99%E8%96%B0%E8%A0%9F",
+  },
+  {
+    title: "精選禮物",
+    caption: "Thoughtful small-batch picks",
+    terms: [],
+    to: "/shop",
+  },
+];
 
+const serviceCards = [
+  {
+    title: "送貨及自取",
+    text: "按訂單安排本地送貨或交收。",
+    icon: FaShippingFast,
+  },
+  {
+    title: "澳門本地安排",
+    text: "小店親自處理每張訂單細節。",
+    icon: FaMapMarkerAlt,
+  },
+  {
+    title: "安全付款",
+    text: "付款流程由既有安全 checkout 處理。",
+    icon: FaRegCreditCard,
+  },
+  {
+    title: "訂單處理時間",
+    text: "手作產品一般需時製作及整理。",
+    icon: FaRegClock,
+  },
+];
 
-// const latestProducts = latest.map((item) => (
-//   <div key={item._id}>
-//     <CarouselItem
-//       name={item.name}
-//       url={item.image[0]}
-//       price={item.price}
-//       regularPrice={item.regularPrice}
-//       description={item.description}
-//       product={item}
-//     />
-//   </div>
-// ));
+const SectionHeading = ({ eyebrow, title, children }) => (
+  <div className="mx-auto mb-8 max-w-3xl text-center">
+    {eyebrow && (
+      <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+        {eyebrow}
+      </p>
+    )}
+    <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white md:text-4xl">
+      {title}
+    </h2>
+    {children && (
+      <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+        {children}
+      </p>
+    )}
+  </div>
+);
+
+const pickImage = (product) => product?.image?.[0] || "";
 
 const Home = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { products, isLoading } = useSelector((state) => state.product);
+
   useEffect(() => {
     dispatch(getProducts());
     window.scrollTo(0, 0);
   }, [dispatch]);
-  const { products } = useSelector((state) => state.product);
-  const visibleProducts = products?.filter(
-    (product) => product.quantity > 0 && product.category !== "Shipping"
-  ) || [];
 
-  const categoryMatches = (product, categories) =>
-    categories.includes(product.category);
+  const visibleProducts = useMemo(
+    () =>
+      (products || []).filter(
+        (product) =>
+          product?.quantity > 0 &&
+          product?.category !== "Shipping" &&
+          pickImage(product)
+      ),
+    [products]
+  );
 
-  // const latest = products
-  //   ?.filter((product, index) => {
-  //     return product.quantity > 0;
-  //   })
-  //   ?.filter((product, index) => index < 6);
-  const recentProducts = visibleProducts
-  .filter((product) => {
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);  // 設定為一個月前
-    const productDate = new Date(product.createdAt);  // 假設 'createdAt' 是產品的上架日期
-    return productDate >= oneMonthAgo;
-  })
-  ?.slice(0, 6);  // 只取前6個
+  const heroProduct = visibleProducts[0];
+  const featuredProducts = visibleProducts.slice(0, 8);
 
-  const latest = recentProducts.length > 0 ? recentProducts : visibleProducts.slice(0, 6);
-
-  const phones = products
-    ?.filter((product) => {
-      return product.quantity > 0
-    })
-    ?.filter((product, index) => {
-      return product.category === "Phone";
-    })
-    ?.filter((product, index) => index < 6);
-
-  const soaps = products
-    ?.filter((product) => {
-      return product.quantity > 0
-    })
-    ?.filter((product, index) => {
-      return categoryMatches(product, ["Soap", "手作皂"]);
-    })
-    ?.filter((product, index) => index < 6);
-
-    const personalCare = products
-    ?.filter((product) => {
-      return product.quantity > 0
-    })
-    ?.filter((product, index) => {
-      return categoryMatches(product, ["Personal Care", "個人護理"]);
-    })
-    ?.filter((product, index) => index < 6);
-
-    const candle = products
-    ?.filter((product) => {
-      return product.quantity > 0
-    })
-    ?.filter((product, index) => {
-      return categoryMatches(product, ["香薰蠟", "Candle"]);
-    })
-    ?.filter((product, index) => index < 6);
-
-    const shipping = products
-    ?.filter((product) => {
-      return product.quantity > 0
-    })
-    ?.filter((product, index) => {
-      return product.category === "Shipping";
-    })
-    ?.filter((product, index) => index < 6);
-
-    const latestProducts = latest.map((item)=>(
-      <div key={`latest-${item._id}`}>
-        <CarouselItem 
-          name={item.name}
-          url={item.image[0]}
-          price={item.price}
-          regularPrice={item.regularPrice}
-          description={item.description}
-          product={item}
-        />
-      </div>
-    ))
-
-    const phoneProducts = phones.map((item)=>(
-      <div key={`phone-${item._id}`}>
-        <CarouselItem 
-          name={item.name}
-          url={item.image[0]}
-          price={item.price}
-          regularPrice={item.regularPrice}
-          description={item.description}
-          product={item}
-        />
-      </div>
-    ))
-
-    const soapProducts = soaps.map((item)=>(
-      <div key={`soap-${item._id}`}>
-        <CarouselItem 
-          name={item.name}
-          url={item.image[0]}
-          price={item.price}
-          regularPrice={item.regularPrice}
-          description={item.description}
-          product={item}
-        />
-      </div>
-    ))
-
-    const personalCareProducts = personalCare.map((item)=>(
-      <div key={`personal-care-${item._id}`}>
-        <CarouselItem 
-          name={item.name}
-          url={item.image[0]}
-          price={item.price}
-          regularPrice={item.regularPrice}
-          description={item.description}
-          product={item}
-        />
-      </div>
-    ))
-
-    const candleProducts = candle.map((item)=>(
-      <div key={`candle-${item._id}`}>
-        <CarouselItem 
-          name={item.name}
-          url={item.image[0]}
-          price={item.price}
-          regularPrice={item.regularPrice}
-          description={item.description}
-          product={item}
-        />
-      </div>
-    ))
-
-    const shippingProducts = shipping.map((item)=>(
-      <div key={`shipping-${item._id}`}>
-        <CarouselItem 
-          name={item.name}
-          url={item.image[0]}
-          price={item.price}
-          regularPrice={item.regularPrice}
-          description={item.description}
-          product={item}
-        />
-      </div>
-    ))
-
-    // const productss = productData.map((item)=>(
-    //   <div key={item.id}>
-    //     <CarouselItem 
-    //       name={item.name}
-    //       url={item.imageurl}
-    //       price={item.price}
-    //       description={item.description}
-    //     />
-    //   </div>
-    // ))
+  const findCategoryProduct = (terms) => {
+    if (!terms.length) return visibleProducts[3] || visibleProducts[0];
+    return (
+      visibleProducts.find((product) => terms.includes(product.category)) ||
+      visibleProducts[0]
+    );
+  };
 
   return (
-    <div className='flex flex-col'>
-      <Slider />
+    <main className="home-page bg-white text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="relative overflow-hidden bg-[#f7faf6] dark:bg-zinc-950">
+        <div className="mx-auto grid min-h-[calc(100vh-3.5rem)] max-w-7xl items-center gap-10 px-5 py-14 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:py-20 lg:px-8">
+          <div className="max-w-xl">
+            <p className="mb-5 text-sm font-medium tracking-[0.28em] text-emerald-800">
+              MACAU HANDMADE CARE
+            </p>
+            <h1 className="text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl">
+              SoapDelight.J
+            </h1>
+            <p className="mt-6 text-xl leading-8 text-zinc-700 dark:text-zinc-300">
+              Natural handmade skincare, soap and candles.
+            </p>
+            <p className="mt-3 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+              天然手作，溫柔照顧每日肌膚。
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/shop"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+              >
+                Shop Now
+              </Link>
+              <Link
+                to="/about"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
+              >
+                Our Story
+              </Link>
+            </div>
+          </div>
 
-      <section className=''>
-        <div className="max-w-[1000px] mx-auto px-5">
-          <HomeInfoBox />
-          <PageHeading heading={"最新產品"} btnText={"立即選購 >>>"}  />
-          <ProductCarousel products={latestProducts}  />
+          <div className="relative">
+            <div className="home-hero-frame mx-auto max-w-[620px] overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+              {heroProduct ? (
+                <Link to={`/product-details/${heroProduct._id}`} className="block">
+                  <img
+                    src={pickImage(heroProduct)}
+                    alt={heroProduct.name}
+                    className="aspect-[4/5] w-full object-cover"
+                  />
+                  <div className="flex items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">
+                    <div>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                        Featured
+                      </p>
+                      <h2 className="text-lg font-medium text-zinc-950 dark:text-white">
+                        {heroProduct.name}
+                      </h2>
+                    </div>
+                    <p className="text-lg font-semibold">${heroProduct.price}</p>
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex aspect-[4/5] items-center justify-center p-10 text-center text-zinc-500">
+                  {isLoading ? "Loading products..." : "Products coming soon"}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </section>
-      {/* <section className='bg-gray-100 dark:bg-gray-800 py-8'>
-        <div className="max-w-[1000px] mx-auto px-5">
-          <h3 className='text-2xl my-5'>Categories</h3>
-          <ProductCategory />
-        </div>
-      </section> */}
-      <section className=''>
-        <div className="max-w-[1000px] mx-auto px-5 pt-5">
-          <PageHeading heading={"個人護理"} btnText={"立即選購 >>>"} />
-          <ProductCarousel products={personalCareProducts}  />
-        </div>
-      </section>
-      <section className=''>
-        <div className="max-w-[1000px] mx-auto px-5 pt-5">
-          <PageHeading heading={"手作皂"} btnText={"立即選購 >>>"} />
-          <ProductCarousel products={soapProducts}  />
-        </div>
-      </section>
-      <section className=''>
-        <div className="max-w-[1000px] mx-auto px-5 pt-5">
-          <PageHeading heading={"香薰蠟"} btnText={"立即選購 >>>"} />
-          <ProductCarousel products={candleProducts}  />
-        </div>
-      </section>
-      {/* <div class="fixed bottom-4 right-4 md:bottom-6 md:right-6">
-        <a href="https://wa.me/85366157169?text=Hello" target="_blank">
-          <button class="bg-green-500 hover:bg-green-600 text-white font-bold p-3 rounded-full flex items-center justify-center w-12 h-12 md:w-16 md:h-16">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo" class="w-6 h-6 md:w-8 md:h-8" />
-          </button>
-        </a>
-      </div> */}
-    </div>
-  )
-}
 
-export default Home
+      <section className="border-y border-zinc-100 bg-white py-6 dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-5 sm:px-6 md:grid-cols-4 lg:px-8">
+          {trustPoints.map(({ title, icon: Icon }) => (
+            <div
+              key={title}
+              className="flex min-h-24 items-center gap-3 rounded-md border border-zinc-100 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950"
+            >
+              <Icon className="h-5 w-5 shrink-0 text-emerald-700" />
+              <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                {title}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-white px-5 py-16 dark:bg-zinc-950 sm:px-6 lg:px-8">
+        <SectionHeading eyebrow="Shop By Mood" title="溫柔日常，由簡單開始">
+          從清潔、護理到香氣，為每日生活留一點安靜而自然的時間。
+        </SectionHeading>
+
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
+          {categoryCards.map((category) => {
+            const product = findCategoryProduct(category.terms);
+            return (
+              <Link
+                key={category.title}
+                to={category.to}
+                className="group relative min-h-[320px] overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900"
+              >
+                {product && (
+                  <img
+                    src={pickImage(product)}
+                    alt={category.title}
+                    className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/90 to-transparent p-5 pt-20 dark:from-zinc-950 dark:via-zinc-950/90">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-700">
+                    {category.caption}
+                  </p>
+                  <h3 className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
+                    {category.title}
+                  </h3>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="bg-[#f6f8f4] px-5 py-16 dark:bg-zinc-900 sm:px-6 lg:px-8">
+        <SectionHeading eyebrow="Featured Products" title="精選產品">
+          小批量製作，選用天然植物基礎，適合日常使用與送禮。
+        </SectionHeading>
+
+        {isLoading && featuredProducts.length === 0 ? (
+          <div className="flex justify-center py-12">
+            <Spinner />
+          </div>
+        ) : (
+          <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {featuredProducts.map((product) => (
+              <ProductItem
+                key={`home-product-${product._id}`}
+                {...product}
+                product={product}
+                grid
+              />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && featuredProducts.length === 0 && (
+          <p className="text-center text-zinc-500">Products coming soon.</p>
+        )}
+
+        <div className="mt-10 text-center">
+          <Link
+            to="/shop"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
+          >
+            View All Products
+          </Link>
+        </div>
+      </section>
+
+      <section className="bg-white px-5 py-16 dark:bg-zinc-950 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950 md:grid-cols-[1fr_0.8fr] md:p-10">
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+              Brand Story
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white md:text-4xl">
+              手作，不急於大量。
+            </h2>
+            <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
+              SoapDelight.J 以小批量手作方式製作護膚品、手工皂及香薰蠟，重視天然成分、日常使用感和每一件作品的細節。
+            </p>
+          </div>
+          <div className="flex md:justify-end">
+            <Link
+              to="/about"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-900 px-7 text-sm font-medium text-white transition hover:bg-emerald-800"
+            >
+              了解品牌故事
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#fbfcfa] px-5 py-16 dark:bg-zinc-950 sm:px-6 lg:px-8">
+        <SectionHeading eyebrow="Service Notes" title="購買前的小資訊">
+          簡單清晰的安排，讓手作產品安心送到你手上。
+        </SectionHeading>
+
+        <div className="mx-auto grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {serviceCards.map(({ title, text, icon: Icon }) => (
+            <div
+              key={title}
+              className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950"
+            >
+              <Icon className="mb-5 h-5 w-5 text-emerald-700" />
+              <h3 className="text-lg font-semibold text-zinc-950 dark:text-white">
+                {title}
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                {text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+};
+
+export default Home;
