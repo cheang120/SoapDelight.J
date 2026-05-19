@@ -6,6 +6,7 @@ import ProductRating from "../productRating/ProductRating";
 import { calculateAverageRating, shortenText } from "../../../utils";
 import DOMPurify from "dompurify";
 import { ADD_TO_CART, saveCartDB, selectCartItems } from "../../../redux/features/cart/cartSlice";
+import { toast } from "react-toastify";
 
 
 const ProductItem = ({
@@ -13,61 +14,62 @@ const ProductItem = ({
 }) => {
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
+    const { currentUser } = useSelector((state) => state.user);
 
     const addToCart = (product) => {
       dispatch(ADD_TO_CART(product));
-      // dispatch(CALCULATE_TOTAL_QUANTITY());
-      dispatch(
-        saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-      );
+      if (currentUser) {
+        dispatch(
+          saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+        );
+      }
     };
-    const averageRating = calculateAverageRating(product.ratings);
+    const averageRating = calculateAverageRating(product?.ratings || []);
+    const hasDiscount = Number(regularPrice) > Number(price);
 
   return (
     <div
       className={
         grid
-          ? "mb-5 mx-auto p-4 bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg h-[350px] flex flex-col justify-between"
-          : `${styles.list} mb-5 dark:bg-gray-800 dark:text-white`
+          ? "group mb-5 mx-auto flex h-full min-h-[360px] flex-col rounded-md border border-zinc-200 bg-white p-3 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
+          : `${styles.list} mb-5 border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:text-white`
       }
     >
       <Link to={`/product-details/${_id}`}>
         <div
           className={`${
             grid
-              ? " flex justify-center items-center overflow-hidden mb-2 rounded-md h-48" // 图片容器
+              ? "mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-md bg-zinc-50 dark:bg-zinc-900"
               : `${styles.img} flex justify-center mb-2`
           }`}
         >
           <img
-            src={image[0]}
+            src={image?.[0]}
             alt={name}
             className={`${
               grid
-                ? "w-60 object-cover  h-full transform transition-transform duration-300 hover:scale-105" // 添加 hover 效果
+                ? "h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                 : ""
             }`}
           />
         </div>
       </Link>
 
-      <div className={`${styles.content} px-2`}>
+      <div className={`${styles.content} flex flex-1 flex-col px-1`}>
         <div className={`${styles.details} mb-2`}>
-          <p className="flex items-center justify-center mb-1">
-            <span>
-              {regularPrice > price && (
-                <del className="text-red-500 mr-2">${regularPrice}</del>
-              )}
-            </span>
-            <span className="text-lg font-bold">{`$${price}`}</span>
+          <p className="mb-2 flex items-center justify-center gap-2">
+            {hasDiscount && (
+              <del className="text-sm text-zinc-400">${regularPrice}</del>
+            )}
+            <span className="text-base font-semibold text-zinc-950 dark:text-white">{`$${price}`}</span>
           </p>
 
           <ProductRating
             averageRating={averageRating}
-            noOfRatings={product?.ratings.length}
+            noOfRatings={product?.ratings?.length || 0}
           />
 
-          <h4 className="text-center text-lg font-semibold">
+          <h4 className="mt-2 text-center text-base font-medium leading-6 text-zinc-950 dark:text-white">
             {shortenText(name, 18)}
           </h4>
         </div>
@@ -85,8 +87,8 @@ const ProductItem = ({
           <button
             className={`${
               grid
-                ? "w-full bg-pink-500 text-white py-2 mt-auto rounded hover:bg-pink-600"
-                : "w-full md:w-3/4 text-[1rem] bg-pink-500 text-white py-2 rounded hover:bg-pink-600 mx-auto block"
+                ? "mt-auto w-full rounded-md bg-zinc-950 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+                : "mx-auto block w-full rounded-md bg-zinc-950 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 md:w-3/4"
             }`}
             onClick={() => addToCart(product)}
           >
@@ -96,8 +98,8 @@ const ProductItem = ({
           <button
             className={`${
               grid
-                ? "w-full bg-red-500 text-white py-2 mt-auto rounded hover:bg-red-600"
-                : "w-full md:w-3/4 text-[1rem] bg-red-500 text-white py-2 rounded hover:bg-red-600 mx-auto block"
+                ? "mt-auto w-full rounded-md bg-zinc-200 py-2.5 text-sm font-medium text-zinc-500"
+                : "mx-auto block w-full rounded-md bg-zinc-200 py-2.5 text-sm font-medium text-zinc-500 md:w-3/4"
             }`}
             onClick={() => toast.error("Sorry, Product is out of stock")}
           >

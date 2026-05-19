@@ -265,8 +265,13 @@ const productSlice = createSlice({
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          // console.log(action.payload);
-          state.products = action.payload;
+          if (Array.isArray(action.payload)) {
+            state.products = action.payload;
+          } else if (Array.isArray(action.payload?.products)) {
+            state.products = action.payload.products;
+          } else {
+            state.products = [];
+          }
         })
         .addCase(getProducts.rejected, (state, action) => {
           state.isLoading = false;

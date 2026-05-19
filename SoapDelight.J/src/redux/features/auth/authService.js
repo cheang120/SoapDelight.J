@@ -1,7 +1,7 @@
 import axios from "axios"
+import { API_BASE_URL } from "../../../utils/apiBase";
 
-const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
-export const API_URL = `${BACKEND_URL}/api/auth/`
+export const API_URL = `${API_BASE_URL}/auth/`
 
 export const validateEmail = (email) => {
     return email.match(
@@ -17,7 +17,7 @@ const signup = async (userData) => {
 
 const verifyUser = async (verificationToken) =>{
     console.log(verificationToken);
-    const response = await axios.patch(`${API_URL} verifyUser/${verificationToken}`)
+    const response = await axios.patch(`${API_URL}verify/${verificationToken}`)
     return response.data.message
 }
 
@@ -39,6 +39,11 @@ const resetPassword = async (userData, resetToken) => {
     );
   
     return response.data.message;
+};
+
+const getLoginStatus = async () => {
+    const response = await axios.get(API_URL + "loginStatus");
+    return response.data;
 };
 
 // ADD TO WISHLIST
@@ -65,7 +70,7 @@ const resetPassword = async (userData, resetToken) => {
 
 
 const authService = {
-    signup,verifyUser,sendVerificationEmail,forgotPassword,resetPassword,addToWishlist,getWishlist,removeFromWishlist
+    signup,verifyUser,sendVerificationEmail,forgotPassword,resetPassword,getLoginStatus,addToWishlist,getWishlist,removeFromWishlist
 }
 
 export default authService

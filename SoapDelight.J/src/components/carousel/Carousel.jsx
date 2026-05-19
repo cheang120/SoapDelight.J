@@ -19,7 +19,7 @@ const ProductCarousel = ({ products }) => {
         transitionDuration={1000}
         // key={item.id || index}
       >
-        {products}
+        {React.Children.toArray(products)}
       </Carousel>
     </div>
     </ErrorBoundary>

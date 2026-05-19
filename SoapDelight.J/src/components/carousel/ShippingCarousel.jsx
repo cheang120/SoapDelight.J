@@ -26,6 +26,7 @@ const ShippingCarouselItem = ({
   product,
 }) => {
   const cartItems = useSelector(selectCartItems);
+  const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   const addToCart = (product) => {
@@ -35,12 +36,14 @@ const ShippingCarouselItem = ({
     }
     dispatch(ADD_TO_CART(product));
     dispatch(CALCULATE_TOTAL_QUANTITY());
-    dispatch(
-      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-    );
+    if (currentUser) {
+      dispatch(
+        saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+      );
+    }
   };
 
-  const desc = removeHTMLTags(description);
+  const desc = removeHTMLTags(description || "");
 
   return (
     <div className="p-1  bg-white dark:bg-gray-800 mx-2">

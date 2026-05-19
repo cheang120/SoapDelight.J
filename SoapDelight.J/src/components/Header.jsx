@@ -1,235 +1,245 @@
-import { Avatar, Button, Dropdown, Navbar, Sidebar, TextInput } from 'flowbite-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AiOutlineSearch } from 'react-icons/ai';
-import { FaMoon, FaSun } from 'react-icons/fa';
-import { useSelector, useDispatch } from 'react-redux';
-import { toggleTheme } from '../redux/theme/themeSlice';
-import { signoutSuccess } from '../redux/user/userSlice';
-import { useEffect, useState } from 'react';
-import { HiOutlineMenuAlt3, HiUser } from "react-icons/hi";
-import { FaShoppingCart, FaTimes, FaUserCircle, FaRegHeart, FaHeart } from "react-icons/fa";
-import { AdminOnlyLink } from './hiddenLink/AdminOnlyRoute';
-import { CALCULATE_TOTAL_QUANTITY, getCartDB, selectCartItems, selectCartTotalQuantity } from '../redux/features/cart/cartSlice';
-import Wishlist from '../pages/wishlist/Wishlist';
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { FaHeart, FaMoon, FaShoppingBag, FaSun, FaTimes, FaUserCircle } from "react-icons/fa";
+import { HiOutlineMenuAlt3 } from "react-icons/hi";
+import { toggleTheme } from "../redux/theme/themeSlice";
+import { signoutSuccess } from "../redux/user/userSlice";
+import { CALCULATE_TOTAL_QUANTITY, selectCartItems, selectCartTotalQuantity } from "../redux/features/cart/cartSlice";
+
+const desktopLinks = [
+  { label: "Home", to: "/" },
+  { label: "Shop", to: "/shop" },
+  { label: "About", to: "/about" },
+  { label: "Contact", to: "/contact" },
+];
+
+const mobileLinks = [
+  { label: "選購全部", to: "/shop" },
+  { label: "手作皂", to: "/shop?category=手作皂" },
+  { label: "個人護理", to: "/shop?category=個人護理" },
+  { label: "香薰蠟", to: "/shop?category=香薰蠟" },
+  { label: "收藏清單", to: "/wishlist" },
+  { label: "購物車", to: "/cart" },
+  { label: "品牌故事", to: "/about" },
+  { label: "聯絡我們", to: "/contact" },
+];
 
 export default function Header() {
-  const [showHeader, setShowHeader] = useState(false);
-  const path = useLocation().pathname;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
-  const [showMenu, setShowMenu] = useState(false);
-  const [scrollPage, setScrollPage] = useState(false);
-  const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const cartItems = useSelector(selectCartItems);
-
-  const userRole = currentUser ? currentUser.role : null;
-
-  // const fixNavbar = () => {
-  //   if (window.scrollY > 50) {
-  //     setScrollPage(true);
-  //   } else {
-  //     setScrollPage(false);
-  //   }
-  // };
-  const fixNavbar = () => {
-    if (window.scrollY > 50) {
-      setShowHeader(true);  // 顯示 header
-      setScrollPage(true);   // 加上陰影效果
-    } else {
-      setShowHeader(false);  // 隱藏 header
-      setScrollPage(false);  // 移除陰影效果
-    }
-  };
-  window.addEventListener("scroll", fixNavbar);
-
-  const handleSignout = async () => {
-    try {
-      const res = await fetch('/api/auth/signout', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
-      } else {
-        dispatch(signoutSuccess());
-        localStorage.setItem("cartItems", JSON.stringify([]));
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
+  const cartTotalQuantity = useSelector(selectCartTotalQuantity);
+  const userRole = currentUser?.role;
+  const canManageProducts = userRole === "author" || userRole === "admin";
+  const profilePicture = currentUser?.profilePicture?.trim();
+  const showProfileImage = profilePicture && !avatarFailed;
 
   useEffect(() => {
     dispatch(CALCULATE_TOTAL_QUANTITY());
   }, [dispatch, cartItems]);
 
-  const cart = (
-    <span className='flex  '>
-      <FaShoppingCart size={20}  />
-      <p className='ml-1'>
-        {cartTotalQuantity}
-      </p>
-    </span>
-  );
+  useEffect(() => {
+    setAvatarFailed(false);
+  }, [profilePicture]);
 
-  const wishlist = (
-    <span className='flex'>
-      <FaHeart size={20}  />
-    </span>
-  );
+  useEffect(() => {
+    setMenuOpen(false);
+    setAccountOpen(false);
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
+
+  const handleSignout = async () => {
+    try {
+      const res = await fetch("/api/auth/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+        return;
+      }
+      dispatch(signoutSuccess());
+      localStorage.setItem("cartItems", JSON.stringify([]));
+      setAccountOpen(false);
+      setMenuOpen(false);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const navClass = ({ isActive }) =>
+    `text-sm transition-colors ${
+      isActive ? "text-zinc-950" : "text-zinc-600 hover:text-zinc-950"
+    }`;
 
   return (
-    <Navbar
-      className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-500 ease-in-out backdrop-filter backdrop-blur bg-white bg-opacity-90 ${
-        scrollPage ? 'shadow-md' : ''
-      } ${showHeader ? 'transform translate-y-0' : 'transform -translate-y-full'}`}
-    >
-      <Link
-        to='/'
-        className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
-      >
-        <img src="/logo.svg" alt="SoapDelight.J" className='w-14 h-14 ' />
-      </Link>
+    <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/90 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/90">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white" aria-label="SoapDelight.J home">
+          SoapDelight.J
+        </Link>
 
-      <div className='flex gap-2 md:order-2'>
-        <Button
-          className='w-12 h-10 border-purple-500 shadow-md'
-          color='gray'
-          pill
-          onClick={() => dispatch(toggleTheme())}
-        >
-          {theme === 'light' ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-purple-500" />}
-        </Button>
-        {currentUser ? (
-          <Dropdown
-            arrowIcon={false}
-            inline
-            label={
-              <Avatar alt='user' img={currentUser.profilePicture} rounded />
-            }
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
+          {desktopLinks.map((link) => (
+            <NavLink key={link.to} to={link.to} className={navClass}>
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <Link
+            to="/wishlist"
+            className="hidden h-9 w-9 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900 md:flex"
+            aria-label="Wishlist"
           >
-            <Dropdown.Header>
-              <span className='block text-sm'>@{currentUser.username}</span>
-              <span className='block text-sm font-medium truncate'>
-                {currentUser.email}
+            <FaHeart size={16} />
+          </Link>
+
+          <Link
+            to="/cart"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
+            aria-label={`Cart with ${cartTotalQuantity} items`}
+          >
+            <FaShoppingBag size={17} />
+            {cartTotalQuantity > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-zinc-950 px-1 text-[11px] font-medium text-white dark:bg-white dark:text-zinc-950">
+                {cartTotalQuantity}
               </span>
-            </Dropdown.Header>
-            <Link to={'/dashboard?tab=profile'}>
-              <Dropdown.Item>Profile</Dropdown.Item>
-            </Link>
-            {(userRole === 'author' || userRole === 'admin') && (
-              <Link to='/productAdmin/home'>
-                <Dropdown.Item>ProductAdmin</Dropdown.Item>
+            )}
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => dispatch(toggleTheme())}
+            className="hidden h-9 w-9 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900 md:flex"
+            aria-label="Toggle color theme"
+          >
+            {theme === "light" ? <FaSun size={16} /> : <FaMoon size={15} />}
+          </button>
+
+          <div className="relative hidden md:block">
+            {currentUser ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen((open) => !open)}
+                  className="flex h-9 items-center gap-2 rounded-full px-2 text-sm text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
+                  aria-label="Account menu"
+                  aria-expanded={accountOpen}
+                >
+                  {showProfileImage ? (
+                    <img
+                      src={profilePicture}
+                      alt=""
+                      className="h-7 w-7 rounded-full object-cover"
+                      onError={() => setAvatarFailed(true)}
+                    />
+                  ) : (
+                    <FaUserCircle size={22} />
+                  )}
+                </button>
+                {accountOpen && (
+                  <div className="absolute right-0 mt-3 w-56 rounded-md border border-zinc-200 bg-white p-2 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+                    <div className="border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
+                      <p className="font-medium text-zinc-950 dark:text-white">{currentUser.username}</p>
+                      <p className="truncate text-xs text-zinc-500">{currentUser.email}</p>
+                    </div>
+                    <Link className="block rounded px-3 py-2 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-900" to="/dashboard?tab=profile">
+                      My Account
+                    </Link>
+                    <Link className="block rounded px-3 py-2 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-900" to="/order-history">
+                      My Orders
+                    </Link>
+                    {canManageProducts && (
+                      <Link className="block rounded px-3 py-2 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-900" to="/productAdmin/home">
+                        Product Admin
+                      </Link>
+                    )}
+                    <button type="button" onClick={handleSignout} className="w-full rounded px-3 py-2 text-left text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-900">
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link className="rounded-full border border-zinc-300 px-4 py-1.5 text-sm text-zinc-800 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:hover:border-zinc-300" to="/sign-in">
+                Sign in
               </Link>
             )}
-            <Link to='/order-history'>
-              <Dropdown.Item>My Orders</Dropdown.Item>
-            </Link>
-            <Dropdown.Divider />
-            <Dropdown.Item onClick={handleSignout}>
-              Sign out
-            </Dropdown.Item>
-          </Dropdown>
-        ) : (
-          <Link to='/sign-in'>
-            <Button gradientDuoTone='purpleToBlue' outline>
-              Sign In
-            </Button>
-          </Link>
-        )}
+          </div>
 
-        <Navbar.Toggle />
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-zinc-800 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-900 md:hidden"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <FaTimes size={18} /> : <HiOutlineMenuAlt3 size={22} />}
+          </button>
+        </div>
       </div>
 
-      <Navbar.Collapse>
-  <Navbar.Link active={path === '/'} as={'div'}
-    className={` relative ${path === '/' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
-  >
-    <Link
-      to='/'
-      className={`relative ${path === '/' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
-        after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-        after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/' ? 'after:w-full' : 'hover:after:w-full'}
-      `}
-    >
-      主頁
-    </Link>
-  </Navbar.Link>
-
-  <Navbar.Link active={path === '/shop'} as={'div'} 
-        className={` relative ${path === '/shop' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
-  >
-    <Link
-      to='/shop'
-      className={` relative ${path === '/shop' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
-      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/shop' ? 'after:w-full' : 'hover:after:w-full'}
-    `}
-    >
-      選購
-    </Link>
-  </Navbar.Link>
-
-  <Navbar.Link active={path === '/contact'} as={'div'} 
-        className={` relative ${path === '/contact' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
-  >
-    <Link
-      to='/contact'
-      className={` relative ${path === '/contact' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
-      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/contact' ? 'after:w-full' : 'hover:after:w-full'}
-    `}
-    >
-      聯絡我們
-    </Link>
-  </Navbar.Link>
-
-  {/* <Navbar.Link active={path === '/projects'} as={'div'}
-    className={` relative ${path === '/projects' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
-  >
-    <Link
-      to='/projects'
-      className={`relative ${path === '/projects' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
-      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/projects' ? 'after:w-full' : 'hover:after:w-full'}
-    `}
-    >
-      Projects
-    </Link>
-  </Navbar.Link> */}
-
-  <Navbar.Link active={path === '/cart'} as={'div'}
-      className={` relative ${path === '/cart' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
-  >
-    <Link
-      to='/cart'
-      className={`relative ${path === '/cart' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
-      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/cart' ? 'after:w-full' : 'hover:after:w-full'}
-    `}
-    >
-      {cart}
-    </Link>
-  </Navbar.Link>
-
-  <Navbar.Link active={path === '/wishlist'} as={'div'}
-      className={` relative ${path === '/wishlist' ? 'text-yellow-400 bg-purple-700' : 'text-purple-500 hover:text-yellow-400'}`}
-  >
-    <Link
-      to='/wishlist'
-      className={`relative ${path === '/wishlist' ? 'text-yellow-400' : 'text-purple-500 hover:text-yellow-400'}
-      after:content-[''] after:absolute after:left-1/2 after:bottom-[-5px] after:w-0 after:h-[2px] after:bg-yellow-400
-      after:transition-all after:duration-300 after:transform after:-translate-x-1/2 ${path === '/wishlist' ? 'after:w-full' : 'hover:after:w-full'}
-    `}
-    >
-      {wishlist}
-    </Link>
-  </Navbar.Link>
-</Navbar.Collapse>
-
-    </Navbar>
+      {menuOpen && (
+        <div className="fixed inset-0 top-14 z-40 bg-white px-6 py-6 dark:bg-zinc-950 md:hidden">
+          <nav className="flex flex-col" aria-label="Mobile navigation">
+            {mobileLinks.map((link) => (
+              <Link key={link.label} to={link.to} className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                {link.label}
+              </Link>
+            ))}
+            {currentUser ? (
+              <>
+                <Link to="/dashboard?tab=profile" className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                  我的帳戶
+                </Link>
+                {canManageProducts && (
+                  <Link to="/productAdmin/home" className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                    Product Admin
+                  </Link>
+                )}
+                <button type="button" onClick={handleSignout} className="border-b border-zinc-100 py-4 text-left text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link to="/sign-in" className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                Sign in
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => dispatch(toggleTheme())}
+              className="mt-6 flex items-center gap-3 text-left text-sm text-zinc-600 dark:text-zinc-300"
+            >
+              {theme === "light" ? <FaSun /> : <FaMoon />}
+              Toggle theme
+            </button>
+          </nav>
+        </div>
+      )}
+    </header>
   );
 }

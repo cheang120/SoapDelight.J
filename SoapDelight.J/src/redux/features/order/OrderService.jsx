@@ -1,6 +1,7 @@
 import axios from "axios";
-const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
-export const API_URL = `${BACKEND_URL}/api/order/`;
+import { API_BASE_URL } from "../../../utils/apiBase";
+
+export const API_URL = `${API_BASE_URL}/order/`;
 
 // Create New Order
 const createOrder = async (formData) => {

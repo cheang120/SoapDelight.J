@@ -22,6 +22,7 @@ const ProductDetails = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
+    const { currentUser } = useSelector((state) => state.user);
     const [imageIndex, setImageIndex] = useState(0);
     const { product, isLoading } = useSelector((state) => state.product);
 
@@ -56,9 +57,11 @@ const ProductDetails = () => {
     const addToCart = (product) => {
         dispatch(ADD_TO_CART(product));
         // dispatch(CALCULATE_TOTAL_QUANTITY());
-        dispatch(
-          saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-        );
+        if (currentUser) {
+            dispatch(
+              saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+            );
+        }
     };
     
     const decreaseCart = (product) => {
@@ -70,10 +73,13 @@ const ProductDetails = () => {
     };
 
     const addWishlist = (product) => {
+        if (!currentUser) {
+            toast.info("Please sign in to use wishlist");
+            return;
+        }
         const productData = {
           productId: product._id,
         };
-        console.log(productData);
         dispatch(addToWishlist(productData));
     };
     // const averageRating = calculateAverageRating(product?.ratings);

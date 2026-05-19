@@ -1,4 +1,5 @@
-import {BrowserRouter,Routes,Route,Navigate} from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import {BrowserRouter,Routes,Route} from 'react-router-dom'
 import Home from './pages/home/Home'
 import About from './pages/About'
 import SignUp from './pages/SignUp'
@@ -11,9 +12,6 @@ import axios from "axios"
 import {ToastContainer} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import PrivateRoute from './components/PrivateRoute'
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import {getLoginStatus, selectIsLoggedIn, selectUser} from "./redux/features/auth/authSlice"
 import Verify from './components/Verify'
 import Forgot from './pages/Forgot'
 import Reset from './pages/Reset'
@@ -25,7 +23,6 @@ import Product from './pages/shop/Product'
 import ProductDetails from './components/product/productDetails/ProductDetails'
 import Cart from './pages/cart/Cart'
 import CheckoutDetails from './pages/checkout/CheckoutDetails'
-import { Checkout } from './pages/checkout/Checkout'
 import CheckoutSuccess from './pages/checkout/CheckoutSuccess'
 import OrderHistory from './pages/order/OrderHistory'
 import OrderDetails from './pages/order/OrderDetails'
@@ -36,27 +33,16 @@ import Contact from './pages/Contact'
 
 axios.defaults.withCredentials = true
 
+const Checkout = lazy(() =>
+  import('./pages/checkout/Checkout').then((module) => ({
+    default: module.Checkout,
+  }))
+);
 
 
 
 function App() {
   axios.defaults.withCredentials = true
-
-  const isLoggedIn = useSelector(selectIsLoggedIn);
-  const user = useSelector(selectUser);
-// console.log(user);
-
-  const dispatch = useDispatch()
-  useEffect(()=>{
-    dispatch(getLoginStatus())
-  },[dispatch])
-
-  useEffect(() => {
-    if (isLoggedIn && user === null) {
-      dispatch(getUser());
-    }
-    // console.log(user);
-  }, [dispatch, isLoggedIn, user]);
 
   return (
     <BrowserRouter>
@@ -111,7 +97,14 @@ function App() {
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/order-details/:id" element={<OrderDetails />} />
         <Route path="/checkout-details" element={<CheckoutDetails />} />
-        <Route path="/checkout-stripe" element={<Checkout />} />
+        <Route
+          path="/checkout-stripe"
+          element={
+            <Suspense fallback={<div className="min-h-[20rem] px-10 py-10">Loading checkout...</div>}>
+              <Checkout />
+            </Suspense>
+          }
+        />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/review-product/:id" element={<ReviewProduct />} />
 

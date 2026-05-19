@@ -29,14 +29,15 @@ const ProductForm = ({
     const { categories, brands } = useSelector((state) => state.category);
     const { currentUser } = useSelector((state) => state.user);
     const userRole = currentUser.role
+    const canManageProducts = userRole === 'author' || userRole === 'admin';
     // console.log(userRole);
 
-    if (userRole === 'author') {
-      useEffect(() => {
+    useEffect(() => {
+      if (canManageProducts) {
         dispatch(getCategories());
         dispatch(getBrands());
-      }, [dispatch]);
-    }
+      }
+    }, [canManageProducts, dispatch]);
 
     // const handleInputChange = (e) => {
     //     const { name, value } = e.target;

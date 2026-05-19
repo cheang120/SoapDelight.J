@@ -21,9 +21,9 @@ const Cart = () => {
   const cartTotalAmount = useSelector(selectCartTotalAmount);  // 商品总价
   const isError = useSelector((state) => state.cart.isError);
   const { coupon } = useSelector((state) => state.coupon);
+  const { currentUser } = useSelector((state) => state.user);
 
   const products = useSelector((state) => state.product.products); // 获取所有产品
-  window.scrollTo(0, 0);
 
   const shippingProducts = products.filter(product => product.category === "Shipping");
   const [selectedShipping, setSelectedShipping] = useState(null);
@@ -34,8 +34,14 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    dispatch(getCartDB());
-  }, [cartItems, dispatch]);
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      dispatch(getCartDB());
+    }
+  }, [currentUser, dispatch]);
 
   useEffect(() => {
     dispatch(CALCULATE_SUBTOTAL({ coupon }));
@@ -48,7 +54,7 @@ const Cart = () => {
       <div className={`container ${styles.table} m-auto`}>
         <h2 className='py-10 text-2xl'>Shopping Cart</h2>
 
-        {JSON.parse(localStorage.getItem("cartItems"))?.length === 0 ? (
+        {cartItems.length === 0 ? (
           <>
             <div className='p-10'>
               <p>Your cart is currently empty.</p>
@@ -73,7 +79,7 @@ const Cart = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {JSON.parse(localStorage.getItem("cartItems"))?.map((cart, index) => {
+                  {cartItems.map((cart, index) => {
                     const { _id, name, price, image, cartQuantity,category } = cart;
                     return (
                       <tr key={_id} className="border-b even:dark:bg-gray-700 dark:border-gray-600">
@@ -132,7 +138,6 @@ const Cart = () => {
             <div className='mt-10 flex flex-col md:flex-row md:justify-between items-center md:items-start'>
               <button className='bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mb-4 md:mb-0'  onClick={() => {
                 dispatch(CLEAR_CART());
-                localStorage.removeItem("cartItems");  // Clear localStorage
               }}>
                 清除購物車
               </button>

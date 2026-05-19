@@ -1,10 +1,10 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { API_BASE_URL } from "../../../utils/apiBase";
 
 
-const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
-const API_URL = `${BACKEND_URL}/api/`;
+const API_URL = `${API_BASE_URL}/`;
 
 // Create Category
 const createCategory = async (formData) => {

@@ -1,8 +1,8 @@
 import axios from "axios";
+import { API_BASE_URL } from "../../../utils/apiBase";
 
-const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
-// export const API_URL = `${BACKEND_URL}/api/user/`;
-export const API_URL = `${BACKEND_URL}/api/auth/`;
+// export const API_URL = `${API_BASE_URL}/user/`;
+export const API_URL = `${API_BASE_URL}/auth/`;
 
 // Save Cart
 const saveCartDB = async (cartData) => {

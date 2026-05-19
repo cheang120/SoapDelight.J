@@ -33,42 +33,38 @@ const ViewProducts = () => {
 
   // console.log(products);
   const userRole = currentUser.role
+  const canManageProducts = userRole === 'author' || userRole === 'admin';
     // console.log(userRole);
 
-  if (userRole === 'author'){
-    useEffect(() => {
-      // console.log(products);
-      // if (isLoggedIn) {
-        dispatch(getProducts())
-      // }
-      // console.log(products);
-    },[dispatch])
+  useEffect(() => {
+    if (canManageProducts) {
+      dispatch(getProducts())
+    }
+  },[canManageProducts, dispatch])
 
+  const delProduct = async (id) => {
+    // console.log(id);
+    await dispatch(deleteProduct(id));
+    await dispatch(getProducts());
+  };
+  // console.log(products);
 
-
-    const delProduct = async (id) => {
-      // console.log(id);
-      await dispatch(deleteProduct(id));
-      await dispatch(getProducts());
-    };
-    // console.log(products);
-
-    const confirmDelete = (id) => {
-      confirmAlert({
-        title: "Delete Product",
-        message: "Are you sure you want to delete this product.",
-        buttons: [
-          {
-            label: "Delete",
-            onClick: () => delProduct(id),
-          },
-          {
-            label: "Cancel",
-            // onClick: () => alert('Click No')
-          },
-        ],
-      });
-    };
+  const confirmDelete = (id) => {
+    confirmAlert({
+      title: "Delete Product",
+      message: "Are you sure you want to delete this product.",
+      buttons: [
+        {
+          label: "Delete",
+          onClick: () => delProduct(id),
+        },
+        {
+          label: "Cancel",
+          // onClick: () => alert('Click No')
+        },
+      ],
+    });
+  };
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -85,6 +81,10 @@ const ViewProducts = () => {
     setItemOffset(newOffset);
   };
   // End Pagination
+
+  if (!canManageProducts) {
+    return <h2>You are not admin, please login as Admin</h2>;
+  }
     
     return (
       <section className="py-8 min-h-screen">
@@ -176,8 +176,6 @@ const ViewProducts = () => {
       </section>
 
     )
-
-  }
 }
 
 export default ViewProducts

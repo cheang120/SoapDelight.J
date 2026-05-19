@@ -45,14 +45,15 @@ const AddProduct = () => {
     const { name, category, brand, price, quantity, color, regularPrice } = product;
 
     const userRole = currentUser.role
+    const canManageProducts = userRole === 'author' || userRole === 'admin';
     // console.log(userRole);
 
-    if (userRole === 'author') {
-      useEffect(() => {
+    useEffect(() => {
+      if (canManageProducts) {
         dispatch(getCategories());
         dispatch(getBrands());
-      }, [dispatch]);
-    }
+      }
+    }, [canManageProducts, dispatch]);
 
  
 
@@ -120,7 +121,7 @@ const AddProduct = () => {
         // console.log(filteredBrands);
       }, [category]);
 
-      if (userRole === 'author') {
+      if (canManageProducts) {
         return (
           <section>
             <div className='container min-h-screen'>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import {
@@ -17,10 +17,11 @@ import { toast } from "react-toastify";
 
 // import CompletePage from "./CompletePage";
 
-const stripePromise = loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PK);
-
-
 export const Checkout = ({selectedShippingFee}) => {
+  const stripePromise = useMemo(
+    () => loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PK),
+    []
+  );
   const [clientSecret, setClientSecret] = useState("");
   const { cartItems } = useSelector((state) => state.cart);
   const totalAmount = useSelector(selectCartTotalAmount);
@@ -28,18 +29,21 @@ export const Checkout = ({selectedShippingFee}) => {
   const shippingAddress = useSelector(selectShippingAddress);
   const billingAddress = useSelector(selectBillingAddress);
   const { coupon } = useSelector((state) => state.coupon);
-  const description = `eShop payment: email: ${currentUser.email}, Amount: ${totalAmount}`;
+  const userEmail = currentUser?.email || "";
+  const description = `eShop payment: email: ${userEmail}, Amount: ${totalAmount}`;
 
-  const productIDs = extractIdAndCartQuantity(cartItems);
+  const productIDs = useMemo(() => extractIdAndCartQuantity(cartItems), [cartItems]);
   
 
   useEffect(() => {
+    if (!userEmail) return;
+
     fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/order/create-payment-intent`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         items: productIDs,
-        userEmail: currentUser.email,
+        userEmail,
         shipping: shippingAddress,
         billing: billingAddress,
         description,
@@ -54,7 +58,7 @@ export const Checkout = ({selectedShippingFee}) => {
       console.error("Checkout initialization error:", error);
       toast.error("Something went wrong!");
     });
-  }, []);
+  }, [billingAddress, coupon, description, productIDs, shippingAddress, userEmail]);
 
   const appearance = { theme: "stripe" };
   const options = { clientSecret, appearance };
@@ -75,4 +79,3 @@ export const Checkout = ({selectedShippingFee}) => {
     </>
   );
 };
-

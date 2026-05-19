@@ -1,44 +1,52 @@
-import { Footer } from 'flowbite-react';
-import { Link } from 'react-router-dom';
-import { BsFacebook, BsInstagram, BsTwitter, BsGithub, BsDribbble } from 'react-icons/bs';
+import { Link } from "react-router-dom";
+import { BsFacebook } from "react-icons/bs";
+
+const footerLinks = [
+  { label: "Shop", to: "/shop" },
+  { label: "About", to: "/about" },
+  { label: "Contact", to: "/contact" },
+  { label: "Cart", to: "/cart" },
+];
 
 export default function FooterCom() {
   return (
-    <Footer container className='border-t-8 border-teal-500'>
-      <div className='w-full max-w-7xl mx-auto'>
-        {/* Responsive grid layout for the footer */}
-        <div className='flex flex-col sm:flex-row justify-between items-center py-4'>
-          {/* Logo */}
-          <div className='mb-4 sm:mb-0 sm:w-1/3 flex justify-center'>
-            <Link
-              to='/'
-              className='flex whitespace-nowrap text-lg sm:text-xl font-semibold dark:text-white'
-            >
-              <span className='px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>
-                Soapdelight.J
-              </span>
+    <footer className="border-t border-zinc-200 bg-white text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div>
+            <Link to="/" className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white">
+              SoapDelight.J
             </Link>
+            <p className="mt-2 max-w-sm text-sm">
+              Natural handmade skincare, soap and candles.
+            </p>
           </div>
 
-          {/* Copyright */}
-          <div className='mb-4 sm:mb-0 sm:w-1/3 flex justify-center'>
-            <Footer.Copyright
-              href='https://www.carreyportfolio.lol/'
-              by="babycode"
-              year={new Date().getFullYear()}
-            />
-          </div>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm" aria-label="Footer navigation">
+            {footerLinks.map((link) => (
+              <Link key={link.to} to={link.to} className="transition hover:text-zinc-950 dark:hover:text-white">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
 
-          {/* Social Icons */}
-          <div className='flex gap-6 sm:w-1/3 justify-center'>
-            <Footer.Icon href='https://www.facebook.com/profile.php?id=61555597584696' icon={BsFacebook} />
-            <Footer.Icon href='https://www.instagram.com' icon={BsInstagram} />
-            <Footer.Icon href='https://www.twitter.com' icon={BsTwitter} />
-            <Footer.Icon href='https://www.github.com' icon={BsGithub} />
-            <Footer.Icon href='https://www.dribbble.com' icon={BsDribbble} />
+          <div className="flex gap-4">
+            <a
+              href="https://www.facebook.com/profile.php?id=61555597584696"
+              className="transition hover:text-zinc-950 dark:hover:text-white"
+              aria-label="SoapDelight.J Facebook"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <BsFacebook size={18} />
+            </a>
           </div>
         </div>
+
+        <p className="mt-8 text-xs text-zinc-500">
+          © {new Date().getFullYear()} SoapDelight.J. All rights reserved.
+        </p>
       </div>
-    </Footer>
+    </footer>
   );
 }

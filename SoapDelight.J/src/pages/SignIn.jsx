@@ -8,7 +8,7 @@ import { FaTimes } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
-import { getCartDB } from '../redux/features/cart/cartSlice';
+import { getCartDB, saveCartDB } from '../redux/features/cart/cartSlice';
 // import { getCartDB } from '../redux/features/cart/cartSlice';
 
 
@@ -150,7 +150,11 @@ const [uCase, setUCase] = useState(false)
     } catch (error) {
       // setErrorMessage(error.message);
       // setLoading(false);
-      dispatch(signInFailure(data.message))
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Sign in failed";
+      dispatch(signInFailure(message))
 
     }
 

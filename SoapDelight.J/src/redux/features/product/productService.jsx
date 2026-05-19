@@ -1,8 +1,7 @@
 import axios from "axios";
+import { API_BASE_URL } from "../../../utils/apiBase";
 
-const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
-
-const API_URL = `${BACKEND_URL}/api/products/`;
+const API_URL = `${API_BASE_URL}/products/`;
 
 // Create New Product
 const createProduct = async (formData) => {

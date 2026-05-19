@@ -4,6 +4,16 @@ import { getCartQuantityById } from '../../../utils';
 import cartService from './cartService';
 const FRONTEND_URL = import.meta.env.VITE_REACT_APP_FRENTEND_URL
 
+const isExpectedAuthSyncError = (message) => {
+  if (typeof message !== "string") return false;
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("not authorized") ||
+    normalized.includes("unauthorized") ||
+    normalized.includes("401")
+  );
+};
+
 // Apply discoount to cart
 function applyDiscount(cartTotalAmount, discountPercentage) {
   var discountAmount = (discountPercentage / 100) * cartTotalAmount;
@@ -143,8 +153,13 @@ const cartSlice = createSlice({
   
         localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
-    CLEAR_CART(state, action) {
+    CLEAR_CART(state) {
         state.cartItems = [];
+        state.cartTotalQuantity = 0;
+        state.cartTotalAmount = 0;
+        state.initialCartTotalAmount = 0;
+        state.shippingFee = 0;
+        state.totalWithShippingFee = 0;
         toast.info(`Cart cleared`, {
           position: "top-left",
         });
@@ -221,14 +236,6 @@ const cartSlice = createSlice({
     UPDATE_CART(state, action) {
       state.cartItems = action.payload;
     },
-
-    // 清空购物车
-    CLEAR_CART(state) {
-      state.cartItems = [];
-      state.cartTotalAmount = 0;
-      state.totalWithShippingFee = 0;
-      state.shippingFee = 0;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -246,8 +253,9 @@ const cartSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        toast.error(action.payload);
-        console.log(action.payload);
+        if (!isExpectedAuthSyncError(action.payload)) {
+          toast.error(action.payload);
+        }
       })
       // Get Cart From DB
       .addCase(getCartDB.pending, (state) => {
@@ -257,7 +265,9 @@ const cartSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        localStorage.setItem("cartItems", JSON.stringify(action.payload));
+        const cartItems = Array.isArray(action.payload) ? action.payload : [];
+        state.cartItems = cartItems;
+        localStorage.setItem("cartItems", JSON.stringify(cartItems));
         // console.log(action.payload.length);
         // console.log(action.payload);
 
@@ -272,7 +282,9 @@ const cartSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        toast.error(action.payload);
+        if (!isExpectedAuthSyncError(action.payload)) {
+          toast.error(action.payload);
+        }
       });
   },
 });

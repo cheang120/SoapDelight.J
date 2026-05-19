@@ -4,22 +4,30 @@ import authService from "./authService";
 import axios from 'axios';
 
 const initialState = {
-  auth:{
-    isLoading:false,
-    isLoggedIn:false,
-    isSuccess:false,
-    message:"",
-    user:null,
-    wishlist:[],
-    users:[],
-    twoFactor:false,
-    isError:false,
-    verifiedUsers: 0,
-    suspendedUsers: 0,
-    currentUsers:null
-  }
+  users: [],
+  user: null,
+  wishlist: [],
+  isLoggedIn: false,
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+  error: null,
+  message: "",
+  twoFactor: false,
+  verifiedUsers: 0,
+  suspendedUsers: 0,
+  currentUsers: null,
+};
 
-}
+const isExpectedAuthOptionalError = (message) => {
+  if (typeof message !== "string") return false;
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("not authorized") ||
+    normalized.includes("unauthorized") ||
+    normalized.includes("401")
+  );
+};
 
 export const SEND_VERIFICATION_EMAIL = 'SEND_VERIFICATION_EMAIL';
 
@@ -266,11 +274,7 @@ export const removeFromWishlist = createAsyncThunk(
 
 const authSlice = createSlice({
   name: "auth",
-  initialState:{
-    users: [],
-    isLoading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     RESET(state){
         state.isError = false;
@@ -383,21 +387,19 @@ const authSlice = createSlice({
         // })
 
         // Get Login Status
-        // .addCase(getLoginStatus.pending, (state) => {
-        //     state.isLoading = true;
-        // })
-        // .addCase(getLoginStatus.fulfilled, (state, action) => {
-        //     state.isLoading = false;
-        //     state.isSuccess = true;
-        //     state.isLoggedIn = action.payload;
-        //     console.log(action.payload);
-        // })
-        // .addCase(getLoginStatus.rejected, (state, action) => {
-        //     state.isLoading = false;
-        //     state.isError = true;
-        //     state.message = action.payload;
-        //     // console.log(action.payload);
-        // })
+        .addCase(getLoginStatus.pending, (state) => {
+            state.isLoading = true;
+        })
+        .addCase(getLoginStatus.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.isSuccess = true;
+            state.isLoggedIn = Boolean(action.payload);
+        })
+        .addCase(getLoginStatus.rejected, (state, action) => {
+            state.isLoading = false;
+            state.isError = true;
+            state.message = action.payload;
+        })
 
       // Get User
       // .addCase(getUser.pending, (state) => {
@@ -630,7 +632,9 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        toast.error(action.payload);
+        if (!isExpectedAuthOptionalError(action.payload)) {
+          toast.error(action.payload);
+        }
       })
       // getWishlist
       .addCase(getWishlist.pending, (state) => {
@@ -645,7 +649,9 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        toast.error(action.payload);
+        if (!isExpectedAuthOptionalError(action.payload)) {
+          toast.error(action.payload);
+        }
       })
       // removeFromWishlist
       .addCase(removeFromWishlist.pending, (state) => {
@@ -661,7 +667,9 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
-        toast.error(action.payload);
+        if (!isExpectedAuthOptionalError(action.payload)) {
+          toast.error(action.payload);
+        }
       })
 
 

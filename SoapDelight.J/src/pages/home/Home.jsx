@@ -63,20 +63,28 @@ const Home = () => {
     window.scrollTo(0, 0);
   }, [dispatch]);
   const { products } = useSelector((state) => state.product);
+  const visibleProducts = products?.filter(
+    (product) => product.quantity > 0 && product.category !== "Shipping"
+  ) || [];
+
+  const categoryMatches = (product, categories) =>
+    categories.includes(product.category);
+
   // const latest = products
   //   ?.filter((product, index) => {
   //     return product.quantity > 0;
   //   })
   //   ?.filter((product, index) => index < 6);
-  const latest = products
-  ?.filter((product) => {
+  const recentProducts = visibleProducts
+  .filter((product) => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);  // 設定為一個月前
     const productDate = new Date(product.createdAt);  // 假設 'createdAt' 是產品的上架日期
-    // 排除 shipping 類別的產品
-    return product.quantity > 0 && productDate >= oneMonthAgo && product.category !== "Shipping";
+    return productDate >= oneMonthAgo;
   })
   ?.slice(0, 6);  // 只取前6個
+
+  const latest = recentProducts.length > 0 ? recentProducts : visibleProducts.slice(0, 6);
 
   const phones = products
     ?.filter((product) => {
@@ -92,7 +100,7 @@ const Home = () => {
       return product.quantity > 0
     })
     ?.filter((product, index) => {
-      return product.category === "Soap";
+      return categoryMatches(product, ["Soap", "手作皂"]);
     })
     ?.filter((product, index) => index < 6);
 
@@ -101,7 +109,7 @@ const Home = () => {
       return product.quantity > 0
     })
     ?.filter((product, index) => {
-      return product.category === "Personal Care";
+      return categoryMatches(product, ["Personal Care", "個人護理"]);
     })
     ?.filter((product, index) => index < 6);
 
@@ -110,7 +118,7 @@ const Home = () => {
       return product.quantity > 0
     })
     ?.filter((product, index) => {
-      return product.category === "香薰蠟";
+      return categoryMatches(product, ["香薰蠟", "Candle"]);
     })
     ?.filter((product, index) => index < 6);
 
@@ -124,7 +132,7 @@ const Home = () => {
     ?.filter((product, index) => index < 6);
 
     const latestProducts = latest.map((item)=>(
-      <div key={item.id}>
+      <div key={`latest-${item._id}`}>
         <CarouselItem 
           name={item.name}
           url={item.image[0]}
@@ -137,7 +145,7 @@ const Home = () => {
     ))
 
     const phoneProducts = phones.map((item)=>(
-      <div key={item.id}>
+      <div key={`phone-${item._id}`}>
         <CarouselItem 
           name={item.name}
           url={item.image[0]}
@@ -150,7 +158,7 @@ const Home = () => {
     ))
 
     const soapProducts = soaps.map((item)=>(
-      <div key={item.id}>
+      <div key={`soap-${item._id}`}>
         <CarouselItem 
           name={item.name}
           url={item.image[0]}
@@ -163,7 +171,7 @@ const Home = () => {
     ))
 
     const personalCareProducts = personalCare.map((item)=>(
-      <div key={item.id}>
+      <div key={`personal-care-${item._id}`}>
         <CarouselItem 
           name={item.name}
           url={item.image[0]}
@@ -176,7 +184,7 @@ const Home = () => {
     ))
 
     const candleProducts = candle.map((item)=>(
-      <div key={item.id}>
+      <div key={`candle-${item._id}`}>
         <CarouselItem 
           name={item.name}
           url={item.image[0]}
@@ -189,7 +197,7 @@ const Home = () => {
     ))
 
     const shippingProducts = shipping.map((item)=>(
-      <div key={item.id}>
+      <div key={`shipping-${item._id}`}>
         <CarouselItem 
           name={item.name}
           url={item.image[0]}
