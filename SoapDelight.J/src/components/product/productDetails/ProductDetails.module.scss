@@ -1,105 +1,40 @@
-.product {
-    .card {
-      padding: 2rem 1rem;
-      margin-top: 1rem;
-    }
-    .review {
-      border-top: 1px solid #ccc;
-      padding-top: 5px;
-      padding-bottom: 5px;
-    }
-    .details {
-      padding-top: 2rem;
-      display: flex;
-  
-      .img {
-        width: 50%;
-        margin-right: 1rem;
-        height: 100%;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        .pImg {
-          // width: 100%;
-          // height: 100%;
-          object-fit: cover;
-          transform: translateX(3rem);
-          animation: slide 0.5s forwards;
-        }
-      }
-  
-      .content {
-        width: 50%;
-        padding: 0 5px;
-        & > * {
-          margin-bottom: 1rem;
-        }
-        .price {
-          color: orangered;
-          font-weight: 500;
-          font-size: 2rem;
-        }
-  
-        .count {
-          display: flex;
-          align-items: center;
-          & > * {
-            margin-right: 1rem;
-          }
-        }
-      }
-    }
+.productPage {
+  overflow-x: hidden;
+}
+
+.description {
+  p,
+  ul,
+  ol {
+    margin-bottom: 0.85rem;
   }
-  
-  @keyframes slide {
-    to {
-      transform: translateX(0);
-    }
+
+  ul,
+  ol {
+    padding-left: 1.2rem;
   }
-  
-  .smallImg {
-    width: 100%;
-    border-top: 1px solid #ccc;
-    padding-top: 1rem;
-    display: flex;
-    justify-content: flex-start;
-  
-    img {
-      // border: 1px solid #ccc;
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      cursor: pointer;
-      margin-right: 5px;
-    }
+
+  li {
+    margin-bottom: 0.35rem;
   }
-  
-  .property {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 5px;
+
+  strong,
+  b {
+    color: #18181b;
+    font-weight: 600;
   }
-  
-  @media screen and (max-width: 700px) {
-    .product {
-      .details {
-        flex-direction: column;
-  
-        .img {
-          width: 100%;
-        }
-  
-        .content {
-          width: 100%;
-        }
-      }
-    }
+
+  img {
+    max-width: 100%;
+    border-radius: 0.75rem;
   }
-  
-  .ratings {
-    display: flex;
+}
+
+.ratingSummary {
+  :global(.star-chart) {
+    border: 1px solid #e4e4e7;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-right: 0;
   }
-  
-.--btn {
-  background-color: gray;
 }
