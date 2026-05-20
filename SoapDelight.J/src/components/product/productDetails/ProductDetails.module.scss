@@ -2,6 +2,19 @@
   overflow-x: hidden;
 }
 
+.imageFrame {
+  @media (min-width: 1024px) {
+    max-height: 680px;
+  }
+}
+
+.mainImage,
+.imagePlaceholder {
+  @media (min-width: 1024px) {
+    height: min(680px, calc(100vh - 180px));
+  }
+}
+
 .description {
   p,
   ul,

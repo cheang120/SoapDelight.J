@@ -182,16 +182,20 @@ const ProductDetails = () => {
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:gap-14">
           <div>
-            <div className="overflow-hidden rounded-[1.5rem] border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
+            <div
+              className={`${styles.imageFrame} overflow-hidden rounded-[1.5rem] border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900`}
+            >
               {selectedImage ? (
                 <img
                   src={selectedImage}
                   alt={product.name}
-                  className="aspect-square w-full object-cover md:aspect-[4/5]"
+                  className={`${styles.mainImage} aspect-square w-full object-cover md:aspect-[4/5] lg:aspect-auto lg:object-contain`}
                   onError={() => handleImageError(selectedImage)}
                 />
               ) : (
-                <div className="flex aspect-square w-full flex-col items-center justify-center gap-3 text-zinc-400 md:aspect-[4/5]">
+                <div
+                  className={`${styles.imagePlaceholder} flex aspect-square w-full flex-col items-center justify-center gap-3 text-zinc-400 md:aspect-[4/5] lg:aspect-auto`}
+                >
                   <FaRegImage size={34} />
                   <p className="text-sm">Image coming soon</p>
                 </div>
@@ -274,37 +278,37 @@ const ProductDetails = () => {
                 <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-200">
                   Quantity
                 </p>
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex min-h-11 items-center overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-800">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-h-11 w-full items-center overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-800 sm:w-auto">
                     <button
                       type="button"
                       onClick={decreaseCart}
                       disabled={!cart || cartQuantity <= 1}
-                      className="flex h-11 w-12 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900"
+                      className="flex h-11 w-14 shrink-0 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900 sm:w-12"
                       aria-label="Decrease quantity"
                     >
                       <FaMinus size={12} />
                     </button>
-                    <span className="min-w-12 text-center text-sm font-medium text-zinc-950 dark:text-white">
+                    <span className="flex-1 px-4 text-center text-sm font-medium text-zinc-950 dark:text-white sm:min-w-12 sm:px-0">
                       {cartQuantity}
                     </span>
                     <button
                       type="button"
                       onClick={addToCart}
                       disabled={stockQuantity <= 0 || cartQuantity >= stockQuantity}
-                      className="flex h-11 w-12 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900"
+                      className="flex h-11 w-14 shrink-0 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900 sm:w-12"
                       aria-label="Increase quantity"
                     >
                       <FaPlus size={12} />
                     </button>
                   </div>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  <p className="w-full text-left text-sm text-zinc-500 dark:text-zinc-400 sm:w-auto sm:text-right">
                     {cart ? "In your cart" : "Add once to start"}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]">
+              <div className="mt-6 grid gap-3 md:grid-cols-[1fr_auto]">
                 <button
                   type="button"
                   onClick={addToCart}
