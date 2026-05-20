@@ -1,54 +1,37 @@
-import React, { useEffect, useState } from "react";
-import styles from "./CheckoutForm.module.scss"
-import {
-  PaymentElement,
-  useStripe,
-  useElements
-} from "@stripe/react-stripe-js";
-import Card from "../../card/Card";
+import React, { useState } from "react";
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import styles from "./CheckoutForm.module.scss";
 import CheckoutSummary from "../checkoutSummary/CheckoutSummary";
 import { Spinner } from "../../Loader";
-import { toast } from "react-toastify";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { selectCartItems, selectCartTotalAmount } from "../../../redux/features/cart/cartSlice";
-import { selectPaymentMethod, selectShippingAddress } from "../../../redux/features/checkout/checkoutSlice";
+import {
+  selectCartItems,
+  selectCartTotalAmount,
+} from "../../../redux/features/cart/cartSlice";
+import {
+  selectPaymentMethod,
+  selectShippingAddress,
+} from "../../../redux/features/checkout/checkoutSlice";
 import { createOrder } from "../../../redux/features/order/OrderSlice";
 
-export default function CheckoutForm({ dpmCheckerLink,selectedShippingFee }) {
+export default function CheckoutForm() {
   const stripe = useStripe();
   const elements = useElements();
-  const { coupon } = useSelector((state) => state.coupon);
-
-  const [email, setEmail] = useState("")
-  const [message, setMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const shippingAddress = useSelector(selectShippingAddress);
-  const paymentMethod = useSelector(selectPaymentMethod);
-
-  const cartItems = useSelector(selectCartItems);
-  const cartTotalAmount = useSelector(selectCartTotalAmount);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!stripe) {
-      return;
-    }
+  const { coupon } = useSelector((state) => state.coupon);
+  const cartItems = useSelector(selectCartItems);
+  const cartTotalAmount = useSelector(selectCartTotalAmount);
+  const shippingAddress = useSelector(selectShippingAddress);
+  const paymentMethod = useSelector(selectPaymentMethod);
 
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      "payment_intent_client_secret"
-    );
-
-    if (!clientSecret) {
-      return;
-    }
-  }, [stripe]);
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const saveOrder = async () => {
-    // console.log("Order saved!");
     const today = new Date();
     const formData = {
       orderDate: today.toDateString(),
@@ -60,14 +43,14 @@ export default function CheckoutForm({ dpmCheckerLink,selectedShippingFee }) {
       paymentMethod,
       coupon: coupon != null ? coupon : { name: "nil" },
     };
-    // console.log(formData);
-    dispatch(createOrder(formData));
+
+    await dispatch(createOrder(formData)).unwrap();
     navigate("/checkout-success");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(null)
+    setMessage("");
 
     if (!stripe || !elements) {
       return;
@@ -75,69 +58,85 @@ export default function CheckoutForm({ dpmCheckerLink,selectedShippingFee }) {
 
     setIsLoading(true);
 
-    await stripe.confirmPayment({
-        elements, 
+    const frontendUrl =
+      import.meta.env.VITE_REACT_APP_FRONTEND_URL ||
+      import.meta.env.VITE_REACT_APP_FRENTEND_URL ||
+      window.location.origin;
+
+    try {
+      const result = await stripe.confirmPayment({
+        elements,
         confirmParams: {
-            return_url: `${import.meta.env.VITE_REACT_APP_FRENTEND_URL}/checkout-success`,
+          return_url: `${frontendUrl}/checkout-success`,
         },
-        redirect:"if_required"
-    })
-    .then((result) => {
-        // ok - paymentIntent // bad - error
-        if (result.error) {
-          toast.error(result.error.message);
-          setMessage(result.error.message);
-          return;
-        }
-        if (result.paymentIntent) {
-          if (result.paymentIntent.status === "succeeded") {
-            setIsLoading(false);
-            toast.success("Payment successful");
-            saveOrder();
-          }
-        }
+        redirect: "if_required",
       });
 
-    setIsLoading(false);
+      if (result.error) {
+        const errorMessage = result.error.message || "Unable to complete payment.";
+        toast.error(errorMessage);
+        setMessage(errorMessage);
+        return;
+      }
+
+      if (result.paymentIntent?.status === "succeeded") {
+        toast.success("Payment successful");
+        await saveOrder();
+      }
+    } catch (error) {
+      const errorMessage = error.message || "Unable to complete payment.";
+      toast.error(errorMessage);
+      setMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const paymentElementOptions = {
-    layout: "tabs"
-  }
-
   return (
-    <>
-      <section className="min-h-screen">
-        <div className={`px-20 pt-10  ${styles.checkout}`}>
-          <h2 className=" mb-5 text-3xl">結帳</h2>
-          <form onSubmit={handleSubmit} className="flex gap-4">
-            <div>
-              <Card cardClass={styles.card}>
-                <CheckoutSummary />
-              </Card>
-            </div>
-            <div>
-              <Card cardClass={`${styles.card} ${styles.pay}`}>
-                <h3 className="text-2xl">結帳</h3>
-                <PaymentElement
-                  id={styles["payment-element"]}
-                  options={paymentElementOptions}
-                />
-                <button
-                  disabled={isLoading || !stripe || !elements}
-                  id="submit"
-                  className={styles.button}
-                >
-                  <span id="button-text">
-                    {isLoading ? <Spinner /> : "Pay now"}
-                  </span>
-                </button>
-                {message && <div id={styles["payment-message"]}>{message}</div>}
-              </Card>
-            </div>
-          </form>
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div>
+            <p className={styles.eyebrow}>Secure Payment</p>
+            <h1>付款</h1>
+            <p className={styles.lead}>
+              使用 Stripe 完成安全付款，並再次確認你的訂單摘要。
+            </p>
+          </div>
+          <Link to="/checkout-details" className={styles.secondaryLink}>
+            &larr; Back to Details
+          </Link>
         </div>
-      </section>
-    </>
+
+        <div className={styles.layout}>
+          <section className={styles.paymentCard}>
+            <div className={styles.sectionHeader}>
+              <h2>Payment Details</h2>
+              <p>Securely processed with Stripe.</p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className={styles.paymentElement}>
+                <PaymentElement options={{ layout: "tabs" }} />
+              </div>
+
+              <button
+                disabled={isLoading || !stripe || !elements}
+                type="submit"
+                className={styles.button}
+              >
+                <span>{isLoading ? <Spinner /> : "Pay now / 立即付款"}</span>
+              </button>
+
+              {message && <div className={styles.message}>{message}</div>}
+            </form>
+          </section>
+
+          <aside className={styles.summaryCard}>
+            <CheckoutSummary title="Order Summary" />
+          </aside>
+        </div>
+      </div>
+    </main>
   );
 }

@@ -1,275 +1,221 @@
 import { useEffect, useState } from "react";
 import { CountryDropdown } from "react-country-region-selector";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
-import Card from '../../components/card/Card'
-import styles from "./CheckoutForm.module.scss"
-import { SAVE_BILLING_ADDRESS, SAVE_SHIPPING_ADDRESS, selectBillingAddress, selectPaymentMethod, selectShippingAddress } from "../../redux/features/checkout/checkoutSlice";
-import { toast } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "./CheckoutForm.module.scss";
+import {
+  SAVE_BILLING_ADDRESS,
+  SAVE_PAYMENT_METHOD,
+  SAVE_SHIPPING_ADDRESS,
+  selectBillingAddress,
+  selectShippingAddress,
+} from "../../redux/features/checkout/checkoutSlice";
+import { selectCartItems } from "../../redux/features/cart/cartSlice";
 import CheckoutSummary from "../../components/checkout/checkoutSummary/CheckoutSummary";
-import { selectShippingFee } from "../../redux/features/cart/cartSlice";
-// import { selectShippingFee } from "../../redux/features/cart/cartSlice";
 
 const initialAddressState = {
-    name: "",
-    line1: "",
-    line2: "",
-    city: "",
-    state: "",
-    postal_code: "",
-    country: "",
-    phone: "",
-  };
+  name: "",
+  line1: "",
+  line2: "",
+  city: "",
+  state: "",
+  postal_code: "",
+  country: "",
+  phone: "",
+};
+
+const addressFields = [
+  { name: "name", label: "Recipient Name", placeholder: "收件人姓名 / Recipient Name" },
+  { name: "line1", label: "Address line 1", placeholder: "地址第一行 / Address line 1" },
+  { name: "line2", label: "Address line 2", placeholder: "地址第二行（選填） / Address line 2" },
+  { name: "city", label: "City", placeholder: "城市 / City" },
+  { name: "state", label: "State", placeholder: "地區 / State" },
+  { name: "postal_code", label: "Postal code", placeholder: "郵遞區號 / Postal code" },
+  { name: "phone", label: "Phone", placeholder: "聯絡電話 / Phone" },
+];
 
 const CheckoutDetails = () => {
-    const [shippingAddress, setShippingAddress] = useState({
-        ...initialAddressState,
-    });
-    const [billingAddress, setBillingAddress] = useState({
-        ...initialAddressState,
-    });
-    const paymentMethod = useSelector(selectPaymentMethod);
-    const shipAddress = useSelector(selectShippingAddress);
-    const billAddress = useSelector(selectBillingAddress);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const cartItems = useSelector(selectCartItems);
+  const shipAddress = useSelector(selectShippingAddress);
+  const billAddress = useSelector(selectBillingAddress);
+  const { currentUser } = useSelector((state) => state.user);
 
-    // const selectedShippingFee = location.state?.selectedShippingFee || 0;
-    const selectedShippingFee = useSelector(selectShippingFee); // 从 store 获取
+  const [shippingAddress, setShippingAddress] = useState({ ...initialAddressState });
+  const [billingAddress, setBillingAddress] = useState({ ...initialAddressState });
 
-    // const [selectedShippingFee, setSelectedShippingFee] = useState(0);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
+  useEffect(() => {
+    if (shipAddress && typeof shipAddress === "object" && Object.keys(shipAddress).length > 0) {
+      setShippingAddress({ ...initialAddressState, ...shipAddress });
+    }
+    if (billAddress && typeof billAddress === "object" && Object.keys(billAddress).length > 0) {
+      setBillingAddress({ ...initialAddressState, ...billAddress });
+    }
+  }, [shipAddress, billAddress]);
 
-    // const selectedShippingFee = useSelector(selectShippingFee);  // 从 Redux store 获取
-    const location = useLocation();
-    // const selectedShippingFee = location.state?.selectedShippingFee || 0;
+  const handleShipping = (e) => {
+    const { name, value } = e.target;
+    setShippingAddress((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const handleBilling = (e) => {
+    const { name, value } = e.target;
+    setBillingAddress((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
 
-    const handleShipping = (e) => {
-        const { name, value } = e.target;
-        setShippingAddress({
-          ...shippingAddress,
-          [name]: value,
-        });
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(SAVE_SHIPPING_ADDRESS(shippingAddress));
+    dispatch(SAVE_BILLING_ADDRESS(billingAddress));
+    dispatch(SAVE_PAYMENT_METHOD("stripe"));
+    navigate("/checkout-stripe");
+  };
 
+  const renderAddressSection = (title, subtitle, values, handler, type) => (
+    <section className={styles.panel}>
+      <div className={styles.sectionHeader}>
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
+      </div>
 
-    const handleBilling = (e) => {
-        const { name, value } = e.target;
-        setBillingAddress({
-          ...billingAddress,
-          [name]: value,
-        });
-    };
-
-
-
-    useEffect(() => {
-        if (shipAddress && Object.keys(shipAddress).length > 0) {
-          setShippingAddress({ ...shipAddress });
-        }
-        if (billAddress && Object.keys(billAddress).length > 0) {
-          setBillingAddress({ ...billAddress });
-        }
-      }, [shipAddress, billAddress]);
-
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        dispatch(SAVE_SHIPPING_ADDRESS(shippingAddress));
-        dispatch(SAVE_BILLING_ADDRESS(billingAddress));
-
-        if (paymentMethod === "stripe") {
-          navigate("/checkout-stripe");
-        }
-
-      };
-      
-  return (
-    <section className="min-h-screen">
-      <div className={`px-20 pt-10  ${styles.checkout} `}>
-        <h2 className="text-3xl">結帳明細</h2>
-        <form 
-            onSubmit={handleSubmit}
-        >
-          <div>
-            <Card cardClass={styles.card}>
-              <h3>Shipping Address</h3>
-              <label>Recipient Name</label>
+      <div className={styles.formGrid}>
+        {addressFields.map((field) => {
+          const isOptional = field.name === "line2";
+          const isFullWidth = field.name === "line1" || field.name === "line2";
+          return (
+            <div
+              key={`${type}-${field.name}`}
+              className={`${styles.field} ${isFullWidth ? styles.fieldFull : ""}`}
+            >
+              <label htmlFor={`${type}-${field.name}`}>
+                {field.label}
+                {!isOptional && <span> *</span>}
+              </label>
               <input
+                id={`${type}-${field.name}`}
                 type="text"
-                placeholder="Recipient Name"
-                required
-                name="name"
-                value={shippingAddress.name}
-                onChange={(e) => handleShipping(e)}
+                placeholder={field.placeholder}
+                required={!isOptional}
+                name={field.name}
+                value={values[field.name]}
+                onChange={handler}
               />
-              <label>Address line 1</label>
-              <input
-                type="text"
-                placeholder="Address line 1"
-                required
-                name="line1"
-                value={shippingAddress.line1}
-                onChange={(e) => handleShipping(e)}
-              />
-              <label>Address line 2</label>
-              <input
-                type="text"
-                placeholder="Address line 2"
-                name="line2"
-                value={shippingAddress.line2}
-                onChange={(e) => handleShipping(e)}
-              />
-              <label>City</label>
-              <input
-                type="text"
-                placeholder="City"
-                required
-                name="city"
-                value={shippingAddress.city}
-                onChange={(e) => handleShipping(e)}
-              />
-              <label>State</label>
-              <input
-                type="text"
-                placeholder="State"
-                required
-                name="state"
-                value={shippingAddress.state}
-                onChange={(e) => handleShipping(e)}
-              />
-              <label>Postal code</label>
-              <input
-                type="text"
-                placeholder="Postal code"
-                required
-                name="postal_code"
-                value={shippingAddress.postal_code}
-                onChange={(e) => handleShipping(e)}
-              />
-              {/* COUNTRY INPUT */}
-              <label>Country</label>
-              <CountryDropdown
-                className="bg-white text-black border border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
-                valueType="short"
-                value={shippingAddress.country}
-                onChange={(val) =>
-                  handleShipping({
-                    target: {
-                      name: "country",
-                      value: val,
-                    },
-                  })
-                }
-              />
-              <label className="block text-black dark:text-white mt-4">Phone</label>
-              <input
-                type="text"
-                placeholder="Phone"
-                required
-                name="phone"
-                value={shippingAddress.phone}
-                onChange={(e) => handleShipping(e)}
-                className="w-full bg-white text-black border border-gray-300 rounded-md p-2 mt-1 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
-              />
+            </div>
+          );
+        })}
 
-            </Card>
-            {/* BILLING ADDRESS */}
-            <Card cardClass={styles.card}>
-              <h3>Billing Address</h3>
-              <label>Recipient Name</label>
-              <input
-                type="text"
-                placeholder="Name"
-                required
-                name="name"
-                value={billingAddress.name}
-                onChange={(e) => handleBilling(e)}
-              />
-              <label>Address line 1</label>
-              <input
-                type="text"
-                placeholder="Address line 1"
-                required
-                name="line1"
-                value={billingAddress.line1}
-                onChange={(e) => handleBilling(e)}
-              />
-              <label>Address line 2</label>
-              <input
-                type="text"
-                placeholder="Address line 2"
-                name="line2"
-                value={billingAddress.line2}
-                onChange={(e) => handleBilling(e)}
-              />
-              <label>City</label>
-              <input
-                type="text"
-                placeholder="City"
-                required
-                name="city"
-                value={billingAddress.city}
-                onChange={(e) => handleBilling(e)}
-              />
-              <label>State</label>
-              <input
-                type="text"
-                placeholder="State"
-                required
-                name="state"
-                value={billingAddress.state}
-                onChange={(e) => handleBilling(e)}
-              />
-              <label>Postal code</label>
-              <input
-                type="text"
-                placeholder="Postal code"
-                required
-                name="postal_code"
-                value={billingAddress.postal_code}
-                onChange={(e) => handleBilling(e)}
-              />
-              {/* COUNTRY INPUT */}
-              <label>Country</label>
-              <CountryDropdown
-                className="bg-white text-black border border-gray-300 rounded-md dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 "
-                valueType="short"
-                value={billingAddress.country}
-                onChange={(val) =>
-                  handleBilling({
-                    target: {
-                      name: "country",
-                      value: val,
-                    },
-                  })
-                }
-              />
-
-              <label>Phone</label>
-              <input
-                type="text"
-                placeholder="Phone"
-                required
-                name="phone"
-                value={billingAddress.phone}
-                onChange={(e) => handleBilling(e)}
-              />
-              <button type="submit" className="--btn --btn-primary">
-                Proceed To Checkout
-              </button>
-            </Card>
-          </div>
-          <div>
-            <Card cardClass={styles.card}>
-              <CheckoutSummary />
-            </Card>
-          </div>
-        </form>
+        <div className={`${styles.field} ${styles.fieldFull}`}>
+          <label htmlFor={`${type}-country`}>
+            Country <span>*</span>
+          </label>
+          <CountryDropdown
+            id={`${type}-country`}
+            className={styles.select}
+            valueType="short"
+            value={values.country}
+            onChange={(value) =>
+              handler({
+                target: {
+                  name: "country",
+                  value,
+                },
+              })
+            }
+          />
+        </div>
       </div>
     </section>
-  )
-}
+  );
 
-export default CheckoutDetails
+  if (cartItems.length === 0) {
+    return (
+      <main className={styles.page}>
+        <div className={styles.container}>
+          <section className={styles.emptyState}>
+            <p className={styles.eyebrow}>Checkout</p>
+            <h1>Your cart is empty.</h1>
+            <p>先加入想要的商品，再完成結帳流程。</p>
+            <Link to="/shop" className={styles.primaryButton}>
+              Continue Shopping / 繼續選購
+            </Link>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div>
+            <p className={styles.eyebrow}>Checkout Details</p>
+            <h1>結帳資料</h1>
+            <p className={styles.lead}>
+              填寫收件及帳單資料，下一步會進入安全付款頁面。
+            </p>
+          </div>
+          <Link to="/cart" className={styles.secondaryLink}>
+            &larr; Back to Cart
+          </Link>
+        </div>
+
+        {!currentUser && (
+          <div className={styles.notice}>
+            <p>
+              你可以先填寫資料並查看訂單摘要。付款前如需要登入，我們會在下一步清楚提示。
+            </p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className={styles.layout}>
+          <div className={styles.formColumn}>
+            {renderAddressSection(
+              "Shipping Address",
+              "送貨或自取聯絡資料",
+              shippingAddress,
+              handleShipping,
+              "shipping"
+            )}
+
+            {renderAddressSection(
+              "Billing Address",
+              "帳單資料",
+              billingAddress,
+              handleBilling,
+              "billing"
+            )}
+          </div>
+
+          <aside className={styles.summaryColumn}>
+            <div className={styles.summaryCard}>
+              <CheckoutSummary title="Order Summary" showCouponEditor />
+
+              <div className={styles.summaryFooter}>
+                <button type="submit" className={styles.primaryButton}>
+                  Continue to Payment / 前往付款
+                </button>
+                <p>
+                  Payment is completed securely on the next step via Stripe.
+                </p>
+              </div>
+            </div>
+          </aside>
+        </form>
+      </div>
+    </main>
+  );
+};
+
+export default CheckoutDetails;

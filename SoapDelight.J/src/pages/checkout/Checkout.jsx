@@ -1,81 +1,217 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route
-} from 'react-router-dom';
-import "./Checkout.scss"
-import CheckoutForm from "../../components/checkout/checkoutForm/CheckoutForm";
+import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { extractIdAndCartQuantity } from "../../utils";
 import { selectCartItems, selectCartTotalAmount } from "../../redux/features/cart/cartSlice";
-import { useSelector } from "react-redux";
-import { selectBillingAddress, selectShippingAddress } from "../../redux/features/checkout/checkoutSlice";
-import { toast } from "react-toastify";
+import {
+  selectBillingAddress,
+  selectShippingAddress,
+} from "../../redux/features/checkout/checkoutSlice";
+import { API_BASE_URL } from "../../utils/apiBase";
 
+const StripeCheckoutSurface = lazy(() =>
+  import("../../components/checkout/checkoutForm/StripeCheckoutSurface")
+);
 
-// import CompletePage from "./CompletePage";
-
-export const Checkout = ({selectedShippingFee}) => {
-  const stripePromise = useMemo(
-    () => loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PK),
-    []
+const hasAddressData = (address) =>
+  Boolean(
+    address &&
+      typeof address === "object" &&
+      address.name &&
+      address.line1 &&
+      address.city &&
+      address.state &&
+      address.postal_code &&
+      address.country &&
+      address.phone
   );
+
+const CheckoutState = ({ eyebrow, title, body, ctaLabel, ctaTo }) => (
+  <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] sm:px-10">
+      <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+        {eyebrow}
+      </p>
+      <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
+        {title}
+      </h1>
+      <p className="mt-4 text-zinc-600">{body}</p>
+      <Link
+        to={ctaTo}
+        className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800"
+      >
+        {ctaLabel}
+      </Link>
+    </div>
+  </main>
+);
+
+export const Checkout = () => {
   const [clientSecret, setClientSecret] = useState("");
-  const { cartItems } = useSelector((state) => state.cart);
+  const [initError, setInitError] = useState("");
+
+  const cartItems = useSelector(selectCartItems);
   const totalAmount = useSelector(selectCartTotalAmount);
   const { currentUser } = useSelector((state) => state.user);
   const shippingAddress = useSelector(selectShippingAddress);
   const billingAddress = useSelector(selectBillingAddress);
   const { coupon } = useSelector((state) => state.coupon);
+
   const userEmail = currentUser?.email || "";
-  const description = `eShop payment: email: ${userEmail}, Amount: ${totalAmount}`;
-
   const productIDs = useMemo(() => extractIdAndCartQuantity(cartItems), [cartItems]);
-  
-
+  const description = `eShop payment: email: ${userEmail}, Amount: ${totalAmount}`;
+  const hasShippingAddress = hasAddressData(shippingAddress);
+  const hasBillingAddress = hasAddressData(billingAddress);
+  const shouldLoadStripe =
+    Boolean(currentUser) &&
+    cartItems.length > 0 &&
+    hasShippingAddress &&
+    hasBillingAddress;
   useEffect(() => {
-    if (!userEmail) return;
+    let ignore = false;
 
-    fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/order/create-payment-intent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: productIDs,
-        userEmail,
-        shipping: shippingAddress,
-        billing: billingAddress,
-        description,
-        coupon,
-      }),
-    })
-    .then((res) => res.json())
-    .then((data) => {
-      setClientSecret(data.clientSecret);
-    })
-    .catch((error) => {
-      console.error("Checkout initialization error:", error);
-      toast.error("Something went wrong!");
-    });
-  }, [billingAddress, coupon, description, productIDs, shippingAddress, userEmail]);
+    if (!currentUser || !cartItems.length || !hasShippingAddress || !hasBillingAddress) {
+      setClientSecret("");
+      setInitError("");
+      return undefined;
+    }
 
-  const appearance = { theme: "stripe" };
-  const options = { clientSecret, appearance };
-  // console.log(selectedShippingFee);
+    const createIntent = async () => {
+      try {
+        setInitError("");
+        const response = await fetch(`${API_BASE_URL}/order/create-payment-intent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            items: productIDs,
+            userEmail,
+            shipping: shippingAddress,
+            billing: billingAddress,
+            description,
+            coupon,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data?.clientSecret) {
+          throw new Error(data?.message || "Unable to initialize checkout.");
+        }
+
+        if (!ignore) {
+          setClientSecret(data.clientSecret);
+        }
+      } catch (error) {
+        if (!ignore) {
+          setClientSecret("");
+          setInitError(error.message || "Unable to initialize checkout.");
+          toast.error(error.message || "Unable to initialize checkout.");
+        }
+      }
+    };
+
+    createIntent();
+
+    return () => {
+      ignore = true;
+    };
+  }, [
+    billingAddress,
+    cartItems.length,
+    coupon,
+    currentUser,
+    description,
+    hasBillingAddress,
+    hasShippingAddress,
+    productIDs,
+    shippingAddress,
+    userEmail,
+  ]);
+
+  if (!cartItems.length) {
+    return (
+      <CheckoutState
+        eyebrow="Checkout"
+        title="Your cart is empty."
+        body="先挑選想要的商品，再進入付款流程。"
+        ctaLabel="Continue Shopping / 繼續選購"
+        ctaTo="/shop"
+      />
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <CheckoutState
+        eyebrow="Sign In Required"
+        title="Please sign in to continue payment."
+        body="目前付款流程會使用你的帳戶電郵建立付款與訂單紀錄。登入後即可繼續安全付款。"
+        ctaLabel="Sign In / 登入"
+        ctaTo="/sign-in?redirect=checkout-details"
+      />
+    );
+  }
+
+  if (!hasShippingAddress || !hasBillingAddress) {
+    return (
+      <CheckoutState
+        eyebrow="Checkout Details"
+        title="Complete your address details first."
+        body="請先返回上一頁填寫送貨及帳單資料，之後再進入付款。"
+        ctaLabel="Back to Details / 返回資料頁"
+        ctaTo="/checkout-details"
+      />
+    );
+  }
+
+  if (initError) {
+    return (
+      <CheckoutState
+        eyebrow="Checkout"
+        title="We couldn't start payment just yet."
+        body={initError}
+        ctaLabel="Back to Details / 返回資料頁"
+        ctaTo="/checkout-details"
+      />
+    );
+  }
+
+  if (!clientSecret) {
+    return (
+      <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] sm:px-10">
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+            Secure Payment
+          </p>
+          <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
+            Initializing checkout...
+          </h1>
+          <p className="mt-4 text-zinc-600">
+            正在準備付款頁面與訂單摘要，請稍候。
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <>
-      <section className="">
-        <div className="px-20">
-          {!clientSecret && <h3>Initializing checkout...</h3>}
-        </div>
-      </section>
-      {clientSecret && (
-        <Elements options={options} stripe={stripePromise}>
-          <CheckoutForm />
-        </Elements>
-      )}
-    </>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] sm:px-10">
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+              Secure Payment
+            </p>
+            <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
+              Loading payment form...
+            </h1>
+            <p className="mt-4 text-zinc-600">正在載入付款元件，請稍候。</p>
+          </div>
+        </main>
+      }
+    >
+      <StripeCheckoutSurface clientSecret={clientSecret} />
+    </Suspense>
   );
 };
