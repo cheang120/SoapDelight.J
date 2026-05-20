@@ -1,25 +1,24 @@
 import React, { useState } from 'react'
 import "./VerifyCoupon.scss"
 import { useDispatch, useSelector } from 'react-redux';
-import Card from "./../card/Card";
 import { REMOVE_COUPON, getCoupon } from '../../redux/features/coupon/couponSlice';
 import { CALCULATE_SUBTOTAL } from '../../redux/features/cart/cartSlice';
 
 
 export const CartDiscount = () => {
     const { coupon } = useSelector((state) => state.coupon);
-    const { initialCartTotalAmount } = useSelector((state) => state.cart);
   
     return (
       <>
         {coupon != null && (
-          <Card cardClass={"coupon-msg"}>
-            <p className="--center-all">
-              Initial Total: ${initialCartTotalAmount} | 
-              Coupon: {coupon?.name} |
-              Discount: {coupon?.discount}%
+          <div className="coupon-msg">
+            <p>
+              Coupon <b>{coupon?.name}</b> applied
             </p>
-          </Card>
+            <span>
+              {coupon?.discount}% off eligible items
+            </span>
+          </div>
         )}
       </>
     );
@@ -29,10 +28,7 @@ const VerifyCoupon = () => {
     const dispatch = useDispatch();
     const [couponName, setCouponName] = useState("");
     const [showForm, setShowForm] = useState(false);
-    const { coupon, isLoadng } = useSelector((state) => state.coupon);
-    const { cartTotalAmount, initialCartTotalAmount } = useSelector(
-      (state) => state.cart
-    );
+    const { coupon, isLoading } = useSelector((state) => state.coupon);
 
     // const verifyCoupon = async (e) => {
     //     e.preventDefault();
@@ -42,41 +38,43 @@ const VerifyCoupon = () => {
 
     const verifyCoupon = async (e) => {
         e.preventDefault();
-        console.log(couponName);
-        dispatch(getCoupon(couponName)).then(() => {
-          dispatch(CALCULATE_SUBTOTAL({ coupon })); // 获取优惠券后重新计算总价
-                  window.location.reload()
-
-        });
+        const result = await dispatch(getCoupon(couponName));
+        if (getCoupon.fulfilled.match(result)) {
+          dispatch(CALCULATE_SUBTOTAL({ coupon: result.payload }));
+          setShowForm(false);
+          setCouponName("");
+        }
       };
 
     const removeCoupon = async () => {
         dispatch(REMOVE_COUPON());
+        dispatch(CALCULATE_SUBTOTAL({ coupon: null }));
       };
 
   return (
-    <>
+    <div className="coupon-box">
         <CartDiscount />
     
-      <div className='--flex-between'>
-        <p>Have a coupon?</p>
+      <div className='coupon-head'>
+        <p>Coupon</p>
         {coupon === null ? (
-          <p
-            className="--cursor --color-primary"
+          <button
+            type="button"
+            className="coupon-link"
             onClick={() => setShowForm(true)}
           >
-            <b>Add Coupon</b>
-          </p>
+            Add Coupon
+          </button>
         ) : (
-          <p className="--cursor --color-danger" onClick={removeCoupon}>
-            <b>Remove Coupon</b>
-          </p>
+          <button type="button" className="coupon-link danger" onClick={removeCoupon}>
+            Remove Coupon
+          </button>
         )}
 
       </div>
 
       {showForm && (
-        <form onSubmit={verifyCoupon} className={"coupon-form --form-control"}>
+        <form onSubmit={verifyCoupon} className={"coupon-form"}>
           <input
             type="text"
             placeholder="Coupon name"
@@ -85,12 +83,12 @@ const VerifyCoupon = () => {
             onChange={(e) => setCouponName(e.target.value.toUpperCase())}
             required
           />
-          <button type="submit" className="--btn --btn-primary mt-0">
-            Verify
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Checking..." : "Apply"}
           </button>
         </form>
       )}
-    </>
+    </div>
   )
 }
 

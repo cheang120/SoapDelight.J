@@ -1,32 +1,46 @@
 import React, { useEffect, useState } from "react";
-import styles from "../../components/product/productList/ProductList.module.scss";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import {
   getWishlist,
   removeFromWishlist,
 } from "../../redux/features/auth/authSlice";
-import "./Wishlist.scss"
-import ProductItem from "../../components/product/productItem/ProductItem";
+import {
+  ADD_TO_CART,
+  CALCULATE_TOTAL_QUANTITY,
+  saveCartDB,
+} from "../../redux/features/cart/cartSlice";
 import Loader from "../../components/Loader";
-import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import "./Wishlist.scss";
+import { FaRegHeart, FaRegImage, FaShoppingBag, FaTrashAlt } from "react-icons/fa";
+
+const WishlistImage = ({ image, name }) => {
+  const [failed, setFailed] = useState(false);
+  const src = Array.isArray(image) ? image[0] : image;
+
+  if (!src || failed) {
+    return (
+      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-zinc-100 text-zinc-400 dark:bg-zinc-900">
+        <FaRegImage size={28} />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name || "Wishlist product"}
+      className="aspect-square w-full rounded-lg object-cover transition duration-300 group-hover:scale-[1.02]"
+      onError={() => setFailed(true)}
+    />
+  );
+};
 
 const Wishlist = () => {
-  const [grid, setGrid] = useState(true);
   const dispatch = useDispatch();
   const { wishlist = [], isLoading } = useSelector((state) => state.auth);
   const { currentUser } = useSelector((state) => state.user);
-
-  const removeWishlist = async (product) => {
-    if (!currentUser) {
-      toast.info("Please sign in to manage your wishlist");
-      return;
-    }
-    const productId = product._id;
-    // console.log(productId);
-    await dispatch(removeFromWishlist(productId));
-    await dispatch(getWishlist());
-  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -37,56 +51,158 @@ const Wishlist = () => {
       dispatch(getWishlist());
     }
   }, [currentUser, dispatch]);
-//   console.log(wishlist);
-//   console.log(wishlist.length);
+
+  const removeWishlist = async (product) => {
+    if (!currentUser) {
+      toast.info("Please sign in to manage your wishlist");
+      return;
+    }
+    await dispatch(removeFromWishlist(product._id));
+    await dispatch(getWishlist());
+  };
+
+  const addToCart = (product) => {
+    dispatch(ADD_TO_CART(product));
+    dispatch(CALCULATE_TOTAL_QUANTITY());
+    if (currentUser) {
+      dispatch(
+        saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+      );
+    }
+  };
 
   return (
-    <>
-      <section className="mb-10 dark:bg-gray-900 dark:text-white py-10">
-        {isLoading && <Loader />}
-        <div className="container min-h-screen ">
-          <h2 className="text-2xl my-5 dark:text-white">My Wishlist</h2>
-          <div className="--underline dark:bg-gray-800"></div>
-          {!currentUser && (
-            <div className="my-8 rounded-md border border-zinc-200 bg-white p-6 text-center dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="mb-4 text-zinc-700 dark:text-zinc-300">
-                Please sign in to view your wishlist.
-              </p>
+    <main className="wishlist-page min-h-screen bg-[#fbfcfa] px-5 py-10 text-zinc-950 dark:bg-zinc-950 dark:text-white sm:px-6 lg:px-8">
+      {isLoading && currentUser && <Loader />}
+
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+              Saved Items
+            </p>
+            <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+              My Wishlist
+            </h1>
+            <p className="mt-3 text-zinc-600 dark:text-zinc-300">
+              Keep handmade favourites here for later.
+            </p>
+          </div>
+          <Link
+            to="/shop"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
+          >
+            Continue Shopping / 繼續選購
+          </Link>
+        </div>
+
+        {!currentUser ? (
+          <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
+            <FaRegHeart className="mx-auto mb-6 h-8 w-8 text-emerald-700" />
+            <h2 className="text-3xl font-semibold text-zinc-950 dark:text-white">
+              Sign in to view your wishlist.
+            </h2>
+            <p className="mt-3 text-zinc-600 dark:text-zinc-300">
+              登入後即可查看你的收藏清單。
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 to="/sign-in"
-                className="inline-flex rounded-full bg-zinc-950 px-5 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
               >
-                Sign in
+                Sign In
+              </Link>
+              <Link
+                to="/shop"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
+              >
+                Continue Shopping
               </Link>
             </div>
-          )}
-          <div className={grid ? `${styles.grid} dark:bg-gray-900` : `${styles.list} dark:bg-gray-900`}>
-            {!currentUser ? null : wishlist.length === 0 ? (
-              <p className="dark:text-gray-300">No product found in your wishlist...</p>
-            ) : (
-              <>
-                {wishlist.map((product) => {
-                  return (
-                    <div key={product._id} className="my-5 dark:bg-gray-800 dark:text-white p-4 rounded-lg">
-                      <ProductItem {...product} grid={grid} product={product} />
-                      <div className="w-full flex justify-center">
-                        <button
-                          className="--btn --btn-danger  dark:bg-red-600 dark:hover:bg-red-700 dark:border-none dark:text-white"
-                          onClick={() => removeWishlist(product)}
-                        >
-                          Romove From Wishlist
-                        </button>
-                      </div>
+          </section>
+        ) : wishlist.length === 0 ? (
+          <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
+            <h2 className="text-3xl font-semibold text-zinc-950 dark:text-white">
+              Your wishlist is empty.
+            </h2>
+            <p className="mt-3 text-zinc-600 dark:text-zinc-300">
+              你暫時未收藏任何商品。
+            </p>
+            <Link
+              to="/shop"
+              className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+            >
+              Browse Products
+            </Link>
+          </section>
+        ) : (
+          <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {wishlist.map((product) => {
+              const {
+                _id,
+                name = "Untitled product",
+                price = 0,
+                regularPrice,
+                image,
+                quantity = 0,
+                category,
+              } = product;
+              const hasDiscount = Number(regularPrice) > Number(price);
 
+              return (
+                <article
+                  key={_id}
+                  className="group flex h-full flex-col rounded-[1.25rem] border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950"
+                >
+                  <Link to={`/product-details/${_id}`} className="overflow-hidden rounded-lg">
+                    <WishlistImage image={image} name={name} />
+                  </Link>
+                  <div className="flex flex-1 flex-col px-1 py-4">
+                    {category && (
+                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-700">
+                        {category}
+                      </p>
+                    )}
+                    <Link
+                      to={`/product-details/${_id}`}
+                      className="mt-2 text-lg font-semibold leading-6 text-zinc-950 transition hover:text-emerald-800 dark:text-white"
+                    >
+                      {name}
+                    </Link>
+                    <div className="mt-3 flex items-center gap-2">
+                      {hasDiscount && (
+                        <del className="text-sm text-zinc-400">${regularPrice}</del>
+                      )}
+                      <span className="text-base font-semibold">${price}</span>
                     </div>
-                  );
-                })}
-              </>
-            )}
-          </div>
-        </div>
-      </section>
-    </>
+
+                    <div className="mt-auto grid gap-2 pt-5">
+                      <button
+                        type="button"
+                        onClick={() => addToCart(product)}
+                        disabled={Number(quantity) <= 0}
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+                      >
+                        <FaShoppingBag size={14} />
+                        {Number(quantity) > 0 ? "Add to Cart" : "Out of Stock"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeWishlist(product)}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-600 transition hover:border-red-200 hover:text-red-600 dark:border-zinc-800 dark:text-zinc-300"
+                      >
+                        <FaTrashAlt size={13} />
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        )}
+      </div>
+    </main>
   );
 };
 
