@@ -180,10 +180,10 @@ const ProductDetails = () => {
           &larr; Continue shopping
         </Link>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:gap-14">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14">
           <div>
             <div
-              className={`${styles.imageFrame} overflow-hidden rounded-[1.5rem] border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900`}
+              className={`${styles.imageFrame} overflow-hidden rounded-[1.5rem] border border-zinc-100 bg-[#fffdfa] dark:border-zinc-800 dark:bg-zinc-950`}
             >
               {selectedImage ? (
                 <img
@@ -194,7 +194,7 @@ const ProductDetails = () => {
                 />
               ) : (
                 <div
-                  className={`${styles.imagePlaceholder} flex aspect-square w-full flex-col items-center justify-center gap-3 text-zinc-400 md:aspect-[4/5] lg:aspect-auto`}
+                  className={`${styles.imagePlaceholder} flex aspect-square w-full flex-col items-center justify-center gap-3 bg-[#fffdfa] text-zinc-400 md:aspect-[4/5] lg:aspect-auto`}
                 >
                   <FaRegImage size={34} />
                   <p className="text-sm">Image coming soon</p>
@@ -228,8 +228,10 @@ const ProductDetails = () => {
             )}
           </div>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950 md:p-8">
+          <aside className="h-fit w-full border-0 lg:sticky lg:top-24 lg:self-start">
+            <div
+              className={`${styles.infoCard} w-full rounded-[1.5rem] bg-white p-6 md:p-8 dark:bg-zinc-950`}
+            >
               <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                 {product.category && <span>{product.category}</span>}
                 {product.brand && (
@@ -274,12 +276,12 @@ const ProductDetails = () => {
                 {stock.label}
               </div>
 
-              <div className="mt-8 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+              <div className="mt-8 rounded-[1.25rem] border border-zinc-100 bg-[#fcfcfa] p-4 dark:border-zinc-800 dark:bg-zinc-900/70 sm:p-5">
                 <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-200">
                   Quantity
                 </p>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex min-h-11 w-full items-center overflow-hidden rounded-full border border-zinc-200 dark:border-zinc-800 sm:w-auto">
+                <div className="flex w-full flex-col gap-3">
+                  <div className="flex min-h-11 w-full items-center overflow-hidden rounded-full border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
                     <button
                       type="button"
                       onClick={decreaseCart}
@@ -302,7 +304,7 @@ const ProductDetails = () => {
                       <FaPlus size={12} />
                     </button>
                   </div>
-                  <p className="w-full text-left text-sm text-zinc-500 dark:text-zinc-400 sm:w-auto sm:text-right">
+                  <p className="w-full text-left text-sm text-zinc-500 dark:text-zinc-400">
                     {cart ? "In your cart" : "Add once to start"}
                   </p>
                 </div>
