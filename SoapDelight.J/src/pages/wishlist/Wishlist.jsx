@@ -41,6 +41,7 @@ const Wishlist = () => {
   const dispatch = useDispatch();
   const { wishlist = [], isLoading } = useSelector((state) => state.auth);
   const { currentUser } = useSelector((state) => state.user);
+  const visibleWishlist = wishlist.filter((product) => product?.category !== "Shipping");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -120,7 +121,7 @@ const Wishlist = () => {
               </Link>
             </div>
           </section>
-        ) : wishlist.length === 0 ? (
+        ) : visibleWishlist.length === 0 ? (
           <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
             <h2 className="text-3xl font-semibold text-zinc-950 dark:text-white">
               Your wishlist is empty.
@@ -137,7 +138,7 @@ const Wishlist = () => {
           </section>
         ) : (
           <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {wishlist.map((product) => {
+            {visibleWishlist.map((product) => {
               const {
                 _id,
                 name = "Untitled product",

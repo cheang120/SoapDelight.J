@@ -8,15 +8,24 @@ import {
   CLEAR_CART,
   DECREASE_CART,
   REMOVE_FROM_CART,
+  SELECT_DELIVERY_METHOD,
   getCartDB,
   selectCartItems,
   selectCartTotalAmount,
   selectCartTotalQuantity,
+  selectCouponDiscountAmount,
+  selectProductCartItems,
+  selectProductSubtotal,
+  selectSelectedDeliveryMethod,
+  LOCAL_PICKUP_METHOD,
+  saveCartDB,
 } from "../../redux/features/cart/cartSlice";
 import { SAVE_PAYMENT_METHOD } from "../../redux/features/checkout/checkoutSlice";
 import { selectIsLoggedIn } from "../../redux/user/userSlice";
+import { getProducts } from "../../redux/features/product/productSlice";
 import VerifyCoupon from "../../components/verifyCoupon/VerifyCoupon";
-import { FaMinus, FaPlus, FaRegImage, FaTrashAlt } from "react-icons/fa";
+import { FaCheckCircle, FaMinus, FaPlus, FaRegImage, FaTrashAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`;
 
@@ -46,16 +55,20 @@ const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
+  const productItems = useSelector(selectProductCartItems);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const cartTotalAmount = useSelector(selectCartTotalAmount);
+  const productSubtotal = useSelector(selectProductSubtotal);
+  const couponDiscountAmount = useSelector(selectCouponDiscountAmount);
+  const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const { coupon } = useSelector((state) => state.coupon);
-  const { initialCartTotalAmount } = useSelector((state) => state.cart);
+  const { products = [] } = useSelector((state) => state.product);
   const { currentUser } = useSelector((state) => state.user);
   const isLoggedIn = useSelector(selectIsLoggedIn);
-
-  const discountAmount = coupon
-    ? Math.max(Number(initialCartTotalAmount || 0) - Number(cartTotalAmount || 0), 0)
-    : 0;
+  const shippingOptions = products.filter((item) => item?.category === "Shipping");
+  const hasRealProducts = productItems.length > 0;
+  const deliveryFee = Number(selectedDeliveryMethod?.price || 0);
+  const deliveryOptions = [LOCAL_PICKUP_METHOD, ...shippingOptions];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -72,8 +85,18 @@ const Cart = () => {
     dispatch(CALCULATE_TOTAL_QUANTITY());
   }, [cartItems, dispatch, coupon]);
 
+  useEffect(() => {
+    if (!products.length) {
+      dispatch(getProducts());
+    }
+  }, [dispatch, products.length]);
+
   const handleCheckout = () => {
-    if (cartItems.length === 0) return;
+    if (!hasRealProducts) return;
+    if (!selectedDeliveryMethod) {
+      toast.info("Please select a delivery method before checkout. / 請先選擇送貨方式。");
+      return;
+    }
     dispatch(SAVE_PAYMENT_METHOD("stripe"));
     if (currentUser || isLoggedIn) {
       navigate("/checkout-details");
@@ -89,6 +112,17 @@ const Cart = () => {
   const decreaseQuantity = (item) => {
     if (Number(item.cartQuantity || 0) <= 1) return;
     dispatch(DECREASE_CART(item));
+  };
+
+  const handleDeliverySelection = (method) => {
+    dispatch(SELECT_DELIVERY_METHOD(method));
+    dispatch(CALCULATE_SUBTOTAL({ coupon }));
+
+    if (currentUser) {
+      dispatch(
+        saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems") || "[]") })
+      );
+    }
   };
 
   return (
@@ -114,7 +148,7 @@ const Cart = () => {
           </Link>
         </div>
 
-        {cartItems.length === 0 ? (
+        {!hasRealProducts ? (
           <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
             <h2 className="text-3xl font-semibold text-zinc-950 dark:text-white">
               Your cart is empty.
@@ -132,7 +166,7 @@ const Cart = () => {
         ) : (
           <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
             <section className="space-y-4">
-              {cartItems.map((item) => {
+              {productItems.map((item) => {
                 const {
                   _id,
                   name = "Untitled product",
@@ -152,13 +186,9 @@ const Cart = () => {
                     className="rounded-[1.25rem] border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-5"
                   >
                     <div className="flex flex-col gap-5 sm:flex-row">
-                      {category !== "Shipping" ? (
-                        <Link to={`/product-details/${_id}`} className="shrink-0">
-                          <CartImage image={image} name={name} />
-                        </Link>
-                      ) : (
+                      <Link to={`/product-details/${_id}`} className="shrink-0">
                         <CartImage image={image} name={name} />
-                      )}
+                      </Link>
 
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-col justify-between gap-3 md:flex-row">
@@ -168,18 +198,12 @@ const Cart = () => {
                                 {category}
                               </p>
                             )}
-                            {category !== "Shipping" ? (
-                              <Link
-                                to={`/product-details/${_id}`}
-                                className="mt-1 block text-xl font-semibold text-zinc-950 transition hover:text-emerald-800 dark:text-white"
-                              >
-                                {name}
-                              </Link>
-                            ) : (
-                              <h2 className="mt-1 text-xl font-semibold text-zinc-950 dark:text-white">
-                                {name}
-                              </h2>
-                            )}
+                            <Link
+                              to={`/product-details/${_id}`}
+                              className="mt-1 block text-xl font-semibold text-zinc-950 transition hover:text-emerald-800 dark:text-white"
+                            >
+                              {name}
+                            </Link>
                             <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                               Unit price: {formatMoney(price)}
                             </p>
@@ -260,25 +284,78 @@ const Cart = () => {
                   </div>
                   <div className="flex justify-between gap-4">
                     <span className="text-zinc-500 dark:text-zinc-400">
-                      Subtotal
+                      Product subtotal / 商品小計
                     </span>
                     <span className="font-medium">
-                      {formatMoney(initialCartTotalAmount || cartTotalAmount)}
+                      {formatMoney(productSubtotal)}
                     </span>
                   </div>
                   {coupon && (
                     <div className="flex justify-between gap-4 text-emerald-700">
-                      <span>Coupon discount</span>
-                      <span>-{formatMoney(discountAmount)}</span>
+                      <span>Coupon discount / 優惠折扣</span>
+                      <span>-{formatMoney(couponDiscountAmount)}</span>
                     </div>
                   )}
-                  <div className="rounded-lg bg-[#f7faf6] p-4 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">
-                    <p className="font-medium text-zinc-900 dark:text-white">
-                      Shipping note
-                    </p>
-                    <p className="mt-1 leading-6">
-                      Delivery or pickup is arranged in the checkout steps.
-                    </p>
+
+                  <div className="rounded-[1.25rem] border border-zinc-200 bg-[#f7faf6] p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-zinc-950 dark:text-white">
+                          Delivery Method / 送貨方式
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                          請先選擇送貨目的地或本地自取，之後才可前往結帳。
+                        </p>
+                      </div>
+                      {selectedDeliveryMethod && (
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-medium text-emerald-700 shadow-sm dark:bg-zinc-950">
+                          <FaCheckCircle size={12} />
+                          Selected
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      {deliveryOptions.map((method) => {
+                        const isActive = selectedDeliveryMethod?._id === method._id;
+                        return (
+                          <label
+                            key={method._id}
+                            className={`flex cursor-pointer items-start justify-between gap-4 rounded-2xl border p-4 transition ${
+                              isActive
+                                ? "border-emerald-700 bg-white shadow-sm dark:bg-zinc-950"
+                                : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950"
+                            }`}
+                          >
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="delivery-method"
+                                  value={method._id}
+                                  checked={isActive}
+                                  onChange={() => handleDeliverySelection(method)}
+                                  className="mt-1 h-4 w-4 accent-emerald-700"
+                                />
+                                <div>
+                                  <p className="font-medium text-zinc-950 dark:text-white">
+                                    {method.name}
+                                  </p>
+                                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                    {method.isPickup
+                                      ? "Pickup from Macau / 澳門本地自取"
+                                      : "Shipping fee applied at checkout summary"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="shrink-0 text-sm font-semibold text-zinc-950 dark:text-white">
+                              {formatMoney(method.price)}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 
@@ -287,8 +364,22 @@ const Cart = () => {
                 </div>
 
                 <div className="mt-6 border-t border-zinc-100 pt-5 dark:border-zinc-800">
+                  <div className="mb-4 flex justify-between gap-4 text-sm">
+                    <span className="text-zinc-500 dark:text-zinc-400">
+                      Delivery / 送貨方式
+                    </span>
+                    <span className="text-right font-medium">
+                      {selectedDeliveryMethod?.name || "Please select / 請先選擇"}
+                    </span>
+                  </div>
+                  <div className="mb-4 flex justify-between gap-4 text-sm">
+                    <span className="text-zinc-500 dark:text-zinc-400">
+                      Delivery fee / 運費
+                    </span>
+                    <span className="font-medium">{formatMoney(deliveryFee)}</span>
+                  </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold">Total</span>
+                    <span className="text-lg font-semibold">Total / 總數</span>
                     <span className="text-3xl font-semibold">
                       {formatMoney(cartTotalAmount)}
                     </span>
@@ -296,13 +387,15 @@ const Cart = () => {
                   <button
                     type="button"
                     onClick={handleCheckout}
-                    disabled={cartItems.length === 0}
+                    disabled={!hasRealProducts || !selectedDeliveryMethod}
                     className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                   >
                     Checkout
                   </button>
                   <p className="mt-3 text-center text-xs text-zinc-500 dark:text-zinc-400">
-                    You will sign in before checkout if needed.
+                    {selectedDeliveryMethod
+                      ? "You will sign in before checkout if needed."
+                      : "Please select a delivery method before checkout. / 請先選擇送貨方式。"}
                   </p>
                 </div>
               </div>

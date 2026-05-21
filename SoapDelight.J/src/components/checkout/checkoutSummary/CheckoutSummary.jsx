@@ -5,6 +5,11 @@ import {
   selectCartItems,
   selectCartTotalAmount,
   selectCartTotalQuantity,
+  selectCouponDiscountAmount,
+  selectProductCartItems,
+  selectProductSubtotal,
+  selectSelectedDeliveryMethod,
+  selectShippingFee,
 } from "../../../redux/features/cart/cartSlice";
 import styles from "./CheckoutSummary.module.scss";
 import VerifyCoupon, { CartDiscount } from "../../verifyCoupon/VerifyCoupon";
@@ -41,23 +46,20 @@ const CheckoutSummary = ({
 }) => {
   const dispatch = useDispatch();
   const { coupon } = useSelector((state) => state.coupon);
-  const { initialCartTotalAmount } = useSelector((state) => state.cart);
   const cartItems = useSelector(selectCartItems);
+  const productItems = useSelector(selectProductCartItems);
   const cartTotalAmount = useSelector(selectCartTotalAmount);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
+  const productSubtotal = useSelector(selectProductSubtotal);
+  const couponDiscountAmount = useSelector(selectCouponDiscountAmount);
+  const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
+  const shippingFee = useSelector(selectShippingFee);
 
   useEffect(() => {
     dispatch(CALCULATE_SUBTOTAL({ coupon }));
   }, [cartItems, coupon, dispatch]);
 
-  const discountAmount = coupon
-    ? Math.max(Number(initialCartTotalAmount || 0) - Number(cartTotalAmount || 0), 0)
-    : 0;
-
-  const productItems = cartItems.filter((item) => item.category !== "Shipping");
-  const shippingItems = cartItems.filter((item) => item.category === "Shipping");
-
-  if (cartItems.length === 0) {
+  if (productItems.length === 0) {
     return (
       <div>
         <h2 className={styles.title}>{title}</h2>
@@ -77,30 +79,32 @@ const CheckoutSummary = ({
 
       <div className={styles.rows}>
         <div className={styles.row}>
-          <span>Subtotal</span>
-          <strong>{formatMoney(initialCartTotalAmount || cartTotalAmount)}</strong>
+          <span>Product subtotal / 商品小計</span>
+          <strong>{formatMoney(productSubtotal)}</strong>
         </div>
 
         {coupon && (
           <div className={`${styles.row} ${styles.discountRow}`}>
-            <span>Coupon discount</span>
-            <strong>-{formatMoney(discountAmount)}</strong>
+            <span>Coupon discount / 優惠折扣</span>
+            <strong>-{formatMoney(couponDiscountAmount)}</strong>
           </div>
         )}
 
-        {shippingItems.length > 0 && (
+        {selectedDeliveryMethod ? (
+          <>
+            <div className={styles.row}>
+              <span>Delivery / 送貨方式</span>
+              <strong className={styles.methodValue}>{selectedDeliveryMethod.name}</strong>
+            </div>
+            <div className={styles.row}>
+              <span>Delivery fee / 運費</span>
+              <strong>{formatMoney(shippingFee)}</strong>
+            </div>
+          </>
+        ) : (
           <div className={styles.shippingNote}>
-            <p>Delivery / Pickup</p>
-            <span>
-              {shippingItems.map((item) => item.name).join(" / ")}
-            </span>
-          </div>
-        )}
-
-        {!shippingItems.length && (
-          <div className={styles.shippingNote}>
-            <p>Delivery note</p>
-            <span>澳門本地送貨或自取安排，會按結帳資料確認。</span>
+            <p>Please select a delivery method</p>
+            <span>請先返回購物車選擇送貨方式或本地自取。</span>
           </div>
         )}
       </div>
@@ -130,7 +134,7 @@ const CheckoutSummary = ({
       )}
 
       <div className={styles.totalRow}>
-        <span>Total</span>
+        <span>Total / 總數</span>
         <strong>{formatMoney(cartTotalAmount)}</strong>
       </div>
     </div>

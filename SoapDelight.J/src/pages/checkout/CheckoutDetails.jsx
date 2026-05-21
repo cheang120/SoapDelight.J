@@ -10,7 +10,11 @@ import {
   selectBillingAddress,
   selectShippingAddress,
 } from "../../redux/features/checkout/checkoutSlice";
-import { selectCartItems } from "../../redux/features/cart/cartSlice";
+import {
+  selectCartItems,
+  selectProductCartItems,
+  selectSelectedDeliveryMethod,
+} from "../../redux/features/cart/cartSlice";
 import CheckoutSummary from "../../components/checkout/checkoutSummary/CheckoutSummary";
 
 const initialAddressState = {
@@ -38,6 +42,8 @@ const CheckoutDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartItems = useSelector(selectCartItems);
+  const productItems = useSelector(selectProductCartItems);
+  const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const shipAddress = useSelector(selectShippingAddress);
   const billAddress = useSelector(selectBillingAddress);
   const { currentUser } = useSelector((state) => state.user);
@@ -138,7 +144,7 @@ const CheckoutDetails = () => {
     </section>
   );
 
-  if (cartItems.length === 0) {
+  if (productItems.length === 0) {
     return (
       <main className={styles.page}>
         <div className={styles.container}>
@@ -148,6 +154,23 @@ const CheckoutDetails = () => {
             <p>先加入想要的商品，再完成結帳流程。</p>
             <Link to="/shop" className={styles.primaryButton}>
               Continue Shopping / 繼續選購
+            </Link>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  if (!selectedDeliveryMethod) {
+    return (
+      <main className={styles.page}>
+        <div className={styles.container}>
+          <section className={styles.emptyState}>
+            <p className={styles.eyebrow}>Delivery Method</p>
+            <h1>Please choose a delivery method first.</h1>
+            <p>請先返回購物車選擇送貨方式或本地自取，再繼續結帳。</p>
+            <Link to="/cart" className={styles.primaryButton}>
+              Back to Cart / 返回購物車
             </Link>
           </section>
         </div>

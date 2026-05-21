@@ -1,8 +1,85 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify';
 import { getCartQuantityById } from '../../../utils';
 import cartService from './cartService';
 const FRONTEND_URL = import.meta.env.VITE_REACT_APP_FRENTEND_URL
+const CART_STORAGE_KEY = "cartItems";
+const DELIVERY_STORAGE_KEY = "selectedDeliveryMethod";
+export const LOCAL_PICKUP_ID = "local-pickup";
+export const LOCAL_PICKUP_METHOD = {
+  _id: LOCAL_PICKUP_ID,
+  name: "澳門本地自取 / Local pickup",
+  price: 0,
+  category: "Shipping",
+  isPickup: true,
+};
+
+const readStorage = (key, fallback) => {
+  if (typeof localStorage === "undefined") return fallback;
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
+const writeStorage = (key, value) => {
+  if (typeof localStorage === "undefined") return;
+  localStorage.setItem(key, JSON.stringify(value));
+};
+
+const removeStorage = (key) => {
+  if (typeof localStorage === "undefined") return;
+  localStorage.removeItem(key);
+};
+
+const normalizeShippingItem = (item) => ({
+  ...item,
+  category: "Shipping",
+  cartQuantity: 1,
+});
+
+const normalizeCartItems = (items = []) => {
+  const nextItems = Array.isArray(items) ? items : [];
+  const productItems = nextItems.filter((item) => item?.category !== "Shipping");
+  const shippingItems = nextItems
+    .filter((item) => item?.category === "Shipping")
+    .map(normalizeShippingItem);
+
+  return shippingItems.length > 0
+    ? [...productItems, shippingItems[shippingItems.length - 1]]
+    : productItems;
+};
+
+const deriveSelectedDeliveryMethod = (cartItems = [], storedMethod = null) => {
+  const shippingItem = cartItems.find((item) => item?.category === "Shipping");
+
+  if (shippingItem) {
+    return {
+      _id: shippingItem._id,
+      name: shippingItem.name,
+      price: Number(shippingItem.price || 0),
+      category: "Shipping",
+      isPickup: false,
+    };
+  }
+
+  if (storedMethod?.isPickup || storedMethod?._id === LOCAL_PICKUP_ID) {
+    return { ...LOCAL_PICKUP_METHOD };
+  }
+
+  return null;
+};
+
+const syncCartStorage = (state) => {
+  writeStorage(CART_STORAGE_KEY, state.cartItems);
+  if (state.selectedDeliveryMethod) {
+    writeStorage(DELIVERY_STORAGE_KEY, state.selectedDeliveryMethod);
+  } else {
+    removeStorage(DELIVERY_STORAGE_KEY);
+  }
+};
 
 const isExpectedAuthSyncError = (message) => {
   if (typeof message !== "string") return false;
@@ -21,15 +98,22 @@ function applyDiscount(cartTotalAmount, discountPercentage) {
   return updatedTotal;
 }
 
+const initialCartItems = normalizeCartItems(readStorage(CART_STORAGE_KEY, []));
+const initialSelectedDeliveryMethod = deriveSelectedDeliveryMethod(
+  initialCartItems,
+  readStorage(DELIVERY_STORAGE_KEY, null)
+);
+
 const initialState = {
-    cartItems: localStorage.getItem("cartItems")
-    ? JSON.parse(localStorage.getItem("cartItems"))
-    : [],
+    cartItems: initialCartItems,
     cartTotalQuantity: 0,
     cartTotalAmount: 0,
     initialCartTotalAmount: 0,
-    shippingFee: 0,
+    productSubtotal: 0,
+    couponDiscountAmount: 0,
+    shippingFee: Number(initialSelectedDeliveryMethod?.price || 0),
     totalWithShippingFee: 0,
+    selectedDeliveryMethod: initialSelectedDeliveryMethod,
     previousURL: "",
     isError: false,
     isSuccess: false,
@@ -80,6 +164,22 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     ADD_TO_CART(state, action) {
+        if (action.payload?.category === "Shipping") {
+          const productItems = state.cartItems.filter(
+            (item) => item.category !== "Shipping"
+          );
+          const shippingItem = normalizeShippingItem(action.payload);
+          state.cartItems = [...productItems, shippingItem];
+          state.selectedDeliveryMethod = deriveSelectedDeliveryMethod(
+            state.cartItems,
+            state.selectedDeliveryMethod
+          );
+          syncCartStorage(state);
+          toast.success(`${action.payload.name} selected as delivery method`, {
+            position: "top-left",
+          });
+          return;
+        }
         // console.log(action.payload);
         // const product = action.payload
         // console.log(product);
@@ -115,8 +215,12 @@ const cartSlice = createSlice({
             position: "top-left",
           });
         }
-        // save cart to LS
-        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+        state.cartItems = normalizeCartItems(state.cartItems);
+        state.selectedDeliveryMethod = deriveSelectedDeliveryMethod(
+          state.cartItems,
+          state.selectedDeliveryMethod
+        );
+        syncCartStorage(state);
     },
     DECREASE_CART(state, action) {
         // console.log(action.payload);
@@ -138,7 +242,12 @@ const cartSlice = createSlice({
             position: "top-left",
           });
         }
-        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+        state.cartItems = normalizeCartItems(state.cartItems);
+        state.selectedDeliveryMethod = deriveSelectedDeliveryMethod(
+          state.cartItems,
+          state.selectedDeliveryMethod
+        );
+        syncCartStorage(state);
     },
 
     REMOVE_FROM_CART(state, action) {
@@ -150,25 +259,35 @@ const cartSlice = createSlice({
         toast.success(`${action.payload.name} removed from cart`, {
           position: "top-left",
         });
-  
-        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+
+        state.cartItems = normalizeCartItems(state.cartItems);
+        state.selectedDeliveryMethod = deriveSelectedDeliveryMethod(
+          state.cartItems,
+          state.selectedDeliveryMethod
+        );
+        syncCartStorage(state);
     },
     CLEAR_CART(state) {
         state.cartItems = [];
         state.cartTotalQuantity = 0;
         state.cartTotalAmount = 0;
         state.initialCartTotalAmount = 0;
+        state.productSubtotal = 0;
+        state.couponDiscountAmount = 0;
         state.shippingFee = 0;
         state.totalWithShippingFee = 0;
+        state.selectedDeliveryMethod = null;
         toast.info(`Cart cleared`, {
           position: "top-left",
         });
-  
-        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+
+        syncCartStorage(state);
     },
     CALCULATE_TOTAL_QUANTITY(state, action) {
         const array = [];
-        state.cartItems?.map((item) => {
+        state.cartItems
+          ?.filter((item) => item.category !== "Shipping")
+          .map((item) => {
           const { cartQuantity } = item;
           const quantity = cartQuantity;
           return array.push(quantity);
@@ -180,49 +299,36 @@ const cartSlice = createSlice({
     },
 
     CALCULATE_SUBTOTAL(state, action) {
-      const array = [];
-      const nonShippingItems = []; // 新增：用來存放非 Shipping 的產品
-    
-      // 遍历购物车的商品
-      state.cartItems.map((item) => {
-        const { price, cartQuantity, category } = item;
-        const cartItemAmount = price * cartQuantity;
-        
-        array.push(cartItemAmount); // 添加所有商品金額
-    
-        // 只添加非 Shipping 类别的商品到 nonShippingItems
-        if (category !== "Shipping") {
-          nonShippingItems.push(cartItemAmount);
-        }
-    
-        return cartItemAmount;
-      });
-    
-      // 计算所有商品的总金额
-      const totalAmount = array.reduce((a, b) => a + b, 0);
-      state.initialCartTotalAmount = totalAmount;
-    
-      // 计算不含 Shipping 商品的总金额
-      const nonShippingTotalAmount = nonShippingItems.reduce((a, b) => a + b, 0);
-    
-      // 计算折扣后的总金额（只对非 Shipping 产品应用优惠券）
-      if (action.payload && action.payload.coupon && action.payload.coupon.discount) {
-        const discountedTotalAmount = applyDiscount(
-          nonShippingTotalAmount,  // 修改：只对非 Shipping 产品应用折扣
-          action.payload.coupon.discount
-        );
-        state.cartTotalAmount = discountedTotalAmount + (totalAmount - nonShippingTotalAmount); // 非 Shipping 产品折扣后加上 Shipping 产品金额
-      } else {
-        state.cartTotalAmount = totalAmount;
-      }
-    
-      // 如果传递了邮寄费用，则计算含邮费的总金额
-      if (action.payload && action.payload.shippingFee) {
-        state.shippingFee = action.payload.shippingFee;  // 设置邮寄费用
-        state.totalWithShippingFee = state.cartTotalAmount + action.payload.shippingFee;  // 计算总金额（商品总额 + 邮寄费）
-      } else {
-        state.totalWithShippingFee = state.cartTotalAmount;  // 没有邮寄费用时的总金额
-      }
+      const coupon = action.payload?.coupon;
+      const productItems = state.cartItems.filter(
+        (item) => item.category !== "Shipping"
+      );
+      const shippingItem = state.cartItems.find(
+        (item) => item.category === "Shipping"
+      );
+      const productSubtotal = productItems.reduce((total, item) => {
+        return total + Number(item.price || 0) * Number(item.cartQuantity || 0);
+      }, 0);
+      const shippingFee = shippingItem
+        ? Number(shippingItem.price || 0)
+        : state.selectedDeliveryMethod?.isPickup
+          ? 0
+          : 0;
+      const couponDiscountAmount =
+        coupon?.discount
+          ? (Number(coupon.discount) / 100) * productSubtotal
+          : 0;
+      const discountedProductSubtotal = Math.max(
+        productSubtotal - couponDiscountAmount,
+        0
+      );
+
+      state.productSubtotal = productSubtotal;
+      state.initialCartTotalAmount = productSubtotal;
+      state.couponDiscountAmount = couponDiscountAmount;
+      state.shippingFee = shippingFee;
+      state.cartTotalAmount = discountedProductSubtotal + shippingFee;
+      state.totalWithShippingFee = state.cartTotalAmount;
     },
     
 
@@ -232,9 +338,41 @@ const cartSlice = createSlice({
       state.totalWithShippingFee = state.cartTotalAmount + action.payload;
     },
 
+    SELECT_DELIVERY_METHOD(state, action) {
+      const method = action.payload;
+
+      if (!method) {
+        state.selectedDeliveryMethod = null;
+        state.cartItems = state.cartItems.filter((item) => item.category !== "Shipping");
+        syncCartStorage(state);
+        return;
+      }
+
+      if (method.isPickup || method._id === LOCAL_PICKUP_ID) {
+        state.selectedDeliveryMethod = { ...LOCAL_PICKUP_METHOD };
+        state.cartItems = state.cartItems.filter((item) => item.category !== "Shipping");
+        syncCartStorage(state);
+        return;
+      }
+
+      const productItems = state.cartItems.filter((item) => item.category !== "Shipping");
+      const shippingItem = normalizeShippingItem(method);
+      state.cartItems = [...productItems, shippingItem];
+      state.selectedDeliveryMethod = deriveSelectedDeliveryMethod(
+        state.cartItems,
+        state.selectedDeliveryMethod
+      );
+      syncCartStorage(state);
+    },
+
     // 更新购物车
     UPDATE_CART(state, action) {
-      state.cartItems = action.payload;
+      state.cartItems = normalizeCartItems(action.payload);
+      state.selectedDeliveryMethod = deriveSelectedDeliveryMethod(
+        state.cartItems,
+        state.selectedDeliveryMethod
+      );
+      syncCartStorage(state);
     },
   },
   extraReducers: (builder) => {
@@ -265,9 +403,15 @@ const cartSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        const cartItems = Array.isArray(action.payload) ? action.payload : [];
+        const cartItems = normalizeCartItems(
+          Array.isArray(action.payload) ? action.payload : []
+        );
         state.cartItems = cartItems;
-        localStorage.setItem("cartItems", JSON.stringify(cartItems));
+        state.selectedDeliveryMethod = deriveSelectedDeliveryMethod(
+          cartItems,
+          state.selectedDeliveryMethod
+        );
+        syncCartStorage(state);
         // console.log(action.payload.length);
         // console.log(action.payload);
 
@@ -296,6 +440,7 @@ export const {
     CLEAR_CART,
     CALCULATE_SUBTOTAL,
     SET_SHIPPING_FEE,
+    SELECT_DELIVERY_METHOD,
     UPDATE_CART,
     CALCULATE_TOTAL_QUANTITY,
     // CALCULATE_SUBTOTAL
@@ -303,8 +448,18 @@ export const {
 
 export const selectCartItems = (state) => state.cart.cartItems;
 export const selectCartTotalQuantity = (state) => state.cart.cartTotalQuantity;
-
+export const selectProductCartItems = createSelector([selectCartItems], (cartItems) =>
+  cartItems.filter((item) => item.category !== "Shipping")
+);
+export const selectShippingCartItem = createSelector([selectCartItems], (cartItems) =>
+  cartItems.find((item) => item.category === "Shipping") || null
+);
 export const selectCartTotalAmount = (state) => state.cart.cartTotalAmount;
+export const selectProductSubtotal = (state) => state.cart.productSubtotal;
+export const selectCouponDiscountAmount = (state) =>
+  state.cart.couponDiscountAmount;
 export const selectShippingFee = (state) => state.cart.shippingFee;
 export const selectTotalWithShipping = (state) => state.cart.totalWithShippingFee;
+export const selectSelectedDeliveryMethod = (state) =>
+  state.cart.selectedDeliveryMethod;
 export default cartSlice.reducer

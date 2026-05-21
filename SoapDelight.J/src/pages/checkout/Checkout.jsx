@@ -3,7 +3,12 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { extractIdAndCartQuantity } from "../../utils";
-import { selectCartItems, selectCartTotalAmount } from "../../redux/features/cart/cartSlice";
+import {
+  selectCartItems,
+  selectCartTotalAmount,
+  selectProductCartItems,
+  selectSelectedDeliveryMethod,
+} from "../../redux/features/cart/cartSlice";
 import {
   selectBillingAddress,
   selectShippingAddress,
@@ -52,7 +57,9 @@ export const Checkout = () => {
   const [initError, setInitError] = useState("");
 
   const cartItems = useSelector(selectCartItems);
+  const productItems = useSelector(selectProductCartItems);
   const totalAmount = useSelector(selectCartTotalAmount);
+  const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const { currentUser } = useSelector((state) => state.user);
   const shippingAddress = useSelector(selectShippingAddress);
   const billingAddress = useSelector(selectBillingAddress);
@@ -65,13 +72,20 @@ export const Checkout = () => {
   const hasBillingAddress = hasAddressData(billingAddress);
   const shouldLoadStripe =
     Boolean(currentUser) &&
-    cartItems.length > 0 &&
+    productItems.length > 0 &&
+    Boolean(selectedDeliveryMethod) &&
     hasShippingAddress &&
     hasBillingAddress;
   useEffect(() => {
     let ignore = false;
 
-    if (!currentUser || !cartItems.length || !hasShippingAddress || !hasBillingAddress) {
+    if (
+      !currentUser ||
+      !productItems.length ||
+      !selectedDeliveryMethod ||
+      !hasShippingAddress ||
+      !hasBillingAddress
+    ) {
       setClientSecret("");
       setInitError("");
       return undefined;
@@ -118,18 +132,19 @@ export const Checkout = () => {
     };
   }, [
     billingAddress,
-    cartItems.length,
     coupon,
     currentUser,
     description,
     hasBillingAddress,
     hasShippingAddress,
+    productItems.length,
     productIDs,
+    selectedDeliveryMethod,
     shippingAddress,
     userEmail,
   ]);
 
-  if (!cartItems.length) {
+  if (!productItems.length) {
     return (
       <CheckoutState
         eyebrow="Checkout"
@@ -137,6 +152,18 @@ export const Checkout = () => {
         body="先挑選想要的商品，再進入付款流程。"
         ctaLabel="Continue Shopping / 繼續選購"
         ctaTo="/shop"
+      />
+    );
+  }
+
+  if (!selectedDeliveryMethod) {
+    return (
+      <CheckoutState
+        eyebrow="Delivery Method"
+        title="Choose a delivery method first."
+        body="請先返回購物車選擇送貨方式或本地自取，系統才會計算完整總額。"
+        ctaLabel="Back to Cart / 返回購物車"
+        ctaTo="/cart"
       />
     );
   }
