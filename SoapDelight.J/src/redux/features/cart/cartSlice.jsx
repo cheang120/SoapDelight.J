@@ -8,10 +8,24 @@ const DELIVERY_STORAGE_KEY = "selectedDeliveryMethod";
 export const LOCAL_PICKUP_ID = "local-pickup";
 export const LOCAL_PICKUP_METHOD = {
   _id: LOCAL_PICKUP_ID,
-  name: "澳門本地自取 / Local pickup",
+  name: "澳門本地自取",
   price: 0,
   category: "Shipping",
   isPickup: true,
+};
+
+export const getDeliveryMethodLabel = (methodName = "", { concise = false } = {}) => {
+  if (!methodName) return "";
+  if (methodName === LOCAL_PICKUP_METHOD.name || methodName === LOCAL_PICKUP_ID) {
+    return LOCAL_PICKUP_METHOD.name;
+  }
+
+  const normalized = String(methodName).trim();
+  if (normalized.startsWith("郵寄 - ")) {
+    return concise ? normalized.replace(/^郵寄 -\s*/, "") : normalized;
+  }
+
+  return normalized;
 };
 
 const readStorage = (key, fallback) => {

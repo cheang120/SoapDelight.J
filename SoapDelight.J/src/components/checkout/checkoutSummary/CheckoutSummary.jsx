@@ -6,6 +6,7 @@ import {
   selectCartTotalAmount,
   selectCartTotalQuantity,
   selectCouponDiscountAmount,
+  getDeliveryMethodLabel,
   selectProductCartItems,
   selectProductSubtotal,
   selectSelectedDeliveryMethod,
@@ -77,42 +78,6 @@ const CheckoutSummary = ({
         </div>
       </div>
 
-      <div className={styles.rows}>
-        <div className={styles.row}>
-          <span>Product subtotal / 商品小計</span>
-          <strong>{formatMoney(productSubtotal)}</strong>
-        </div>
-
-        {coupon && (
-          <div className={`${styles.row} ${styles.discountRow}`}>
-            <span>Coupon discount / 優惠折扣</span>
-            <strong>-{formatMoney(couponDiscountAmount)}</strong>
-          </div>
-        )}
-
-        {selectedDeliveryMethod ? (
-          <>
-            <div className={styles.row}>
-              <span>Delivery / 送貨方式</span>
-              <strong className={styles.methodValue}>{selectedDeliveryMethod.name}</strong>
-            </div>
-            <div className={styles.row}>
-              <span>Delivery fee / 運費</span>
-              <strong>{formatMoney(shippingFee)}</strong>
-            </div>
-          </>
-        ) : (
-          <div className={styles.shippingNote}>
-            <p>Please select a delivery method</p>
-            <span>請先返回購物車選擇送貨方式或本地自取。</span>
-          </div>
-        )}
-      </div>
-
-      <div className={styles.couponSection}>
-        {showCouponEditor ? <VerifyCoupon /> : <CartDiscount />}
-      </div>
-
       {showItems && (
         <div className={styles.items}>
           {productItems.map((item) => {
@@ -132,6 +97,43 @@ const CheckoutSummary = ({
           })}
         </div>
       )}
+
+      <div className={styles.rows}>
+        <div className={styles.row}>
+          <span>Product subtotal / 商品小計</span>
+          <strong>{formatMoney(productSubtotal)}</strong>
+        </div>
+
+        {selectedDeliveryMethod ? (
+          <>
+            <div className={styles.row}>
+              <span>Delivery / 送貨方式</span>
+              <strong className={styles.methodValue}>
+                {getDeliveryMethodLabel(selectedDeliveryMethod.name)}
+              </strong>
+            </div>
+            <div className={styles.row}>
+              <span>Delivery fee / 運費</span>
+              <strong>{formatMoney(shippingFee)}</strong>
+            </div>
+          </>
+        ) : (
+          <div className={styles.shippingNote}>
+            <p>Please select a delivery method</p>
+            <span>請先返回購物車選擇送貨方式或本地自取。</span>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.couponSection}>
+        {coupon && (
+          <div className={`${styles.row} ${styles.discountRow}`}>
+            <span>Coupon discount / 優惠折扣</span>
+            <strong>-{formatMoney(couponDiscountAmount)}</strong>
+          </div>
+        )}
+        {showCouponEditor ? <VerifyCoupon /> : <CartDiscount />}
+      </div>
 
       <div className={styles.totalRow}>
         <span>Total / 總數</span>
