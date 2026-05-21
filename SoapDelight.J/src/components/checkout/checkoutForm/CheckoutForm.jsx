@@ -132,8 +132,10 @@ export default function CheckoutForm() {
             </form>
           </section>
 
-          <aside className={styles.summaryCard}>
-            <CheckoutSummary title="Order Summary" />
+          <aside className={styles.summaryColumn}>
+            <div className={styles.summaryCard}>
+              <CheckoutSummary title="Order Summary" />
+            </div>
           </aside>
         </div>
       </div>

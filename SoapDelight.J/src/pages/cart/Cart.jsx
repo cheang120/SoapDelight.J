@@ -246,8 +246,8 @@ const Cart = () => {
               </div>
             </section>
 
-            <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+            <aside className="w-full min-w-0 border-0 lg:sticky lg:top-24 lg:self-start">
+              <div className="w-full rounded-[1.5rem] border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
                 <h2 className="text-2xl font-semibold tracking-tight">
                   Order Summary
                 </h2>

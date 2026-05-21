@@ -151,7 +151,7 @@
     margin: 0 auto;
   }
   
-  aside {
+  .slide-container aside {
     width: 100%;
     /* height: 300px; */
     margin: 0 auto;
@@ -165,24 +165,24 @@
     transition: all 0.3s;
   }
   
-  aside::-webkit-scrollbar {
+  .slide-container aside::-webkit-scrollbar {
     height: 10px;
     width: 2px;
     border: 1px solid #d5d5d5;
     background: #d5d5d5;
   }
   
-  aside::-webkit-scrollbar-track {
+  .slide-container aside::-webkit-scrollbar-track {
     --webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   }
   
-  aside::-webkit-scrollbar-thumb {
+  .slide-container aside::-webkit-scrollbar-thumb {
     background-color: var(--color-primary);
     outline: 1px solid #eee;
     /* border-radius: 100px; */
   }
   
-  aside .thumbnail {
+  .slide-container aside .thumbnail {
     flex: 0 0 auto;
     object-fit: cover;
     margin: 5px;
@@ -192,10 +192,10 @@
     transition: all 0.3s;
   }
   
-  aside .thumbnail:hover {
+  .slide-container aside .thumbnail:hover {
     transform: scale(1);
   }
-  aside .thumbnailIcon {
+  .slide-container aside .thumbnailIcon {
     cursor: pointer;
     color: red;
   }

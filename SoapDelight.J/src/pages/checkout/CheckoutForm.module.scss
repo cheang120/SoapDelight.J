@@ -159,10 +159,17 @@
 
 .summaryColumn {
   align-self: start;
+  border: 0;
+  display: block;
+  min-width: 0;
+  overflow: visible;
+  width: 100%;
 }
 
 .summaryCard {
+  min-width: 0;
   padding: 1.25rem;
+  width: 100%;
 }
 
 .summaryFooter {
