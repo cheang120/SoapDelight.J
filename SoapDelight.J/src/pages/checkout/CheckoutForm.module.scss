@@ -178,6 +178,36 @@
   padding-top: 1.5rem;
 }
 
+.checkboxRow {
+  align-items: flex-start;
+  color: #18181b;
+  cursor: pointer;
+  display: flex;
+  gap: 0.85rem;
+  line-height: 1.6;
+}
+
+.checkboxRow input {
+  accent-color: #047857;
+  height: 1rem;
+  margin-top: 0.2rem;
+  width: 1rem;
+}
+
+.checkboxRow span {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.checkboxRow small {
+  color: #71717a;
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 400;
+  margin-top: 0.2rem;
+}
+
 .primaryButton {
   align-items: center;
   background: #18181b;

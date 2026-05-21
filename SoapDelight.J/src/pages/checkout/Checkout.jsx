@@ -23,6 +23,7 @@ const hasAddressData = (address) =>
   Boolean(
     address &&
       typeof address === "object" &&
+      address.email &&
       address.name &&
       address.line1 &&
       address.city &&
@@ -65,11 +66,15 @@ export const Checkout = () => {
   const billingAddress = useSelector(selectBillingAddress);
   const { coupon } = useSelector((state) => state.coupon);
 
-  const userEmail = currentUser?.email || "";
+  const effectiveBillingAddress = hasAddressData(billingAddress)
+    ? billingAddress
+    : shippingAddress;
+  const checkoutEmail = shippingAddress?.email || currentUser?.email || "";
+  const userEmail = currentUser?.email || checkoutEmail;
   const productIDs = useMemo(() => extractIdAndCartQuantity(cartItems), [cartItems]);
   const description = `eShop payment: email: ${userEmail}, Amount: ${totalAmount}`;
   const hasShippingAddress = hasAddressData(shippingAddress);
-  const hasBillingAddress = hasAddressData(billingAddress);
+  const hasBillingAddress = hasAddressData(effectiveBillingAddress);
   const shouldLoadStripe =
     Boolean(currentUser) &&
     productItems.length > 0 &&
@@ -102,7 +107,7 @@ export const Checkout = () => {
             items: productIDs,
             userEmail,
             shipping: shippingAddress,
-            billing: billingAddress,
+            billing: effectiveBillingAddress,
             description,
             coupon,
           }),
@@ -131,12 +136,12 @@ export const Checkout = () => {
       ignore = true;
     };
   }, [
-    billingAddress,
     coupon,
     currentUser,
     description,
     hasBillingAddress,
     hasShippingAddress,
+    effectiveBillingAddress,
     productItems.length,
     productIDs,
     selectedDeliveryMethod,

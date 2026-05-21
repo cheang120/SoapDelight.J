@@ -11,13 +11,14 @@ import {
   selectShippingAddress,
 } from "../../redux/features/checkout/checkoutSlice";
 import {
-  selectCartItems,
   selectProductCartItems,
   selectSelectedDeliveryMethod,
 } from "../../redux/features/cart/cartSlice";
 import CheckoutSummary from "../../components/checkout/checkoutSummary/CheckoutSummary";
 
 const initialAddressState = {
+  email: "",
+  phone: "",
   name: "",
   line1: "",
   line2: "",
@@ -25,23 +26,25 @@ const initialAddressState = {
   state: "",
   postal_code: "",
   country: "",
-  phone: "",
 };
 
-const addressFields = [
+const contactFields = [
+  { name: "email", label: "Email", placeholder: "電郵地址 / Email", type: "email" },
+  { name: "phone", label: "Phone", placeholder: "聯絡電話 / Phone", type: "tel" },
+];
+
+const deliveryFields = [
   { name: "name", label: "Recipient Name", placeholder: "收件人姓名 / Recipient Name" },
   { name: "line1", label: "Address line 1", placeholder: "地址第一行 / Address line 1" },
   { name: "line2", label: "Address line 2", placeholder: "地址第二行（選填） / Address line 2" },
-  { name: "city", label: "City", placeholder: "城市 / City" },
-  { name: "state", label: "State", placeholder: "地區 / State" },
+  { name: "city", label: "City / Area", placeholder: "城市 / 地區 / City / Area" },
+  { name: "state", label: "State / Region", placeholder: "州 / 地區 / State / Region" },
   { name: "postal_code", label: "Postal code", placeholder: "郵遞區號 / Postal code" },
-  { name: "phone", label: "Phone", placeholder: "聯絡電話 / Phone" },
 ];
 
 const CheckoutDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const cartItems = useSelector(selectCartItems);
   const productItems = useSelector(selectProductCartItems);
   const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const shipAddress = useSelector(selectShippingAddress);
@@ -50,45 +53,94 @@ const CheckoutDetails = () => {
 
   const [shippingAddress, setShippingAddress] = useState({ ...initialAddressState });
   const [billingAddress, setBillingAddress] = useState({ ...initialAddressState });
+  const [useShippingAsBilling, setUseShippingAsBilling] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
+    const nextShippingAddress = {
+      ...initialAddressState,
+      email: currentUser?.email || "",
+    };
+
     if (shipAddress && typeof shipAddress === "object" && Object.keys(shipAddress).length > 0) {
-      setShippingAddress({ ...initialAddressState, ...shipAddress });
+      setShippingAddress({ ...nextShippingAddress, ...shipAddress });
+    } else {
+      setShippingAddress(nextShippingAddress);
     }
+
     if (billAddress && typeof billAddress === "object" && Object.keys(billAddress).length > 0) {
       setBillingAddress({ ...initialAddressState, ...billAddress });
+      setUseShippingAsBilling(false);
+    } else {
+      setBillingAddress({ ...initialAddressState, email: currentUser?.email || "" });
+      setUseShippingAsBilling(true);
     }
-  }, [shipAddress, billAddress]);
+  }, [shipAddress, billAddress, currentUser?.email]);
 
-  const handleShipping = (e) => {
+  const handleFieldChange = (setter) => (e) => {
     const { name, value } = e.target;
-    setShippingAddress((current) => ({
+    setter((current) => ({
       ...current,
       [name]: value,
     }));
   };
 
-  const handleBilling = (e) => {
-    const { name, value } = e.target;
-    setBillingAddress((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  };
+  const handleShipping = handleFieldChange(setShippingAddress);
+  const handleBilling = handleFieldChange(setBillingAddress);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(SAVE_SHIPPING_ADDRESS(shippingAddress));
-    dispatch(SAVE_BILLING_ADDRESS(billingAddress));
+    const normalizedShipping = {
+      ...shippingAddress,
+      email: shippingAddress.email?.trim(),
+    };
+    const normalizedBilling = useShippingAsBilling
+      ? { ...normalizedShipping }
+      : {
+          ...billingAddress,
+          email: billingAddress.email?.trim() || normalizedShipping.email,
+          phone: billingAddress.phone?.trim() || normalizedShipping.phone,
+        };
+
+    dispatch(SAVE_SHIPPING_ADDRESS(normalizedShipping));
+    dispatch(SAVE_BILLING_ADDRESS(normalizedBilling));
     dispatch(SAVE_PAYMENT_METHOD("stripe"));
     navigate("/checkout-stripe");
   };
 
-  const renderAddressSection = (title, subtitle, values, handler, type) => (
+  const renderFieldGroup = (fields, values, handler, type) => (
+    <>
+      {fields.map((field) => {
+        const isOptional = field.name === "line2";
+        const isFullWidth = field.name === "line1" || field.name === "line2";
+        return (
+          <div
+            key={`${type}-${field.name}`}
+            className={`${styles.field} ${isFullWidth ? styles.fieldFull : ""}`}
+          >
+            <label htmlFor={`${type}-${field.name}`}>
+              {field.label}
+              {!isOptional && <span> *</span>}
+            </label>
+            <input
+              id={`${type}-${field.name}`}
+              type={field.type || "text"}
+              placeholder={field.placeholder}
+              required={!isOptional}
+              name={field.name}
+              value={values[field.name]}
+              onChange={handler}
+            />
+          </div>
+        );
+      })}
+    </>
+  );
+
+  const renderAddressSection = (title, subtitle, fields, values, handler, type) => (
     <section className={styles.panel}>
       <div className={styles.sectionHeader}>
         <h2>{title}</h2>
@@ -96,34 +148,11 @@ const CheckoutDetails = () => {
       </div>
 
       <div className={styles.formGrid}>
-        {addressFields.map((field) => {
-          const isOptional = field.name === "line2";
-          const isFullWidth = field.name === "line1" || field.name === "line2";
-          return (
-            <div
-              key={`${type}-${field.name}`}
-              className={`${styles.field} ${isFullWidth ? styles.fieldFull : ""}`}
-            >
-              <label htmlFor={`${type}-${field.name}`}>
-                {field.label}
-                {!isOptional && <span> *</span>}
-              </label>
-              <input
-                id={`${type}-${field.name}`}
-                type="text"
-                placeholder={field.placeholder}
-                required={!isOptional}
-                name={field.name}
-                value={values[field.name]}
-                onChange={handler}
-              />
-            </div>
-          );
-        })}
+        {renderFieldGroup(fields, values, handler, type)}
 
         <div className={`${styles.field} ${styles.fieldFull}`}>
           <label htmlFor={`${type}-country`}>
-            Country <span>*</span>
+            Country / Region <span>*</span>
           </label>
           <CountryDropdown
             id={`${type}-country`}
@@ -186,7 +215,7 @@ const CheckoutDetails = () => {
             <p className={styles.eyebrow}>Checkout Details</p>
             <h1>結帳資料</h1>
             <p className={styles.lead}>
-              填寫收件及帳單資料，下一步會進入安全付款頁面。
+              填寫聯絡及收貨資料，下一步會進入安全付款頁面。
             </p>
           </div>
           <Link to="/cart" className={styles.secondaryLink}>
@@ -205,20 +234,46 @@ const CheckoutDetails = () => {
         <form onSubmit={handleSubmit} className={styles.layout}>
           <div className={styles.formColumn}>
             {renderAddressSection(
-              "Shipping Address",
-              "送貨或自取聯絡資料",
+              "Contact Information / 聯絡資料",
+              "訂單更新與確認資訊會以此聯絡方式為準。",
+              contactFields,
+              shippingAddress,
+              handleShipping,
+              "contact"
+            )}
+
+            {renderAddressSection(
+              "Delivery Information / 收貨資料",
+              "請填寫收件人及送貨地址資料。",
+              deliveryFields,
               shippingAddress,
               handleShipping,
               "shipping"
             )}
 
-            {renderAddressSection(
-              "Billing Address",
-              "帳單資料",
-              billingAddress,
-              handleBilling,
-              "billing"
-            )}
+            <section className={styles.panel}>
+              <label className={styles.checkboxRow}>
+                <input
+                  type="checkbox"
+                  checked={useShippingAsBilling}
+                  onChange={(e) => setUseShippingAsBilling(e.target.checked)}
+                />
+                <span>
+                  Billing details are the same as delivery details
+                  <small>帳單資料與收貨資料相同</small>
+                </span>
+              </label>
+            </section>
+
+            {!useShippingAsBilling &&
+              renderAddressSection(
+                "Billing Address / 帳單資料",
+                "如需分開帳單地址，可於此填寫。",
+                deliveryFields,
+                billingAddress,
+                handleBilling,
+                "billing"
+              )}
           </div>
 
           <aside className={styles.summaryColumn}>
