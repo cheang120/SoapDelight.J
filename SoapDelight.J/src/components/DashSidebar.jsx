@@ -1,91 +1,111 @@
-import { Sidebar } from 'flowbite-react';
-import {
-  HiUser,
-  HiArrowSmRight,
-  HiDocumentText,
-  HiOutlineUserGroup,
-  HiAnnotation,
-  HiChartPie,
-} from 'react-icons/hi';
-import { useEffect, useState } from 'react';
-import { Link, useLocation,useNavigate } from 'react-router-dom';
-import { signoutSuccess } from '../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
+import { HiArrowSmRight, HiClipboardList, HiUser } from "react-icons/hi";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { signoutSuccess } from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
-export default function DashSidebar () {
-    const location = useLocation();
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const { currentUser } = useSelector((state) => state.user);
-    const [tab, setTab] = useState('');
+const navItemClass = (active) =>
+  `flex min-h-11 items-center justify-between rounded-2xl border px-4 py-3 text-sm transition ${
+    active
+      ? "border-zinc-950 bg-zinc-950 text-white dark:border-white dark:bg-white dark:text-zinc-950"
+      : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+  }`;
 
-    // console.log(currentUser.role);
-    const userRole = currentUser.role
+export default function DashSidebar() {
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
+  const [tab, setTab] = useState("profile");
 
-    
-    useEffect(() => {
-      const urlParams = new URLSearchParams(location.search);
-      const tabFromUrl = urlParams.get('tab');
-      if (tabFromUrl) {
-        setTab(tabFromUrl);
-      }
+  const userRole = currentUser?.role;
 
-      // 當tab為users且userRole不為admin時重定向
-    if (tabFromUrl === 'users' && userRole !== 'admin') {
-      navigate('/dashboard?tab=profile');
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const tabFromUrl = urlParams.get("tab");
+    if (tabFromUrl) {
+      setTab(tabFromUrl);
     }
-    }, [location.search,userRole, navigate]);
 
-    const handleSignout = async () => {
-        try {
-          const res = await fetch('/api/auth/signout', {
-            method: 'POST',
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            console.log(data.message);
-          } else {
-            dispatch(signoutSuccess());
-          }
-        } catch (error) {
-          console.log(error.message);
-        }
-      };
+    if (tabFromUrl === "users" && userRole !== "admin") {
+      navigate("/dashboard?tab=profile");
+    }
+  }, [location.search, userRole, navigate]);
+
+  const handleSignout = async () => {
+    try {
+      const res = await fetch("/api/auth/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   return (
-    <Sidebar className='w-full md:w-56'>
-      <Sidebar.Items>
-      <Sidebar.ItemGroup className='flex flex-col gap-1'>
-        <Link to='/dashboard?tab=profile' >
-            <Sidebar.Item as='div' active={tab === 'profile'} icon={HiUser} label={userRole} labelColor='dark'>
-                Profile
-            </Sidebar.Item>
+    <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="border-b border-zinc-100 px-2 pb-4 dark:border-zinc-800">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+          Navigation
+        </p>
+        <p className="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">
+          {currentUser?.username || "Account"}
+        </p>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          {currentUser?.email || "Signed in"}
+        </p>
+      </div>
+
+      <nav className="mt-4 space-y-2">
+        <Link to="/dashboard?tab=profile" className={navItemClass(tab === "profile")}>
+          <span className="flex items-center gap-3">
+            <HiUser size={18} />
+            Profile
+          </span>
+          <span className="text-xs uppercase tracking-[0.18em] opacity-70">
+            Account
+          </span>
         </Link>
-          {userRole === 'admin' && (
-            <Link to='/dashboard?tab=users'>
-              <Sidebar.Item as='div' active={tab === 'users'} icon={HiUser} labelColor='dark'>
-                Users
-              </Sidebar.Item>
-            </Link>
-          )}
-          {/* {(userRole === 'author' ||  userRole === 'admin')  && (
-            <Link to='/dashboard?tab=productAdmin'>
-              <Sidebar.Item as='div' active={tab === 'productAdmin'} icon={HiUser} labelColor='dark'>
-                Product Admin
-              </Sidebar.Item>
-            </Link>
-          )} */}
-          <Sidebar.Item  
-              icon={HiArrowSmRight}
-              className='cursor-pointer'
-              onClick={handleSignout}
-          >
-                Sign Out
-            </Sidebar.Item>
-        </Sidebar.ItemGroup>
-      </Sidebar.Items>
-    </Sidebar>
-  )
+
+        <Link to="/order-history" className={navItemClass(false)}>
+          <span className="flex items-center gap-3">
+            <HiClipboardList size={18} />
+            Orders
+          </span>
+          <span className="text-xs uppercase tracking-[0.18em] opacity-70">
+            History
+          </span>
+        </Link>
+
+        {userRole === "admin" && (
+          <Link to="/dashboard?tab=users" className={navItemClass(tab === "users")}>
+            <span className="flex items-center gap-3">
+              <HiUser size={18} />
+              Users
+            </span>
+            <span className="text-xs uppercase tracking-[0.18em] opacity-70">
+              Admin
+            </span>
+          </Link>
+        )}
+
+        <button
+          type="button"
+          className="flex min-h-11 w-full items-center justify-between rounded-2xl border border-zinc-200 px-4 py-3 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+          onClick={handleSignout}
+        >
+          <span className="flex items-center gap-3">
+            <HiArrowSmRight size={18} />
+            Sign Out
+          </span>
+        </button>
+      </nav>
+    </div>
+  );
 }
-
-

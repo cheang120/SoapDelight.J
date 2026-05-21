@@ -1,37 +1,41 @@
-import { Alert, Button, Modal, ModalBody, TextInput } from 'flowbite-react';
-import { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  getDownloadURL,
-  // getDownloadURL,
-  getStorage, ref, uploadBytesResumable,
-
-} from 'firebase/storage';
-// import { app } from '../firebase';
-import { CircularProgressbar } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
-import {
-  updateStart,
-  updateSuccess,
-  updateFailure,
+  deleteUserFailure,
   deleteUserStart,
   deleteUserSuccess,
-  deleteUserFailure,
   signoutSuccess,
-} from '../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
-import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
-import { app } from '../firebase';
-import Notification from './Notification';
-import PageMenu from './pageMenu/PageMenu';
-// import useRedirectLoggedOutUser from '../customHook/useRedirectLoggedOutUser';
+  updateFailure,
+  updateStart,
+  updateSuccess,
+} from "../redux/user/userSlice";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { CircularProgressbar } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import { app } from "../firebase";
+import { Link } from "react-router-dom";
 
+const inputClassName =
+  "mt-2 block min-h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white";
 
+const InfoMessage = ({ tone = "neutral", children }) => {
+  const tones = {
+    neutral:
+      "border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300",
+    success:
+      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300",
+    error:
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300",
+  };
 
+  return (
+    <div className={`rounded-2xl border px-4 py-3 text-sm ${tones[tone]}`}>
+      {children}
+    </div>
+  );
+};
 
 const DashProfile = () => {
-
   const { currentUser, error, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
@@ -40,25 +44,16 @@ const DashProfile = () => {
   const [imageFileUploading, setImageFileUploading] = useState(false);
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
   const [updateUserError, setUpdateUserError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const filePickerRef = useRef();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
 
-  window.scrollTo(0, 0);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-
-
-  // console.log(imageFileUploadProgress,imageFileUploadError);
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setImageFileUrl(URL.createObjectURL(file));
-    }
-  };
   useEffect(() => {
     if (imageFile) {
       uploadImage();
@@ -66,36 +61,21 @@ const DashProfile = () => {
   }, [imageFile]);
 
   const uploadImage = async () => {
-    // service firebase.storage {
-    //   match /b/{bucket}/o {
-    //     match /{allPaths=**} {
-    //       allow read;
-    //       allow write: if 
-    //       request.resource.size < 2 * 1024 * 1024 &&
-    //       request.resource.contentType.matches('image/.*')
-    //     }
-    //   }
-    // }
-
-    // console.log('uploading....');
     setImageFileUploading(true);
     setImageFileUploadError(null);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, imageFile);
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setImageFileUploadProgress(progress.toFixed(0));
       },
-      (error) => {
-        setImageFileUploadError(
-          'Could not upload image (File must be less than 2MB)'
-        );
+      () => {
+        setImageFileUploadError("Could not upload image (File must be less than 2MB)");
         setImageFileUploadProgress(null);
         setImageFile(null);
         setImageFileUrl(null);
@@ -104,81 +84,81 @@ const DashProfile = () => {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL);
-          setFormData({ ...formData, profilePicture: downloadURL });
+          setFormData((prev) => ({ ...prev, profilePicture: downloadURL }));
           setImageFileUploading(false);
         });
       }
     );
   };
 
-
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImageFileUrl(URL.createObjectURL(file));
+      setAvatarLoadFailed(false);
+    }
+  };
 
   const handleChange = (e) => {
-    // const dispatch = useDispatch()
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
-  // console.log(formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUpdateUserError(null);
     setUpdateUserSuccess(null);
 
-
     if (Object.keys(formData).length === 0) {
-      setUpdateUserError('No changes made');
+      setUpdateUserError("No changes made");
       return;
     }
+
     if (imageFileUploading) {
-      setUpdateUserError('Please wait for image to upload');
+      setUpdateUserError("Please wait for image to upload");
       return;
     }
-    // console.log('Submitting formData:', formData);
-    // if (formData.password.length < 6) {
-    //   return dispatch(updateFailure("Password must be up to 6 characters"))
-    // }
-    // if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-    //   return dispatch(updateFailure("Passwords must contain Uppercase and Lowercase"))
-    // }
 
     try {
       dispatch(updateStart());
       const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
 
-      await fetch('/api/auth/sendVerificationEmail', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: formData.email }),
-      });
-      console.log(data.email);
+      if (formData.email) {
+        await fetch("/api/auth/sendVerificationEmail", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: formData.email }),
+        });
+      }
+
       if (!res.ok) {
         dispatch(updateFailure(data.message));
         setUpdateUserError(data.message);
       } else {
         dispatch(updateSuccess(data));
-        setUpdateUserSuccess("User's profile updated successfully");
+        setUpdateUserSuccess("Your profile has been updated.");
       }
-    } catch (error) {
-      dispatch(updateFailure(error.message));
-      setUpdateUserError(error.message);
+    } catch (submitError) {
+      dispatch(updateFailure(submitError.message));
+      setUpdateUserError(submitError.message);
     }
   };
 
   const handleDeleteUser = async () => {
-    setShowModal(false);
+    setShowDeleteModal(false);
     try {
       dispatch(deleteUserStart());
       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       const data = await res.json();
       if (!res.ok) {
@@ -186,190 +166,322 @@ const DashProfile = () => {
       } else {
         dispatch(deleteUserSuccess(data));
       }
-    } catch (error) {
-      dispatch(deleteUserFailure(error.message));
+    } catch (deleteError) {
+      dispatch(deleteUserFailure(deleteError.message));
     }
   };
 
   const handleSignout = async () => {
     try {
-
-      const res = await fetch('/api/auth/signout', {
-        method: 'POST',
+      const res = await fetch("/api/auth/signout", {
+        method: "POST",
       });
       const data = await res.json();
       if (!res.ok) {
         console.log(data.message);
-
       } else {
-
         dispatch(signoutSuccess());
       }
-
-    } catch (error) {
-      console.log(error.message);
+    } catch (signoutError) {
+      console.log(signoutError.message);
     }
   };
 
-  return (
-    <div className='flex w-full'>
-      <div className='max-w-lg mx-auto p-3 w-full'>
-
-      <h1 className='my-7 text-center font-semibold text-3xl'>profile</h1>
-      <input
-            type='file'
-            accept='image/*'
-            onChange={handleImageChange}
-            ref={filePickerRef}
-            hidden
-        />
-      <form action="" className='flex flex-col gap-4' onSubmit={handleSubmit}>
-        <div 
-          className='relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full'
-          onClick={() => filePickerRef.current.click()}
-        >
-          {imageFileUploadProgress && (
-            <CircularProgressbar
-              value={imageFileUploadProgress || 0}
-              text={`${imageFileUploadProgress}%`}
-              strokeWidth={5}
-              styles={{
-                root: {
-                  width: '100%',
-                  height: '100%',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                },
-                path: {
-                  stroke: `rgba(62, 152, 199, ${
-                    imageFileUploadProgress / 100
-                  })`,
-                },
-              }}
-            />
-          )}
-          <img
-              src={imageFileUrl || currentUser.profilePicture}
-              alt='User Profile'
-              className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${
-                imageFileUploadProgress &&
-                imageFileUploadProgress < 100 &&
-                'opacity-60'
-              }`}
-            />
+  if (!currentUser) {
+    return (
+      <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+        <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+          Sign in to view your account.
+        </h2>
+        <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+          登入後即可查看個人資料、更新聯絡方式，以及管理你的帳戶。
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Link
+            to="/sign-in"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+          >
+            Sign In
+          </Link>
+          <Link
+            to="/shop"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+          >
+            Continue Shopping
+          </Link>
         </div>
-        {imageFileUploadError && (
-          <Alert color='failure'>{imageFileUploadError}</Alert>
-        )}
-        <h3>Role: {currentUser.role}</h3>
-        <TextInput
-          type='text'
-          id='username'
-          placeholder='username'
-          defaultValue={currentUser.username}
-          onChange={handleChange}
-        />
-        <TextInput
-          type='email'
-          id='email'
-          placeholder='email'
-          defaultValue={currentUser.email}
-          onChange={handleChange}
-        />
-        {!currentUser.isVerified && 
-          <div>
-
-            <TextInput
-              type='email'
-              id='email'
-              placeholder='Please verify your email !'
-              onChange={handleChange}
-
-            />
-
-          </div>
-
-        }
-
-
-        <TextInput
-          type='password'
-          id='password'
-          placeholder='password'
-          onChange={handleChange}
-        />
-        <TextInput
-          type='text'
-          id='phone'
-          placeholder='Phone Number'
-          defaultValue={currentUser.phone}
-          onChange={handleChange}
-        />
-        <Button
-          type='submit'
-          gradientDuoTone='purpleToBlue'
-          outline
-          // disabled={loading || imageFileUploading}
-        >
-          {loading ? 'Loading...' : 'Update'}
-        </Button>
-      </form>
-
-      <div className='text-red-500 flex justify-between mt-5'>
-        <span onClick={() => setShowModal(true)} className='cursor-pointer'>
-          Delete Account
-        </span>
-        <span 
-        onClick={handleSignout} 
-        className='cursor-pointer'>
-          Sign Out
-        </span>
       </div>
-      {updateUserSuccess && (
-        <Alert color='success' className='mt-5'>
-          {updateUserSuccess}
-        </Alert>
-      )}
-      {updateUserError && (
-        <Alert color='failure' className='mt-5'>
-          {updateUserError}
-        </Alert>
-      )}
-      {error && (
-        <Alert color='failure' className='mt-5'>
-          {error}
-        </Alert>
-      )}
-      <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        popup
-        size='md'
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <div className='text-center'>
-            <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
-              Are you sure you want to delete your account?
-            </h3>
-            <div className='flex justify-center gap-4'>
-              <Button color='failure' onClick={handleDeleteUser}>
-                Yes, I'm sure
-              </Button>
-              <Button color='gray' onClick={() => setShowModal(false)}>
-                No, cancel
-              </Button>
+    );
+  }
+
+  const profileInitial = (currentUser.username || currentUser.email || "S")
+    .trim()
+    .charAt(0)
+    .toUpperCase();
+
+  return (
+    <div className="space-y-6">
+      <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-5">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              ref={filePickerRef}
+              hidden
+            />
+            <button
+              type="button"
+              className="relative h-28 w-28 overflow-hidden rounded-full border border-zinc-200 bg-[#f7f8f4] shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+              onClick={() => filePickerRef.current?.click()}
+              aria-label="Upload profile photo"
+            >
+              {imageFileUploadProgress && (
+                <CircularProgressbar
+                  value={imageFileUploadProgress || 0}
+                  text={`${imageFileUploadProgress}%`}
+                  strokeWidth={5}
+                  styles={{
+                    root: {
+                      width: "100%",
+                      height: "100%",
+                      position: "absolute",
+                      inset: 0,
+                    },
+                    path: {
+                      stroke: `rgba(24, 24, 27, ${imageFileUploadProgress / 100})`,
+                    },
+                    trail: {
+                      stroke: "rgba(228, 228, 231, 0.6)",
+                    },
+                    text: {
+                      fill: "#18181b",
+                      fontSize: "20px",
+                    },
+                  }}
+                />
+              )}
+
+              {(imageFileUrl || currentUser.profilePicture) && !avatarLoadFailed ? (
+                <img
+                  src={imageFileUrl || currentUser.profilePicture}
+                  alt="User profile"
+                  onError={() => setAvatarLoadFailed(true)}
+                  className={`h-full w-full object-cover ${
+                    imageFileUploadProgress &&
+                    imageFileUploadProgress < 100 &&
+                    "opacity-60"
+                  }`}
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-3xl font-semibold text-zinc-500 dark:text-zinc-300">
+                  {profileInitial}
+                </span>
+              )}
+            </button>
+
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+                Account overview
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+                {currentUser.username}
+              </h2>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                {currentUser.email}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
+                  {currentUser.role || "customer"}
+                </span>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    currentUser.isVerified
+                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+                      : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+                  }`}
+                >
+                  {currentUser.isVerified ? "Verified" : "Email not verified"}
+                </span>
+              </div>
             </div>
           </div>
-        </Modal.Body>
-      </Modal>
 
-      </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/order-history"
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+            >
+              View Orders
+            </Link>
+            <button
+              type="button"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+              onClick={handleSignout}
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {imageFileUploadError && <InfoMessage tone="error">{imageFileUploadError}</InfoMessage>}
+      {updateUserSuccess && <InfoMessage tone="success">{updateUserSuccess}</InfoMessage>}
+      {updateUserError && <InfoMessage tone="error">{updateUserError}</InfoMessage>}
+      {error && <InfoMessage tone="error">{error}</InfoMessage>}
+
+      <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+            Profile information
+          </p>
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                defaultValue={currentUser.username}
+                onChange={handleChange}
+                className={inputClassName}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Leave blank to keep your current password"
+                onChange={handleChange}
+                className={inputClassName}
+              />
+            </div>
+          </div>
+
+          {!currentUser.isVerified && (
+            <div className="mt-5">
+              <InfoMessage tone="neutral">
+                Your email is not verified yet. Updating your email will send a
+                new verification email.
+              </InfoMessage>
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+            Contact details
+          </p>
+          <div className="mt-6 space-y-5">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email"
+                defaultValue={currentUser.email}
+                onChange={handleChange}
+                className={inputClassName}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                Phone
+              </label>
+              <input
+                type="text"
+                id="phone"
+                placeholder="Phone number"
+                defaultValue={currentUser.phone}
+                onChange={handleChange}
+                className={inputClassName}
+              />
+            </div>
+
+            <div className="rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900">
+              <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                Profile photo
+              </p>
+              <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                Click your avatar above to upload a new image. We’ll keep the
+                existing photo until the upload is complete.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8 lg:col-span-2">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+                Account actions
+              </p>
+              <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                Update your profile when you need to, or manage your account
+                access here.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-red-200 px-5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"
+              >
+                Delete Account
+              </button>
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+                disabled={loading || imageFileUploading}
+              >
+                {loading ? "Updating..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </section>
+      </form>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/40 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[1.5rem] border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
+            <h3 className="text-xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Delete your account?
+            </h3>
+            <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+              This action can’t be undone. If you still want to continue, we’ll
+              remove your account and sign you out.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteUser}
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-red-600 px-5 text-sm font-medium text-white transition hover:bg-red-700"
+              >
+                Yes, delete it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+};
 
-  )
-}
-
-export default DashProfile
+export default DashProfile;
