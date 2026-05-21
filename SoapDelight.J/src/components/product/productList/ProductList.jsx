@@ -101,56 +101,84 @@ const ProductList = ({ products }) => {
   }, [search, sort, categoryQuery, displayedProducts.length]);
 
   return (
-    <div className={styles["product-list"]} id="product">
-      <div className={`${styles.top} flex flex-col `}>
-        {/* Search Icon */}
-        <div>
+    <div className={`${styles["product-list"]} min-w-0`} id="product">
+      <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
+        <div className="flex flex-col gap-4 border-b border-zinc-100 pb-4 dark:border-zinc-800">
           <Search value={search} onChange={(e) => setSearch(e.target.value)} />
-        </div>
 
-        <div className="flex flex-row justify-between w-3/4 mb-5">
-          <div className={styles.icons}>
-            <BsFillGridFill
-              size={22}
-              color="orangered"
-              onClick={() => setGrid(true)}
-            />
-
-            <FaListAlt size={24} color="#0066d4" onClick={() => setGrid(false)} />
-
-            <p>
-              <b>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300">
+              <div className="flex items-center gap-2 rounded-full border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+                <span className="font-medium text-zinc-950 dark:text-white">
                   {displayedProducts.length}
-              </b> Products found.
-            </p>
-          </div>
+                </span>
+                <span>products found</span>
+              </div>
 
-          {/* Sort Products */}
-          <div className={styles.sort}>
-            <label>Sort by:</label>
-            <select
-            value={sort} 
-            onChange={(e) => setSort(e.target.value)}
-            className="dark:bg-gray-800 dark:text-white"
-            >
-              <option value="latest">Latest</option>
-              <option value="lowest-price">Lowest Price</option>
-              <option value="highest-price">Highest Price</option>
-              <option value="a-z">A - Z</option>
-              <option value="z-a">Z - A</option>
-            </select>
+              <div className="flex items-center gap-1 rounded-full border border-zinc-200 p-1 dark:border-zinc-700">
+                <button
+                  type="button"
+                  onClick={() => setGrid(true)}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full transition ${
+                    grid
+                      ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
+                      : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                  }`}
+                  aria-label="Grid view"
+                >
+                  <BsFillGridFill size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGrid(false)}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full transition ${
+                    !grid
+                      ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
+                      : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                  }`}
+                  aria-label="List view"
+                >
+                  <FaListAlt size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 sm:justify-end">
+              <label className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                Sort
+              </label>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="min-h-11 rounded-full border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+              >
+                <option value="latest">Latest</option>
+                <option value="lowest-price">Lowest Price</option>
+                <option value="highest-price">Highest Price</option>
+                <option value="a-z">A - Z</option>
+                <option value="z-a">Z - A</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className={grid ? `${styles.grid} dark:bg-gray-800 dark:text-white mb-5` : `${styles.list} dark:bg-gray-800 dark:text-white mb-5`}>
+      <div
+        className={
+          grid
+            ? "mt-6 grid min-w-0 grid-cols-1 gap-4 min-[440px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"
+            : "mt-6 space-y-4"
+        }
+      >
         {displayedProducts.length === 0 ? (
-          <p>No product found.</p>
+          <div className="rounded-[1.25rem] border border-zinc-200 bg-white px-6 py-12 text-center text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
+            No product found.
+          </div>
         ) : (
           <>
             {currentItems.map((product) => {
               return (
-                <div key={product._id} className=" my-4 dark:bg-gray-800 dark:text-white">
+                <div key={product._id} className="dark:text-white">
                   <ProductItem {...product} grid={grid} product={product} />
                 </div>
               );
@@ -166,11 +194,11 @@ const ProductList = ({ products }) => {
         pageCount={pageCount}
         previousLabel="Prev"
         renderOnZeroPageCount={null}
-        containerClassName="flex justify-center items-center space-x-2 mb-5"
-        pageLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-        previousLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200  dark:text-white"
-        nextLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:text-gray-700 hover:bg-gray-200  dark:text-white"
-        activeLinkClassName="px-3 py-1 border border-gray-300 rounded-md text-white bg-pink-500"
+        containerClassName="mt-8 flex flex-wrap justify-center items-center gap-2"
+        pageLinkClassName="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-zinc-200 px-3 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+        previousLinkClassName="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+        nextLinkClassName="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+        activeLinkClassName="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full bg-zinc-950 px-3 text-sm text-white dark:bg-white dark:text-zinc-950"
       />
     </div>
   );

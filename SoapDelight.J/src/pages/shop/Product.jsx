@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import styles from "./Product.module.scss";
 
-import { FaCogs } from "react-icons/fa";
+import { FaSlidersH, FaTimes } from "react-icons/fa";
 import {
 //   GET_PRICE_RANGE,
   getProducts,
@@ -40,30 +40,58 @@ const Product = () => {
   };
 
   return (
-    <section className=" min-h-[70rem]">
-      <div className={`pt-10 mx-auto px-10 md:px-20 lg:px-20  ${styles.product} mx-auto flex flex-wrap justify-center`}>
-        
-        <aside
-          className={`${
-            showFilter
-              ? "fixed top-20 left-4 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
-              : "fixed -left-full top-20 w-64  bg-white dark:bg-gray-800 dark:text-white shadow-md p-4 overflow-y-auto z-50 transition-transform duration-300 ease-in-out"
-          }`}
-        >
-          {isLoading ? null : <ProductFilter />}
-        </aside>
+    <main className="min-h-screen overflow-x-hidden bg-[#fbfcfa] px-4 py-10 text-zinc-950 dark:bg-zinc-950 dark:text-white sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl overflow-x-hidden">
+        <section className="mb-10 rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+            Collection
+          </p>
+          <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-5xl">
+            Shop / 選購
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+            Natural handmade skincare, soap and candles.
+          </p>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-zinc-500 dark:text-zinc-400">
+            天然手作，為日常護理帶來溫柔選擇。
+          </p>
+        </section>
 
-        <div className={styles.content}>
-          {isLoading ? <Spinner /> : <ProductList products={products} />}
-          <div className={styles.icon} onClick={toggleFilter}>
-            <FaCogs size={20} color="orangered" />
-            <p>
-              <b>{showFilter ? "Hide Filter" : "Show Filter"}</b>
-            </p>
+        <div className="mb-4 flex justify-end lg:hidden">
+          <button
+            type="button"
+            onClick={toggleFilter}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-zinc-300 bg-white px-5 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+          >
+            {showFilter ? <FaTimes size={14} /> : <FaSlidersH size={14} />}
+            {showFilter ? "Close Filters" : "Filters"}
+          </button>
+        </div>
+
+        {showFilter && (
+          <div
+            className="fixed inset-0 z-40 bg-zinc-950/20 backdrop-blur-[1px] lg:hidden"
+            onClick={() => setShowFilter(false)}
+          />
+        )}
+
+        <div className="grid min-w-0 gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside
+            className={`${
+              showFilter
+                ? "fixed inset-x-4 top-20 z-50 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-[1.5rem] border border-zinc-200 bg-white p-5 shadow-[0_18px_50px_rgba(24,24,27,0.12)] dark:border-zinc-800 dark:bg-zinc-950 lg:static lg:max-h-none lg:shadow-none"
+                : "hidden lg:block"
+            }`}
+          >
+            {isLoading ? null : <ProductFilter />}
+          </aside>
+
+          <div className={`${styles.content} min-w-0`}>
+            {isLoading ? <Spinner /> : <ProductList products={products} />}
           </div>
         </div>
       </div>
-    </section>
+    </main>
   );
 };
 

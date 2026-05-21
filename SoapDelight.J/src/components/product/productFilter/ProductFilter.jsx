@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styles from "./ProductFilter.module.scss";
 import {
   FILTER_BY_BRAND,
-  // FILTER_BY_BRAND,
   FILTER_BY_CATEGORY,
   FILTER_BY_PRICE,
-  // FILTER_BY_PRICE,
-  // GET_PRICE_RANGE
 } from "../../../redux/features/product/filtersSlice";
 import { GET_PRICE_RANGE } from "../../../redux/features/product/productSlice";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-
 
 const ProductFilter = () => {
   const { products, minPrice, maxPrice } = useSelector(
@@ -23,10 +18,13 @@ const ProductFilter = () => {
   const [price, setPrice] = useState([50, 1500]);
 
   const dispatch = useDispatch();
+  const visibleProducts = products?.filter(
+    (product) => product.category !== "Shipping"
+  );
 
   const allCategories = [
     "All",
-    ...new Set(products?.map((product) => product.category)),
+    ...new Set(visibleProducts?.map((product) => product.category)),
   ];
 
   useEffect(() => {
@@ -36,96 +34,126 @@ const ProductFilter = () => {
   useEffect(() => {
     dispatch(GET_PRICE_RANGE({ products }));
   }, [dispatch, products]);
-  console.log(minPrice,maxPrice);
-
-  // console.log(allBrands);
 
   const filterProductCategory = (cat) => {
-    // console.log(cat);
     setCategory(cat);
-    dispatch(FILTER_BY_CATEGORY({ products:products, category: cat }));
-    
-  }
+    dispatch(FILTER_BY_CATEGORY({ products, category: cat }));
+  };
 
   useEffect(() => {
     dispatch(FILTER_BY_PRICE({ products, price }));
-    // console.log(price);
   }, [dispatch, products, price]);
 
-  // console.log(allCategories);
   const allBrands = [
     "All",
-    ...new Set(products.map((product) => product.brand)),
+    ...new Set(
+      visibleProducts?.map((product) => product.brand).filter(Boolean) || []
+    ),
   ];
-  // console.log(allBrands);
 
   const clearFilters = () => {
     setCategory("All");
     setBrand("All");
     setPrice([minPrice, maxPrice]);
   };
+
   return (
-<div className="py-4 px-1 dark:bg-gray-800 dark:text-white">
-  <h4 className="mt-4 text-lg font-semibold">Categories</h4>
-  <div className="mt-2">
-    {allCategories.map((cat, index) => (
-      <button
-        key={index}
-        type="button"
-        className={`block w-full md:w-4/5 text-left h-12 text-base border-b border-gray-400 ${
-          category === cat ? 'pl-4 border-l-2 border-l-red-500' : ''
-        }`}
-        onClick={() => filterProductCategory(cat)}
-      >
-        {cat}
-      </button>
-    ))}
-  </div>
-  <h4 className="mt-4 text-lg font-semibold">Brand</h4>
-  <div className="mt-2">
-    <select
-      value={brand}
-      onChange={(e) => setBrand(e.target.value)}
-      className="w-full  p-2 border border-gray-400 rounded outline-none text-base font-light dark:bg-gray-800 dark:text-white"
-    >
-      {allBrands.map((brand, index) => (
-        <option key={index} value={brand} >
-          {brand}
-        </option>
-      ))}
-    </select>
-  </div>
-  <h4 className="mt-4 text-lg font-semibold">Price</h4>
-  <div className="mt-2 px-4 ">
-    <Slider
-      range
-      marks={{
-        1: `${price[0]}`,
-        1000: `${price[1]}`,
-      }}
-      min={minPrice}
-      max={maxPrice}
-      defaultValue={[minPrice, maxPrice]}
-      tipFormatter={(value) => `$${value}`}
-      tipProps={{
-        placement: "top",
-        visible: true,
-      }}
-      value={price}
-      onChange={(price) => setPrice(price)}
+    <div className="space-y-8 text-zinc-900 dark:text-white">
+      <div>
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+          Filter
+        </p>
+        <h3 className="mt-2 text-lg font-semibold tracking-tight">
+          Refine your selection
+        </h3>
+      </div>
 
-    />
-  </div>
-  <div className="mt-6">
-    <button
-      className="bg-red-500 text-xs text-white py-1 px-2 rounded shadow hover:bg-red-600"
-      onClick={clearFilters}
-    >
-      Clear Filter
-    </button>
-  </div>
-</div>
-  )
-}
+      <div>
+        <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">
+          Categories
+        </h4>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {allCategories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`rounded-full border px-4 py-2 text-sm transition ${
+                category === cat
+                  ? "border-zinc-950 bg-zinc-950 text-white dark:border-white dark:bg-white dark:text-zinc-950"
+                  : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-white"
+              }`}
+              onClick={() => filterProductCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
 
-export default ProductFilter
+      <div>
+        <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">
+          Brand
+        </h4>
+        <div className="mt-3">
+          <select
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            className="min-h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+          >
+            {allBrands.map((brandOption) => (
+              <option key={brandOption} value={brandOption}>
+                {brandOption}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">
+            Price
+          </h4>
+          <span className="text-sm text-zinc-500 dark:text-zinc-400">
+            ${price[0]} - ${price[1]}
+          </span>
+        </div>
+        <div className="mt-5 px-1">
+          <Slider
+            range
+            min={minPrice}
+            max={maxPrice}
+            value={price}
+            onChange={(nextPrice) => setPrice(nextPrice)}
+            trackStyle={[{ backgroundColor: "#18181b", height: 4 }]}
+            handleStyle={[
+              {
+                borderColor: "#18181b",
+                backgroundColor: "#18181b",
+                opacity: 1,
+              },
+              {
+                borderColor: "#18181b",
+                backgroundColor: "#18181b",
+                opacity: 1,
+              },
+            ]}
+            railStyle={{ backgroundColor: "#e4e4e7", height: 4 }}
+          />
+        </div>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          className="inline-flex min-h-10 items-center rounded-full border border-zinc-200 px-4 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+          onClick={clearFilters}
+        >
+          Clear filters
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductFilter;
