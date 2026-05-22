@@ -6,7 +6,7 @@ import { app } from '../firebase'
 import { useDispatch } from 'react-redux'
 import { signInSuccess } from '../redux/user/userSlice'
 import { useNavigate } from 'react-router-dom'
-import axios from "axios"
+import { toast } from 'react-toastify'
 // import {sendVerificationEmail} from '../redux/features/auth/authService'
 
 const OAuth = () => {
@@ -20,7 +20,6 @@ const OAuth = () => {
         provider.setCustomParameters({prompt:'select_account'})
         try {
             const resultsFromGoogle = await signInWithPopup(auth,provider)
-            // console.log(resultsFromGoogle);
             const res = await fetch('/api/auth/google', {
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
@@ -32,19 +31,19 @@ const OAuth = () => {
             })
             const data = await res.json()
 
-            if (res.ok) {
-                // const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
-                // console.log(BACKEND_URL);
-                // const API_URL = `${BACKEND_URL}/api/auth/`
-                // dispatch(sendVerificationEmail());
-                // const response = await axios.post(API_URL + "sendVerificationEmail");
-                // return response.data.message;
-                dispatch(signInSuccess(data))
-                navigate('/')
+            if (!res.ok) {
+                throw new Error(data?.message || 'Google sign-in failed.');
             }
 
+            dispatch(signInSuccess(data))
+            navigate('/')
         } catch (error) {
-            console.log(error);
+            const message =
+              error?.code === "auth/unauthorized-domain"
+                ? "Google sign-in is not enabled for this domain yet. Please add localhost to the Firebase authorized domains."
+                : error?.message || error?.code || "Google sign-in failed.";
+            console.error("Google sign-in failed:", error?.code || error?.message || error);
+            toast.error(message);
         }
     }
   return (

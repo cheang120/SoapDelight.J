@@ -71,23 +71,24 @@
 
 import sendgrid from '@sendgrid/mail';
 import dotenv from 'dotenv';
-import User from '../models/user.model.js';
 
 // Load environment variables
 dotenv.config();
 
-// Set API key
-sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+
+if (SENDGRID_API_KEY) {
+  sendgrid.setApiKey(SENDGRID_API_KEY);
+}
 
 
 // Example function to send an email
 const sendEmail = async (subject, send_to, sent_from, reply_to,name, link) => {
-  // console.log("hello");
-  // console.log(subject, send_to, sent_from, reply_to,name, link);
-// console.log('this is ' + link);
+  if (!SENDGRID_API_KEY) {
+    throw new Error("Email service is not configured (missing SENDGRID_API_KEY).");
+  }
 
   try {
-
     const msg = {
       subject: subject,
       to: send_to,
@@ -140,25 +141,15 @@ const sendEmail = async (subject, send_to, sent_from, reply_to,name, link) => {
       
       `
     };
-    // console.log(msg);
-    const response = await sendgrid.send(msg);
-    console.log('Email sent:', response);
+    await sendgrid.send(msg);
 
   } catch (error) {
-    console.error('Error sending email:', error);
-    if (error.response) {
-      console.error('Response body:', error.response.body);
-    }
+    const providerMessage =
+      error?.response?.body?.errors?.map((item) => item.message).filter(Boolean).join("; ") ||
+      error?.message ||
+      "Unknown email provider error.";
+    throw new Error(`Email send failed: ${providerMessage}`);
   }
-  // const draft = {
-  //   "to":"carrey.120.cc@gmail.com",
-  //   "from":"carrey.120.cc@gmail.com",
-  //   "subject":"Sendgrid",
-  //   "text":"Hello"
-  // }
-  // const response = await sendgrid.send(draft)
-  // console.log(response);
-
 };
 
 // Test sending an email

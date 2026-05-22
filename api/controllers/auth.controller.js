@@ -82,9 +82,7 @@ export const signup = async (req, res, next) => {
 // send Verification Email
 
 export const sendVerificationEmail = async (req, res,next) => {
-  // res.send("verify email")
   const { email } = req.body;
-  // console.log(email);
 
   if (!email) {
     return res.status(400).json({ message: "Email is required" });
@@ -113,13 +111,9 @@ export const sendVerificationEmail = async (req, res,next) => {
 
   //   Create Verification Token and Save
   const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
-  console.log(verificationToken);
-  // res.send("Token")
 
   // Hash token and save
   const hashedToken = hashToken(verificationToken);
-  // console.log(hashedToken);
-  // res.send('hashedToken')
   await new Token({
     userId: user._id,
     vToken: hashedToken,
@@ -129,40 +123,28 @@ export const sendVerificationEmail = async (req, res,next) => {
 
   // Construct Verification URL
   const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
-  // console.log(process.env.FRONTEND_URL);
-  // res.send('link')
-  // Send Email
-  // console.log(user.username);
 
   const subject = "Verify Your Account - BabyCode";
   const send_to = user.email;
   const sent_from = process.env.EMAIL_USER;
   const reply_to = "noreply@babycode.com";
-  // const template = verifyEmail;
   const name = user.username;
   const link = verificationUrl;
-  // console.log(link);
-
-  // console.log(template);
-
-  // console.log(`Sending email to ${user.username} (${send_to})`); 
-  // console.log(name);
-  console.log(subject,send_to,sent_from,reply_to,name,link);
 
   try {
+    console.log("Sending verification email");
     await sendEmail(
       subject,
       send_to,
       sent_from,
       reply_to,
-      // template,
       name,
       link
     );
-    // console.log(link);
     res.status(200).json({ message: "Verification Email Sent" });
   } catch (error) {
-    res.status(500).json({ message: "Email not sent, please try again" });
+    console.error("Verification email send failed:", error.message);
+    res.status(500).json({ message: error.message || "Email not sent, please try again" });
   }
 };
 
@@ -189,8 +171,6 @@ export const verifyUser = async (req, res) => {
   // console.log(userToken);
   // // Find User
   const user = await User.findOne({ _id: userToken.userId });
-  console.log(user);
-
   if (user.isVerified) {
     res.status(400).json({ message: "User is already verified" });
   }
@@ -426,30 +406,25 @@ export const upgradeUser = async (req, res, next) => {
   
 
   export const forgotPassword = async (req, res, next) => {
-    // res.send("forgot password")
-
     const { email } = req.body;
-    // console.log(email);
-    // res.send("email")
+    console.log("Forgot password request received");
   
     const user = await User.findOne({ email });
-    // console.log(user);
   
     if (!user) {
       return next(errorHandler(404, 'No user with this email!'));
     }
+
+    console.log("Forgot password user found");
   
     // Delete Token if it exists in DB
     let token = await Token.findOne({ userId: user._id });
-    // console.log(token);
-    // res.send("token")
     if (token) {
       await token.deleteOne();
     }
   
     //   Create Verification Token and Save
     const resetToken = crypto.randomBytes(32).toString("hex") + user._id;
-    // console.log(resetToken);
   
     // Hash token and save
     const hashedToken = hashToken(resetToken);
@@ -459,35 +434,32 @@ export const upgradeUser = async (req, res, next) => {
       createdAt: Date.now(),
       expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
     }).save();
-    // console.log(resetToken);
+    console.log("Forgot password reset token created");
     
 
-      // Construct Reset URL
+    // Construct Reset URL
     const resetUrl = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
-    console.log(resetUrl);
-        // Send Email
     const subject = "Password Reset Request - BabyCode";
     const send_to = user.email;
     const sent_from = process.env.EMAIL_USER;
     const reply_to = "noreply@babycode.com";
-    // const template = "forgotPassword";
-    const name = user.name;
+    const name = user.username || user.email;
     const link = resetUrl;
-    // console.log(link);
+
     try {
-      // console.log(subject, send_to, sent_from, reply_to, name, link);
+        console.log("Sending forgot password email");
         await sendEmail(
             subject,
             send_to,
             sent_from,
             reply_to,
-            // template,
             name,
             link
         );
-        return next(errorHandler(200, 'Password Reset Email Sent!'));
+        return res.status(200).json({ message: 'Password Reset Email Sent!' });
     } catch (error) {
-        return next(errorHandler(500, 'Email not sent, please try again!'));
+        console.error("Forgot password email send failed:", error.message);
+        return next(errorHandler(500, error.message || 'Email not sent, please try again!'));
     }
   }
 
