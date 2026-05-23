@@ -1,166 +1,149 @@
-// import nodemailer from 'nodemailer';
-// import hbs from 'nodemailer-express-handlebars';
-// import path from 'path';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
-// const sendEmail = async (
-//   subject,
-//   send_to,
-//   sent_from,
-//   reply_to,
-//   template,
-//   name,
-//   link
-// ) => {
-//   try {
-//     // Log environment variables for debugging (Do not do this in production)
-//     // console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
-//     // console.log("EMAIL_USER:", process.env.EMAIL_USER);
-//     // console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? '******' : 'Not set'); // Mask the password
-
-//     // Create Email Transporter
-//     const transporter = nodemailer.createTransport({
-//       host: process.env.EMAIL_HOST,
-//       port: 587,
-//       auth: {
-//         user: process.env.EMAIL_USER,
-//         pass: process.env.EMAIL_PASS,
-//       },
-//       tls: {
-//         rejectUnauthorized: false,
-//       },
-//     });
-
-//     const handlebarOptions = {
-//       viewEngine: {
-//         extName: ".handlebars",
-//         partialsDir: path.resolve("./api/views"),
-//         defaultLayout: false,
-//       },
-//       viewPath: path.resolve("./api/views"),
-//       extName: ".handlebars",
-//     };
-
-//     transporter.use("compile", hbs(handlebarOptions));
-
-//     // Options for sending email
-//     const options = {
-//       from: sent_from,
-//       to: send_to,
-//       replyTo: reply_to,
-//       subject,
-//       template,
-//       context: {
-//         name,
-//         link,
-//       },
-//     };
-
-//     // Send Email
-//     let info = await transporter.sendMail(options);
-//     console.log('Email sent: ', info);
-//   } catch (err) {
-//     if (err.responseCode === 535) {
-//       console.error('Authentication failed. Please check your SMTP server credentials.');
-//     } else {
-//       console.error('Error occurred: ', err);
-//     }
-//   }
-// };
-
-// export default sendEmail;
-
-import sendgrid from '@sendgrid/mail';
-import dotenv from 'dotenv';
-
-// Load environment variables
 dotenv.config();
+dotenv.config({
+  path: fileURLToPath(new URL("../.env", import.meta.url)),
+  override: true,
+});
 
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+const escapeHtml = (value = "") =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
-if (SENDGRID_API_KEY) {
-  sendgrid.setApiKey(SENDGRID_API_KEY);
-}
+const getEmailCopy = (subject, safeName, safeLink) => {
+  const isReset = /password reset/i.test(subject);
+  const actionLabel = isReset ? "Reset Password" : "Verify Account";
+  const intro = isReset
+    ? "We received a request to reset your password. Use the button below to continue."
+    : "Please use the button below to verify your SoapDelight.J account.";
+  const expiry = isReset
+    ? "This link is valid for 1 hour."
+    : "This verification link is valid for 1 hour.";
 
-
-// Example function to send an email
-const sendEmail = async (subject, send_to, sent_from, reply_to,name, link) => {
-  if (!SENDGRID_API_KEY) {
-    throw new Error("Email service is not configured (missing SENDGRID_API_KEY).");
-  }
-
-  try {
-    const msg = {
-      subject: subject,
-      to: send_to,
-      from: sent_from,
-      replyTo: reply_to,
-
-      // template:verifyEmail,
-      text: `Hello ${name}, please visit this link: ${link}`,
-      // html: `<strong>Hello ${name}</strong>, please visit this link: <a href="${link}">${link}</a>`,
-      html: `
+  return `
+    <html lang="en">
       <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
+        <title>${escapeHtml(subject)}</title>
         <style>
-          body { background-color: #0a1930; padding: 30px; font-family: Arial,
-          Helvetica, sans-serif; } .container { background-color: #eee; padding:
-          10px; border-radius: 3px; } .color-primary { color: #007bff; }
-          .color-danger { color: orangered; } .color-success { color: #28a745; }
-          .color-white { color: #fff; } .color-blue { color: #0a1930; } a {
-          font-size: 1.4rem; text-decoration: none; } .btn { font-size: 1.4rem;
-          font-weight: 400; padding: 6px 8px; margin: 0 5px 0 0; border: 1px solid
-          transparent; border-radius: 3px; cursor: pointer; } .btn-primary { color:
-          #fff; background: #007bff; } .btn-secondary { color: #fff; border: 1px
-          solid #fff; background: transparent; } .btn-danger { color: #fff;
-          background: orangered; } .btn-success { color: #fff; background: #28a745;
-          } .flex-center { display: flex; justify-content: center; align-items:
-          center; } .logo { padding: 5px; background-color: #1f93ff; } .my { margin:
-          2rem 0; }
+          body {
+            margin: 0;
+            background: #f5f7f4;
+            color: #18181b;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          .wrapper {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 32px 20px;
+          }
+          .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 32px 28px;
+          }
+          .brand {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin: 0 0 18px;
+          }
+          .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 12px;
+          }
+          .body {
+            margin: 0 0 12px;
+            line-height: 1.7;
+            color: #3f3f46;
+          }
+          .button {
+            display: inline-block;
+            margin: 18px 0 10px;
+            padding: 12px 20px;
+            border-radius: 999px;
+            background: #18181b;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-weight: 600;
+          }
+          .footnote {
+            margin: 12px 0 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #71717a;
+            word-break: break-word;
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <div class="logo flex-center">
-            <h2 class="color-white">BabyCode</h2>
-          </div>
-          <h2>Hello <span class="color-danger">${name}</span></h2>
-          <p>Please use the url below to verify your account</p>
-          <p>This link is valid for 1hrs</p>
-
-          <a href=${link} class="btn btn-success">Verify Account</a>
-
-          <div class="my">
-            <p>Regards...</p>
-            <p><b class="color-danger">BabyCode</b> Team</p>
+        <div class="wrapper">
+          <div class="card">
+            <p class="brand">SoapDelight.J</p>
+            <h1 class="title">${escapeHtml(subject)}</h1>
+            <p class="body">Hello ${safeName},</p>
+            <p class="body">${intro}</p>
+            <a class="button" href="${safeLink}">${actionLabel}</a>
+            <p class="body">${expiry}</p>
+            <p class="footnote">If the button does not work, copy and paste this link into your browser:</p>
+            <p class="footnote">${safeLink}</p>
           </div>
         </div>
       </body>
-      
-      `
-    };
-    await sendgrid.send(msg);
-
-  } catch (error) {
-    const providerMessage =
-      error?.response?.body?.errors?.map((item) => item.message).filter(Boolean).join("; ") ||
-      error?.message ||
-      "Unknown email provider error.";
-    throw new Error(`Email send failed: ${providerMessage}`);
-  }
+    </html>
+  `;
 };
 
-// Test sending an email
-// sendEmail(
-//   'Verify Your Account - BabyCode',
-//   'carrey.120.cc@gmail.com',
-//   'carrey.120.cc@gmail.com',
-//   'noreply@babycode.com',
-//   '',
-//   'User',
-//   'http://localhost:5173/verify/f9322307bf0aa5b23b1f5630e8dd13d5c49a036902534968b14e05dbb7d5fd31669a0f67cb7b5eb1d436d7c7'
-// );
+const sendEmail = async (subject, send_to, sent_from, reply_to, name, link) => {
+  const emailUser = process.env.EMAIL_USER || sent_from;
+  if (!emailUser) {
+    throw new Error("Email service is not configured (missing EMAIL_USER).");
+  }
+  if (!process.env.EMAIL_PASS) {
+    throw new Error("Email service is not configured (missing EMAIL_PASS).");
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    auth: {
+      user: emailUser,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const safeName = escapeHtml(name || "there");
+  const safeLink = String(link || "");
+  const mailOptions = {
+    from: `SoapDelight.J <${emailUser}>`,
+    to: send_to,
+    replyTo: reply_to || emailUser,
+    subject,
+    html: getEmailCopy(subject, safeName, safeLink),
+    text: `Hello ${name || "there"}, please open this link: ${safeLink}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    const safeMessage =
+      error?.responseCode
+        ? `${error.message} (code ${error.responseCode})`
+        : error?.message || "Unknown email provider error.";
+    throw new Error(`Email send failed: ${safeMessage}`);
+  }
+};
 
 export default sendEmail;

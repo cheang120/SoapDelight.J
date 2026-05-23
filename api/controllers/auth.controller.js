@@ -4,10 +4,17 @@ import jwt from 'jsonwebtoken'
 import asyncHandler from 'express-async-handler'
 import crypto from 'crypto'
 import dotenv from 'dotenv'
+import { fileURLToPath } from "url";
 import { errorHandler } from '../utils/error.js';
 import sendEmail from "../utils/sendEmail.js";
 import Token from "../models/token.model.js";
 // import {generateToken,hashToken} from '../utils'
+
+dotenv.config();
+dotenv.config({
+  path: fileURLToPath(new URL("../.env", import.meta.url)),
+  override: true,
+});
 
 const generateToken = (id) => {
   return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn:"1d"})
@@ -124,10 +131,10 @@ export const sendVerificationEmail = async (req, res,next) => {
   // Construct Verification URL
   const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
 
-  const subject = "Verify Your Account - BabyCode";
+  const subject = "Verify Your Account - SoapDelight.J";
   const send_to = user.email;
   const sent_from = process.env.EMAIL_USER;
-  const reply_to = "noreply@babycode.com";
+  const reply_to = process.env.EMAIL_USER;
   const name = user.username;
   const link = verificationUrl;
 
@@ -439,10 +446,10 @@ export const upgradeUser = async (req, res, next) => {
 
     // Construct Reset URL
     const resetUrl = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
-    const subject = "Password Reset Request - BabyCode";
+  const subject = "Password Reset Request - SoapDelight.J";
     const send_to = user.email;
     const sent_from = process.env.EMAIL_USER;
-    const reply_to = "noreply@babycode.com";
+    const reply_to = process.env.EMAIL_USER;
     const name = user.username || user.email;
     const link = resetUrl;
 
