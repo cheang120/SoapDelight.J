@@ -1,291 +1,224 @@
-import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import PasswordInput from '../components/PasswordInput';
-import OAuth from '../components/OAuth';
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { FaTimes } from 'react-icons/fa';
-import { BsCheck2All } from 'react-icons/bs';
-import { useDispatch, useSelector } from 'react-redux';
-import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
-import { getCartDB, saveCartDB } from '../redux/features/cart/cartSlice';
-// import { getCartDB } from '../redux/features/cart/cartSlice';
-
+import { FaTimes } from "react-icons/fa";
+import { BsCheck2All } from "react-icons/bs";
+import { useDispatch, useSelector } from "react-redux";
+import OAuth from "../components/OAuth";
+import { signInStart, signInFailure, signInSuccess } from "../redux/user/userSlice";
+import { getCartDB, saveCartDB } from "../redux/features/cart/cartSlice";
+import AuthShell, {
+  authInlineLinkClassName,
+  authInputClassName,
+  authLabelClassName,
+  authPrimaryButtonClassName,
+} from "../components/auth/AuthShell";
 
 const initialState = {
+  email: "",
+  password: "",
+};
 
-  email:"",
-  password:"",
-}
+const validateEmail = (email) => {
+  return email.match(
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  );
+};
 
+const PasswordChecklist = ({ uCase, num, sChar, passLength }) => {
+  const timesIcon = <FaTimes color="red" size={15} />;
+  const checkIcon = <BsCheck2All color="green" size={15} />;
+  const switchIcon = (condition) => (condition ? checkIcon : timesIcon);
+
+  return (
+    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/70">
+      <ul className="space-y-2">
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(uCase)}
+          <span className="ml-2">Lowercase &amp; Uppercase</span>
+        </li>
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(num)}
+          <span className="ml-2">Number (0-9)</span>
+        </li>
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(sChar)}
+          <span className="ml-2">Special Character (!@#$%^&*)</span>
+        </li>
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(passLength)}
+          <span className="ml-2">At least 6 characters</span>
+        </li>
+      </ul>
+    </div>
+  );
+};
 
 export default function SignIn() {
   const [formData, setFormData] = useState(initialState);
-
-  const {email, password} = formData
-  // console.log(formData.username);
-
-  // const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
-  // const {loading, error:errorMessage} = useSelector(state => state.user)
-
-  const dispatch = useDispatch()
-  const navigate = useNavigate();
-
-  const {isLoading, isLoggedIn, isSuccess} = useSelector((state) => state.user)
-  const [urlParams] = useSearchParams()
-  const redirect = urlParams.get("redirect")
-  // console.log(urlParams.get("redirect"));
-
-// Validate email
-const validateEmail = (email) => {
-    return email.match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
-};
-  
+  const { password } = formData;
+  const [submitting, setSubmitting] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
+  const [uCase, setUCase] = useState(false);
+  const [num, setNum] = useState(false);
+  const [sChar, setSChar] = useState(false);
+  const [passLength, setPassLength] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [urlParams] = useSearchParams();
+  const redirect = urlParams.get("redirect");
+  const { error } = useSelector((state) => state.user);
 
   const togglePassword1 = () => {
     setShowPassword1(!showPassword1);
   };
-  
+
   const handleChange = (e) => {
-    // console.log(e.target.value);
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
   useEffect(() => {
-    // Check Lower and Uppercase
     if (password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-        setUCase(true);
-    }else {
-        setUCase(false);
+      setUCase(true);
+    } else {
+      setUCase(false);
     }
-    // Check for numbers
     if (password.match(/([0-9])/)) {
-        setNum(true);
+      setNum(true);
     } else {
-        setNum(false);
+      setNum(false);
     }
-    // Check for special character
     if (password.match(/([!,%,&,@,#,$,^,*,?,_,~])/)) {
-        setSChar(true);
+      setSChar(true);
     } else {
-        setSChar(false);
+      setSChar(false);
     }
-    // Check for PASSWORD LENGTH
     if (password.length > 5) {
-        setPassLength(true);
+      setPassLength(true);
     } else {
-        setPassLength(false);
+      setPassLength(false);
     }
-}, [password]);
-
-const [uCase, setUCase] = useState(false)
-  const [num, setNum] = useState(false)
-  const [sChar, setSChar] = useState(false)
-  const [passLength, setPassLength] = useState(false)
-
-  const timesIcon = <FaTimes color='red' size={15} />
-  const checkIcon = <BsCheck2All color='green' size={15} />
-
-  const switchIcon = (condition) => {
-    if (condition) {
-      return checkIcon
-    }
-    return timesIcon
-  }
-
-
+  }, [password]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      // return setErrorMessage('Please fill out all fields.');
-      return dispatch(signInFailure('Please fill out all fields.'))
+      return dispatch(signInFailure("Please fill out all fields."));
     }
 
     if (!validateEmail(formData.email)) {
-      // return setErrorMessage("Please enter a valid email");
-      return dispatch(signInFailure("Please enter a valid email"))
+      return dispatch(signInFailure("Please enter a valid email"));
     }
 
     if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-      // return setErrorMessage("Passwords must contain Uppercase and Lowercase");
-      return dispatch(signInFailure("Passwords must contain Uppercase and Lowercase"))
+      return dispatch(signInFailure("Passwords must contain Uppercase and Lowercase"));
     }
+    setSubmitting(true);
     try {
-      // setLoading(true);
-      // setErrorMessage(null);
-      dispatch(signInStart())
-      const res = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      dispatch(signInStart());
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-        credentials: 'include',
+        credentials: "include",
       });
       const data = await res.json();
-      if (data.success === false) {
-        // return setErrorMessage(data.message);
-        dispatch(signInFailure(data.message))
+      if (!res.ok || data.success === false) {
+        throw new Error(data.message || "Sign in failed");
       }
-      // setLoading(false);
-      if(res.ok) {
-        dispatch(signInSuccess(data))
-        if (redirect === 'cart') {
-          dispatch(
-            saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
-          );
-          return navigate("/cart")
-        }
-        dispatch(getCartDB());
 
-        navigate('/dashboard?tab=profile');
-        // navigate('/cart');
-
+      dispatch(signInSuccess(data));
+      if (redirect === "cart") {
+        dispatch(
+          saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems")) })
+        );
+        return navigate("/cart");
       }
-              // dispatch(getCartDB());
-
+      dispatch(getCartDB());
+      navigate("/dashboard?tab=profile");
     } catch (error) {
-      // setErrorMessage(error.message);
-      // setLoading(false);
-      const message =
-        error.response?.data?.message ||
-        error.message ||
-        "Sign in failed";
-      dispatch(signInFailure(message))
-
+      const message = error.response?.data?.message || error.message || "Sign in failed";
+      dispatch(signInFailure(message));
+    } finally {
+      setSubmitting(false);
     }
-
   };
+
   return (
-    <div className='min-h-screen py-20 mx-auto px-10 md:w-4/5'>
-      <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7 py-3  mx-auto flex-col md:flex-row md:items-center gap-10 md:gap-6'>
-        {/* left */}
-        <div className='flex-1 px-4 md:px-6 sm:px-10 flex flex-col items-center'>
-          <Link to='/' className='font-bold dark:text-white text-4xl mb-5'>
-            <span className='px-2 py-2 sm:px-3 sm:py-3 lg:px-5 lg:py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white text-lg sm:text-2xl lg:text-4xl'>
-              SoapDelight.J
-            </span>
+    <AuthShell
+      eyebrow="Welcome Back"
+      title="Sign In"
+      subtitle="登入後即可查看帳戶資料、訂單紀錄與你的收藏清單。"
+      footer={
+        <>
+          <Link to="/" className={authInlineLinkClassName}>
+            Home
           </Link>
-          <p className='text-md mt-5'>
-            <b>SoapDelight.J</b>為您帶來全新的澳門品牌，致力於提供品質天然的手工護膚品及手工皂。我們的產品以天然植物草本為基礎， 避免使用人工合成的有害防腐劑和硅油等成分。
-          </p>
-          <p className='text-md mt-5'>
-              我們的手工皂和護膚品經過精心製作，不僅能夠潔淨肌膚，還能提供滋養和保護， 讓您的肌膚焕發健康光彩。 品牌故事源於一位媽媽對小朋友的愛與關懷。她希望為自己的小朋友提供天然的護膚體驗。 透過學習芳療和手工護膚品的知識，開始製作天然手工護膚品，並將自己的愛和熱情注入其中。 
-          </p>
-          <p className='text- mt-5'>
-            選擇SoapDelight.J， 您將獲得一個全新的護膚體驗。我們的產品不僅能保護和滋養肌膚，還能提供舒緩和放鬆的芳香療效。讓您的肌膚在天然的芳香中得到愛和呵護。 我們相信，天然是最好的選擇。讓SoapDelight.J成為您護膚品選擇的首選，讓您的肌膚感受到天然植物的美好。
-          </p>
+          <span>Don&apos;t have an account?</span>
+          <Link to="/sign-up" className={authInlineLinkClassName}>
+            Sign Up
+          </Link>
+        </>
+      }
+    >
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="email" className={authLabelClassName}>
+            Your email
+          </label>
+          <input
+            type="email"
+            placeholder="name@company.com"
+            id="email"
+            onChange={handleChange}
+            className={authInputClassName}
+          />
         </div>
 
-        {/* right */}
-        <div className='flex-1 px-4 md:px-6 sm:px-10'>
-          <form 
-            className='flex flex-col gap-4' 
-            onSubmit={handleSubmit}
-          >
-            <div>
-              <Label value='Your email' className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"/>
-              <TextInput
-                type='email'
-                placeholder='name@company.com'
-                id='email'
-                onChange={handleChange}
-                
-              />
-            </div>
-            <div className="relative">
-              <Label value='Your password' />
-              <input
-                type={showPassword1 ? "text" : "password"}
-                placeholder='Password'
-                className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm "
-                required
-                id='password'
-                // name='password'
-                onChange={handleChange}
-              />
-              <div className=" absolute top-[50%] cursor-pointer right-0 flex items-center pr-3 z-49" onClick={togglePassword1}>
-                {showPassword1 ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </div>
-            </div>
-
-            {/* Password Strength */}
-            <div className='rounded overflow-hidden p-1 mb-1'>
-                <ul className=''>
-                  <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                     {switchIcon(uCase)}
-                      &nbsp; Lowercase & Uppercase
-                    </span>
-                  </li>
-                  <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                            {switchIcon(num)}
-                            &nbsp; Number (0-9)
-                    </span>
-                    </li>
-                    <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                            {switchIcon(sChar)}
-                            &nbsp; Special Character (!@#$%^&*)
-                    </span>
-                    </li>
-                    <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                            {switchIcon(passLength)}
-                            &nbsp; At least 6 Character
-                    </span>
-                  </li>
-                </ul>
-            </div>
-
-            <div className='flex gap-2 text-sm mt-2'>
-              <span>Forgot Password?</span>
-              <Link to='/forgotpassword' className='text-blue-500'>
-                Forgot Password
-              </Link>
-            </div>
-
-
-            <Button
-              gradientDuoTone='purpleToPink'
-              type='submit'
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Spinner size='sm' />
-                  <span className='pl-3'>Loading...</span>
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </Button>
-            <OAuth />
-          </form>
-          <div className='flex gap-2 text-sm mt-5'>
-            <Link to='/' className='text-blue-500'>
-              Home
-            </Link>
-            <span>Don't have an account?</span>
-            <Link to='/sign-up' className='text-blue-500'>
-              Sign Up
+        <div>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label htmlFor="password" className={authLabelClassName}>
+              Your password
+            </label>
+            <Link to="/forgotpassword" className={`${authInlineLinkClassName} text-xs sm:text-sm`}>
+              Forgot Password
             </Link>
           </div>
-          {/* {errorMessage && (
-            <Alert className='mt-5' color='failure'>
-              {errorMessage}
-            </Alert>
-          )} */}
+          <div className="relative">
+            <input
+              type={showPassword1 ? "text" : "password"}
+              placeholder="Password"
+              className={`${authInputClassName} pr-12`}
+              required
+              id="password"
+              onChange={handleChange}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              onClick={togglePassword1}
+              aria-label={showPassword1 ? "Hide password" : "Show password"}
+            >
+              {showPassword1 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
+
+        <PasswordChecklist uCase={uCase} num={num} sChar={sChar} passLength={passLength} />
+
+        {error ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+            {error}
+          </div>
+        ) : null}
+
+        <button type="submit" disabled={submitting} className={authPrimaryButtonClassName}>
+          {submitting ? "Loading..." : "Sign In"}
+        </button>
+
+        <OAuth />
+      </form>
+    </AuthShell>
   );
 }

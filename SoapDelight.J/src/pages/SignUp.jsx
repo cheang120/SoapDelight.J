@@ -1,178 +1,125 @@
-import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector,shallowEqual } from "react-redux";
-import PasswordInput from '../components/PasswordInput';
-import OAuth from '../components/OAuth';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { FaTimes } from 'react-icons/fa';
-import { BsCheck2All } from 'react-icons/bs';
-import {  validateEmail } from '../redux/features/auth/authService';
-import { signup,RESET } from '../redux/features/auth/authSlice.js';
-import { signInStart, signInFailure,signInSuccess } from '../redux/user/userSlice';
-
-
+import { FaTimes } from "react-icons/fa";
+import { BsCheck2All } from "react-icons/bs";
+import OAuth from "../components/OAuth";
+import { validateEmail } from "../redux/features/auth/authService";
+import { signInStart, signInFailure, signInSuccess } from "../redux/user/userSlice";
+import AuthShell, {
+  authInlineLinkClassName,
+  authInputClassName,
+  authLabelClassName,
+  authPrimaryButtonClassName,
+} from "../components/auth/AuthShell";
 
 const initialState = {
-  username:"",
-  email:"",
-  password:"",
-  password2:""
-}
+  username: "",
+  email: "",
+  password: "",
+  password2: "",
+};
 
+const PasswordChecklist = ({ uCase, num, sChar, passLength }) => {
+  const timesIcon = <FaTimes color="red" size={15} />;
+  const checkIcon = <BsCheck2All color="green" size={15} />;
+  const switchIcon = (condition) => (condition ? checkIcon : timesIcon);
+
+  return (
+    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/70">
+      <ul className="space-y-2">
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(uCase)}
+          <span className="ml-2">Lowercase &amp; Uppercase</span>
+        </li>
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(num)}
+          <span className="ml-2">Number (0-9)</span>
+        </li>
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(sChar)}
+          <span className="ml-2">Special Character (!@#$%^&*)</span>
+        </li>
+        <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+          {switchIcon(passLength)}
+          <span className="ml-2">At least 6 characters</span>
+        </li>
+      </ul>
+    </div>
+  );
+};
 
 export default function SignUp() {
   const [formData, setFormData] = useState(initialState);
-  const {username, email, password, password2} = formData
-
-  const dispatch = useDispatch()
-  const navigate = useNavigate();
-
+  const { password } = formData;
+  const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [uCase, setUCase] = useState(false);
+  const [num, setNum] = useState(false);
+  const [sChar, setSChar] = useState(false);
+  const [passLength, setPassLength] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { error } = useSelector((state) => state.user);
 
   const togglePassword1 = () => {
     setShowPassword1(!showPassword1);
   };
-  
+
   const togglePassword2 = () => {
     setShowPassword2(!showPassword2);
   };
 
-
-
   const handleChange = (e) => {
-    // console.log(e.target.value);
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
   useEffect(() => {
-    // Check Lower and Uppercase
     if (password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-        setUCase(true);
-    }else {
-        setUCase(false);
+      setUCase(true);
+    } else {
+      setUCase(false);
     }
-    // Check for numbers
     if (password.match(/([0-9])/)) {
-        setNum(true);
+      setNum(true);
     } else {
-        setNum(false);
+      setNum(false);
     }
-    // Check for special character
     if (password.match(/([!,%,&,@,#,$,^,*,?,_,~])/)) {
-        setSChar(true);
+      setSChar(true);
     } else {
-        setSChar(false);
+      setSChar(false);
     }
-    // Check for PASSWORD LENGTH
     if (password.length > 5) {
-        setPassLength(true);
+      setPassLength(true);
     } else {
-        setPassLength(false);
+      setPassLength(false);
     }
-}, [password]);
+  }, [password]);
 
-const [uCase, setUCase] = useState(false)
-  const [num, setNum] = useState(false)
-  const [sChar, setSChar] = useState(false)
-  const [passLength, setPassLength] = useState(false)
-
-  const timesIcon = <FaTimes color='red' size={15} />
-  const checkIcon = <BsCheck2All color='green' size={15} />
-
-  const switchIcon = (condition) => {
-    if (condition) {
-      return checkIcon
+  const handleSubmit = async (signinData) => {
+    const res = await fetch("/api/auth/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(signinData),
+    });
+    const data = await res.json();
+    if (!res.ok || data.success === false) {
+      throw new Error(data.message || "Signin failed");
     }
-    return timesIcon
-  }
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!formData.username || !formData.email || !formData.password) {
-  //     return setErrorMessage('Please fill out all fields.');
-  //   }
-  //   if (formData.password.length < 6) {
-  //     return setErrorMessage("Password must be up to 6 characters");
-  //   }
-  //   if (!validateEmail(formData.email)) {
-  //     return setErrorMessage("Please enter a valid email");
-  //   }
-  //   if (password !== password2) {
-  //     return setErrorMessage("Passwords do not match");
-  //   }
-  //   if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-  //     return setErrorMessage("Passwords must contain Uppercase and Lowercase");
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     setError(false);
-  //     const res = await fetch('/api/auth/signup', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(formData),
-  //     });
-  //     const data = await res.json();
-  //     console.log(data);
-  //     setLoading(false);
-  //     if (data.success === false) {
-  //       setError(true);
-  //       return;
-  //     }
-
-  //         // Assume the API returns a token on successful signup
-  //   const { token } = data;
-
-  //   // Store the token in localStorage
-  //   localStorage.setItem('authToken', token);
-
-
-  //     await fetch('/api/auth/sendVerificationEmail', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ email: formData.email }),
-  //     });
-
-  //     navigate('/dashboard');
-
-  //   } catch (error) {
-  //     setLoading(false);
-  //     setError(true);
-  //   }
-  // };
-
-  const handleSubmit = async (formData) => {
-    try {
-      const res = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || 'Signin failed');
-      }
-      dispatch(signInSuccess(data));
-      navigate('/dashboard?tab=profile');
-    } catch (error) {
-      dispatch(signInFailure(error.message));
-    }
+    dispatch(signInSuccess(data));
+    navigate("/dashboard?tab=profile");
+    return data;
   };
-  
+
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password || !formData.password2) {
-      return dispatch(signInFailure('Please fill out all fields.'));
+      return dispatch(signInFailure("Please fill out all fields."));
     }
     if (formData.password.length < 6) {
       return dispatch(signInFailure("Password must be at least 6 characters"));
@@ -184,197 +131,155 @@ const [uCase, setUCase] = useState(false)
       return dispatch(signInFailure("Passwords do not match"));
     }
     if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-      return dispatch(signInFailure("Passwords must contain both uppercase and lowercase letters"));
+      return dispatch(
+        signInFailure("Passwords must contain both uppercase and lowercase letters")
+      );
     }
-  
+
+    setSubmitting(true);
     try {
+      setErrorMessage(null);
       dispatch(signInStart());
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || 'Signup failed');
+        throw new Error(data.message || "Signup failed");
       }
 
-      await fetch('/api/auth/sendVerificationEmail', {
-        method: 'POST',
+      await fetch("/api/auth/sendVerificationEmail", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: formData.email }),
       });
 
-      // Automatically login after signup
       await handleSubmit({ email: formData.email, password: formData.password });
-  
     } catch (error) {
       dispatch(signInFailure(error.message));
-            if (error.message.includes("Email already registered")) {
+      if (error.message.includes("Email already registered")) {
         setErrorMessage("This email is already registered. Please use a different email.");
       } else {
         setErrorMessage(error.message);
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const visibleError = errorMessage || error;
 
   return (
-    <div className='min-h-screen py-20 mx-auto px-10 md:w-4/5'>
-      <div className='flex mr-4 ml-4 sm:mr-7 sm:ml-7  mx-auto flex-col md:flex-row md:items-center gap-10 md:gap-6'>
-        {/* left */}
-        <div className='flex-1 px-4 md:px-6 sm:px-10 flex flex-col items-center'>
-          <Link to='/' className='font-bold dark:text-white text-4xl mb-5'>
-            <span className='px-2 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white text-lg sm:text-2xl lg:text-4xl'>
-              SoapDelight.J
-            </span>
+    <AuthShell
+      eyebrow="Create Account"
+      title="Sign Up"
+      subtitle="建立帳戶後即可管理個人資料、訂單紀錄與收藏清單。"
+      footer={
+        <>
+          <Link to="/" className={authInlineLinkClassName}>
+            Home
           </Link>
-          <p className='text-md mt-5'>
-            <b>SoapDelight.J</b>為您帶來全新的澳門品牌，致力於提供品質天然的手工護膚品及手工皂。我們的產品以天然植物草本為基礎， 避免使用人工合成的有害防腐劑和硅油等成分。
-          </p>
-          <p className='text-md mt-5'>
-              我們的手工皂和護膚品經過精心製作，不僅能夠潔淨肌膚，還能提供滋養和保護， 讓您的肌膚焕發健康光彩。 品牌故事源於一位媽媽對小朋友的愛與關懷。她希望為自己的小朋友提供天然的護膚體驗。 透過學習芳療和手工護膚品的知識，開始製作天然手工護膚品，並將自己的愛和熱情注入其中。 
-          </p>
-          <p className='text- mt-5'>
-            選擇SoapDelight.J， 您將獲得一個全新的護膚體驗。我們的產品不僅能保護和滋養肌膚，還能提供舒緩和放鬆的芳香療效。讓您的肌膚在天然的芳香中得到愛和呵護。 我們相信，天然是最好的選擇。讓SoapDelight.J成為您護膚品選擇的首選，讓您的肌膚感受到天然植物的美好。
-          </p>
+          <span>Have an account?</span>
+          <Link to="/sign-in" className={authInlineLinkClassName}>
+            Sign In
+          </Link>
+        </>
+      }
+    >
+      <form className="flex flex-col gap-5" onSubmit={handleSignup}>
+        <div>
+          <label htmlFor="username" className={authLabelClassName}>
+            Your username
+          </label>
+          <input
+            type="text"
+            placeholder="Username"
+            id="username"
+            onChange={handleChange}
+            className={authInputClassName}
+          />
         </div>
 
-        {/* right */}
-        <div className='flex-1 px-4 md:px-6 sm:px-10'>
-          <form 
-            className='flex flex-col gap-4' 
-            onSubmit={handleSignup}
-          >
-            <div>
-              <Label value='Your username' />
-              <TextInput
-                type='text'
-                placeholder='Username'
-                id='username'
-                onChange={handleChange}
+        <div>
+          <label htmlFor="email" className={authLabelClassName}>
+            Your email
+          </label>
+          <input
+            type="email"
+            placeholder="name@company.com"
+            id="email"
+            onChange={handleChange}
+            className={authInputClassName}
+          />
+        </div>
 
-              />
-            </div>
-            <div>
-              <Label value='Your email' />
-              <TextInput
-                type='email'
-                placeholder='name@company.com'
-                id='email'
-                onChange={handleChange}
-              />
-            </div>
-
-
-            <div className="relative">
-              <Label value='Your password' />
-              <input
-                type={showPassword1 ? "text" : "password"}
-                placeholder='Password'
-                className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
-                required
-                id='password'
-                // name='password'
-
-                onChange={handleChange}
-              />
-              <div className=" absolute top-[50%] cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword1}>
-                {showPassword1 ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </div>
-            </div>
-
-            <div className="relative">
-              <Label value='Confirm Password' />
-              <input
-                type={showPassword2 ? "text" : "password"}
-                placeholder='Confirm Password'
-                className="block w-full border disabled:cursor-not-allowed disabled:opacity-50 border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg"
-                required
-                id='password2'
-                name='password2'
-                // name={name}
-                // value={value}
-                onChange={handleChange}
-              />
-              <div className=" absolute top-[50%] cursor-pointer right-0 flex items-center pr-3 z-50" onClick={togglePassword2}>
-                {showPassword2 ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </div>
-            </div>
-
-            {/* Password Strength */}
-            <div className='rounded overflow-hidden p-1 mb-1'>
-                <ul className=''>
-                  <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                     {switchIcon(uCase)}
-                      &nbsp; Lowercase & Uppercase
-                    </span>
-                  </li>
-                  <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                            {switchIcon(num)}
-                            &nbsp; Number (0-9)
-                    </span>
-                    </li>
-                    <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                            {switchIcon(sChar)}
-                            &nbsp; Special Character (!@#$%^&*)
-                    </span>
-                    </li>
-                    <li>
-                    <span className='flex justify-start items-center text-[0.63rem]'>
-                            {switchIcon(passLength)}
-                            &nbsp; At least 6 Character
-                    </span>
-                  </li>
-                </ul>
-            </div>
-
-
-            <Button
-              gradientDuoTone='purpleToPink'
-              type='submit'
-              disabled={loading}
+        <div>
+          <label htmlFor="password" className={authLabelClassName}>
+            Your password
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword1 ? "text" : "password"}
+              placeholder="Password"
+              className={`${authInputClassName} pr-12`}
+              required
+              id="password"
+              onChange={handleChange}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              onClick={togglePassword1}
+              aria-label={showPassword1 ? "Hide password" : "Show password"}
             >
-              {loading ? (
-                <>
-                  <Spinner size='sm' />
-                  <span className='pl-3'>Loading...</span>
-                </>
-              ) : (
-                'Sign Up'
-              )}
-            </Button>
-            <OAuth />
-          </form>
-          <div className='flex gap-2 text-sm mt-5'>
-          <Link to='/' className='text-blue-500'>
-              Home
-            </Link>
-            <span>Have an account?</span>
-            <Link to='/sign-in' className='text-blue-500'>
-              Sign In
-            </Link>
+              {showPassword1 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+            </button>
           </div>
-          {errorMessage && (
-            <Alert className='mt-5' color='failure'>
-              {errorMessage}
-            </Alert>
-          )}
         </div>
-      </div>
-    </div>
+
+        <div>
+          <label htmlFor="password2" className={authLabelClassName}>
+            Confirm password
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword2 ? "text" : "password"}
+              placeholder="Confirm Password"
+              className={`${authInputClassName} pr-12`}
+              required
+              id="password2"
+              name="password2"
+              onChange={handleChange}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              onClick={togglePassword2}
+              aria-label={showPassword2 ? "Hide password confirmation" : "Show password confirmation"}
+            >
+              {showPassword2 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+            </button>
+          </div>
+        </div>
+
+        <PasswordChecklist uCase={uCase} num={num} sChar={sChar} passLength={passLength} />
+
+        {visibleError ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+            {visibleError}
+          </div>
+        ) : null}
+
+        <button type="submit" disabled={submitting} className={authPrimaryButtonClassName}>
+          {submitting ? "Loading..." : "Sign Up"}
+        </button>
+
+        <OAuth />
+      </form>
+    </AuthShell>
   );
 }

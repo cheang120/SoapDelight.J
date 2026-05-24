@@ -1,4 +1,3 @@
-import { Button } from 'flowbite-react'
 import React from 'react'
 import { AiFillGoogleCircle } from 'react-icons/ai'
 import {GoogleAuthProvider, signInWithPopup, getAuth} from 'firebase/auth'
@@ -7,6 +6,7 @@ import { useDispatch } from 'react-redux'
 import { signInSuccess } from '../redux/user/userSlice'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { authSecondaryButtonClassName } from './auth/AuthShell'
 // import {sendVerificationEmail} from '../redux/features/auth/authService'
 
 const OAuth = () => {
@@ -47,10 +47,14 @@ const OAuth = () => {
         }
     }
   return (
-    <Button type='button' gradientDuoTone='pinkToOrange' outline onClick={handleGoogleClick}>
-        <AiFillGoogleCircle className='w-6 h-6 mr-2'/>
+    <button
+      type='button'
+      onClick={handleGoogleClick}
+      className={authSecondaryButtonClassName}
+    >
+        <AiFillGoogleCircle className='mr-2 h-5 w-5'/>
         Continue with Google
-    </Button>
+    </button>
   )
 }
 
