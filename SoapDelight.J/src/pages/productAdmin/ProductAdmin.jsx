@@ -9,7 +9,7 @@ import AddProduct from "../../components/productAdmin/addProduct/AddProduct.jsx"
 import ViewProducts from "../../components/productAdmin/viewProducts/ViewProducts.jsx";
 import EditProduct from "../../components/productAdmin/editProduct/EditProduct.jsx";
 import AdminHome from "../../components/productAdmin/adminHome/AdminHome.jsx";
-import {useDispatch, useSelector} from 'react-redux'
+import { useSelector } from "react-redux";
 import Coupon from "../../components/productAdmin/coupon/Coupon.jsx";
 import Orders from "../../components/productAdmin/orders/Orders.jsx";
 import OrderDetails from "../../components/productAdmin/orders/OrderDetails.jsx";
@@ -17,18 +17,18 @@ import OrderDetails from "../../components/productAdmin/orders/OrderDetails.jsx"
 
 export const ProductAdmin = () => {
   const { currentUser } = useSelector((state) => state.user);
-  const userRole = currentUser.role
-    // console.log(userRole);
-    if (userRole === 'author' || userRole === 'admin'){
-      return (
-        <div className={styles.admin}>
-          <div className={styles.navbar}>
-            <Navbar />
-          </div>
-          <div className={styles.content}>
+  const userRole = currentUser?.role;
+
+  if (userRole === "author" || userRole === "admin") {
+    return (
+      <div className={styles.admin}>
+        <aside className={styles.navbar}>
+          <Navbar />
+        </aside>
+        <main className={styles.content}>
+          <div className={styles.contentInner}>
             <Routes>
               <Route path="home" element={<AdminHome />} />
-    
               <Route path="all-products" element={<ViewProducts />} />
               <Route path="add-product" element={<AddProduct />} />
               <Route path="edit-product/:id" element={<EditProduct />} />
@@ -39,15 +39,19 @@ export const ProductAdmin = () => {
               <Route path="brand" element={<Brand />} />
             </Routes>
           </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex justify-center h-96 items-center">
-          <p>Please Login as Admin User!</p>
-        </div>
-      )
-    }
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
+      <div className="rounded-3xl border border-zinc-200 bg-white px-6 py-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <p className="text-base font-medium text-zinc-950 dark:text-white">
+          Please Login as Admin User!
+        </p>
+      </div>
+    </div>
+  );
 
 };
-

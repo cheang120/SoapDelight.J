@@ -1,25 +1,40 @@
 .admin {
   display: flex;
-  flex-direction: row; /* 默认在桌面上为行布局 */
+  min-height: calc(100vh - 3.5rem);
+  background: #f6f7f5;
+  color: #0f172a;
 
   .navbar {
-    /* width: 25%; */ /* 如果需要可以取消注释并设置宽度 */
-    min-height: 80vh;
-    border-right: 1px solid #ccc;
+    width: 20rem;
+    flex: 0 0 20rem;
+    border-right: 1px solid rgba(228, 228, 231, 0.8);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(18px);
   }
   .content {
-    /* width: 75%; */ /* 如果需要可以取消注释并设置宽度 */
-    padding: 1rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 1.25rem;
   }
 
-  @media (max-width: 768px) { /* 在小于等于768px的屏幕尺寸下 */
-      flex-direction: column; /* 切换为列布局 */
+  .contentInner {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  @media (max-width: 768px) {
+      flex-direction: column;
+      min-height: auto;
+
       .navbar {
-        border-right: none; /* 移除右边的边框 */
-        border-bottom: 1px solid #ccc; /* 添加底部边框 */
+        width: 100%;
+        flex-basis: auto;
+        border-right: none;
+        border-bottom: 1px solid rgba(228, 228, 231, 0.8);
       }
       .content {
-        /* width: 100%; */ 
+        padding: 1rem;
       }
   }
 }

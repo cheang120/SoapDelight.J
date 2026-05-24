@@ -1,7 +1,6 @@
 import React from 'react'
 import styles from  './Navbar.module.scss'
 import { useSelector } from 'react-redux'
-import { selectUser } from '../../../redux/features/auth/authSlice.js'
 import { FaUserCircle } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 
@@ -11,12 +10,17 @@ const activeLink = ({ isActive }) => (isActive ? `${styles.active}` : "");
 const Navbar = () => {
     const { currentUser } = useSelector((state) => state.user);
 
-    const username = currentUser.username
+    const username = currentUser?.username || "Admin";
   return (
     <div className={styles.navbar}>
       <div className={styles.user}>
-        <FaUserCircle size={40} color="#fff" />
-        <h4 color='black'>{username}</h4>
+        <div className={styles.avatar}>
+          <FaUserCircle size={32} />
+        </div>
+        <div className={styles.userText}>
+          <p className={styles.userLabel}>Logged in as</p>
+          <h4>{username}</h4>
+        </div>
       </div>
       <nav>
         <ul>

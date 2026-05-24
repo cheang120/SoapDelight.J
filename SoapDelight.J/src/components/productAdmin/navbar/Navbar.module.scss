@@ -1,44 +1,99 @@
 .navbar {
-    // border-right: 1px solid #ccc;
-    min-height: 80vh;
-  
-    .user {
+  min-height: 100%;
+  padding: 1rem;
+  background: transparent;
+
+  .user {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(228, 228, 231, 0.9);
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    backdrop-filter: blur(18px);
+
+    .avatar {
       display: flex;
-      justify-content: center;
+      flex: 0 0 auto;
       align-items: center;
-      flex-direction: column;
-      padding: 4rem;
-      background-color: var(--light-blue);
-  
-      h4 {
-        color: #fff;
-      }
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 9999px;
+      background: #f4f5f7;
+      color: #111827;
     }
-  
-    nav ul {
-      li {
-        border-bottom: 1px solid #ccc;
-        padding: 1rem;
-        position: relative;
-        a {
-          display: block;
-          width: 100%;
+
+    .userText {
+      min-width: 0;
+    }
+
+    .userLabel {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #71717a;
+    }
+
+    h4 {
+      margin-top: 0.2rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #111827;
+      word-break: break-word;
+    }
+  }
+
+  nav ul {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      position: relative;
+      border-bottom: 1px solid rgba(228, 228, 231, 0.75);
+
+      a {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        min-height: 3rem;
+        border-radius: 0.95rem;
+        padding: 0.8rem 0.95rem;
+        color: #3f3f46;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+
+        &:hover {
+          background: rgba(244, 244, 245, 0.95);
+          color: #09090b;
         }
       }
     }
   }
-  
-  .active {
-    cursor: pointer;
+}
+
+.active {
+  background: #09090b !important;
+  color: #fff !important;
+  box-shadow: 0 10px 20px rgba(9, 9, 11, 0.12);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem;
+
+    .user {
+      margin-bottom: 0.75rem;
+    }
+
+    nav ul li a {
+      min-height: 2.9rem;
+    }
   }
-  
-  .active::before {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 4px;
-    height: 100%;
-    background-color: orangered;
-  }
-  
+}
