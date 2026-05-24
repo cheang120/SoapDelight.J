@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import {useDispatch, useSelector} from 'react-redux'
-import { deleteProduct, getProducts } from '../../../redux/features/product/productSlice'
-import { selectIsLoggedIn } from '../../../redux/features/auth/authSlice'
-import Search from '../../search/Search.jsx'
+import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteProduct, getProducts } from "../../../redux/features/product/productSlice";
+import Search from "../../search/Search.jsx";
 import { Spinner } from "../../../components/Loader.jsx";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { AiOutlineEye } from "react-icons/ai";
@@ -11,43 +10,67 @@ import { shortenText } from "../../../utils/index.jsx";
 import ReactPaginate from "react-paginate";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-
-
+import "./ViewProducts.scss";
 
 const ViewProducts = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [search, setSearch] = useState("");
-  window.scrollTo(0, 0);
+  const [itemOffset, setItemOffset] = useState(0);
 
+  const dispatch = useDispatch();
+  const { products = [], isLoading } = useSelector((state) => state.product);
 
-  const dispatch = useDispatch()
-  const isLoggedIn = useSelector(selectIsLoggedIn)
-  const { products, isLoading, isError, message } = useSelector(
-    (state) => state.product
-  );
+  const userRole = currentUser?.role;
+  const canManageProducts = userRole === "author" || userRole === "admin";
 
-  // useEffect(()=>{
-  //   dispatch(getProducts())
-  //   console.log(products);
-  // },[dispatch])
-
-  // console.log(products);
-  const userRole = currentUser.role
-  const canManageProducts = userRole === 'author' || userRole === 'admin';
-    // console.log(userRole);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     if (canManageProducts) {
-      dispatch(getProducts())
+      dispatch(getProducts());
     }
-  },[canManageProducts, dispatch])
+  }, [canManageProducts, dispatch]);
+
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  const filteredProducts = useMemo(
+    () =>
+      safeProducts.filter((product) =>
+        product?.name?.toLowerCase().includes(search.toLowerCase())
+      ),
+    [safeProducts, search]
+  );
+
+  useEffect(() => {
+    setItemOffset(0);
+  }, [search]);
+
+  useEffect(() => {
+    if (itemOffset > 0 && itemOffset >= filteredProducts.length) {
+      setItemOffset(0);
+    }
+  }, [filteredProducts.length, itemOffset]);
+
+  const itemsPerPage = 5;
+  const endOffset = itemOffset + itemsPerPage;
+  const currentItems = filteredProducts.slice(itemOffset, endOffset);
+  const pageCount = filteredProducts.length
+    ? Math.ceil(filteredProducts.length / itemsPerPage)
+    : 0;
+
+  const handlePageClick = (event) => {
+    if (!filteredProducts.length) return;
+
+    const newOffset = (event.selected * itemsPerPage) % filteredProducts.length;
+    setItemOffset(newOffset);
+  };
 
   const delProduct = async (id) => {
-    // console.log(id);
     await dispatch(deleteProduct(id));
     await dispatch(getProducts());
   };
-  // console.log(products);
 
   const confirmDelete = (id) => {
     confirmAlert({
@@ -60,103 +83,123 @@ const ViewProducts = () => {
         },
         {
           label: "Cancel",
-          // onClick: () => alert('Click No')
         },
       ],
     });
   };
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Begin Pagination
-  const itemsPerPage = 5;
-  const [itemOffset, setItemOffset] = useState(0);
-  const endOffset = itemOffset + itemsPerPage;
-  const currentItems = filteredProducts.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(filteredProducts.length / itemsPerPage);
-
-  const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % filteredProducts.length;
-    setItemOffset(newOffset);
-  };
-  // End Pagination
 
   if (!canManageProducts) {
-    return <h2>You are not admin, please login as Admin</h2>;
-  }
-    
     return (
-      <section className="py-8 min-h-screen">
-        <div className="container mx-auto">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-2xl font-semibold">All Products</h3>
-              <p className="text-gray-600">
-                ~ 
-                <b>{products.length} Products Found</b>
-              </p>
-            </div>
-            <div>
-              <Search
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+      <div className="rounded-3xl border border-zinc-200 bg-white px-6 py-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <p className="text-base font-medium text-zinc-950 dark:text-white">
+          You are not admin, please login as Admin
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <section className="admin-products-page">
+      <header className="admin-products-header">
+        <div className="admin-products-copy">
+          <p className="admin-products-eyebrow">PRODUCTS</p>
+          <h2 className="admin-products-title">All Products</h2>
+          <p className="admin-products-subtitle">
+            Manage your product catalogue, stock and product actions.
+          </p>
+        </div>
+
+        <div className="admin-products-toolbar">
+          <div className="admin-products-count">
+            {filteredProducts.length} products found
           </div>
+          <div className="admin-products-search">
+            <Search
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+      </header>
 
-          {isLoading && <Spinner />}
-
-          <div className='overflow-x-auto'>
-            {!isLoading && currentItems.length === 0 ? (
-              <p>-- No product found...</p>
+      {isLoading ? (
+        <div className="admin-products-loading">
+          <Spinner />
+        </div>
+      ) : (
+        <div className="admin-products-card">
+          <div className="admin-products-table-wrap">
+            {currentItems.length === 0 ? (
+              <div className="admin-products-empty">
+                <p className="admin-products-empty-title">No products found</p>
+                <p className="admin-products-empty-copy">
+                  Try a different search term or check back after adding new products.
+                </p>
+              </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-800">
+              <table className="admin-products-table">
+                <thead>
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">s/n</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Value</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
+                    <th scope="col">S/N</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Value</th>
+                    <th scope="col" className="admin-products-actions-head">
+                      Action
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+
+                <tbody>
                   {currentItems.map((product, index) => {
                     const { _id, name, category, price, quantity } = product;
+
                     return (
                       <tr key={_id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{index + 1}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{shortenText(name, 16)}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{"$"}{price}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{quantity}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{"$"}{price * quantity}</td>
-                        <td className="flex px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <span className="text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-500">
-                            <Link to={`/product-details/${_id}`}>
-                              <AiOutlineEye size={25} />
-                            </Link>
-                          </span>
-                          <span className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-500 ml-4">
-                            <Link to={`/productAdmin/edit-product/${_id}`}>
-                              <FaEdit size={20} />
-                            </Link>
-                          </span>
-                          <span className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-500 ml-4">
-                            <FaTrashAlt size={20} onClick={() => confirmDelete(_id)} />
-                          </span>
+                        <td>{itemOffset + index + 1}</td>
+                        <td className="admin-products-name">{shortenText(name, 16)}</td>
+                        <td>{category}</td>
+                        <td>${price}</td>
+                        <td>{quantity}</td>
+                        <td>${price * quantity}</td>
+                        <td className="admin-products-actions">
+                          <Link
+                            to={`/product-details/${_id}`}
+                            className="admin-products-icon-button admin-products-icon-button--view"
+                            aria-label={`View ${name}`}
+                          >
+                            <AiOutlineEye size={18} />
+                          </Link>
+                          <Link
+                            to={`/productAdmin/edit-product/${_id}`}
+                            className="admin-products-icon-button admin-products-icon-button--edit"
+                            aria-label={`Edit ${name}`}
+                          >
+                            <FaEdit size={16} />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => confirmDelete(_id)}
+                            className="admin-products-icon-button admin-products-icon-button--delete"
+                            aria-label={`Delete ${name}`}
+                          >
+                            <FaTrashAlt size={15} />
+                          </button>
                         </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
-
-            )} 
+            )}
           </div>
+        </div>
+      )}
+
+      {pageCount > 1 && (
+        <div className="admin-products-pagination">
           <ReactPaginate
             breakLabel="..."
             nextLabel="Next"
@@ -165,17 +208,16 @@ const ViewProducts = () => {
             pageCount={pageCount}
             previousLabel="Prev"
             renderOnZeroPageCount={null}
-            containerClassName="flex justify-center items-center space-x-2 mt-4"
-            pageLinkClassName="dark:text-gray-100 px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-            previousLinkClassName="dark:text-gray-400 px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-            nextLinkClassName="dark:text-gray-400 px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-200"
-            activeLinkClassName="dark:text-gray-800 px-3 py-1 border border-gray-300 rounded-md text-white bg-pink-500"
+            containerClassName="admin-products-pagination-list"
+            pageLinkClassName="admin-products-pagination-link"
+            previousLinkClassName="admin-products-pagination-link"
+            nextLinkClassName="admin-products-pagination-link"
+            activeLinkClassName="admin-products-pagination-link admin-products-pagination-link--active"
           />
-
         </div>
-      </section>
+      )}
+    </section>
+  );
+};
 
-    )
-}
-
-export default ViewProducts
+export default ViewProducts;

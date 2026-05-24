@@ -36,7 +36,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
 
   if (isEmpty) {
     return (
-      <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-10 text-center dark:border-zinc-800 dark:bg-zinc-950">
+      <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <p className="text-lg font-semibold tracking-tight text-zinc-950 dark:text-white">
           No orders yet.
         </p>
@@ -49,8 +49,8 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
 
   return (
     <>
-      <section className="hidden overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 md:block">
-        <div className="grid grid-cols-[1.1fr_1fr_1fr_1fr_1fr_140px] gap-4 border-b border-zinc-100 px-6 py-4 text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+      <section className="hidden overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 md:block">
+        <div className="grid grid-cols-[1.1fr_1fr_1fr_1fr_1fr_140px] gap-4 border-b border-zinc-200 bg-zinc-50/80 px-6 py-4 text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
           <span>Order</span>
           <span>Date</span>
           <span>Status</span>
@@ -66,7 +66,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
             return (
               <article
                 key={order._id}
-                className="grid grid-cols-[1.1fr_1fr_1fr_1fr_1fr_140px] gap-4 px-6 py-5 text-sm text-zinc-700 dark:text-zinc-200"
+                className="grid grid-cols-[1.1fr_1fr_1fr_1fr_1fr_140px] gap-4 px-6 py-5 text-sm text-zinc-700 transition-colors hover:bg-zinc-50/60 dark:text-zinc-200 dark:hover:bg-zinc-900/40"
               >
                 <div>
                   <p className="font-semibold text-zinc-950 dark:text-white">
@@ -122,9 +122,9 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
           const paymentLabel = paymentStatusLabel(order);
 
           return (
-            <article
-              key={order._id}
-              className="rounded-[1.5rem] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950"
+              <article
+                key={order._id}
+              className="rounded-[1.5rem] border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -169,7 +169,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
               <button
                 type="button"
                 onClick={() => openOrderDetails(order._id)}
-                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+                className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
               >
                 View details
               </button>
