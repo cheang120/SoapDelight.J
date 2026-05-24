@@ -42,63 +42,53 @@ const CreateCoupon = ({reloadCoupon}) => {
   }, [dispatch]);
   return (
     <>
-      <div className="mb-8">
-          <h3 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Create Coupon</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Use the form to <b>Create a Coupon.</b>
-          </p>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md max-w-md">
-              <form onSubmit={saveCoupon} className="space-y-4">
-                  <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Coupon Name:
-                      </label>
-                      <input
-                          type="text"
-                          placeholder="Coupon name"
-                          name="name"
-                          value={name}
-                          onChange={(e) => setName(e.target.value.toUpperCase())}
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" 
-                      />
-                  </div>
-                  <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Discount %:
-                      </label>
-                      <input
-                          type="number"
-                          placeholder="Coupon Discount"
-                          name="discount"
-                          value={discount}
-                          onChange={(e) => setDiscount(e.target.value)}
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" 
-                      />
-                  </div>
-                  <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Expiry date:
-                      </label>
-                      <DatePicker
-                          selected={expiresAt}
-                          value={expiresAt}
-                          onChange={(date) => setExpiresAt(date)}
-                          required
-                          className="block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-200"
-                      />
-                  </div>
-                  <div className="mt-6">
-                      <button
-                          type="submit"
-                          className="w-full bg-pink-500 dark:bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-600 dark:hover:bg-pink-700 transition duration-300"
-                      >
-                          Save Coupon
-                      </button>
-                  </div>
-              </form>
+      <div className="admin-taxonomy-panel">
+          <div className="admin-taxonomy-panel-copy">
+              <h3 className="admin-taxonomy-panel-title">Create Coupon</h3>
+              <p className="admin-taxonomy-panel-subtitle">Use the form to create a discount code.</p>
           </div>
+          <form onSubmit={saveCoupon} className="admin-taxonomy-form">
+              <div className="admin-taxonomy-field">
+                  <label className="admin-taxonomy-label">Coupon Name</label>
+                  <input
+                      type="text"
+                      placeholder="Coupon name"
+                      name="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value.toUpperCase())}
+                      required
+                      className="admin-taxonomy-input" 
+                  />
+              </div>
+              <div className="admin-taxonomy-field">
+                  <label className="admin-taxonomy-label">Discount %</label>
+                  <input
+                      type="number"
+                      placeholder="Coupon Discount"
+                      name="discount"
+                      value={discount}
+                      onChange={(e) => setDiscount(e.target.value)}
+                      required
+                      className="admin-taxonomy-input" 
+                  />
+              </div>
+              <div className="admin-taxonomy-field">
+                  <label className="admin-taxonomy-label">Expiry Date</label>
+                  <DatePicker
+                      selected={expiresAt}
+                      value={expiresAt}
+                      onChange={(date) => setExpiresAt(date)}
+                      required
+                      className="admin-taxonomy-input admin-taxonomy-date"
+                  />
+              </div>
+              <button
+                  type="submit"
+                  className="admin-taxonomy-button"
+              >
+                  Save Coupon
+              </button>
+          </form>
       </div>
     </>
 

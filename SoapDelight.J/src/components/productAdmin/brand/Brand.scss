@@ -1,0 +1,244 @@
+.admin-taxonomy-page {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.admin-taxonomy-header {
+  min-width: 0;
+}
+
+.admin-taxonomy-copy {
+  min-width: 0;
+}
+
+.admin-taxonomy-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #71717a;
+}
+
+.admin-taxonomy-title {
+  margin-top: 0.25rem;
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #09090b;
+}
+
+.admin-taxonomy-subtitle {
+  margin-top: 0.45rem;
+  max-width: 64ch;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: #71717a;
+}
+
+.admin-taxonomy-stack {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.admin-taxonomy-card,
+.admin-taxonomy-panel {
+  min-width: 0;
+  border: 1px solid rgba(228, 228, 231, 0.92);
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.admin-taxonomy-panel {
+  padding: 1.25rem;
+}
+
+.admin-taxonomy-panel-copy {
+  margin-bottom: 1rem;
+}
+
+.admin-taxonomy-panel-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #09090b;
+}
+
+.admin-taxonomy-panel-subtitle {
+  margin-top: 0.35rem;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: #71717a;
+}
+
+.admin-taxonomy-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-taxonomy-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-taxonomy-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #52525b;
+}
+
+.admin-taxonomy-input,
+.admin-taxonomy-date {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.95rem;
+  background: #fff;
+  padding: 0.8rem 0.95rem;
+  font-size: 0.95rem;
+  color: #09090b;
+  outline: none;
+}
+
+.admin-taxonomy-input:focus,
+.admin-taxonomy-date:focus {
+  border-color: #a1a1aa;
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.06);
+}
+
+.admin-taxonomy-select {
+  appearance: none;
+}
+
+.admin-taxonomy-button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #09090b;
+  border-radius: 9999px;
+  background: #09090b;
+  padding: 0.8rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-taxonomy-button:hover {
+  background: #27272a;
+  border-color: #27272a;
+  transform: translateY(-1px);
+}
+
+.admin-taxonomy-table-wrap {
+  overflow-x: auto;
+  border-radius: 1.75rem;
+}
+
+.admin-taxonomy-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #71717a;
+}
+
+.admin-taxonomy-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-taxonomy-table thead tr {
+  background: rgba(244, 244, 245, 0.92);
+}
+
+.admin-taxonomy-table th {
+  padding: 1rem 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #71717a;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.admin-taxonomy-table td {
+  padding: 1rem 1.1rem;
+  color: #3f3f46;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.admin-taxonomy-table tbody tr {
+  border-top: 1px solid rgba(228, 228, 231, 0.7);
+  transition: background-color 0.2s ease;
+}
+
+.admin-taxonomy-table tbody tr:hover {
+  background: rgba(244, 244, 245, 0.7);
+}
+
+.admin-taxonomy-table-head-actions {
+  width: 7rem;
+  text-align: center;
+}
+
+.admin-taxonomy-table th:last-child,
+.admin-taxonomy-table td:last-child {
+  width: 7rem;
+}
+
+.admin-taxonomy-action-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-taxonomy-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(228, 228, 231, 0.92);
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #3f3f46;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-taxonomy-icon-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(212, 212, 216, 1);
+  background: #f4f4f5;
+  color: #09090b;
+}
+
+.admin-taxonomy-icon-button--delete {
+  color: #dc2626;
+  background: #fff5f5;
+}
+
+.admin-taxonomy-icon-button--delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .admin-taxonomy-panel,
+  .admin-taxonomy-card {
+    border-radius: 1.35rem;
+  }
+
+  .admin-taxonomy-panel {
+    padding: 1rem;
+  }
+
+  .admin-taxonomy-table {
+    min-width: 640px;
+  }
+}

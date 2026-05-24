@@ -8,9 +8,9 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 const CategoryList = () => {
   const { isLoading, categories = [] } = useSelector((state) => state.category || {});
   const dispatch = useDispatch();
-  window.scrollTo(0, 0);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         dispatch(getCategories());
       }, [dispatch]);
 
@@ -37,31 +37,34 @@ const CategoryList = () => {
       };
 
   return (
-    <div className="mb-8 p-4 bg-white dark:bg-gray-800 shadow rounded-lg min-h-screen">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">All Categories</h3>
-      <div className="overflow-x-auto">
+    <div className="admin-taxonomy-panel">
+      <div className="admin-taxonomy-panel-copy">
+        <h3 className="admin-taxonomy-panel-title">All Categories</h3>
+        <p className="admin-taxonomy-panel-subtitle">Manage existing product categories.</p>
+      </div>
+      <div className="admin-taxonomy-table-wrap">
         {categories.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 text-center">No category found!</p>
+          <p className="admin-taxonomy-empty">No category found!</p>
         ) : (
-          <table className="min-w-full bg-white dark:bg-gray-700 border-y border-gray-200 dark:border-gray-600 rounded-lg">
+          <table className="admin-taxonomy-table">
             <thead>
-              <tr className="bg-gray-100 dark:bg-gray-900">
-                <th className="px-4 py-2 border-b text-left text-gray-600 dark:text-gray-300">s/n</th>
-                <th className="px-4 py-2 border-b text-left text-gray-600 dark:text-gray-300">Name</th>
-                <th className="px-4 py-2 border-b text-left text-gray-600 dark:text-gray-300">Action</th>
+              <tr>
+                <th>s/n</th>
+                <th>Name</th>
+                <th className="admin-taxonomy-table-head-actions">Action</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((cat, index) => {
                 const { _id, name, slug } = cat;
                 return (
-                  <tr key={_id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-200">
-                    <td className="px-4 py-3 border-b text-left text-gray-700 dark:text-gray-300">{index + 1}</td>
-                    <td className="px-4 py-3 border-b text-left text-gray-700 dark:text-gray-300">{name}</td>
-                    <td className="px-4 py-3 border-b text-left">
-                      <span className="text-red-500 dark:text-red-400 cursor-pointer hover:text-red-700 dark:hover:text-red-600 transition duration-200">
-                        <FaTrashAlt size={20} onClick={() => confirmDelete(slug)} />
-                      </span>
+                  <tr key={_id}>
+                    <td>{index + 1}</td>
+                    <td>{name}</td>
+                    <td className="admin-taxonomy-action-cell">
+                      <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`Delete ${name}`} onClick={() => confirmDelete(slug)}>
+                        <FaTrashAlt size={16} />
+                      </button>
                     </td>
                   </tr>
                 );
