@@ -30,7 +30,23 @@ const paymentStatusLabel = (order) => {
   return null;
 };
 
-const ListOfOrders = ({ orders, openOrderDetails }) => {
+const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const isEmpty = safeOrders.length === 0;
+
+  if (isEmpty) {
+    return (
+      <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-10 text-center dark:border-zinc-800 dark:bg-zinc-950">
+        <p className="text-lg font-semibold tracking-tight text-zinc-950 dark:text-white">
+          No orders yet.
+        </p>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          There are no orders to display right now.
+        </p>
+      </section>
+    );
+  }
+
   return (
     <>
       <section className="hidden overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 md:block">
@@ -44,7 +60,7 @@ const ListOfOrders = ({ orders, openOrderDetails }) => {
         </div>
 
         <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-          {orders.map((order) => {
+          {safeOrders.map((order) => {
             const paymentLabel = paymentStatusLabel(order);
 
             return (
@@ -102,7 +118,7 @@ const ListOfOrders = ({ orders, openOrderDetails }) => {
       </section>
 
       <div className="grid gap-4 md:hidden">
-        {orders.map((order) => {
+        {safeOrders.map((order) => {
           const paymentLabel = paymentStatusLabel(order);
 
           return (

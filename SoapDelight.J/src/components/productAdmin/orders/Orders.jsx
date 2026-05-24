@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react'
 import ListOfOrders from '../../../pages/order/ListOfOrder'
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getOrders } from '../../../redux/features/order/OrderSlice';
+import { getOrders, selectOrders } from '../../../redux/features/order/OrderSlice';
 
 const Orders = () => {
-  const { isLoading, isError, message, orders } = useSelector(
-    (state) => state.order
-  );
+  const orders = useSelector(selectOrders);
   window.scrollTo(0, 0);
 
   const dispatch = useDispatch();
@@ -27,7 +25,7 @@ const Orders = () => {
           Open an order to <b>Change Order Status.</b>
         </p>
         <br />
-        <ListOfOrders  openOrderDetails={openOrderDetails}/>
+        <ListOfOrders orders={orders || []} openOrderDetails={openOrderDetails}/>
 
     </div>
   )
