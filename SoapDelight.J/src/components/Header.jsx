@@ -203,41 +203,61 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <div className="fixed inset-0 top-14 z-40 bg-white px-6 py-6 dark:bg-zinc-950 md:hidden">
-          <nav className="flex flex-col" aria-label="Mobile navigation">
+        <div className="fixed inset-x-0 top-14 bottom-0 z-[70] px-3 pb-3 md:hidden">
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-sm dark:bg-black/35" />
+          <div className="relative mx-auto max-h-[calc(100vh-4rem)] overflow-y-auto rounded-[1.75rem] border border-white/90 bg-[rgba(255,255,255,0.98)] px-5 py-5 shadow-[0_25px_60px_rgba(15,23,42,0.2)] backdrop-blur-3xl backdrop-saturate-150 dark:border-zinc-800/80 dark:bg-[rgba(9,9,11,0.95)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.55)]">
+            <nav className="flex flex-col" aria-label="Mobile navigation">
             {mobileLinks.map((link) => (
-              <Link key={link.label} to={link.to} className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+              <Link
+                key={link.label}
+                to={link.to}
+                className="border-b border-zinc-100 py-4 text-lg font-medium tracking-tight text-zinc-950 transition hover:text-zinc-700 dark:border-zinc-800 dark:text-white dark:hover:text-zinc-300 sm:text-xl"
+              >
                 {link.label}
               </Link>
             ))}
             {currentUser ? (
               <>
-                <Link to="/dashboard?tab=profile" className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                <Link
+                  to="/dashboard?tab=profile"
+                  className="border-b border-zinc-100 py-4 text-lg font-medium tracking-tight text-zinc-950 transition hover:text-zinc-700 dark:border-zinc-800 dark:text-white dark:hover:text-zinc-300 sm:text-xl"
+                >
                   我的帳戶
                 </Link>
                 {canManageProducts && (
-                  <Link to="/productAdmin/home" className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                  <Link
+                    to="/productAdmin/home"
+                    className="border-b border-zinc-100 py-4 text-lg font-medium tracking-tight text-zinc-950 transition hover:text-zinc-700 dark:border-zinc-800 dark:text-white dark:hover:text-zinc-300 sm:text-xl"
+                  >
                     Product Admin
                   </Link>
                 )}
-                <button type="button" onClick={handleSignout} className="border-b border-zinc-100 py-4 text-left text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+                <button
+                  type="button"
+                  onClick={handleSignout}
+                  className="border-b border-zinc-100 py-4 text-left text-lg font-medium tracking-tight text-zinc-950 transition hover:text-zinc-700 dark:border-zinc-800 dark:text-white dark:hover:text-zinc-300 sm:text-xl"
+                >
                   Sign out
                 </button>
               </>
             ) : (
-              <Link to="/sign-in" className="border-b border-zinc-100 py-4 text-2xl font-medium text-zinc-950 dark:border-zinc-800 dark:text-white">
+              <Link
+                to="/sign-in"
+                className="border-b border-zinc-100 py-4 text-lg font-medium tracking-tight text-zinc-950 transition hover:text-zinc-700 dark:border-zinc-800 dark:text-white dark:hover:text-zinc-300 sm:text-xl"
+              >
                 Sign in
               </Link>
             )}
             <button
               type="button"
               onClick={() => dispatch(toggleTheme())}
-              className="mt-6 flex items-center gap-3 text-left text-sm text-zinc-600 dark:text-zinc-300"
+              className="mt-5 flex items-center gap-3 text-left text-sm text-zinc-600 transition hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white"
             >
               {theme === "light" ? <FaSun /> : <FaMoon />}
               Toggle theme
             </button>
-          </nav>
+            </nav>
+          </div>
         </div>
       )}
     </header>
