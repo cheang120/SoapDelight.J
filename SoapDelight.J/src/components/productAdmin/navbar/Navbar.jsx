@@ -59,6 +59,11 @@ const Navbar = () => {
                 Coupon
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/productAdmin/shipping-methods" className={activeLink}>
+                Shipping Methods
+              </NavLink>
+            </li>
         </ul>
       </nav>
     </div>

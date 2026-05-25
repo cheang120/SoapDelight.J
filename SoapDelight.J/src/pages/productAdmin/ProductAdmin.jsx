@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import Coupon from "../../components/productAdmin/coupon/Coupon.jsx";
 import Orders from "../../components/productAdmin/orders/Orders.jsx";
 import OrderDetails from "../../components/productAdmin/orders/OrderDetails.jsx";
+import ShippingMethods from "../../components/productAdmin/shippingMethods/ShippingMethods.jsx";
 
 
 export const ProductAdmin = () => {
@@ -37,6 +38,7 @@ export const ProductAdmin = () => {
               <Route path="coupon" element={<Coupon />} />
               <Route path="category" element={<Category />} />
               <Route path="brand" element={<Brand />} />
+              <Route path="shipping-methods" element={<ShippingMethods />} />
             </Routes>
           </div>
         </main>
