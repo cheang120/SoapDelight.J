@@ -527,18 +527,24 @@ export const upgradeUser = async (req, res, next) => {
   }
 
   export const saveCart = asyncHandler(async(req,res) => {
-    // res.send("Correct")
-    const {cartItems} = req.body
+    const { cartItems = [] } = req.body;
 
-    const user = await User.findById(req.user._id)
+    if (!Array.isArray(cartItems)) {
+      res.status(400);
+      throw new Error("cartItems must be an array");
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { cartItems },
+      { new: true, runValidators: false }
+    );
 
     if (user) {
-      user.cartItems = cartItems
-      user.save()
-      res.status(200).json({message: "Cart Saved"})
-    }else {
-      res.status(404)
-      throw new Error("User not found!")
+      res.status(200).json({ message: "Cart Saved" });
+    } else {
+      res.status(404);
+      throw new Error("User not found!");
     }
   })
 

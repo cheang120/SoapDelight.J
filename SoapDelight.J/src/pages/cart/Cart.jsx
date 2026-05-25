@@ -107,13 +107,36 @@ const Cart = () => {
     }
   };
 
+  const syncCartToDB = () => {
+    if (!currentUser) return;
+
+    dispatch(
+      saveCartDB({ cartItems: JSON.parse(localStorage.getItem("cartItems") || "[]") })
+    );
+  };
+
   const increaseQuantity = (item) => {
     dispatch(ADD_TO_CART(item));
+    syncCartToDB();
   };
 
   const decreaseQuantity = (item) => {
     if (Number(item.cartQuantity || 0) <= 1) return;
     dispatch(DECREASE_CART(item));
+    syncCartToDB();
+  };
+
+  const removeCartItem = (item) => {
+    dispatch(REMOVE_FROM_CART(item));
+    syncCartToDB();
+  };
+
+  const clearCartItems = () => {
+    dispatch(CLEAR_CART());
+
+    if (currentUser) {
+      dispatch(saveCartDB({ cartItems: [] }));
+    }
   };
 
   const handleDeliverySelection = (methodId) => {
@@ -250,7 +273,7 @@ const Cart = () => {
 
                           <button
                             type="button"
-                            onClick={() => dispatch(REMOVE_FROM_CART(item))}
+                            onClick={() => removeCartItem(item)}
                             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 px-4 text-sm font-medium text-zinc-600 transition hover:border-red-200 hover:text-red-600 dark:border-zinc-800 dark:text-zinc-300"
                           >
                             <FaTrashAlt size={13} />
@@ -266,7 +289,7 @@ const Cart = () => {
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <button
                   type="button"
-                  onClick={() => dispatch(CLEAR_CART())}
+                  onClick={clearCartItems}
                   className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-700 transition hover:border-red-300 hover:text-red-600 dark:border-zinc-700 dark:text-zinc-200"
                 >
                   Clear Cart / 清除購物車
