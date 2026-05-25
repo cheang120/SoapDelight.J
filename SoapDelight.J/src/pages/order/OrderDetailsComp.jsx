@@ -30,8 +30,9 @@ const paymentStatusLabel = (order) => {
   return null;
 };
 
-const OrderDetailsComp = ({ order, orderPageLink }) => {
+const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
   const pdfRef = useRef();
+  const isAdminView = variant === "admin";
 
   const {
     productItems,
@@ -264,14 +265,16 @@ const OrderDetailsComp = ({ order, orderPageLink }) => {
                         </p>
                       </div>
 
-                      <div className="flex shrink-0 items-end">
-                        <Link
-                          to={`/review-product/${item?._id}`}
-                          className="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
-                        >
-                          Review
-                        </Link>
-                      </div>
+                        {!isAdminView && (
+                          <div className="flex shrink-0 items-end">
+                            <Link
+                              to={`/review-product/${item?._id}`}
+                              className="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+                            >
+                              Review
+                            </Link>
+                          </div>
+                        )}
                     </article>
                   );
                 })}
@@ -341,12 +344,14 @@ const OrderDetailsComp = ({ order, orderPageLink }) => {
               >
                 Back to Orders
               </Link>
-              <Link
-                to="/shop"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
-              >
-                Continue Shopping
-              </Link>
+              {!isAdminView && (
+                <Link
+                  to="/shop"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
+                >
+                  Continue Shopping
+                </Link>
+              )}
             </div>
           </aside>
         </div>

@@ -35,6 +35,7 @@ const OrderDetails = () => {
         <OrderDetailsComp
           order={order}
           orderPageLink="/productAdmin/orders"
+          variant="admin"
         />
       )}
 
