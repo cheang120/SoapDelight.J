@@ -114,9 +114,18 @@ const EditProduct = () => {
   },[message, navigate,dispatch])
 
   return (
-    <div>
-      {/* {isLoading && <Loader />} */}
-      <h3 className="--mt">Edit Product</h3>
+    <section className="admin-product-page">
+      <div className="admin-product-page__inner">
+        <header className="admin-product-page-header">
+          <p className="admin-product-kicker">PRODUCT</p>
+          <div>
+            <h1 className="admin-product-page-title">Edit Product</h1>
+            <p className="admin-product-page-subtitle">
+              Update product details, stock and shop display information.
+            </p>
+          </div>
+        </header>
+
       <ProductForm
         saveProduct={saveProduct}
         product={product}
@@ -134,7 +143,8 @@ const EditProduct = () => {
         setDescription={setDescription}
 
       />
-    </div>
+      </div>
+    </section>
   );
 };
 

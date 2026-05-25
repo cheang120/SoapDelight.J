@@ -44,7 +44,7 @@ const AddProduct = () => {
 
     const { name, category, brand, price, quantity, color, regularPrice } = product;
 
-    const userRole = currentUser.role
+    const userRole = currentUser?.role
     const canManageProducts = userRole === 'author' || userRole === 'admin';
     // console.log(userRole);
 
@@ -122,31 +122,35 @@ const AddProduct = () => {
       }, [category]);
 
       if (canManageProducts) {
-        return (
-          <section>
-            <div className='container min-h-screen'>
-              {/* {isLoading && <Loader />} */}
-              <h3 className='--mt text-2xl pb-5'>Add New Product</h3>
-      
-              <ProductForm         
-                  files={files}
-                  setFiles={setFiles}
-                  setProduct={setProduct}
-                  product={product}
-                  // productImage={productImage}
-                  // imagePreview={imagePreview}
-                  // setImagePreview={setImagePreview}
-                  description={description}
-                  setDescription={setDescription}
-                  handleInputChange={handleInputChange}
-                  saveProduct={saveProduct}
-                  categories={categories}
-                  filteredBrands={filteredBrands}
-                  isEditing={false}
-              />
-            </div>
-          </section>
-        )
+      return (
+        <section className="admin-product-page">
+          <div className="admin-product-page__inner">
+            <header className="admin-product-page-header">
+              <p className="admin-product-kicker">PRODUCT</p>
+              <div>
+                <h1 className="admin-product-page-title">Add Product</h1>
+                <p className="admin-product-page-subtitle">
+                  Create a new product and publish it to the shop.
+                </p>
+              </div>
+            </header>
+
+            <ProductForm
+                files={files}
+                setFiles={setFiles}
+                setProduct={setProduct}
+                product={product}
+                description={description}
+                setDescription={setDescription}
+                handleInputChange={handleInputChange}
+                saveProduct={saveProduct}
+                categories={categories}
+                filteredBrands={filteredBrands}
+                isEditing={false}
+            />
+          </div>
+        </section>
+      )
       } else {
         return (
           <h2>You are not admin, please login as Admin</h2>
