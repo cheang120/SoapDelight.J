@@ -7,6 +7,8 @@ import styles from "./CheckoutForm.module.scss";
 import CheckoutSummary from "../checkoutSummary/CheckoutSummary";
 import { Spinner } from "../../Loader";
 import {
+  CLEAR_CART,
+  saveCartDB,
   selectCartItems,
   selectCartTotalAmount,
 } from "../../../redux/features/cart/cartSlice";
@@ -45,6 +47,14 @@ export default function CheckoutForm() {
     };
 
     await dispatch(createOrder(formData)).unwrap();
+
+    try {
+      await dispatch(saveCartDB({ cartItems: [] })).unwrap();
+    } catch {
+      // Keep checkout success even if saved cart cleanup fails.
+    }
+
+    dispatch(CLEAR_CART());
     navigate("/checkout-success");
   };
 
