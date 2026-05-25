@@ -1,63 +1,66 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import styles from "./ChangeOrderStatus.module.scss";
 import { Spinner } from "../../Loader";
 import { useDispatch, useSelector } from "react-redux";
-import Card from "../../card/Card";
-import { useNavigate, useParams } from 'react-router-dom'
-import { updateOrderStatus } from '../../../redux/features/order/OrderSlice';
-
-
-
+import { useParams } from "react-router-dom";
+import { updateOrderStatus } from "../../../redux/features/order/OrderSlice";
 
 const ChangeOrderStatus = () => {
-    const {id} = useParams()
-    // console.log(id);
-    const [status, setStatus] = useState("")
-    const { isLoading } = useSelector((state) => state.order)
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const [status, setStatus] = useState("");
+  const { isLoading } = useSelector((state) => state.order);
+  const dispatch = useDispatch();
 
-    const updateOrder = async(e, id) => {
-        e.preventDefault();
-        const formData = {
-          orderStatus: status,
-        };
-        // console.log(formData);
-        await dispatch(updateOrderStatus({ id, formData }));
-        
-    }
+  const updateOrder = async (e, orderId) => {
+    e.preventDefault();
+    const formData = {
+      orderStatus: status,
+    };
+
+    await dispatch(updateOrderStatus({ id: orderId, formData }));
+  };
+
   return (
-    <>
-        {isLoading && <Spinner />}
-        <div className={styles.status}>
-            <Card cardClass={styles.card}>
-            <h4>Update Status</h4>
-            <form onSubmit={(e) => updateOrder(e, id)}>
-                <span>
-                <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                >
-                    <option value="" disabled>
-                    -- Choose one --
-                    </option>
-                    <option value="Order Placed...">Order Placed...</option>
-                    <option value="Processing...">Processing...</option>
-                    <option value="Shipped...">Shipped...</option>
-                    <option value="Delivered">Delivered</option>
-                </select>
-                </span>
-                <span>
-                    <button type="submit" className="--btn --btn-primary">
-                        Update Status
-                    </button>
-                </span>
-            </form>
-            </Card>
+    <section className={styles.status}>
+      {isLoading && <Spinner />}
+
+      <div className={styles.card}>
+        <div className={styles.copy}>
+          <p className={styles.eyebrow}>ORDER STATUS</p>
+          <h4 className={styles.title}>Update Order Status</h4>
+          <p className={styles.subtitle}>
+            Choose the latest fulfilment stage for this order.
+          </p>
         </div>
-    </>
 
-  )
-}
+        <form onSubmit={(e) => updateOrder(e, id)} className={styles.form}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="order-status">
+              Order status
+            </label>
+            <select
+              id="order-status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className={styles.select}
+            >
+              <option value="" disabled>
+                -- Choose one --
+              </option>
+              <option value="Order Placed...">Order Placed...</option>
+              <option value="Processing...">Processing...</option>
+              <option value="Shipped...">Shipped...</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
 
-export default ChangeOrderStatus
+          <button type="submit" className={styles.button}>
+            Update Status
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+};
+
+export default ChangeOrderStatus;
