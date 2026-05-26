@@ -57,6 +57,23 @@ export const createOrder = asyncHandler(async (req, res) => {
     };
   }
 
+  const productItems = cartItems.filter((item) => item?.category !== "Shipping");
+  const shippingItem = cartItems.find((item) => item?.category === "Shipping");
+  const productSubtotal = productItems.reduce((total, item) => {
+    return total + Number(item?.price || 0) * Number(item?.cartQuantity || 0);
+  }, 0);
+  const couponDiscountAmount = validatedCoupon?.discount
+    ? (productSubtotal * Number(validatedCoupon.discount || 0)) / 100
+    : 0;
+  const subtotalAfterDiscount = Math.max(
+    productSubtotal - couponDiscountAmount,
+    0
+  );
+  const deliveryName =
+    shippingItem?.name || "Delivery information not available";
+  const deliveryFee = Number(shippingItem?.price || 0);
+  const total = subtotalAfterDiscount + deliveryFee;
+
   // const updatedProduct = await updateProductQuantity(cartItems);
   // console.log("updated product", updatedProduct);
 
@@ -80,7 +97,20 @@ export const createOrder = asyncHandler(async (req, res) => {
   const subject = "SoapDelight.J Order Placed";
   const send_to = req.user.email;
   // console.log(send_to);
-  const template = orderSuccessEmail(req.user.name, cartItems);
+  const template = orderSuccessEmail({
+    customerName: req.user.name || req.user.username || req.user.email,
+    orderDate,
+    orderTime,
+    productItems,
+    coupon: validatedCoupon,
+    productSubtotal,
+    couponDiscountAmount,
+    subtotalAfterDiscount,
+    deliveryName,
+    deliveryFee,
+    total,
+    orderAmount,
+  });
   // const template = "template"
   const reply_to = "no_reply@gmail.com";
   console.log('Template:', template);
