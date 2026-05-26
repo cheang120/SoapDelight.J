@@ -24,11 +24,35 @@ import {
 import { SAVE_PAYMENT_METHOD } from "../../redux/features/checkout/checkoutSlice";
 import { selectIsLoggedIn } from "../../redux/user/userSlice";
 import { getProducts } from "../../redux/features/product/productSlice";
+import shippingMethodService from "../../redux/features/shippingMethod/shippingMethodService";
 import VerifyCoupon from "../../components/verifyCoupon/VerifyCoupon";
 import { FaMinus, FaPlus, FaRegImage, FaTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`;
+
+const mapShippingMethodToDeliveryOption = (method) => {
+  const fee = Number(method?.fee || 0);
+  const isPickup = Boolean(method?.isPickup);
+
+  return {
+    _id: isPickup ? LOCAL_PICKUP_METHOD._id : method?._id,
+    name: method?.name || LOCAL_PICKUP_METHOD.name,
+    category: "Shipping",
+    brand: "Shipping",
+    price: String(fee),
+    regularPrice: String(fee),
+    quantity: 999,
+    cartQuantity: 1,
+    shippingMethodId: method?._id,
+    code: method?.code,
+    region: method?.region,
+    currency: method?.currency || "MOP",
+    isPickup,
+    estimatedDeliveryTime: method?.estimatedDeliveryTime,
+    description: method?.description,
+  };
+};
 
 const CartImage = ({ image, name }) => {
   const [failed, setFailed] = useState(false);
@@ -66,10 +90,21 @@ const Cart = () => {
   const { products = [] } = useSelector((state) => state.product);
   const { currentUser } = useSelector((state) => state.user);
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const [shippingMethodOptions, setShippingMethodOptions] = useState([]);
+  const [shippingMethodStatus, setShippingMethodStatus] = useState("idle");
   const shippingOptions = products.filter((item) => item?.category === "Shipping");
   const hasRealProducts = productItems.length > 0;
   const deliveryFee = Number(selectedDeliveryMethod?.price || 0);
-  const deliveryOptions = [LOCAL_PICKUP_METHOD, ...shippingOptions];
+  const fallbackDeliveryOptions = [LOCAL_PICKUP_METHOD, ...shippingOptions];
+  const baseDeliveryOptions =
+    shippingMethodStatus === "ready" && shippingMethodOptions.length > 0
+      ? shippingMethodOptions
+      : fallbackDeliveryOptions;
+  const deliveryOptions =
+    selectedDeliveryMethod &&
+    !baseDeliveryOptions.some((option) => option._id === selectedDeliveryMethod._id)
+      ? [selectedDeliveryMethod, ...baseDeliveryOptions]
+      : baseDeliveryOptions;
   const selectedDeliveryId = selectedDeliveryMethod?._id || "";
 
   useEffect(() => {
@@ -92,6 +127,43 @@ const Cart = () => {
       dispatch(getProducts());
     }
   }, [dispatch, products.length]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadShippingMethods = async () => {
+      try {
+        const methods = await shippingMethodService.getActiveShippingMethods();
+        if (!isMounted) return;
+
+        if (Array.isArray(methods) && methods.length > 0) {
+          setShippingMethodOptions(methods.map(mapShippingMethodToDeliveryOption));
+          setShippingMethodStatus("ready");
+          return;
+        }
+
+        console.warn(
+          "Shipping methods API returned no active methods. Falling back to product-based shipping options."
+        );
+        setShippingMethodOptions([]);
+        setShippingMethodStatus("fallback");
+      } catch (error) {
+        if (!isMounted) return;
+        console.warn(
+          "Shipping methods API failed. Falling back to product-based shipping options.",
+          error?.message || error
+        );
+        setShippingMethodOptions([]);
+        setShippingMethodStatus("fallback");
+      }
+    };
+
+    loadShippingMethods();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleCheckout = () => {
     if (!hasRealProducts) return;
@@ -335,7 +407,7 @@ const Cart = () => {
                       </option>
                       {deliveryOptions.map((method) => (
                         <option key={method._id} value={method._id}>
-                          {getDeliveryMethodLabel(method.name, { concise: true })}
+                          {getDeliveryMethodLabel(method.name)}
                         </option>
                       ))}
                     </select>

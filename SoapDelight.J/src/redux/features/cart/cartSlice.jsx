@@ -71,16 +71,27 @@ const deriveSelectedDeliveryMethod = (cartItems = [], storedMethod = null) => {
 
   if (shippingItem) {
     return {
+      ...shippingItem,
       _id: shippingItem._id,
       name: shippingItem.name,
       price: Number(shippingItem.price || 0),
+      regularPrice: shippingItem.regularPrice ?? shippingItem.price,
       category: "Shipping",
+      cartQuantity: 1,
       isPickup: false,
     };
   }
 
   if (storedMethod?.isPickup || storedMethod?._id === LOCAL_PICKUP_ID) {
-    return { ...LOCAL_PICKUP_METHOD };
+    return {
+      ...LOCAL_PICKUP_METHOD,
+      ...storedMethod,
+      _id: LOCAL_PICKUP_ID,
+      price: Number(storedMethod?.price || 0),
+      category: "Shipping",
+      cartQuantity: 1,
+      isPickup: true,
+    };
   }
 
   return null;
@@ -363,7 +374,15 @@ const cartSlice = createSlice({
       }
 
       if (method.isPickup || method._id === LOCAL_PICKUP_ID) {
-        state.selectedDeliveryMethod = { ...LOCAL_PICKUP_METHOD };
+        state.selectedDeliveryMethod = {
+          ...LOCAL_PICKUP_METHOD,
+          ...method,
+          _id: LOCAL_PICKUP_ID,
+          price: Number(method.price || 0),
+          category: "Shipping",
+          cartQuantity: 1,
+          isPickup: true,
+        };
         state.cartItems = state.cartItems.filter((item) => item.category !== "Shipping");
         syncCartStorage(state);
         return;
