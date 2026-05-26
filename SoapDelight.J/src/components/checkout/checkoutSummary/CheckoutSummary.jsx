@@ -12,6 +12,7 @@ import {
   selectSelectedDeliveryMethod,
   selectShippingFee,
 } from "../../../redux/features/cart/cartSlice";
+import { isCouponValid } from "../../../redux/features/coupon/couponSlice";
 import styles from "./CheckoutSummary.module.scss";
 import VerifyCoupon, { CartDiscount } from "../../verifyCoupon/VerifyCoupon";
 import { FaRegImage } from "react-icons/fa";
@@ -55,6 +56,7 @@ const CheckoutSummary = ({
   const couponDiscountAmount = useSelector(selectCouponDiscountAmount);
   const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const shippingFee = useSelector(selectShippingFee);
+  const hasValidCoupon = isCouponValid(coupon);
 
   useEffect(() => {
     dispatch(CALCULATE_SUBTOTAL({ coupon }));
@@ -126,7 +128,7 @@ const CheckoutSummary = ({
       </div>
 
       <div className={styles.couponSection}>
-        {coupon && (
+        {hasValidCoupon && (
           <div className={`${styles.row} ${styles.discountRow}`}>
             <span>Coupon discount / 優惠折扣</span>
             <strong>-{formatMoney(couponDiscountAmount)}</strong>

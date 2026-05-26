@@ -24,6 +24,7 @@ import {
 import { SAVE_PAYMENT_METHOD } from "../../redux/features/checkout/checkoutSlice";
 import { selectIsLoggedIn } from "../../redux/user/userSlice";
 import { getProducts } from "../../redux/features/product/productSlice";
+import { isCouponValid } from "../../redux/features/coupon/couponSlice";
 import shippingMethodService from "../../redux/features/shippingMethod/shippingMethodService";
 import VerifyCoupon from "../../components/verifyCoupon/VerifyCoupon";
 import { FaMinus, FaPlus, FaRegImage, FaTrashAlt } from "react-icons/fa";
@@ -92,6 +93,7 @@ const Cart = () => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const [shippingMethodOptions, setShippingMethodOptions] = useState([]);
   const [shippingMethodStatus, setShippingMethodStatus] = useState("idle");
+  const hasValidCoupon = isCouponValid(coupon);
   const shippingOptions = products.filter((item) => item?.category === "Shipping");
   const hasRealProducts = productItems.length > 0;
   const deliveryFee = Number(selectedDeliveryMethod?.price || 0);
@@ -428,7 +430,7 @@ const Cart = () => {
                 </div>
 
                 <div className="mt-6 border-t border-zinc-100 pt-5 dark:border-zinc-800">
-                  {coupon && (
+                  {hasValidCoupon && (
                     <div className="mb-4 flex justify-between gap-4 text-sm text-emerald-700">
                       <span>Coupon discount / 優惠折扣</span>
                       <span>-{formatMoney(couponDiscountAmount)}</span>

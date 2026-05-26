@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
 import "./VerifyCoupon.scss"
 import { useDispatch, useSelector } from 'react-redux';
-import { REMOVE_COUPON, getCoupon } from '../../redux/features/coupon/couponSlice';
+import { REMOVE_COUPON, getCoupon, isCouponValid } from '../../redux/features/coupon/couponSlice';
 import { CALCULATE_SUBTOTAL } from '../../redux/features/cart/cartSlice';
 
 
 export const CartDiscount = () => {
     const { coupon } = useSelector((state) => state.coupon);
+    const hasValidCoupon = isCouponValid(coupon);
   
     return (
       <>
-        {coupon != null && (
+        {coupon != null && hasValidCoupon && (
           <div className="coupon-msg">
             <p>
               Coupon <b>{coupon?.name}</b> applied
@@ -18,6 +19,14 @@ export const CartDiscount = () => {
             <span>
               {coupon?.discount}% off eligible items
             </span>
+          </div>
+        )}
+        {coupon != null && !hasValidCoupon && (
+          <div className="coupon-msg">
+            <p>
+              Coupon <b>{coupon?.name}</b> has expired
+            </p>
+            <span>Please remove it before checkout.</span>
           </div>
         )}
       </>
@@ -39,10 +48,12 @@ const VerifyCoupon = () => {
     const verifyCoupon = async (e) => {
         e.preventDefault();
         const result = await dispatch(getCoupon(couponName));
-        if (getCoupon.fulfilled.match(result)) {
+        if (getCoupon.fulfilled.match(result) && isCouponValid(result.payload)) {
           dispatch(CALCULATE_SUBTOTAL({ coupon: result.payload }));
           setShowForm(false);
           setCouponName("");
+        } else {
+          dispatch(CALCULATE_SUBTOTAL({ coupon: null }));
         }
       };
 

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify';
 import { getCartQuantityById } from '../../../utils';
+import { isCouponValid } from '../coupon/couponSlice';
 import cartService from './cartService';
 const FRONTEND_URL = import.meta.env.VITE_REACT_APP_FRENTEND_URL
 const CART_STORAGE_KEY = "cartItems";
@@ -340,7 +341,7 @@ const cartSlice = createSlice({
           ? 0
           : 0;
       const couponDiscountAmount =
-        coupon?.discount
+        isCouponValid(coupon) && coupon?.discount
           ? (Number(coupon.discount) / 100) * productSubtotal
           : 0;
       const discountedProductSubtotal = Math.max(

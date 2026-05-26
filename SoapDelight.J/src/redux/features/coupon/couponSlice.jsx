@@ -12,6 +12,13 @@ const initialState = {
     message: "",
 };
 
+export const isCouponValid = (coupon) => {
+  if (!coupon || !coupon.expiresAt) return false;
+
+  const expiresAt = new Date(coupon.expiresAt).getTime();
+  return Number.isFinite(expiresAt) && expiresAt > Date.now();
+};
+
 // Create New Coupon
 export const createCoupon = createAsyncThunk(
     "coupons/createCoupon",
@@ -142,7 +149,14 @@ const couponSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
+        if (!isCouponValid(action.payload)) {
+          state.coupon = null;
+          state.message = "Coupon has expired.";
+          toast.error("Coupon has expired.");
+          return;
+        }
         state.coupon = action.payload;
+        state.message = "";
         toast.success("Coupon applied.");
         console.log(action.payload);
       })
@@ -150,6 +164,7 @@ const couponSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+        state.coupon = null;
         toast.error(action.payload);
       })
       //   Delete coupon

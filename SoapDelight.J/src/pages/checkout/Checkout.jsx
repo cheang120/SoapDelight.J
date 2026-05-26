@@ -13,6 +13,7 @@ import {
   selectBillingAddress,
   selectShippingAddress,
 } from "../../redux/features/checkout/checkoutSlice";
+import { isCouponValid } from "../../redux/features/coupon/couponSlice";
 import { API_BASE_URL } from "../../utils/apiBase";
 
 const StripeCheckoutSurface = lazy(() =>
@@ -75,12 +76,16 @@ export const Checkout = () => {
   const description = `eShop payment: email: ${userEmail}, Amount: ${totalAmount}`;
   const hasShippingAddress = hasAddressData(shippingAddress);
   const hasBillingAddress = hasAddressData(effectiveBillingAddress);
+  const hasValidCoupon = isCouponValid(coupon);
+  const hasExpiredCoupon = Boolean(coupon) && !hasValidCoupon;
+  const validCoupon = hasValidCoupon ? coupon : null;
   const shouldLoadStripe =
     Boolean(currentUser) &&
     productItems.length > 0 &&
     Boolean(selectedDeliveryMethod) &&
     hasShippingAddress &&
-    hasBillingAddress;
+    hasBillingAddress &&
+    !hasExpiredCoupon;
   useEffect(() => {
     let ignore = false;
 
@@ -89,7 +94,8 @@ export const Checkout = () => {
       !productItems.length ||
       !selectedDeliveryMethod ||
       !hasShippingAddress ||
-      !hasBillingAddress
+      !hasBillingAddress ||
+      hasExpiredCoupon
     ) {
       setClientSecret("");
       setInitError("");
@@ -109,7 +115,7 @@ export const Checkout = () => {
             shipping: shippingAddress,
             billing: effectiveBillingAddress,
             description,
-            coupon,
+            coupon: validCoupon || { name: "nil" },
           }),
         });
 
@@ -136,10 +142,10 @@ export const Checkout = () => {
       ignore = true;
     };
   }, [
-    coupon,
     currentUser,
     description,
     hasBillingAddress,
+    hasExpiredCoupon,
     hasShippingAddress,
     effectiveBillingAddress,
     productItems.length,
@@ -147,6 +153,7 @@ export const Checkout = () => {
     selectedDeliveryMethod,
     shippingAddress,
     userEmail,
+    validCoupon,
   ]);
 
   if (!productItems.length) {
@@ -181,6 +188,18 @@ export const Checkout = () => {
         body="目前付款流程會使用你的帳戶電郵建立付款與訂單紀錄。登入後即可繼續安全付款。"
         ctaLabel="Sign In / 登入"
         ctaTo="/sign-in?redirect=checkout-details"
+      />
+    );
+  }
+
+  if (hasExpiredCoupon) {
+    return (
+      <CheckoutState
+        eyebrow="Coupon"
+        title="Coupon has expired."
+        body="請返回購物車移除已過期優惠碼，然後再繼續付款。"
+        ctaLabel="Back to Cart / 返回購物車"
+        ctaTo="/cart"
       />
     );
   }

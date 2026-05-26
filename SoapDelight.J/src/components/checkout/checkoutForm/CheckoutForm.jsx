@@ -16,6 +16,7 @@ import {
   selectPaymentMethod,
   selectShippingAddress,
 } from "../../../redux/features/checkout/checkoutSlice";
+import { isCouponValid } from "../../../redux/features/coupon/couponSlice";
 import { createOrder } from "../../../redux/features/order/OrderSlice";
 
 export default function CheckoutForm() {
@@ -43,7 +44,7 @@ export default function CheckoutForm() {
       cartItems,
       shippingAddress,
       paymentMethod,
-      coupon: coupon != null ? coupon : { name: "nil" },
+      coupon: isCouponValid(coupon) ? coupon : { name: "nil" },
     };
 
     await dispatch(createOrder(formData)).unwrap();
@@ -63,6 +64,13 @@ export default function CheckoutForm() {
     setMessage("");
 
     if (!stripe || !elements) {
+      return;
+    }
+
+    if (coupon && !isCouponValid(coupon)) {
+      const errorMessage = "Coupon has expired. Please remove it and try again.";
+      toast.error(errorMessage);
+      setMessage(errorMessage);
       return;
     }
 

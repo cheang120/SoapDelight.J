@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js"
+import Coupon from "../models/couponMondel.js";
 import { calculateTotalPrice, updateProductQuantity } from "../utils/index.js";
 // import calculateTotalPrice from "../utils"
 import axios from "axios"
@@ -36,6 +37,26 @@ export const createOrder = asyncHandler(async (req, res) => {
     throw new Error("Order data missing!!!");
   }
 
+  let validatedCoupon = { name: "nil" };
+  if (coupon && coupon.name && String(coupon.name).toLowerCase() !== "nil") {
+    const validCoupon = await Coupon.findOne({
+      name: String(coupon.name).trim().toUpperCase(),
+      expiresAt: { $gt: Date.now() },
+    });
+
+    if (!validCoupon) {
+      res.status(400);
+      throw new Error("Coupon has expired or is invalid");
+    }
+
+    validatedCoupon = {
+      _id: validCoupon._id,
+      name: validCoupon.name,
+      discount: validCoupon.discount,
+      expiresAt: validCoupon.expiresAt,
+    };
+  }
+
   // const updatedProduct = await updateProductQuantity(cartItems);
   // console.log("updated product", updatedProduct);
 
@@ -49,7 +70,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     cartItems,
     shippingAddress,
     paymentMethod,
-    coupon,
+    coupon: validatedCoupon,
   });
 
   // Update product quantity 
@@ -348,4 +369,3 @@ export const payWithStripe = asyncHandler(async (req, res) => {
 //   });
 //   let updatedProduct = await Product.bulkWrite(bulkOption, {});
 // };
-
