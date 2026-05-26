@@ -1,6 +1,12 @@
 import asyncHandler from "express-async-handler";
 import Coupon from "../models/couponMondel.js";
 
+const normalizeExpiryDate = (expiresAt) => {
+  const normalized = new Date(expiresAt);
+  normalized.setHours(23, 59, 59, 999);
+  return normalized;
+};
+
 
 
 // Create Coupon
@@ -11,9 +17,16 @@ export const createCoupon = asyncHandler(async (req, res,next) => {
       res.status(400);
       throw new Error("Please fill in all fields");
     }
+
+    const normalizedExpiry = normalizeExpiryDate(expiresAt);
+    if (Number.isNaN(normalizedExpiry.getTime()) || normalizedExpiry.getTime() <= Date.now()) {
+      res.status(400);
+      throw new Error("Expiry date cannot be in the past.");
+    }
+
     const coupon = await Coupon.create({
       name,
-      expiresAt,
+      expiresAt: normalizedExpiry,
       discount,
     });
     if (coupon) {

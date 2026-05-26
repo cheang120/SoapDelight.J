@@ -9,6 +9,20 @@ import { FaTrashAlt } from "react-icons/fa";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
+const isCouponActive = (expiresAt) =>
+  Number(new Date(expiresAt).getTime()) > Date.now();
+
+const statusMeta = (active) =>
+  active
+    ? {
+        label: "Active",
+        className: "admin-taxonomy-status-badge admin-taxonomy-status-badge--active",
+      }
+    : {
+        label: "Expired",
+        className: "admin-taxonomy-status-badge admin-taxonomy-status-badge--expired",
+      };
+
 const CouponList = () => {
   const { isLoading, coupons } = useSelector((state) => state.coupon);
   const dispatch = useDispatch();
@@ -64,6 +78,7 @@ const CouponList = () => {
                 <th>Discount (%)</th>
                 <th>Date Created</th>
                 <th>Expiry Date</th>
+                <th>Status</th>
                 <th className="admin-taxonomy-table-head-actions">Action</th>
               </tr>
             </thead>
@@ -72,13 +87,23 @@ const CouponList = () => {
                 const { _id, name, discount, expiresAt, createdAt } = coupon;
                 const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
                 const formattedExpiresAt = new Date(expiresAt).toLocaleDateString();
+                const active = isCouponActive(expiresAt);
+                const badge = statusMeta(active);
                 return (
-                  <tr key={_id}>
+                  <tr
+                    key={_id}
+                    className={`admin-taxonomy-row ${
+                      active ? "" : "admin-taxonomy-row--expired"
+                    }`}
+                  >
                     <td>{index + 1}</td>
                     <td>{name}</td>
                     <td>{discount}% OFF</td>
                     <td>{formattedCreatedAt}</td>
                     <td>{formattedExpiresAt}</td>
+                    <td>
+                      <span className={badge.className}>{badge.label}</span>
+                    </td>
                     <td className="admin-taxonomy-action-cell">
                       <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`Delete coupon ${name}`} onClick={() => confirmDelete(_id)}>
                         <FaTrashAlt size={16} />

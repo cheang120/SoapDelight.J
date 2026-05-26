@@ -187,9 +187,49 @@
   text-align: center;
 }
 
+.admin-taxonomy-table th:nth-child(6),
+.admin-taxonomy-table td:nth-child(6) {
+  width: 8rem;
+  text-align: center;
+}
+
 .admin-taxonomy-table th:last-child,
 .admin-taxonomy-table td:last-child {
   width: 7rem;
+}
+
+.admin-taxonomy-row--expired {
+  opacity: 0.58;
+  background: rgba(244, 244, 245, 0.42);
+}
+
+.admin-taxonomy-row--expired:hover {
+  background: rgba(244, 244, 245, 0.58);
+}
+
+.admin-taxonomy-status-badge {
+  display: inline-flex;
+  min-width: 4.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.34rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.admin-taxonomy-status-badge--active {
+  border: 1px solid rgba(110, 231, 183, 0.75);
+  background: rgba(236, 253, 245, 0.95);
+  color: #047857;
+}
+
+.admin-taxonomy-status-badge--expired {
+  border: 1px solid rgba(228, 228, 231, 1);
+  background: rgba(244, 244, 245, 0.95);
+  color: #71717a;
 }
 
 .admin-taxonomy-action-cell {
@@ -240,5 +280,10 @@
 
   .admin-taxonomy-table {
     min-width: 720px;
+  }
+
+  .admin-taxonomy-status-badge {
+    min-width: 4.25rem;
+    padding-inline: 0.65rem;
   }
 }

@@ -7,6 +7,12 @@ import { createCoupon, getCoupons } from "../../../redux/features/coupon/couponS
 // import Loader from "../../loader/Loader";
 import { toast } from "react-toastify";
 
+const normalizeExpiryToEndOfDay = (date) => {
+  const normalized = new Date(date);
+  normalized.setHours(23, 59, 59, 999);
+  return normalized;
+};
+
 const CreateCoupon = ({reloadCoupon}) => {
   const [name, setName] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -25,10 +31,15 @@ const CreateCoupon = ({reloadCoupon}) => {
       return toast.error("Discount must be greater than one");
     }
 
+    const normalizedExpiry = normalizeExpiryToEndOfDay(expiresAt);
+    if (normalizedExpiry.getTime() <= Date.now()) {
+      return toast.error("Expiry date cannot be in the past.");
+    }
+
     const formData = {
       name,
       discount,
-      expiresAt,
+      expiresAt: normalizedExpiry,
     };
     // console.log(formData);
     dispatch(createCoupon(formData));
@@ -78,6 +89,7 @@ const CreateCoupon = ({reloadCoupon}) => {
                       selected={expiresAt}
                       value={expiresAt}
                       onChange={(date) => setExpiresAt(date)}
+                      minDate={new Date()}
                       required
                       className="admin-taxonomy-input admin-taxonomy-date"
                   />
