@@ -23,7 +23,7 @@ import {
   saveCartDB,
   selectCartItems,
 } from "../../../redux/features/cart/cartSlice.jsx";
-import { addToWishlist } from "../../../redux/features/auth/authSlice.js";
+import { addToWishlist, getWishlist } from "../../../redux/features/auth/authSlice.js";
 import ProductRatingSummary from "../productRating/productRatingSummary.jsx";
 
 const stockCopy = (quantity) => {
@@ -128,13 +128,17 @@ const ProductDetails = () => {
     syncCartIfLoggedIn();
   };
 
-  const addWishlist = () => {
+  const addWishlist = async () => {
     if (!product) return;
     if (!currentUser) {
       toast.info("Please sign in to use wishlist");
       return;
     }
-    dispatch(addToWishlist({ productId: product._id }));
+
+    const result = await dispatch(addToWishlist({ productId: product._id }));
+    if (addToWishlist.fulfilled.match(result)) {
+      dispatch(getWishlist());
+    }
   };
 
   const handleImageError = (image) => {

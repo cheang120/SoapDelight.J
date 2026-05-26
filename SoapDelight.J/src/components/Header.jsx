@@ -5,6 +5,7 @@ import { FaHeart, FaMoon, FaShoppingBag, FaSun, FaTimes, FaUserCircle } from "re
 import { HiOutlineMenuAlt3 } from "react-icons/hi";
 import { toggleTheme } from "../redux/theme/themeSlice";
 import { signoutSuccess } from "../redux/user/userSlice";
+import { getWishlist } from "../redux/features/auth/authSlice";
 import { CALCULATE_TOTAL_QUANTITY, selectCartItems, selectCartTotalQuantity } from "../redux/features/cart/cartSlice";
 
 const desktopLinks = [
@@ -21,6 +22,7 @@ export default function Header() {
   const location = useLocation();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
+  const { wishlist = [] } = useSelector((state) => state.auth);
   const { theme } = useSelector((state) => state.theme);
   const cartItems = useSelector(selectCartItems);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
@@ -28,6 +30,10 @@ export default function Header() {
   const canManageProducts = userRole === "author" || userRole === "admin";
   const profilePicture = currentUser?.profilePicture?.trim();
   const showProfileImage = profilePicture && !avatarFailed;
+  const wishlistCount = Array.isArray(wishlist)
+    ? wishlist.filter((item) => item?.category !== "Shipping").length
+    : 0;
+  const hasWishlistItems = Boolean(currentUser && wishlistCount > 0);
 
   useEffect(() => {
     dispatch(CALCULATE_TOTAL_QUANTITY());
@@ -36,6 +42,12 @@ export default function Header() {
   useEffect(() => {
     setAvatarFailed(false);
   }, [profilePicture]);
+
+  useEffect(() => {
+    if (currentUser?._id) {
+      dispatch(getWishlist());
+    }
+  }, [currentUser?._id, dispatch]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -100,8 +112,12 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <Link
             to="/wishlist"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
-            aria-label="Wishlist"
+            className={`flex h-9 w-9 items-center justify-center rounded-full transition ${
+              hasWishlistItems
+                ? "bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/50 dark:hover:text-rose-300"
+                : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
+            }`}
+            aria-label={hasWishlistItems ? `Wishlist with ${wishlistCount} saved items` : "Wishlist"}
           >
             <FaHeart size={16} />
           </Link>
