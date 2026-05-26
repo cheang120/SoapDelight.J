@@ -14,17 +14,6 @@ const desktopLinks = [
   { label: "Contact", to: "/contact" },
 ];
 
-const mobileLinks = [
-  { label: "選購全部", to: "/shop" },
-  { label: "手作皂", to: "/shop?category=手作皂" },
-  { label: "個人護理", to: "/shop?category=個人護理" },
-  { label: "香薰蠟", to: "/shop?category=香薰蠟" },
-  { label: "收藏清單", to: "/wishlist" },
-  { label: "購物車", to: "/cart" },
-  { label: "品牌故事", to: "/about" },
-  { label: "聯絡我們", to: "/contact" },
-];
-
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -111,7 +100,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <Link
             to="/wishlist"
-            className="hidden h-9 w-9 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900 md:flex"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
             aria-label="Wishlist"
           >
             <FaHeart size={16} />
@@ -207,7 +196,7 @@ export default function Header() {
           <div className="absolute inset-0 bg-black/10 backdrop-blur-sm dark:bg-black/35" />
           <div className="relative mx-auto max-h-[calc(100vh-4rem)] overflow-y-auto rounded-[1.75rem] border border-white/90 bg-[rgba(255,255,255,0.98)] px-5 py-5 shadow-[0_25px_60px_rgba(15,23,42,0.2)] backdrop-blur-3xl backdrop-saturate-150 dark:border-zinc-800/80 dark:bg-[rgba(9,9,11,0.95)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.55)]">
             <nav className="flex flex-col" aria-label="Mobile navigation">
-            {mobileLinks.map((link) => (
+            {desktopLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.to}
