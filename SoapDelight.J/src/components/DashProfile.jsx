@@ -9,10 +9,8 @@ import {
   updateStart,
   updateSuccess,
 } from "../redux/user/userSlice";
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { app } from "../firebase";
 import { Link } from "react-router-dom";
 
 const inputClassName =
@@ -48,10 +46,21 @@ const DashProfile = () => {
   const [formData, setFormData] = useState({});
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const filePickerRef = useRef();
+  const previewObjectUrlRef = useRef(null);
+  const isMountedRef = useRef(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (previewObjectUrlRef.current?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -63,41 +72,102 @@ const DashProfile = () => {
   const uploadImage = async () => {
     setImageFileUploading(true);
     setImageFileUploadError(null);
-    const storage = getStorage(app);
-    const fileName = new Date().getTime() + imageFile.name;
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+    setImageFileUploadProgress(null);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setImageFileUploadProgress(progress.toFixed(0));
-      },
-      () => {
-        setImageFileUploadError("Could not upload image (File must be less than 2MB)");
-        setImageFileUploadProgress(null);
-        setImageFile(null);
-        setImageFileUrl(null);
-        setImageFileUploading(false);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageFileUrl(downloadURL);
-          setFormData((prev) => ({ ...prev, profilePicture: downloadURL }));
-          setImageFileUploading(false);
-        });
+    const uploadPreset = import.meta.env.VITE_REACT_APP_UPLOAD_PRESET;
+    const url = "https://api.cloudinary.com/v1_1/dozg9wdh1/image/upload";
+
+    if (!uploadPreset) {
+      if (!isMountedRef.current) return;
+      setImageFileUploadError("Could not upload image: missing upload preset.");
+      setImageFileUploading(false);
+      setImageFile(null);
+      return;
+    }
+
+    try {
+      const form = new FormData();
+      form.append("file", imageFile);
+      form.append("upload_preset", uploadPreset);
+      form.append("folder", "soapdelight-avatar");
+
+      const response = await fetch(url, {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const message = data?.error?.message || data?.message || "Unknown error";
+        throw new Error(`Could not upload image: ${message}`);
       }
-    );
+
+      if (!isMountedRef.current) return;
+      if (previewObjectUrlRef.current?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+      previewObjectUrlRef.current = null;
+
+      setImageFileUrl(data.secure_url);
+      setFormData((prev) => ({ ...prev, profilePicture: data.secure_url }));
+      setImageFileUploadProgress(100);
+      setImageFileUploadError(null);
+      setImageFileUploading(false);
+      setImageFile(null);
+    } catch (uploadError) {
+      if (!isMountedRef.current) return;
+      if (previewObjectUrlRef.current?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+      previewObjectUrlRef.current = null;
+      const message =
+        uploadError?.message?.startsWith("Could not upload image:")
+          ? uploadError.message
+          : "Could not upload image. Please try again.";
+      setImageFileUploadError(message);
+      setImageFileUploadProgress(null);
+      setImageFile(null);
+      setImageFileUrl(null);
+      setImageFileUploading(false);
+    }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setImageFileUrl(URL.createObjectURL(file));
-      setAvatarLoadFailed(false);
+    if (!file) {
+      return;
     }
+
+    if (!file.type?.startsWith("image/")) {
+      setImageFileUploadError("Please select an image file.");
+      setImageFileUploadProgress(null);
+      setImageFile(null);
+      setImageFileUploading(false);
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setImageFileUploadError("Image must be less than 5MB.");
+      setImageFileUploadProgress(null);
+      setImageFile(null);
+      setImageFileUploading(false);
+      return;
+    }
+
+    if (previewObjectUrlRef.current?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+    }
+    const previewUrl = URL.createObjectURL(file);
+    previewObjectUrlRef.current = previewUrl;
+
+    setImageFileUploadError(null);
+    setImageFileUploadProgress(null);
+    setImageFileUploading(false);
+    setImageFile(file);
+    setImageFileUrl(previewUrl);
+    setAvatarLoadFailed(false);
+    e.target.value = "";
   };
 
   const handleChange = (e) => {
