@@ -12,7 +12,6 @@ import {
   getCartDB,
   selectCartItems,
   selectCartTotalAmount,
-  selectCartTotalQuantity,
   selectCouponDiscountAmount,
   selectProductCartItems,
   selectProductSubtotal,
@@ -82,7 +81,6 @@ const Cart = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
   const productItems = useSelector(selectProductCartItems);
-  const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const cartTotalAmount = useSelector(selectCartTotalAmount);
   const productSubtotal = useSelector(selectProductSubtotal);
   const couponDiscountAmount = useSelector(selectCouponDiscountAmount);
@@ -94,6 +92,11 @@ const Cart = () => {
   const [shippingMethodOptions, setShippingMethodOptions] = useState([]);
   const [shippingMethodStatus, setShippingMethodStatus] = useState("idle");
   const hasValidCoupon = isCouponValid(coupon);
+  const showCouponSummary = hasValidCoupon && couponDiscountAmount > 0;
+  const subtotalAfterDiscount = Math.max(
+    productSubtotal - couponDiscountAmount,
+    0
+  );
   const shippingOptions = products.filter((item) => item?.category === "Shipping");
   const hasRealProducts = productItems.length > 0;
   const deliveryFee = Number(selectedDeliveryMethod?.price || 0);
@@ -379,24 +382,45 @@ const Cart = () => {
                 <div className="mt-6 space-y-4 text-sm">
                   <div className="flex justify-between gap-4">
                     <span className="text-zinc-500 dark:text-zinc-400">
-                      Items
-                    </span>
-                    <span className="font-medium">{cartTotalQuantity}</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span className="text-zinc-500 dark:text-zinc-400">
                       Product subtotal / 商品小計
                     </span>
                     <span className="font-medium">
                       {formatMoney(productSubtotal)}
                     </span>
                   </div>
+
+                  {showCouponSummary && (
+                    <>
+                      <div className="flex items-start justify-between gap-4 text-emerald-700 dark:text-emerald-300">
+                        <div>
+                          <p>Coupon / 優惠</p>
+                          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            {coupon.name}
+                            {coupon.discount ? ` (${coupon.discount}% off)` : ""}
+                          </p>
+                        </div>
+                        <span className="font-medium">
+                          -{formatMoney(couponDiscountAmount)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between gap-4">
+                        <span className="text-zinc-500 dark:text-zinc-400">
+                          Subtotal after discount / 優惠後小計
+                        </span>
+                        <span className="font-medium">
+                          {formatMoney(subtotalAfterDiscount)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+
                   <div className="rounded-[1.25rem] border border-zinc-200 bg-[#f7faf6] p-4 dark:border-zinc-800 dark:bg-zinc-900">
                     <label
                       htmlFor="delivery-method"
                       className="text-sm font-semibold text-zinc-950 dark:text-white"
                     >
-                      Delivery Method / 送貨方式
+                      Delivery / 送貨方式
                     </label>
                     <select
                       id="delivery-method"
@@ -430,12 +454,6 @@ const Cart = () => {
                 </div>
 
                 <div className="mt-6 border-t border-zinc-100 pt-5 dark:border-zinc-800">
-                  {hasValidCoupon && (
-                    <div className="mb-4 flex justify-between gap-4 text-sm text-emerald-700">
-                      <span>Coupon discount / 優惠折扣</span>
-                      <span>-{formatMoney(couponDiscountAmount)}</span>
-                    </div>
-                  )}
                   <VerifyCoupon />
                 </div>
 

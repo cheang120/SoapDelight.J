@@ -40,6 +40,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
     productSubtotal,
     shippingFee,
     couponDiscountAmount,
+    subtotalAfterDiscount,
     effectiveTotal,
   } = useMemo(() => {
     const cartItems = Array.isArray(order?.cartItems) ? order.cartItems : [];
@@ -70,6 +71,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
       productSubtotal: subtotal,
       shippingFee: deliveryFee,
       couponDiscountAmount: rawDiscount,
+      subtotalAfterDiscount: Math.max(subtotal - rawDiscount, 0),
       effectiveTotal: Number(order?.orderAmount || 0),
     };
   }, [order]);
@@ -115,6 +117,8 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
     order?.shippingAddress?.deliveryMethod ||
     order?.shippingAddress?.shippingMethod ||
     "Delivery information not available";
+  const hasOrderCoupon =
+    Boolean(order?.coupon?.name) && order.coupon.name !== "nil";
 
   return (
     <div className="space-y-6">
@@ -294,6 +298,30 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
                 </span>
               </div>
 
+              {hasOrderCoupon && (
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p>Coupon / 優惠</p>
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      {order.coupon.name}
+                      {order?.coupon?.discount ? ` (${order.coupon.discount}% off)` : ""}
+                    </p>
+                  </div>
+                  <span className="font-medium text-zinc-950 dark:text-white">
+                    -{formatCurrency(couponDiscountAmount)}
+                  </span>
+                </div>
+              )}
+
+              {hasOrderCoupon && (
+                <div className="flex items-center justify-between gap-4">
+                  <span>Subtotal after discount / 優惠後小計</span>
+                  <span className="font-medium text-zinc-950 dark:text-white">
+                    {formatCurrency(subtotalAfterDiscount)}
+                  </span>
+                </div>
+              )}
+
               <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">
                   Delivery / 送貨方式
@@ -307,23 +335,6 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
                   {formatCurrency(shippingFee)}
                 </span>
               </div>
-
-              {order?.coupon?.name && order?.coupon?.name !== "nil" && (
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p>Coupon / 優惠</p>
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {order.coupon.name}
-                      {order?.coupon?.discount ? ` (${order.coupon.discount}% off)` : ""}
-                    </p>
-                  </div>
-                  <span className="font-medium text-zinc-950 dark:text-white">
-                    {couponDiscountAmount > 0
-                      ? `-${formatCurrency(couponDiscountAmount).replace("$", "$")}`
-                      : "Applied"}
-                  </span>
-                </div>
-              )}
 
               <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
                 <div className="flex items-center justify-between gap-4">

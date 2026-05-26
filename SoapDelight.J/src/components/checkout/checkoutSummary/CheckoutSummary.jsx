@@ -14,7 +14,7 @@ import {
 } from "../../../redux/features/cart/cartSlice";
 import { isCouponValid } from "../../../redux/features/coupon/couponSlice";
 import styles from "./CheckoutSummary.module.scss";
-import VerifyCoupon, { CartDiscount } from "../../verifyCoupon/VerifyCoupon";
+import VerifyCoupon from "../../verifyCoupon/VerifyCoupon";
 import { FaRegImage } from "react-icons/fa";
 
 const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`;
@@ -57,6 +57,11 @@ const CheckoutSummary = ({
   const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const shippingFee = useSelector(selectShippingFee);
   const hasValidCoupon = isCouponValid(coupon);
+  const showCouponSummary = hasValidCoupon && couponDiscountAmount > 0;
+  const subtotalAfterDiscount = Math.max(
+    productSubtotal - couponDiscountAmount,
+    0
+  );
 
   useEffect(() => {
     dispatch(CALCULATE_SUBTOTAL({ coupon }));
@@ -106,6 +111,33 @@ const CheckoutSummary = ({
           <strong>{formatMoney(productSubtotal)}</strong>
         </div>
 
+        {showCouponSummary && (
+          <>
+            <div className={`${styles.row} ${styles.discountRow}`}>
+              <span>
+                Coupon / 優惠
+                <br />
+                <small>
+                  {coupon.name}
+                  {coupon.discount ? ` (${coupon.discount}% off)` : ""}
+                </small>
+              </span>
+              <strong>-{formatMoney(couponDiscountAmount)}</strong>
+            </div>
+
+            <div className={styles.row}>
+              <span>Subtotal after discount / 優惠後小計</span>
+              <strong>{formatMoney(subtotalAfterDiscount)}</strong>
+            </div>
+          </>
+        )}
+
+        {showCouponEditor && (
+          <div className={styles.couponSection}>
+            <VerifyCoupon />
+          </div>
+        )}
+
         {selectedDeliveryMethod ? (
           <>
             <div className={styles.row}>
@@ -125,16 +157,6 @@ const CheckoutSummary = ({
             <span>請先返回購物車選擇送貨方式或本地自取。</span>
           </div>
         )}
-      </div>
-
-      <div className={styles.couponSection}>
-        {hasValidCoupon && (
-          <div className={`${styles.row} ${styles.discountRow}`}>
-            <span>Coupon discount / 優惠折扣</span>
-            <strong>-{formatMoney(couponDiscountAmount)}</strong>
-          </div>
-        )}
-        {showCouponEditor ? <VerifyCoupon /> : <CartDiscount />}
       </div>
 
       <div className={styles.totalRow}>
