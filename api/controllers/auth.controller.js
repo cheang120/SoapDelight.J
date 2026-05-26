@@ -27,7 +27,7 @@ const hashToken = (token) => {
 
 // registration
 export const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, phone } = req.body;
   // console.log(username);
 
   if (
@@ -58,6 +58,7 @@ export const signup = async (req, res, next) => {
     username,
     email,
     password: hashedPassword,
+    phone: phone?.trim() || undefined,
   });
   // console.log(newUser);
 

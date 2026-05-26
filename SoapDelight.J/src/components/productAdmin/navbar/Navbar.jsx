@@ -64,6 +64,11 @@ const Navbar = () => {
                 Shipping Methods
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/productAdmin/subscribers" className={activeLink}>
+                Subscribers
+              </NavLink>
+            </li>
         </ul>
       </nav>
     </div>

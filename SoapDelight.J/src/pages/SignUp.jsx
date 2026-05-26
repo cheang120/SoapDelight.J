@@ -4,9 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FaTimes } from "react-icons/fa";
 import { BsCheck2All } from "react-icons/bs";
+import { toast } from "react-toastify";
 import OAuth from "../components/OAuth";
 import { validateEmail } from "../redux/features/auth/authService";
 import { signInStart, signInFailure, signInSuccess } from "../redux/user/userSlice";
+import { API_BASE_URL } from "../utils/apiBase";
 import AuthShell, {
   authInlineLinkClassName,
   authInputClassName,
@@ -17,8 +19,10 @@ import AuthShell, {
 const initialState = {
   username: "",
   email: "",
+  phone: "",
   password: "",
   password2: "",
+  subscribe: false,
 };
 
 const PasswordChecklist = ({ uCase, num, sChar, passLength }) => {
@@ -75,7 +79,11 @@ export default function SignUp() {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+    const { id, value, checked, type } = e.target;
+    setFormData({
+      ...formData,
+      [id]: type === "checkbox" ? checked : value.trim(),
+    });
   };
 
   useEffect(() => {
@@ -116,6 +124,39 @@ export default function SignUp() {
     return data;
   };
 
+  const saveSignupSubscription = async () => {
+    if (!formData.subscribe) return true;
+
+    const preferredChannels = formData.phone ? ["email", "whatsapp"] : ["email"];
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/subscribers/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.username,
+          phone: formData.phone,
+          preferredChannels,
+          source: "signup",
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Subscription could not be saved.");
+      }
+
+      toast.success("Account created and subscription saved.");
+      return true;
+    } catch (subscriptionError) {
+      toast.warn(
+        "Account created, but subscription could not be saved. You can update it later in your account."
+      );
+      return false;
+    }
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password || !formData.password2) {
@@ -149,6 +190,8 @@ export default function SignUp() {
       if (!res.ok) {
         throw new Error(data.message || "Signup failed");
       }
+
+      await saveSignupSubscription();
 
       await fetch("/api/auth/sendVerificationEmail", {
         method: "POST",
@@ -218,6 +261,19 @@ export default function SignUp() {
         </div>
 
         <div>
+          <label htmlFor="phone" className={authLabelClassName}>
+            WhatsApp number / WhatsApp 號碼（optional）
+          </label>
+          <input
+            type="tel"
+            placeholder="WhatsApp number"
+            id="phone"
+            onChange={handleChange}
+            className={authInputClassName}
+          />
+        </div>
+
+        <div>
           <label htmlFor="password" className={authLabelClassName}>
             Your password
           </label>
@@ -267,6 +323,19 @@ export default function SignUp() {
         </div>
 
         <PasswordChecklist uCase={uCase} num={num} sChar={sChar} passLength={passLength} />
+
+        <label className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm leading-6 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-300">
+          <input
+            type="checkbox"
+            id="subscribe"
+            checked={formData.subscribe}
+            onChange={handleChange}
+            className="mt-1 h-4 w-4 rounded border-zinc-300"
+          />
+          <span>
+            I agree to receive offers, new product updates and promotional messages from SoapDelight.J.
+          </span>
+        </label>
 
         {visibleError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">

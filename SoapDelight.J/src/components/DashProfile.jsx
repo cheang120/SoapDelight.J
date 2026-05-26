@@ -4,7 +4,6 @@ import {
   deleteUserFailure,
   deleteUserStart,
   deleteUserSuccess,
-  signoutSuccess,
   updateFailure,
   updateStart,
   updateSuccess,
@@ -12,6 +11,7 @@ import {
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../utils/apiBase";
 
 const inputClassName =
   "mt-2 block min-h-11 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white";
@@ -44,6 +44,11 @@ const DashProfile = () => {
   const [updateUserError, setUpdateUserError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const [subscriptionData, setSubscriptionData] = useState({
+    emailChannel: false,
+    whatsappChannel: false,
+  });
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const filePickerRef = useRef();
   const previewObjectUrlRef = useRef(null);
@@ -174,48 +179,143 @@ const DashProfile = () => {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
+  const handleSubscriptionChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setSubscriptionData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const getPreferredChannels = (phone) => {
+    const channels = [];
+    if (subscriptionData.emailChannel) channels.push("email");
+    if (subscriptionData.whatsappChannel && phone.trim()) {
+      channels.push("whatsapp");
+    }
+    return channels;
+  };
+
+  const syncSubscriptionPreferences = async ({ email, username, phone }) => {
+    const preferredChannels = getPreferredChannels(phone);
+
+    if (subscriptionData.whatsappChannel && !phone.trim()) {
+      throw new Error("Please enter a phone number to receive WhatsApp updates.");
+    }
+
+    setSubscriptionLoading(true);
+
+    try {
+      if (preferredChannels.length === 0) {
+        const response = await fetch(`${API_BASE_URL}/subscribers/unsubscribe`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Unable to unsubscribe.");
+        }
+
+        return data.message || "Subscription preferences saved.";
+      }
+
+      const response = await fetch(`${API_BASE_URL}/subscribers/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          name: username,
+          phone,
+          preferredChannels,
+          source: "account",
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to save subscription preferences.");
+      }
+
+      return data.message || "Subscription preferences saved.";
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUpdateUserError(null);
     setUpdateUserSuccess(null);
-
-    if (Object.keys(formData).length === 0) {
-      setUpdateUserError("No changes made");
-      return;
-    }
 
     if (imageFileUploading) {
       setUpdateUserError("Please wait for image to upload");
       return;
     }
 
-    try {
-      dispatch(updateStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
+    const hasFormValue = (key) => Object.prototype.hasOwnProperty.call(formData, key);
+    const effectiveUsername = hasFormValue("username") ? formData.username : currentUser.username;
+    const effectiveEmail = hasFormValue("email") ? formData.email : currentUser.email;
+    const effectivePhone = hasFormValue("phone") ? formData.phone : currentUser.phone || "";
+    let profileUpdated = false;
 
-      if (formData.email) {
-        await fetch("/api/auth/sendVerificationEmail", {
-          method: "POST",
+    try {
+      const profilePayload = { ...formData };
+      if (profilePayload.password === "") {
+        delete profilePayload.password;
+      }
+
+      if (Object.keys(profilePayload).length > 0) {
+        dispatch(updateStart());
+        const res = await fetch(`/api/user/update/${currentUser._id}`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email: formData.email }),
+          body: JSON.stringify(profilePayload),
         });
+        const data = await res.json();
+
+        if (profilePayload.email) {
+          await fetch("/api/auth/sendVerificationEmail", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: profilePayload.email }),
+          });
+        }
+
+        if (!res.ok) {
+          dispatch(updateFailure(data.message));
+          setUpdateUserError(data.message);
+          return;
+        }
+
+        dispatch(updateSuccess(data));
+        profileUpdated = true;
       }
 
-      if (!res.ok) {
-        dispatch(updateFailure(data.message));
-        setUpdateUserError(data.message);
+      try {
+        await syncSubscriptionPreferences({
+          email: effectiveEmail,
+          username: effectiveUsername,
+          phone: effectivePhone,
+        });
+      } catch (subscriptionError) {
+        setUpdateUserError(
+          profileUpdated
+            ? `Your profile was updated, but subscription preferences could not be saved: ${subscriptionError.message}`
+            : subscriptionError.message
+        );
+        return;
+      }
+
+      if (profileUpdated) {
+        setUpdateUserSuccess("Your profile and subscription preferences have been updated.");
       } else {
-        dispatch(updateSuccess(data));
-        setUpdateUserSuccess("Your profile has been updated.");
+        setUpdateUserSuccess("Your subscription preferences have been updated.");
       }
     } catch (submitError) {
       dispatch(updateFailure(submitError.message));
@@ -238,22 +338,6 @@ const DashProfile = () => {
       }
     } catch (deleteError) {
       dispatch(deleteUserFailure(deleteError.message));
-    }
-  };
-
-  const handleSignout = async () => {
-    try {
-      const res = await fetch("/api/auth/signout", {
-        method: "POST",
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
-      } else {
-        dispatch(signoutSuccess());
-      }
-    } catch (signoutError) {
-      console.log(signoutError.message);
     }
   };
 
@@ -377,22 +461,6 @@ const DashProfile = () => {
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              to="/order-history"
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
-            >
-              View Orders
-            </Link>
-            <button
-              type="button"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
-              onClick={handleSignout}
-            >
-              Sign Out
-            </button>
-          </div>
         </div>
       </section>
 
@@ -401,125 +469,161 @@ const DashProfile = () => {
       {updateUserError && <InfoMessage tone="error">{updateUserError}</InfoMessage>}
       {error && <InfoMessage tone="error">{error}</InfoMessage>}
 
-      <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-            Profile information
-          </p>
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                placeholder="Username"
-                defaultValue={currentUser.username}
-                onChange={handleChange}
-                className={inputClassName}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Leave blank to keep your current password"
-                onChange={handleChange}
-                className={inputClassName}
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+        <div className="flex flex-col gap-3 border-b border-zinc-100 pb-6 dark:border-zinc-800 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+              Account details / 帳戶資料
+            </p>
+            <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+              Update your profile, contact details and subscription preferences in one place.
+            </p>
           </div>
+          <button
+            type="submit"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+            disabled={loading || imageFileUploading || subscriptionLoading}
+          >
+            {loading || subscriptionLoading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
 
-          {!currentUser.isVerified && (
-            <div className="mt-5">
-              <InfoMessage tone="neutral">
-                Your email is not verified yet. Updating your email will send a
-                new verification email.
-              </InfoMessage>
+        <div className="mt-6 grid gap-6 xl:grid-cols-3">
+          <section className="min-w-0">
+            <h3 className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Profile
+            </h3>
+            <div className="mt-4 grid gap-5">
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  placeholder="Username"
+                  defaultValue={currentUser.username}
+                  onChange={handleChange}
+                  className={inputClassName}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="Leave blank to keep your current password"
+                  onChange={handleChange}
+                  className={inputClassName}
+                />
+              </div>
+
+              <div className="rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900">
+                <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                  Profile photo
+                </p>
+                <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                  Click your avatar above to upload a new image.
+                </p>
+              </div>
             </div>
-          )}
-        </section>
+          </section>
 
-        <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-            Contact details
-          </p>
-          <div className="mt-6 space-y-5">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                Email
+          <section className="min-w-0">
+            <h3 className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Contact
+            </h3>
+            <div className="mt-4 grid gap-5">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="Email"
+                  defaultValue={currentUser.email}
+                  onChange={handleChange}
+                  className={inputClassName}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                  Phone
+                </label>
+                <input
+                  type="text"
+                  id="phone"
+                  placeholder="Phone number"
+                  defaultValue={currentUser.phone}
+                  onChange={handleChange}
+                  className={inputClassName}
+                />
+              </div>
+
+              {!currentUser.isVerified && (
+                <InfoMessage tone="neutral">
+                  Your email is not verified yet. Updating your email will send a new verification email.
+                </InfoMessage>
+              )}
+            </div>
+          </section>
+
+          <section className="min-w-0">
+            <h3 className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Subscription preferences / 訂閱設定
+            </h3>
+            <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+              Use your email and/or phone number above to receive product updates, offers and occasional promotions.
+            </p>
+            <div className="mt-4 grid gap-3 text-sm text-zinc-600 dark:text-zinc-300">
+              <label className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+                <input
+                  type="checkbox"
+                  name="emailChannel"
+                  checked={subscriptionData.emailChannel}
+                  onChange={handleSubscriptionChange}
+                  className="h-4 w-4 rounded border-zinc-300"
+                />
+                <span>Email updates</span>
               </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Email"
-                defaultValue={currentUser.email}
-                onChange={handleChange}
-                className={inputClassName}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                Phone
+              <label className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+                <input
+                  type="checkbox"
+                  name="whatsappChannel"
+                  checked={subscriptionData.whatsappChannel}
+                  onChange={handleSubscriptionChange}
+                  className="h-4 w-4 rounded border-zinc-300"
+                />
+                <span>WhatsApp updates</span>
               </label>
-              <input
-                type="text"
-                id="phone"
-                placeholder="Phone number"
-                defaultValue={currentUser.phone}
-                onChange={handleChange}
-                className={inputClassName}
-              />
             </div>
+          </section>
+        </div>
 
-            <div className="rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                Profile photo
-              </p>
-              <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-                Click your avatar above to upload a new image. We’ll keep the
-                existing photo until the upload is complete.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8 lg:col-span-2">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-                Account actions
-              </p>
-              <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-                Update your profile when you need to, or manage your account
-                access here.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(true)}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-red-200 px-5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"
-              >
-                Delete Account
-              </button>
-              <button
-                type="submit"
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
-                disabled={loading || imageFileUploading}
-              >
-                {loading ? "Updating..." : "Save Changes"}
-              </button>
-            </div>
-          </div>
-        </section>
       </form>
+
+      <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-6 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+          Danger zone / 危險操作
+        </p>
+        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+            Deleting your account is permanent and cannot be undone.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="inline-flex min-h-10 items-center justify-center rounded-full border border-red-200 px-4 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"
+          >
+            Delete Account
+          </button>
+        </div>
+      </section>
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/40 px-4 backdrop-blur-sm">

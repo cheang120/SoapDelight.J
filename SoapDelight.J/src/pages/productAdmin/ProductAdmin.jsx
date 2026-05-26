@@ -14,6 +14,7 @@ import Coupon from "../../components/productAdmin/coupon/Coupon.jsx";
 import Orders from "../../components/productAdmin/orders/Orders.jsx";
 import OrderDetails from "../../components/productAdmin/orders/OrderDetails.jsx";
 import ShippingMethods from "../../components/productAdmin/shippingMethods/ShippingMethods.jsx";
+import Subscribers from "../../components/productAdmin/subscribers/Subscribers.jsx";
 
 
 export const ProductAdmin = () => {
@@ -39,6 +40,7 @@ export const ProductAdmin = () => {
               <Route path="category" element={<Category />} />
               <Route path="brand" element={<Brand />} />
               <Route path="shipping-methods" element={<ShippingMethods />} />
+              <Route path="subscribers" element={<Subscribers />} />
             </Routes>
           </div>
         </main>
