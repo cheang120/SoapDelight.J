@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import asyncHandler from "express-async-handler";
 import Subscriber from "../models/subscriberModel.js";
+import User from "../models/user.model.js";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -116,6 +117,36 @@ export const unsubscribeByEmail = asyncHandler(async (req, res) => {
   });
 });
 
+export const getSubscriptionStatus = asyncHandler(async (req, res) => {
+  const email = normalizeEmail(req.query.email);
+
+  if (!email || !EMAIL_PATTERN.test(email)) {
+    res.status(400);
+    throw new Error("Please enter a valid email address.");
+  }
+
+  const subscriber = await Subscriber.findOne({ email })
+    .select("email phone status preferredChannels")
+    .lean();
+
+  if (!subscriber) {
+    return res.status(200).json({
+      email,
+      status: "not_subscribed",
+      preferredChannels: [],
+      phone: "",
+    });
+  }
+
+  res.status(200).json({
+    email: subscriber.email,
+    status: subscriber.status,
+    preferredChannels:
+      subscriber.status === "active" ? subscriber.preferredChannels || [] : [],
+    phone: subscriber.phone || "",
+  });
+});
+
 export const getAdminSubscribers = asyncHandler(async (req, res) => {
   const { status, q } = req.query;
   const query = {};
@@ -138,46 +169,99 @@ export const getAdminSubscribers = asyncHandler(async (req, res) => {
   res.status(200).json(subscribers);
 });
 
-export const updateAdminSubscriber = asyncHandler(async (req, res) => {
-  const { status, name, phone, preferredChannels, notes } = req.body;
-  const subscriber = await Subscriber.findById(req.params.id);
+export const getAdminSubscriberOverview = asyncHandler(async (req, res) => {
+  const { status = "all", q = "" } = req.query;
+  const userQuery = {};
+  const subscriberQuery = {};
 
-  if (!subscriber) {
-    res.status(404);
-    throw new Error("Subscriber not found.");
+  if (q.trim()) {
+    const searchRegex = new RegExp(q.trim(), "i");
+    userQuery.$or = [
+      { email: searchRegex },
+      { username: searchRegex },
+      { phone: searchRegex },
+    ];
+    subscriberQuery.$or = [
+      { email: searchRegex },
+      { name: searchRegex },
+      { phone: searchRegex },
+    ];
   }
 
-  if (status !== undefined) {
-    if (!["active", "unsubscribed"].includes(status)) {
-      res.status(400);
-      throw new Error("Invalid subscriber status.");
-    }
-    subscriber.status = status;
-    subscriber.unsubscribedAt = status === "unsubscribed" ? new Date() : undefined;
-  }
+  const [users, subscribers] = await Promise.all([
+    User.find(userQuery)
+      .select("_id email username phone createdAt")
+      .sort({ createdAt: -1 })
+      .lean(),
+    Subscriber.find(subscriberQuery)
+      .select("email name phone status preferredChannels source lastSubscribedAt unsubscribedAt createdAt")
+      .lean(),
+  ]);
 
-  if (name !== undefined) subscriber.name = name.trim();
-  if (phone !== undefined) subscriber.phone = phone.trim();
-  if (notes !== undefined) subscriber.notes = notes.trim();
-  if (preferredChannels !== undefined) {
-    subscriber.preferredChannels = normalizePreferredChannels(
-      preferredChannels,
-      phone ?? subscriber.phone
-    );
-  }
+  const subscriberMap = new Map(
+    subscribers.map((subscriber) => [normalizeEmail(subscriber.email), subscriber])
+  );
 
-  await subscriber.save();
+  const registeredRows = users.map((user) => {
+    const mergedEmail = normalizeEmail(user.email);
+    const subscriber = subscriberMap.get(mergedEmail);
+    const subscriptionStatus = subscriber
+      ? subscriber.status === "active"
+        ? "active"
+        : "unsubscribed"
+      : "not_subscribed";
 
-  res.status(200).json(subscriber);
-});
+    subscriberMap.delete(mergedEmail);
 
-export const deleteAdminSubscriber = asyncHandler(async (req, res) => {
-  const subscriber = await Subscriber.findByIdAndDelete(req.params.id);
+    return {
+      email: user.email,
+      username: user.username,
+      name: subscriber?.name || user.username,
+      phone: subscriber?.phone || user.phone || "",
+      accountStatus: "registered",
+      subscriptionStatus,
+      preferredChannels: subscriber?.preferredChannels || [],
+      source: subscriber?.source || "",
+      registeredAt: user.createdAt,
+      subscribedAt: subscriber?.lastSubscribedAt || null,
+      unsubscribedAt: subscriber?.unsubscribedAt || null,
+      subscriberId: subscriber?._id || null,
+      userId: user._id,
+      isRegisteredUser: true,
+      isSubscriber: Boolean(subscriber),
+    };
+  });
 
-  if (!subscriber) {
-    res.status(404);
-    throw new Error("Subscriber not found.");
-  }
+  const publicOnlyRows = Array.from(subscriberMap.values()).map((subscriber) => ({
+    email: subscriber.email,
+    username: "",
+    name: subscriber.name || "",
+    phone: subscriber.phone || "",
+    accountStatus: "public_only",
+    subscriptionStatus: subscriber.status === "active" ? "active" : "unsubscribed",
+    preferredChannels: subscriber.preferredChannels || [],
+    source: subscriber.source || "",
+    registeredAt: null,
+    subscribedAt: subscriber.lastSubscribedAt || subscriber.createdAt || null,
+    unsubscribedAt: subscriber.unsubscribedAt || null,
+    subscriberId: subscriber._id,
+    userId: null,
+    isRegisteredUser: false,
+    isSubscriber: true,
+  }));
 
-  res.status(200).json({ message: "Subscriber deleted." });
+  const overviewRows = [...registeredRows, ...publicOnlyRows].filter((row) => {
+    if (status === "all") return true;
+    if (status === "registered") return row.accountStatus === "registered";
+    if (status === "public_only") return row.accountStatus === "public_only";
+    return row.subscriptionStatus === status;
+  });
+
+  res.status(200).json(
+    overviewRows.sort((a, b) => {
+      const aDate = new Date(a.registeredAt || a.subscribedAt || 0).getTime();
+      const bDate = new Date(b.registeredAt || b.subscribedAt || 0).getTime();
+      return bDate - aDate;
+    })
+  );
 });

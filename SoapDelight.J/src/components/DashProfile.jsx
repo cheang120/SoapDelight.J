@@ -74,6 +74,77 @@ const DashProfile = () => {
     }
   }, [imageFile]);
 
+  useEffect(() => {
+    if (!currentUser) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      username:
+        Object.prototype.hasOwnProperty.call(prev, "username")
+          ? prev.username
+          : currentUser.username || "",
+      email:
+        Object.prototype.hasOwnProperty.call(prev, "email")
+          ? prev.email
+          : currentUser.email || "",
+      phone:
+        Object.prototype.hasOwnProperty.call(prev, "phone")
+          ? prev.phone
+          : currentUser.phone || "",
+      password:
+        Object.prototype.hasOwnProperty.call(prev, "password")
+          ? prev.password
+          : "",
+    }));
+  }, [currentUser?._id]);
+
+  useEffect(() => {
+    if (!currentUser?.email) return;
+
+    let shouldIgnore = false;
+
+    const loadSubscriptionStatus = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/subscribers/status?email=${encodeURIComponent(currentUser.email)}`
+        );
+        const data = await response.json();
+
+        if (!response.ok || shouldIgnore) return;
+
+        const preferredChannels = Array.isArray(data.preferredChannels)
+          ? data.preferredChannels
+          : [];
+        const isActive = data.status === "active";
+
+        setSubscriptionData({
+          emailChannel: isActive && preferredChannels.includes("email"),
+          whatsappChannel: isActive && preferredChannels.includes("whatsapp"),
+        });
+
+        if (data.phone) {
+          setFormData((prev) => ({
+            ...prev,
+            phone: prev.phone?.trim() ? prev.phone : data.phone,
+          }));
+        }
+      } catch {
+        if (!shouldIgnore) {
+          setSubscriptionData({
+            emailChannel: false,
+            whatsappChannel: false,
+          });
+        }
+      }
+    };
+
+    loadSubscriptionStatus();
+
+    return () => {
+      shouldIgnore = true;
+    };
+  }, [currentUser?.email]);
+
   const uploadImage = async () => {
     setImageFileUploading(true);
     setImageFileUploadError(null);
@@ -261,9 +332,24 @@ const DashProfile = () => {
     let profileUpdated = false;
 
     try {
-      const profilePayload = { ...formData };
-      if (profilePayload.password === "") {
-        delete profilePayload.password;
+      const profilePayload = {};
+      if (effectiveUsername !== currentUser.username) {
+        profilePayload.username = effectiveUsername;
+      }
+      if (effectiveEmail !== currentUser.email) {
+        profilePayload.email = effectiveEmail;
+      }
+      if (effectivePhone !== (currentUser.phone || "")) {
+        profilePayload.phone = effectivePhone;
+      }
+      if (formData.password?.trim()) {
+        profilePayload.password = formData.password;
+      }
+      if (
+        formData.profilePicture &&
+        formData.profilePicture !== currentUser.profilePicture
+      ) {
+        profilePayload.profilePicture = formData.profilePicture;
       }
 
       if (Object.keys(profilePayload).length > 0) {
@@ -470,7 +556,7 @@ const DashProfile = () => {
       {error && <InfoMessage tone="error">{error}</InfoMessage>}
 
       <form onSubmit={handleSubmit} className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
-        <div className="flex flex-col gap-3 border-b border-zinc-100 pb-6 dark:border-zinc-800 md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-3 border-b border-zinc-100 pb-6 dark:border-zinc-800">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
               Account details / 帳戶資料
@@ -479,13 +565,6 @@ const DashProfile = () => {
               Update your profile, contact details and subscription preferences in one place.
             </p>
           </div>
-          <button
-            type="submit"
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
-            disabled={loading || imageFileUploading || subscriptionLoading}
-          >
-            {loading || subscriptionLoading ? "Saving..." : "Save Changes"}
-          </button>
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
@@ -502,7 +581,7 @@ const DashProfile = () => {
                   type="text"
                   id="username"
                   placeholder="Username"
-                  defaultValue={currentUser.username}
+                  value={formData.username ?? currentUser.username ?? ""}
                   onChange={handleChange}
                   className={inputClassName}
                 />
@@ -516,6 +595,7 @@ const DashProfile = () => {
                   type="password"
                   id="password"
                   placeholder="Leave blank to keep your current password"
+                  value={formData.password || ""}
                   onChange={handleChange}
                   className={inputClassName}
                 />
@@ -545,7 +625,7 @@ const DashProfile = () => {
                   type="email"
                   id="email"
                   placeholder="Email"
-                  defaultValue={currentUser.email}
+                  value={formData.email ?? currentUser.email ?? ""}
                   onChange={handleChange}
                   className={inputClassName}
                 />
@@ -559,7 +639,7 @@ const DashProfile = () => {
                   type="text"
                   id="phone"
                   placeholder="Phone number"
-                  defaultValue={currentUser.phone}
+                  value={formData.phone ?? currentUser.phone ?? ""}
                   onChange={handleChange}
                   className={inputClassName}
                 />
@@ -605,6 +685,15 @@ const DashProfile = () => {
           </section>
         </div>
 
+        <div className="mt-8 flex justify-end">
+          <button
+            type="submit"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
+            disabled={loading || imageFileUploading || subscriptionLoading}
+          >
+            {loading || subscriptionLoading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </form>
 
       <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-6 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">

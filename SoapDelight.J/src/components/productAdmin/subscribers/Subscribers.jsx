@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import subscriberService from "./subscriberService";
 import "./Subscribers.scss";
 
 const statusFilters = [
   { label: "All", value: "all" },
-  { label: "Active", value: "active" },
+  { label: "Registered users", value: "registered" },
+  { label: "Active subscribers", value: "active" },
   { label: "Unsubscribed", value: "unsubscribed" },
+  { label: "Not subscribed", value: "not_subscribed" },
+  { label: "Public-only subscribers", value: "public_only" },
 ];
 
 const formatDate = (date) => {
@@ -21,8 +23,43 @@ const formatDate = (date) => {
   });
 };
 
+const getAccountBadge = (accountStatus) => {
+  if (accountStatus === "public_only") {
+    return {
+      label: "Public subscriber only",
+      className: "is-public",
+    };
+  }
+
+  return {
+    label: "Registered",
+    className: "is-registered",
+  };
+};
+
+const getSubscriptionBadge = (subscriptionStatus) => {
+  if (subscriptionStatus === "active") {
+    return {
+      label: "Active",
+      className: "is-active",
+    };
+  }
+
+  if (subscriptionStatus === "unsubscribed") {
+    return {
+      label: "Unsubscribed",
+      className: "is-unsubscribed",
+    };
+  }
+
+  return {
+    label: "Not subscribed",
+    className: "is-not-subscribed",
+  };
+};
+
 const Subscribers = () => {
-  const [subscribers, setSubscribers] = useState([]);
+  const [rows, setRows] = useState([]);
   const [status, setStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,9 +68,9 @@ const Subscribers = () => {
     setIsLoading(true);
     try {
       const data = await subscriberService.getSubscribers({ status, q: searchTerm });
-      setSubscribers(Array.isArray(data) ? data : []);
+      setRows(Array.isArray(data) ? data : []);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to load subscribers";
+      const message = error.response?.data?.message || error.message || "Unable to load subscription overview";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -52,42 +89,14 @@ const Subscribers = () => {
     return () => window.clearTimeout(timeoutId);
   }, [status, searchTerm]);
 
-  const handleStatusChange = async (subscriber, nextStatus) => {
-    try {
-      await subscriberService.updateSubscriber(subscriber._id, { status: nextStatus });
-      toast.success(nextStatus === "active" ? "Subscriber marked active" : "Subscriber unsubscribed");
-      await loadSubscribers();
-    } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to update subscriber";
-      toast.error(message);
-    }
-  };
-
-  const handleDelete = async (subscriber) => {
-    const shouldDelete = window.confirm(`Delete subscriber "${subscriber.email}"?`);
-    if (!shouldDelete) return;
-
-    try {
-      await subscriberService.deleteSubscriber(subscriber._id);
-      toast.success("Subscriber deleted");
-      await loadSubscribers();
-    } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to delete subscriber";
-      toast.error(message);
-    }
-  };
-
   return (
     <section className="subscribers-page">
       <header className="subscribers-header">
         <div className="subscribers-copy">
           <p className="subscribers-eyebrow">SUBSCRIBERS</p>
-          <h2 className="subscribers-title">Newsletter Subscribers</h2>
+          <h2 className="subscribers-title">Subscribers &amp; Users / 訂閱與用戶</h2>
           <p className="subscribers-subtitle">
-            Review customers who opted in for email updates and future WhatsApp messages.
-          </p>
-          <p className="subscribers-link-note">
-            Public subscribe page: <code>/subscribe</code>
+            Review registered users, public subscribers and subscription status.
           </p>
         </div>
       </header>
@@ -119,66 +128,67 @@ const Subscribers = () => {
 
         <div className="subscribers-table-wrap">
           {isLoading ? (
-            <p className="subscribers-empty">Loading subscribers...</p>
-          ) : subscribers.length === 0 ? (
-            <p className="subscribers-empty">No subscribers found</p>
+            <p className="subscribers-empty">Loading subscription overview...</p>
+          ) : rows.length === 0 ? (
+            <p className="subscribers-empty">No records found for this filter.</p>
           ) : (
             <table className="subscribers-table">
               <thead>
                 <tr>
                   <th>Email</th>
-                  <th>Name</th>
+                  <th>Name / Username</th>
                   <th>Phone</th>
+                  <th>Account</th>
+                  <th>Subscription</th>
                   <th>Channels</th>
-                  <th>Status</th>
                   <th>Source</th>
+                  <th>Registered</th>
                   <th>Subscribed</th>
-                  <th className="subscribers-table-head-actions">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {subscribers.map((subscriber) => {
-                  const isActive = subscriber.status === "active";
+                {rows.map((row) => {
+                  const accountBadge = getAccountBadge(row.accountStatus);
+                  const subscriptionBadge = getSubscriptionBadge(row.subscriptionStatus);
                   return (
-                    <tr key={subscriber._id} className={!isActive ? "is-muted" : ""}>
+                    <tr
+                      key={`${row.userId || "public"}-${row.subscriberId || row.email}`}
+                      className={row.subscriptionStatus === "not_subscribed" ? "is-muted" : ""}
+                    >
                       <td>
-                        <strong className="subscribers-email">{subscriber.email}</strong>
+                        <strong className="subscribers-email">{row.email}</strong>
                       </td>
-                      <td>{subscriber.name || "-"}</td>
-                      <td>{subscriber.phone || "-"}</td>
+                      <td>{row.username || row.name || "-"}</td>
+                      <td>{row.phone || "-"}</td>
                       <td>
-                        <div className="subscribers-channel-list">
-                          {(subscriber.preferredChannels || ["email"]).map((channel) => (
-                            <span key={channel} className="subscribers-channel">
-                              {channel}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`subscribers-badge ${isActive ? "is-active" : "is-muted"}`}>
-                          {isActive ? "Active" : "Unsubscribed"}
+                        <span className={`subscribers-badge ${accountBadge.className}`}>
+                          {accountBadge.label}
                         </span>
                       </td>
-                      <td>{subscriber.source || "website"}</td>
-                      <td>{formatDate(subscriber.lastSubscribedAt || subscriber.createdAt)}</td>
-                      <td className="subscribers-action-cell">
-                        <button
-                          type="button"
-                          className="subscribers-action-button"
-                          onClick={() => handleStatusChange(subscriber, isActive ? "unsubscribed" : "active")}
-                        >
-                          {isActive ? "Mark unsubscribed" : "Mark active"}
-                        </button>
-                        <button
-                          type="button"
-                          className="subscribers-icon-button subscribers-icon-button--delete"
-                          aria-label={`Delete subscriber ${subscriber.email}`}
-                          onClick={() => handleDelete(subscriber)}
-                        >
-                          <FaTrashAlt size={15} />
-                        </button>
+                      <td>
+                        <span className={`subscribers-badge ${subscriptionBadge.className}`}>
+                          {subscriptionBadge.label}
+                        </span>
                       </td>
+                      <td>
+                        {row.preferredChannels?.length ? (
+                          <div className="subscribers-channel-list">
+                            {row.preferredChannels.map((channel) => (
+                              <span
+                                key={`${row.email}-${channel}`}
+                                className="subscribers-channel"
+                              >
+                                {channel}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td>{row.source || "-"}</td>
+                      <td>{formatDate(row.registeredAt)}</td>
+                      <td>{formatDate(row.subscribedAt || row.unsubscribedAt)}</td>
                     </tr>
                   );
                 })}
