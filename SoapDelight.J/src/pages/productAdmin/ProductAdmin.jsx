@@ -15,6 +15,7 @@ import Orders from "../../components/productAdmin/orders/Orders.jsx";
 import OrderDetails from "../../components/productAdmin/orders/OrderDetails.jsx";
 import ShippingMethods from "../../components/productAdmin/shippingMethods/ShippingMethods.jsx";
 import Subscribers from "../../components/productAdmin/subscribers/Subscribers.jsx";
+import Campaigns from "../../components/productAdmin/campaigns/Campaigns.jsx";
 
 
 export const ProductAdmin = () => {
@@ -41,6 +42,7 @@ export const ProductAdmin = () => {
               <Route path="brand" element={<Brand />} />
               <Route path="shipping-methods" element={<ShippingMethods />} />
               <Route path="subscribers" element={<Subscribers />} />
+              <Route path="campaigns" element={<Campaigns />} />
             </Routes>
           </div>
         </main>

@@ -1,0 +1,352 @@
+.campaigns-page {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.campaigns-header {
+  min-width: 0;
+}
+
+.campaigns-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #71717a;
+}
+
+.campaigns-title {
+  margin-top: 0.25rem;
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #09090b;
+}
+
+.campaigns-subtitle {
+  margin-top: 0.45rem;
+  max-width: 64ch;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: #71717a;
+}
+
+.campaigns-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
+  gap: 1rem;
+}
+
+.campaigns-panel {
+  min-width: 0;
+  border: 1px solid rgba(228, 228, 231, 0.92);
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+  padding: 1.25rem;
+}
+
+.campaigns-panel-heading h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.campaigns-panel-heading p {
+  margin-top: 0.35rem;
+  color: #71717a;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.campaigns-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.campaigns-panel-heading,
+.campaigns-field--full,
+.campaigns-actions {
+  grid-column: 1 / -1;
+}
+
+.campaigns-field {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.campaigns-field span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #71717a;
+}
+
+.campaigns-field input,
+.campaigns-field textarea {
+  width: 100%;
+  border: 1px solid #e4e4e7;
+  border-radius: 1rem;
+  background: #ffffff;
+  color: #09090b;
+  font-size: 0.94rem;
+  outline: none;
+  padding: 0.8rem 0.95rem;
+}
+
+.campaigns-field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.campaigns-field input:focus,
+.campaigns-field textarea:focus {
+  border-color: #a1a1aa;
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.06);
+}
+
+.campaigns-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.campaigns-button,
+.campaigns-mini-button {
+  border: 1px solid #09090b;
+  border-radius: 9999px;
+  background: #09090b;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.1rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.campaigns-button:disabled,
+.campaigns-mini-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.campaigns-button--secondary,
+.campaigns-mini-button {
+  border-color: #e4e4e7;
+  background: #ffffff;
+  color: #3f3f46;
+}
+
+.campaigns-button--send {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.campaigns-mini-button {
+  min-height: 2.35rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.8rem;
+}
+
+.campaigns-mini-button--danger {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.campaigns-preview {
+  align-self: start;
+}
+
+.campaigns-preview-card {
+  margin-top: 1rem;
+  border: 1px solid #e4e4e7;
+  border-radius: 1.35rem;
+  background: #fbfcfa;
+  padding: 1.1rem;
+}
+
+.campaigns-preview-subject {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #71717a;
+}
+
+.campaigns-preview-card h4 {
+  margin-top: 0.65rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.campaigns-preview-card p {
+  margin-top: 0.65rem;
+  color: #52525b;
+  line-height: 1.65;
+}
+
+.campaigns-coupon-preview {
+  margin-top: 1rem;
+  border: 1px dashed #d4d4d8;
+  border-radius: 1rem;
+  padding: 0.8rem;
+  color: #3f3f46;
+}
+
+.campaigns-preview-button {
+  display: inline-flex;
+  margin-top: 1rem;
+  min-height: 2.6rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #18181b;
+  color: #ffffff;
+  padding: 0 1rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.campaigns-preview-footer {
+  font-size: 0.8rem;
+  color: #71717a !important;
+}
+
+.campaigns-test-box {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.campaigns-recipient-count {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  border: 1px solid #e4e4e7;
+  border-radius: 1.15rem;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+}
+
+.campaigns-recipient-count span {
+  color: #71717a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.campaigns-recipient-count strong {
+  color: #18181b;
+  font-size: 1.45rem;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.campaigns-recipient-count p {
+  color: #b45309;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.campaigns-table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+  border-radius: 1.25rem;
+}
+
+.campaigns-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.campaigns-table thead tr {
+  background: rgba(244, 244, 245, 0.92);
+}
+
+.campaigns-table th {
+  padding: 1rem;
+  color: #71717a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.campaigns-table td {
+  padding: 1rem;
+  color: #3f3f46;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.campaigns-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #71717a;
+}
+
+.campaigns-status {
+  display: inline-flex;
+  border-radius: 9999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.campaigns-status.is-draft,
+.campaigns-status.is-test_sent {
+  background: #f4f4f5;
+  color: #52525b;
+}
+
+.campaigns-status.is-sent {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.campaigns-status.is-failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.campaigns-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 960px) {
+  .campaigns-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .campaigns-panel {
+    border-radius: 1.35rem;
+    padding: 1rem;
+  }
+
+  .campaigns-form {
+    grid-template-columns: 1fr;
+  }
+
+  .campaigns-actions {
+    justify-content: stretch;
+  }
+
+  .campaigns-button {
+    width: 100%;
+  }
+}
