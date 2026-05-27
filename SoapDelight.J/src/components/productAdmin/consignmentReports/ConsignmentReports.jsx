@@ -16,6 +16,21 @@ const emptyItemRow = {
 
 const money = (value) => `$${Number(value || 0).toFixed(2)}`;
 
+const getReportProductSummary = (report) => {
+  const items = Array.isArray(report?.items) ? report.items : [];
+
+  if (items.length === 0) return "-";
+
+  const names = items
+    .map((item) => item.locationProductNameAtSale || item.productNameAtSale || "Product")
+    .filter(Boolean);
+
+  const uniqueNames = [...new Set(names)];
+  const summary = uniqueNames.slice(0, 3).join(", ");
+
+  return uniqueNames.length > 3 ? `${summary} +${uniqueNames.length - 3} more` : summary;
+};
+
 const ConsignmentReports = () => {
   const [itemRows, setItemRows] = useState([{ ...emptyItemRow }]);
   const [locations, setLocations] = useState([]);
@@ -348,6 +363,58 @@ const ConsignmentReports = () => {
           {saving ? "Saving..." : "Save draft report"}
         </button>
       </div>
+
+      <div className="consignment-reports__history">
+        <div className="consignment-reports__history-head">
+          <div>
+            <p className="consignment-reports__eyebrow">History</p>
+            <h3>Recent reports / 最近寄賣回報</h3>
+          </div>
+          <p>Draft reports can be reviewed before confirmation. Confirm action will be added later.</p>
+        </div>
+
+        {reports.length === 0 ? (
+          <p className="consignment-reports__empty">No consignment reports yet.</p>
+        ) : (
+          <div className="consignment-reports__table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Report</th>
+                  <th>Location</th>
+                  <th>Products</th>
+                  <th>Status</th>
+                  <th>Qty</th>
+                  <th>Gross</th>
+                  <th>Discount</th>
+                  <th>Commission</th>
+                  <th>Net payable</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports.map((report) => (
+                  <tr key={report._id}>
+                    <td>{report.reportNumber}</td>
+                    <td>{report.locationNameAtReport || report.locationId?.name || "-"}</td>
+                    <td>{getReportProductSummary(report)}</td>
+                    <td>
+                      <span className={`consignment-reports__status consignment-reports__status--${report.status}`}>
+                        {report.status}
+                      </span>
+                    </td>
+                    <td>{report.totalQuantity || 0}</td>
+                    <td>{money(report.grossTotal)}</td>
+                    <td>{money(report.promotionDiscountTotal)}</td>
+                    <td>{money(report.commissionTotal)}</td>
+                    <td><strong>{money(report.netPayableTotal)}</strong></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
     </section>
   );
 };
