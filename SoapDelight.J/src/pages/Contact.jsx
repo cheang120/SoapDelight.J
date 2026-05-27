@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import ContactForm from "../components/contactForm";
 import { BsFacebook } from "react-icons/bs";
 
@@ -15,6 +15,15 @@ const Contact = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const subscribeUrl = useMemo(() => {
+    if (typeof window === "undefined") return "/subscribe";
+    return `${window.location.origin}/subscribe`;
+  }, []);
+
+  const subscribeQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(
+    subscribeUrl
+  )}`;
 
   return (
     <main className="min-h-screen bg-[#fbfcfa] px-4 py-10 text-zinc-950 dark:bg-zinc-950 dark:text-white sm:px-6 lg:px-8">
@@ -71,6 +80,29 @@ const Contact = () => {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+                Subscribe
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight">
+                Subscribe for updates / 訂閱最新消息
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                掃描 QR code 訂閱 SoapDelight.J 最新產品、優惠及推廣消息。
+              </p>
+              <a
+                href={subscribeUrl}
+                className="mt-6 flex flex-col items-center rounded-[1.5rem] border border-zinc-200 bg-[#fbfcfa] p-5 text-center transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+              >
+                <img
+                  src={subscribeQrUrl}
+                  alt="Subscribe to SoapDelight.J updates QR code"
+                  className="h-44 w-44 rounded-xl bg-white p-2"
+                  loading="lazy"
+                />
+              </a>
             </div>
 
             <div className="rounded-[1.75rem] border border-zinc-200 bg-[#f7f8f4] px-6 py-8 dark:border-zinc-800 dark:bg-zinc-900 sm:px-8">
