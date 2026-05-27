@@ -17,6 +17,7 @@ import ShippingMethods from "../../components/productAdmin/shippingMethods/Shipp
 import Subscribers from "../../components/productAdmin/subscribers/Subscribers.jsx";
 import Campaigns from "../../components/productAdmin/campaigns/Campaigns.jsx";
 import InventoryLocations from "../../components/productAdmin/inventoryLocations/InventoryLocations.jsx";
+import StockMovements from "../../components/productAdmin/stockMovements/StockMovements.jsx";
 
 
 export const ProductAdmin = () => {
@@ -45,6 +46,7 @@ export const ProductAdmin = () => {
               <Route path="subscribers" element={<Subscribers />} />
               <Route path="campaigns" element={<Campaigns />} />
               <Route path="inventory-locations" element={<InventoryLocations />} />
+              <Route path="stock-movements" element={<StockMovements />} />
             </Routes>
           </div>
         </main>

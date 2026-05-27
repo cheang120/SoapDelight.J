@@ -41,6 +41,26 @@ const updateProductLocationMapping = async (productId, payload) => {
   return response.data;
 };
 
+const createProductionInMovement = async (payload) => {
+  const response = await axios.post(`${API_URL}/movements/production-in`, payload);
+  return response.data;
+};
+
+const createTransferMovement = async (payload) => {
+  const response = await axios.post(`${API_URL}/movements/transfer`, payload);
+  return response.data;
+};
+
+const createAdjustmentMovement = async (payload) => {
+  const response = await axios.post(`${API_URL}/movements/adjust`, payload);
+  return response.data;
+};
+
+const getMovements = async (params = {}) => {
+  const response = await axios.get(`${API_URL}/movements`, { params });
+  return response.data;
+};
+
 const inventoryService = {
   getLocations,
   createLocation,
@@ -49,6 +69,10 @@ const inventoryService = {
   ensureDefaultLocations,
   getProductInventory,
   updateProductLocationMapping,
+  createProductionInMovement,
+  createTransferMovement,
+  createAdjustmentMovement,
+  getMovements,
 };
 
 export default inventoryService;

@@ -536,6 +536,48 @@ export const adjustInventoryMovement = asyncHandler(async (req, res) => {
   res.status(200).json({ balance, movement });
 });
 
+export const createProductionInMovement = asyncHandler(async (req, res) => {
+  const { productId, toLocationId, toLocationCode = "CENTRAL", quantity, note } = req.body;
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  const toLocation = await getLocation({
+    locationId: toLocationId,
+    locationCode: toLocationCode,
+  });
+
+  const movementQuantity = Number(quantity);
+  if (!Number.isFinite(movementQuantity) || movementQuantity <= 0) {
+    res.status(400);
+    throw new Error("Quantity must be greater than zero");
+  }
+
+  const balance = await getOrCreateBalance(product._id, toLocation._id);
+  balance.quantity = Number(balance.quantity || 0) + movementQuantity;
+  await balance.save();
+
+  const movement = await StockMovement.create({
+    productId: product._id,
+    fromLocationId: null,
+    toLocationId: toLocation._id,
+    quantity: movementQuantity,
+    type: "production_in",
+    direction: "in",
+    note: note?.trim() || "",
+    createdBy: req.user?._id,
+  });
+
+  res.status(201).json({
+    message: "Stock added successfully",
+    movement,
+    balance,
+  });
+});
+
 export const transferInventoryMovement = asyncHandler(async (req, res) => {
   const {
     productId,

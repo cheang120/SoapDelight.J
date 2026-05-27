@@ -2,6 +2,7 @@ import express from "express";
 import {
   adjustInventoryMovement,
   createInventoryLocation,
+  createProductionInMovement,
   ensureDefaultInventoryLocations,
   getInventoryLocations,
   getInventoryOverview,
@@ -26,6 +27,7 @@ router.get("/overview", getInventoryOverview);
 router.get("/products/:productId", getProductInventory);
 router.patch("/products/:productId/location-mapping", updateProductLocationMapping);
 router.post("/balances/initial", setInitialInventoryBalance);
+router.post("/movements/production-in", createProductionInMovement);
 router.post("/movements/adjust", adjustInventoryMovement);
 router.post("/movements/transfer", transferInventoryMovement);
 router.get("/movements", getStockMovements);
