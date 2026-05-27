@@ -1,0 +1,87 @@
+.consignment-reports {
+  display: grid;
+  gap: 1rem;
+  color: #18181b;
+}
+
+.consignment-reports__header,
+.consignment-reports__card {
+  border: 1px solid rgba(228, 228, 231, 0.9);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.consignment-reports__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.3rem;
+}
+
+.consignment-reports__header h2 {
+  margin: 0.2rem 0 0;
+  color: #09090b;
+  font-weight: 750;
+}
+
+.consignment-reports__header p,
+.consignment-reports__card p {
+  color: #71717a;
+}
+
+.consignment-reports__eyebrow {
+  margin: 0;
+  color: #71717a;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.consignment-reports__header button {
+  min-height: 2.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: #18181b;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0 1rem;
+}
+
+.consignment-reports__card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.2rem;
+}
+
+@media (max-width: 720px) {
+  .consignment-reports__header {
+    flex-direction: column;
+  }
+
+  .consignment-reports__header button {
+    width: 100%;
+  }
+}
+
+.dark .consignment-reports {
+  color: #fafafa;
+}
+
+.dark .consignment-reports__header,
+.dark .consignment-reports__card {
+  border-color: #27272a;
+  background: rgba(9, 9, 11, 0.92);
+}
+
+.dark .consignment-reports__header h2 {
+  color: #fafafa;
+}
+
+.dark .consignment-reports__header p,
+.dark .consignment-reports__card p,
+.dark .consignment-reports__eyebrow {
+  color: #a1a1aa;
+}
