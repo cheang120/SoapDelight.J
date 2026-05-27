@@ -2,6 +2,8 @@ import asyncHandler from "express-async-handler";
 import Product from "../models/productModel.js";
 import InventoryLocation from "../models/inventoryLocationModel.js";
 import ProductLocationMapping from "../models/productLocationMappingModel.js";
+import InventoryBalance from "../models/inventoryBalanceModel.js";
+import StockMovement from "../models/stockMovementModel.js";
 import ConsignmentReport from "../models/consignmentReportModel.js";
 
 const normalizeCode = (code) => String(code || "").trim().toUpperCase();
@@ -257,6 +259,83 @@ export const updateConsignmentReport = asyncHandler(async (req, res) => {
 
   const { payload } = await buildReportPayload(res, req.body);
   Object.assign(report, payload);
+
+  const savedReport = await report.save();
+  res.status(200).json(savedReport);
+});
+
+
+export const confirmConsignmentReport = asyncHandler(async (req, res) => {
+  const report = await ConsignmentReport.findById(req.params.id);
+
+  if (!report) {
+    throwHttpError(res, 404, "Consignment report not found");
+  }
+
+  if (report.status !== "draft") {
+    throwHttpError(res, 400, "Only draft reports can be confirmed");
+  }
+
+  const requiredByProduct = new Map();
+
+  for (const item of report.items) {
+    const productId = String(item.productId);
+    requiredByProduct.set(
+      productId,
+      Number(requiredByProduct.get(productId) || 0) + Number(item.quantitySold || 0)
+    );
+  }
+
+  const balances = await InventoryBalance.find({
+    productId: { $in: Array.from(requiredByProduct.keys()) },
+    locationId: report.locationId,
+  });
+
+  const balanceMap = new Map(
+    balances.map((balance) => [String(balance.productId), balance])
+  );
+
+  for (const [productId, requiredQuantity] of requiredByProduct.entries()) {
+    const balance = balanceMap.get(productId);
+    const available = Number(balance?.quantity || 0);
+
+    if (available < requiredQuantity) {
+      const itemName =
+        report.items.find((item) => String(item.productId) === productId)
+          ?.productNameAtSale || "selected product";
+
+      throwHttpError(
+        res,
+        400,
+        `Not enough stock for ${itemName}. Available: ${available}, required: ${requiredQuantity}`
+      );
+    }
+  }
+
+  for (const item of report.items) {
+    const balance = balanceMap.get(String(item.productId));
+    balance.quantity = Number(balance.quantity || 0) - Number(item.quantitySold || 0);
+    await balance.save();
+
+    await StockMovement.create({
+      productId: item.productId,
+      fromLocationId: report.locationId,
+      toLocationId: null,
+      quantity: item.quantitySold,
+      type: "consignment_sold",
+      direction: "out",
+      note: `Consignment sold via ${report.reportNumber}${
+        item.note ? ` - ${item.note}` : ""
+      }`,
+      sourceDocument: report.reportNumber,
+      sourceDate: report.periodEnd || new Date(),
+      createdBy: req.user?._id,
+    });
+  }
+
+  report.status = "confirmed";
+  report.confirmedBy = req.user?._id;
+  report.confirmedAt = new Date();
 
   const savedReport = await report.save();
   res.status(200).json(savedReport);

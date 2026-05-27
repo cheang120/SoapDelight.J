@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  confirmConsignmentReport,
   createConsignmentReport,
   getConsignmentReportById,
   getConsignmentReports,
@@ -15,5 +16,6 @@ router.get("/admin", getConsignmentReports);
 router.post("/admin", createConsignmentReport);
 router.get("/admin/:id", getConsignmentReportById);
 router.patch("/admin/:id", updateConsignmentReport);
+router.post("/admin/:id/confirm", confirmConsignmentReport);
 
 export default router;
