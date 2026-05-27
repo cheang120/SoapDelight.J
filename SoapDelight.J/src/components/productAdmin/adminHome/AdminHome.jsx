@@ -1,71 +1,181 @@
-import React, { useEffect } from "react";
-import InfoBox from "../../infoBox/InfoBox";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./AdminHome.module.scss";
-import { AiFillDollarCircle } from "react-icons/ai";
-import { BsCart4 } from "react-icons/bs";
-import { FaCartArrowDown } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import Chart from "../../chart/Chart";
 import {
   getProducts,
   selectProducts,
 } from "../../../redux/features/product/productSlice";
-import { CALC_TOTAL_ORDER_AMOUNT, getOrders, selectOrders, selectTotalOrderAmount } from "../../../redux/features/order/OrderSlice";
+import {
+  CALC_TOTAL_ORDER_AMOUNT,
+  getOrders,
+  selectOrders,
+  selectTotalOrderAmount,
+} from "../../../redux/features/order/OrderSlice";
+import subscriberService from "../subscribers/subscriberService";
+import campaignService from "../campaigns/campaignService";
 
+const formatMoney = (value) =>
+  `$${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
-//Icons
-const earningIcon = <AiFillDollarCircle size={30} color="#b624ff" />;
-const productIcon = <BsCart4 size={30} color="#1f93ff" />;
-const ordersIcon = <FaCartArrowDown size={30} color="orangered" />;
+const isShippingProduct = (product) =>
+  String(product?.category || "").trim().toLowerCase() === "shipping";
 
-const Home = () => {
+const KpiCard = ({ label, value, helper }) => (
+  <article className={styles.kpiCard}>
+    <p className={styles.kpiLabel}>{label}</p>
+    <p className={styles.kpiValue}>{value}</p>
+    <p className={styles.kpiHelper}>{helper}</p>
+  </article>
+);
+
+const AdminHome = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
   const orders = useSelector(selectOrders);
   const totalOrderAmount = useSelector(selectTotalOrderAmount);
-  window.scrollTo(0, 0);
+  const [subscriberRows, setSubscriberRows] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
+
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const realProducts = useMemo(
+    () => safeProducts.filter((product) => !isShippingProduct(product)),
+    [safeProducts]
+  );
+  const activeSubscribers = useMemo(
+    () =>
+      Array.isArray(subscriberRows)
+        ? subscriberRows.filter((row) => row?.subscriptionStatus === "active")
+        : [],
+    [subscriberRows]
+  );
+  const sentCampaigns = useMemo(
+    () =>
+      Array.isArray(campaigns)
+        ? campaigns.filter((campaign) => campaign?.status === "sent")
+        : [],
+    [campaigns]
+  );
 
   useEffect(() => {
-    if (products.length === 0) {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    if (safeProducts.length === 0) {
       dispatch(getProducts());
     }
-    if (orders.length === 0) {
+    if (safeOrders.length === 0) {
       dispatch(getOrders());
     }
-  }, [dispatch, products, orders]);
+  }, [dispatch, safeProducts.length, safeOrders.length]);
+
   useEffect(() => {
     dispatch(CALC_TOTAL_ORDER_AMOUNT());
-  }, [dispatch, orders]);
+  }, [dispatch, safeOrders]);
+
+  useEffect(() => {
+    let shouldIgnore = false;
+
+    const loadDashboardExtras = async () => {
+      try {
+        const [subscriberData, campaignData] = await Promise.all([
+          subscriberService.getSubscribers({ status: "all" }),
+          campaignService.getCampaigns(),
+        ]);
+
+        if (shouldIgnore) return;
+        setSubscriberRows(Array.isArray(subscriberData) ? subscriberData : []);
+        setCampaigns(Array.isArray(campaignData) ? campaignData : []);
+      } catch {
+        if (shouldIgnore) return;
+        setSubscriberRows([]);
+        setCampaigns([]);
+      }
+    };
+
+    loadDashboardExtras();
+
+    return () => {
+      shouldIgnore = true;
+    };
+  }, []);
+
+  const kpis = [
+    {
+      label: "Total sales / 總銷售額",
+      value: formatMoney(totalOrderAmount),
+      helper: "Completed revenue",
+    },
+    {
+      label: "Orders / 訂單",
+      value: safeOrders.length,
+      helper: "Customer orders",
+    },
+    {
+      label: "Products / 商品",
+      value: realProducts.length,
+      helper: "Shipping excluded",
+    },
+    {
+      label: "Active subscribers / 有效訂閱者",
+      value: activeSubscribers.length,
+      helper: "Email subscribers",
+    },
+    {
+      label: "Campaigns / 推廣電郵",
+      value: Array.isArray(campaigns) ? campaigns.length : 0,
+      helper: `${sentCampaigns.length} sent campaigns`,
+    },
+  ];
 
   return (
-    <div className={`${styles.home} min-h-screen`}>
-      <h2 className="text-2xl py-10">Admin Home</h2>
-      <div className={styles["info-box"]}>
-        <InfoBox
-          cardClass={`${styles.card} ${styles.card1}`}
-          title={"Earnings"}
-          count={`$${totalOrderAmount}`}
-          icon={earningIcon}
-        />
-        <InfoBox
-          cardClass={`${styles.card} ${styles.card2}`}
-          title={"Products"}
-          count={products.length}
-          icon={productIcon}
-        />
-        <InfoBox
-          cardClass={`${styles.card} ${styles.card3}`}
-          title={"Orders"}
-          count={orders.length}
-          icon={ordersIcon}
-        />
+    <section className={styles.home}>
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>Dashboard</p>
+        <h2 className={styles.title}>Admin Home / 管理首頁</h2>
+        <p className={styles.subtitle}>
+          Review sales, orders, products, subscribers and campaign activity.
+        </p>
+      </header>
+
+      <div className={styles.kpiGrid}>
+        {kpis.map((kpi) => (
+          <KpiCard key={kpi.label} {...kpi} />
+        ))}
       </div>
-      <div>
-        <Chart />
+
+      <div className={styles.dashboardGrid}>
+        <Chart orders={safeOrders} />
+
+        <aside className={styles.summaryCard}>
+          <p className={styles.summaryEyebrow}>Recent activity / 最新概覽</p>
+          <div className={styles.summaryRows}>
+            <div>
+              <span>Latest order</span>
+              <strong>
+                {safeOrders[0]?.createdAt
+                  ? new Date(safeOrders[0].createdAt).toLocaleDateString("en-GB")
+                  : "-"}
+              </strong>
+            </div>
+            <div>
+              <span>Latest sent campaign</span>
+              <strong>
+                {sentCampaigns[0]?.sentAt
+                  ? new Date(sentCampaigns[0].sentAt).toLocaleDateString("en-GB")
+                  : "-"}
+              </strong>
+            </div>
+          </div>
+        </aside>
       </div>
-    </div>
+    </section>
   );
 };
 
-export default Home;
-
+export default AdminHome;

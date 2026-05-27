@@ -9,12 +9,10 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import Card from "../card/Card";
 import styles from "./Chart.module.scss";
 
 import { useSelector } from "react-redux";
 import { selectOrders } from "../../redux/features/order/OrderSlice";
-// import { selectOrders } from "../../redux/features/product/orderSlice";
 
 ChartJS.register(
   CategoryScale,
@@ -27,26 +25,56 @@ ChartJS.register(
 
 export const options = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: "top",
+      display: false,
     },
     title: {
       display: false,
-      text: "Chart.js Bar Chart",
+    },
+    tooltip: {
+      backgroundColor: "#18181b",
+      padding: 12,
+      titleFont: {
+        size: 13,
+      },
+      bodyFont: {
+        size: 13,
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false,
+      },
+      ticks: {
+        color: "#71717a",
+      },
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: "rgba(228, 228, 231, 0.72)",
+      },
+      ticks: {
+        color: "#71717a",
+        precision: 0,
+      },
     },
   },
 };
 
-const Chart = () => {
-  const orders = useSelector(selectOrders);
+const Chart = ({ orders: ordersProp }) => {
+  const reduxOrders = useSelector(selectOrders);
+  const orders = Array.isArray(ordersProp)
+    ? ordersProp
+    : Array.isArray(reduxOrders)
+      ? reduxOrders
+      : [];
 
-  // Create a new array of order status
-  const array = [];
-  orders.map((item) => {
-    const { orderStatus } = item;
-    array.push(orderStatus);
-  });
+  const orderStatuses = orders.map((item) => item?.orderStatus);
 
   const getOrderCount = (arr, value) => {
     return arr.filter((n) => n === value).length;
@@ -59,28 +87,39 @@ const Chart = () => {
     "Delivered",
   ];
 
-  const placed = getOrderCount(array, q1);
-  const processing = getOrderCount(array, q2);
-  const shipped = getOrderCount(array, q3);
-  const delivered = getOrderCount(array, q4);
+  const placed = getOrderCount(orderStatuses, q1);
+  const processing = getOrderCount(orderStatuses, q2);
+  const shipped = getOrderCount(orderStatuses, q3);
+  const delivered = getOrderCount(orderStatuses, q4);
 
   const data = {
-    labels: ["Placed Orders", "Processing", "Shipped", "Delivered"],
+    labels: ["Placed", "Processing", "Shipped", "Delivered"],
     datasets: [
       {
         label: "Order count",
         data: [placed, processing, shipped, delivered],
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        backgroundColor: ["#18181b", "#71717a", "#a1a1aa", "#047857"],
+        borderRadius: 12,
+        borderSkipped: false,
+        maxBarThickness: 52,
       },
     ],
   };
 
   return (
     <div className={styles.charts}>
-      <Card cardClass={styles.card}>
-        <h3>Order Status Chart</h3>
-        <Bar options={options} data={data} />
-      </Card>
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <div>
+            <p className={styles.eyebrow}>Orders</p>
+            <h3>Order status / 訂單狀態</h3>
+          </div>
+          <span>{orders.length} total</span>
+        </div>
+        <div className={styles.chartBody}>
+          <Bar options={options} data={data} />
+        </div>
+      </div>
     </div>
   );
 };
