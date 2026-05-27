@@ -136,6 +136,117 @@ export const getInventoryLocations = asyncHandler(async (req, res) => {
   res.status(200).json(locations);
 });
 
+const LOCATION_TYPES = ["central", "online", "consignment", "other"];
+
+const normalizeLocationText = (value) => String(value || "").trim();
+
+const normalizeActiveValue = (value, fallback = true) => {
+  if (typeof value === "boolean") return value;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return fallback;
+};
+
+const buildLocationPayload = (body = {}, { isUpdate = false } = {}) => {
+  const payload = {};
+
+  if (!isUpdate || body.name !== undefined) {
+    const name = normalizeLocationText(body.name);
+    if (!name) {
+      const error = new Error("Location name is required");
+      error.statusCode = 400;
+      throw error;
+    }
+    payload.name = name;
+  }
+
+  if (!isUpdate || body.code !== undefined) {
+    const code = normalizeCode(body.code);
+    if (!code) {
+      const error = new Error("Location code is required");
+      error.statusCode = 400;
+      throw error;
+    }
+    payload.code = code;
+  }
+
+  if (!isUpdate || body.type !== undefined) {
+    const type = normalizeLocationText(body.type).toLowerCase();
+    if (!LOCATION_TYPES.includes(type)) {
+      const error = new Error("Location type is invalid");
+      error.statusCode = 400;
+      throw error;
+    }
+    payload.type = type;
+  }
+
+  if (!isUpdate || body.commissionRate !== undefined) {
+    payload.commissionRate = toNonNegativeNumber(
+      body.commissionRate ?? 0,
+      "Commission rate"
+    );
+  }
+
+  if (!isUpdate || body.contactPerson !== undefined) {
+    payload.contactPerson = normalizeLocationText(body.contactPerson);
+  }
+  if (!isUpdate || body.phone !== undefined) {
+    payload.phone = normalizeLocationText(body.phone);
+  }
+  if (!isUpdate || body.address !== undefined) {
+    payload.address = normalizeLocationText(body.address);
+  }
+  if (!isUpdate || body.notes !== undefined) {
+    payload.notes = normalizeLocationText(body.notes);
+  }
+  if (!isUpdate || body.active !== undefined) {
+    payload.active = normalizeActiveValue(body.active, true);
+  }
+
+  return payload;
+};
+
+export const createInventoryLocation = asyncHandler(async (req, res) => {
+  const payload = buildLocationPayload(req.body);
+
+  const existing = await InventoryLocation.findOne({ code: payload.code });
+  if (existing) {
+    res.status(400);
+    throw new Error("Location code already exists");
+  }
+
+  const location = await InventoryLocation.create(payload);
+  res.status(201).json(location);
+});
+
+export const updateInventoryLocation = asyncHandler(async (req, res) => {
+  const location = await InventoryLocation.findById(req.params.id);
+
+  if (!location) {
+    res.status(404);
+    throw new Error("Inventory location not found");
+  }
+
+  const payload = buildLocationPayload(req.body, { isUpdate: true });
+
+  if (payload.code && payload.code !== location.code) {
+    const duplicate = await InventoryLocation.findOne({
+      code: payload.code,
+      _id: { $ne: location._id },
+    });
+
+    if (duplicate) {
+      res.status(400);
+      throw new Error("Location code already exists");
+    }
+  }
+
+  Object.assign(location, payload);
+  const savedLocation = await location.save();
+
+  res.status(200).json(savedLocation);
+});
+
 const buildInventoryRows = async (products) => {
   const productIds = products.map((product) => product._id);
 

@@ -35,6 +35,11 @@ const Navbar = () => {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/productAdmin/inventory-locations" className={activeLink}>
+              Inventory Locations
+            </NavLink>
+          </li>
+          <li>
             <NavLink to={'/productAdmin/orders'} className={activeLink}>
               Orders
             </NavLink>

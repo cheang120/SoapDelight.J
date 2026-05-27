@@ -1,0 +1,298 @@
+.inventory-locations {
+  display: grid;
+  gap: 1rem;
+  color: #18181b;
+}
+
+.inventory-locations__header,
+.inventory-locations__form,
+.inventory-locations__table-card {
+  border: 1px solid rgba(228, 228, 231, 0.9);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.inventory-locations__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.3rem;
+}
+
+.inventory-locations__header h2,
+.inventory-locations__form h3,
+.inventory-locations__table-head h3 {
+  margin: 0.2rem 0 0;
+  color: #09090b;
+  font-weight: 750;
+}
+
+.inventory-locations__header p,
+.inventory-locations__table-head p,
+.inventory-locations__empty,
+.inventory-locations__hint {
+  color: #71717a;
+}
+
+.inventory-locations__eyebrow {
+  margin: 0;
+  color: #71717a;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.inventory-locations__header button,
+.inventory-locations__actions button {
+  min-height: 2.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: #18181b;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0 1rem;
+}
+
+.inventory-locations__actions .secondary {
+  border: 1px solid #d4d4d8;
+  background: #fff;
+  color: #18181b;
+}
+
+.inventory-locations__header button:disabled,
+.inventory-locations__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.inventory-locations__grid {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.42fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.inventory-locations__form {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.2rem;
+}
+
+.inventory-locations__form label {
+  display: grid;
+  gap: 0.35rem;
+  color: #3f3f46;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.inventory-locations__form input,
+.inventory-locations__form select,
+.inventory-locations__form textarea {
+  width: 100%;
+  border: 1px solid #d4d4d8;
+  border-radius: 0.95rem;
+  background: #fff;
+  color: #18181b;
+  font: inherit;
+  outline: none;
+  padding: 0.72rem 0.82rem;
+}
+
+.inventory-locations__form input:focus,
+.inventory-locations__form select:focus,
+.inventory-locations__form textarea:focus {
+  border-color: #18181b;
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.08);
+}
+
+.inventory-locations__check {
+  display: flex !important;
+  grid-template-columns: none !important;
+  align-items: center;
+  gap: 0.55rem !important;
+}
+
+.inventory-locations__check input {
+  width: auto;
+}
+
+.inventory-locations__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.inventory-locations__table-card {
+  min-width: 0;
+  padding: 1.2rem;
+}
+
+.inventory-locations__table-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.inventory-locations__table-wrap {
+  overflow-x: auto;
+}
+
+.inventory-locations table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 58rem;
+}
+
+.inventory-locations th,
+.inventory-locations td {
+  border-bottom: 1px solid #f4f4f5;
+  padding: 0.85rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.inventory-locations th {
+  color: #71717a;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.inventory-locations td {
+  color: #18181b;
+  font-size: 0.88rem;
+}
+
+.inventory-locations tr.is-inactive td {
+  color: #a1a1aa;
+}
+
+.inventory-locations code {
+  border-radius: 999px;
+  background: #f4f4f5;
+  color: #18181b;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.inventory-locations .badge {
+  display: inline-flex;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.25rem 0.55rem;
+}
+
+.inventory-locations .badge--active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.inventory-locations .badge--muted {
+  background: #f4f4f5;
+  color: #71717a;
+}
+
+.inventory-locations .link-button {
+  border: 0;
+  background: transparent;
+  color: #18181b;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.inventory-locations__empty {
+  border: 1px dashed #d4d4d8;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .inventory-locations__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .inventory-locations__header,
+  .inventory-locations__table-head {
+    flex-direction: column;
+  }
+
+  .inventory-locations__header button,
+  .inventory-locations__actions button {
+    width: 100%;
+  }
+
+  .inventory-locations__actions {
+    flex-direction: column;
+  }
+}
+
+.dark .inventory-locations {
+  color: #fafafa;
+}
+
+.dark .inventory-locations__header,
+.dark .inventory-locations__form,
+.dark .inventory-locations__table-card {
+  border-color: #27272a;
+  background: rgba(9, 9, 11, 0.92);
+}
+
+.dark .inventory-locations__header h2,
+.dark .inventory-locations__form h3,
+.dark .inventory-locations__table-head h3,
+.dark .inventory-locations td,
+.dark .inventory-locations .link-button {
+  color: #fafafa;
+}
+
+.dark .inventory-locations__header p,
+.dark .inventory-locations__table-head p,
+.dark .inventory-locations__empty,
+.dark .inventory-locations__hint,
+.dark .inventory-locations__eyebrow,
+.dark .inventory-locations th {
+  color: #a1a1aa;
+}
+
+.dark .inventory-locations__form label {
+  color: #e4e4e7;
+}
+
+.dark .inventory-locations__form input,
+.dark .inventory-locations__form select,
+.dark .inventory-locations__form textarea {
+  border-color: #3f3f46;
+  background: #18181b;
+  color: #fafafa;
+}
+
+.dark .inventory-locations__actions .secondary {
+  border-color: #3f3f46;
+  background: #18181b;
+  color: #fafafa;
+}
+
+.dark .inventory-locations th,
+.dark .inventory-locations td {
+  border-bottom-color: #27272a;
+}
+
+.dark .inventory-locations code {
+  background: #27272a;
+  color: #fafafa;
+}
+
+.dark .inventory-locations__empty {
+  border-color: #3f3f46;
+}

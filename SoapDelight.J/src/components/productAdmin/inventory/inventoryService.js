@@ -3,6 +3,21 @@ import { API_BASE_URL } from "../../../utils/apiBase";
 
 const API_URL = `${API_BASE_URL}/inventory`;
 
+const getLocations = async () => {
+  const response = await axios.get(`${API_URL}/locations`);
+  return response.data;
+};
+
+const createLocation = async (payload) => {
+  const response = await axios.post(`${API_URL}/locations`, payload);
+  return response.data;
+};
+
+const updateLocation = async (id, payload) => {
+  const response = await axios.patch(`${API_URL}/locations/${id}`, payload);
+  return response.data;
+};
+
 const getInventoryOverview = async () => {
   const response = await axios.get(`${API_URL}/overview`);
   return response.data;
@@ -27,6 +42,9 @@ const updateProductLocationMapping = async (productId, payload) => {
 };
 
 const inventoryService = {
+  getLocations,
+  createLocation,
+  updateLocation,
   getInventoryOverview,
   ensureDefaultLocations,
   getProductInventory,
