@@ -30,18 +30,18 @@ const stockCopy = (quantity) => {
   if (quantity <= 0) {
     return {
       label: "Out of stock / 暫時缺貨",
-      tone: "text-zinc-500 bg-zinc-100 border-zinc-200",
+      tone: "text-zinc-500 bg-zinc-100 border-zinc-200 dark:text-zinc-300 dark:bg-zinc-900 dark:border-zinc-700",
     };
   }
   if (quantity <= 3) {
     return {
       label: "Low stock / 少量現貨",
-      tone: "text-amber-800 bg-amber-50 border-amber-200",
+      tone: "text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800",
     };
   }
   return {
     label: "In stock / 有現貨",
-    tone: "text-emerald-800 bg-emerald-50 border-emerald-200",
+    tone: "text-emerald-800 bg-emerald-50 border-emerald-200 dark:text-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800",
   };
 };
 

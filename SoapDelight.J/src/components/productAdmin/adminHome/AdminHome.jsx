@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "./AdminHome.module.scss";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import Chart from "../../chart/Chart";
 import {
   getProducts,
@@ -136,11 +137,16 @@ const AdminHome = () => {
   return (
     <section className={styles.home}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>Dashboard</p>
-        <h2 className={styles.title}>Admin Home / 管理首頁</h2>
-        <p className={styles.subtitle}>
-          Review sales, orders, products, subscribers and campaign activity.
-        </p>
+        <div className={styles.headerCopy}>
+          <p className={styles.eyebrow}>Dashboard</p>
+          <h2 className={styles.title}>Admin Home / 管理首頁</h2>
+          <p className={styles.subtitle}>
+            Review sales, orders, products, subscribers and campaign activity.
+          </p>
+        </div>
+        <Link to="/productAdmin/add-product" className={styles.addProductButton}>
+          Add Product / 新增商品
+        </Link>
       </header>
 
       <div className={styles.kpiGrid}>

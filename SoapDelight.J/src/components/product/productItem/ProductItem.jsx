@@ -117,8 +117,8 @@ const ProductItem = ({
           <button
             className={`${
               isGrid
-                ? "mt-auto w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500"
-                : "mt-auto block w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 md:w-56"
+                ? "mt-auto w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300"
+                : "mt-auto block w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300 md:w-56"
             }`}
             onClick={() => toast.error("Sorry, Product is out of stock")}
           >

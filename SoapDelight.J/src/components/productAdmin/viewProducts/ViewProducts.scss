@@ -243,6 +243,93 @@
   color: #ffffff;
 }
 
+.dark {
+  .admin-products-eyebrow,
+  .admin-products-subtitle,
+  .admin-products-empty-copy,
+  .admin-products-table th {
+    color: #a1a1aa;
+  }
+
+  .admin-products-title,
+  .admin-products-empty-title,
+  .admin-products-name {
+    color: #f4f4f5;
+  }
+
+  .admin-products-count,
+  .admin-products-table td {
+    color: #d4d4d8;
+  }
+
+  .admin-products-loading,
+  .admin-products-card {
+    border-color: rgba(63, 63, 70, 0.92);
+    background: rgba(24, 24, 27, 0.9);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+  }
+
+  .admin-products-table thead tr {
+    background: rgba(39, 39, 42, 0.92);
+  }
+
+  .admin-products-table tbody tr {
+    border-top-color: rgba(63, 63, 70, 0.7);
+  }
+
+  .admin-products-table tbody tr:hover {
+    background: rgba(39, 39, 42, 0.64);
+  }
+
+  .admin-products-icon-button {
+    border-color: rgba(63, 63, 70, 0.92);
+    background: #18181b;
+    color: #d4d4d8;
+  }
+
+  .admin-products-icon-button:hover {
+    border-color: #71717a;
+    background: #27272a;
+    color: #ffffff;
+  }
+
+  .admin-products-icon-button--view {
+    color: #a5b4fc;
+  }
+
+  .admin-products-icon-button--edit {
+    color: #6ee7b7;
+  }
+
+  .admin-products-icon-button--delete {
+    background: rgba(127, 29, 29, 0.24);
+    color: #fca5a5;
+  }
+
+  .admin-products-icon-button--delete:hover {
+    background: rgba(127, 29, 29, 0.42);
+    color: #fecaca;
+  }
+
+  .admin-products-pagination-link {
+    border-color: rgba(63, 63, 70, 0.92);
+    background: #18181b;
+    color: #e4e4e7;
+  }
+
+  .admin-products-pagination-link:hover {
+    border-color: #71717a;
+    background: #27272a;
+    color: #ffffff;
+  }
+
+  .admin-products-pagination-link--active {
+    border-color: #fafafa;
+    background: #fafafa;
+    color: #09090b;
+  }
+}
+
 @media (max-width: 768px) {
   .admin-products-toolbar {
     width: 100%;

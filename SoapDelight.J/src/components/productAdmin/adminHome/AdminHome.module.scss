@@ -5,7 +5,39 @@
 }
 
 .header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
   min-width: 0;
+}
+
+.headerCopy {
+  min-width: 0;
+}
+
+.addProductButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.85rem;
+  border: 1px solid #09090b;
+  border-radius: 9999px;
+  background: #09090b;
+  padding: 0 1.15rem;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.addProductButton:hover {
+  transform: translateY(-1px);
+  border-color: #27272a;
+  background: #27272a;
 }
 
 .eyebrow,
@@ -121,9 +153,60 @@
   font-size: 1rem;
 }
 
+:global(.dark) .home {
+  .eyebrow,
+  .summaryEyebrow,
+  .subtitle,
+  .kpiLabel,
+  .kpiHelper,
+  .summaryRows span {
+    color: #a1a1aa;
+  }
+
+  .title,
+  .kpiValue,
+  .summaryRows strong {
+    color: #f4f4f5;
+  }
+
+  .kpiCard,
+  .summaryCard {
+    border-color: rgba(63, 63, 70, 0.92);
+    background: rgba(24, 24, 27, 0.9);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+  }
+
+  .summaryRows div {
+    border-color: rgba(63, 63, 70, 0.86);
+    background: rgba(9, 9, 11, 0.48);
+  }
+
+  .addProductButton {
+    border-color: #fafafa;
+    background: #fafafa;
+    color: #09090b;
+  }
+
+  .addProductButton:hover {
+    border-color: #d4d4d8;
+    background: #e4e4e7;
+  }
+}
+
 @media (min-width: 1500px) {
   .kpiGrid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .addProductButton {
+    width: 100%;
   }
 }
 

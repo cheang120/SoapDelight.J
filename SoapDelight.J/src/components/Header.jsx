@@ -90,8 +90,10 @@ export default function Header() {
   };
 
   const navClass = ({ isActive }) =>
-    `text-sm transition-colors ${
-      isActive ? "text-zinc-950" : "text-zinc-600 hover:text-zinc-950"
+    `rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500 ${
+      isActive
+        ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
+        : "text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white"
     }`;
 
   return (

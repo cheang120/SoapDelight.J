@@ -194,11 +194,13 @@ const ProductList = ({ products }) => {
         pageCount={pageCount}
         previousLabel="Prev"
         renderOnZeroPageCount={null}
-        containerClassName="mt-8 flex flex-wrap justify-center items-center gap-2"
-        pageLinkClassName="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-zinc-200 px-3 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
-        previousLinkClassName="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
-        nextLinkClassName="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
-        activeLinkClassName="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full bg-zinc-950 px-3 text-sm text-white dark:bg-white dark:text-zinc-950"
+        containerClassName="mt-8 flex flex-wrap justify-center items-center gap-2 rounded-[1.25rem] border border-zinc-200 bg-white/80 p-2 dark:border-zinc-800 dark:bg-zinc-950/80"
+        pageLinkClassName="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-3 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-white"
+        previousLinkClassName="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-white"
+        nextLinkClassName="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-white"
+        breakLinkClassName="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full px-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400"
+        activeLinkClassName="!border-zinc-950 !bg-zinc-950 !text-white shadow-sm dark:!border-white dark:!bg-white dark:!text-zinc-950"
+        disabledLinkClassName="cursor-not-allowed opacity-45"
       />
     </div>
   );
