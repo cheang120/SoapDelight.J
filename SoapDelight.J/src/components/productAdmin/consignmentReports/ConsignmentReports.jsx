@@ -44,6 +44,7 @@ const ConsignmentReports = () => {
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmingId, setConfirmingId] = useState("");
 
   const consignmentLocations = useMemo(
     () => locations.filter((location) => location.type === "consignment" && location.active !== false),
@@ -206,6 +207,27 @@ const ConsignmentReports = () => {
     setItemRows((prev) =>
       prev.length === 1 ? prev : prev.filter((_, rowIndex) => rowIndex !== index)
     );
+  };
+
+  const handleConfirmReport = async (report) => {
+    if (!report?._id || report.status !== "draft") return;
+
+    const ok = window.confirm(
+      `Confirm ${report.reportNumber}? This will deduct stock from the consignment location and cannot be edited afterwards.`
+    );
+
+    if (!ok) return;
+
+    setConfirmingId(report._id);
+    try {
+      await consignmentReportService.confirmConsignmentReport(report._id);
+      toast.success("Consignment report confirmed and stock deducted.");
+      loadData();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Could not confirm report");
+    } finally {
+      setConfirmingId("");
+    }
   };
 
   return (
@@ -389,6 +411,7 @@ const ConsignmentReports = () => {
                   <th>Discount</th>
                   <th>Commission</th>
                   <th>Net payable</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -407,6 +430,20 @@ const ConsignmentReports = () => {
                     <td>{money(report.promotionDiscountTotal)}</td>
                     <td>{money(report.commissionTotal)}</td>
                     <td><strong>{money(report.netPayableTotal)}</strong></td>
+                    <td>
+                      {report.status === "draft" ? (
+                        <button
+                          type="button"
+                          className="consignment-reports__confirm"
+                          onClick={() => handleConfirmReport(report)}
+                          disabled={confirmingId === report._id}
+                        >
+                          {confirmingId === report._id ? "Confirming..." : "Confirm"}
+                        </button>
+                      ) : (
+                        <span className="consignment-reports__muted">Confirmed</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

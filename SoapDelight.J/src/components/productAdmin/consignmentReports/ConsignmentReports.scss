@@ -324,3 +324,31 @@
   background: #27272a;
   color: #fafafa;
 }
+
+
+.consignment-reports__confirm {
+  border: 0;
+  border-radius: 999px;
+  background: #18181b;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.55rem 0.85rem;
+  white-space: nowrap;
+}
+
+.consignment-reports__confirm:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.consignment-reports__muted {
+  color: #71717a;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.dark .consignment-reports__muted {
+  color: #a1a1aa;
+}
