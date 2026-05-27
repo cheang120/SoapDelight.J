@@ -25,15 +25,15 @@ const CreateCoupon = ({reloadCoupon}) => {
     e.preventDefault();
     // console.log(name, discount, expiresAt);
     if (name.length < 6) {
-      return toast.error("Coupon must be up to 6 characters");
+      return toast.error("優惠碼至少需要 6 個字元");
     }
     if (discount < 1) {
-      return toast.error("Discount must be greater than one");
+      return toast.error("折扣必須大於 1");
     }
 
     const normalizedExpiry = normalizeExpiryToEndOfDay(expiresAt);
     if (normalizedExpiry.getTime() <= Date.now()) {
-      return toast.error("Expiry date cannot be in the past.");
+      return toast.error("到期日不可早於今天。");
     }
 
     const formData = {
@@ -55,15 +55,15 @@ const CreateCoupon = ({reloadCoupon}) => {
     <>
       <div className="admin-taxonomy-panel">
           <div className="admin-taxonomy-panel-copy">
-              <h3 className="admin-taxonomy-panel-title">Create Coupon</h3>
-              <p className="admin-taxonomy-panel-subtitle">Use the form to create a discount code.</p>
+              <h3 className="admin-taxonomy-panel-title">建立優惠券</h3>
+              <p className="admin-taxonomy-panel-subtitle">使用表格建立折扣優惠碼。</p>
           </div>
           <form onSubmit={saveCoupon} className="admin-taxonomy-form">
               <div className="admin-taxonomy-field">
-                  <label className="admin-taxonomy-label">Coupon Name</label>
+                  <label className="admin-taxonomy-label">優惠碼名稱</label>
                   <input
                       type="text"
-                      placeholder="Coupon name"
+                      placeholder="優惠碼名稱"
                       name="name"
                       value={name}
                       onChange={(e) => setName(e.target.value.toUpperCase())}
@@ -72,10 +72,10 @@ const CreateCoupon = ({reloadCoupon}) => {
                   />
               </div>
               <div className="admin-taxonomy-field">
-                  <label className="admin-taxonomy-label">Discount %</label>
+                  <label className="admin-taxonomy-label">折扣 %</label>
                   <input
                       type="number"
-                      placeholder="Coupon Discount"
+                      placeholder="優惠折扣"
                       name="discount"
                       value={discount}
                       onChange={(e) => setDiscount(e.target.value)}
@@ -84,7 +84,7 @@ const CreateCoupon = ({reloadCoupon}) => {
                   />
               </div>
               <div className="admin-taxonomy-field">
-                  <label className="admin-taxonomy-label">Expiry Date</label>
+                  <label className="admin-taxonomy-label">到期日</label>
                   <DatePicker
                       selected={expiresAt}
                       value={expiresAt}
@@ -98,7 +98,7 @@ const CreateCoupon = ({reloadCoupon}) => {
                   type="submit"
                   className="admin-taxonomy-button"
               >
-                  Save Coupon
+                  儲存優惠券
               </button>
           </form>
       </div>

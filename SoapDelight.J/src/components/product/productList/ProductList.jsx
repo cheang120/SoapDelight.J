@@ -112,7 +112,7 @@ const ProductList = ({ products }) => {
                 <span className="font-medium text-zinc-950 dark:text-white">
                   {displayedProducts.length}
                 </span>
-                <span>products found</span>
+                <span>件商品</span>
               </div>
 
               <div className="flex items-center gap-1 rounded-full border border-zinc-200 p-1 dark:border-zinc-700">
@@ -124,7 +124,7 @@ const ProductList = ({ products }) => {
                       ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
                       : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900"
                   }`}
-                  aria-label="Grid view"
+                  aria-label="格狀顯示"
                 >
                   <BsFillGridFill size={16} />
                 </button>
@@ -136,7 +136,7 @@ const ProductList = ({ products }) => {
                       ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
                       : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900"
                   }`}
-                  aria-label="List view"
+                  aria-label="列表顯示"
                 >
                   <FaListAlt size={16} />
                 </button>
@@ -145,18 +145,18 @@ const ProductList = ({ products }) => {
 
             <div className="flex items-center gap-3 sm:justify-end">
               <label className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-                Sort
+                排序
               </label>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
                 className="min-h-11 rounded-full border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
               >
-                <option value="latest">Latest</option>
-                <option value="lowest-price">Lowest Price</option>
-                <option value="highest-price">Highest Price</option>
-                <option value="a-z">A - Z</option>
-                <option value="z-a">Z - A</option>
+                <option value="latest">最新上架</option>
+                <option value="lowest-price">價格由低至高</option>
+                <option value="highest-price">價格由高至低</option>
+                <option value="a-z">名稱 A - Z</option>
+                <option value="z-a">名稱 Z - A</option>
               </select>
             </div>
           </div>
@@ -172,7 +172,7 @@ const ProductList = ({ products }) => {
       >
         {displayedProducts.length === 0 ? (
           <div className="rounded-[1.25rem] border border-zinc-200 bg-white px-6 py-12 text-center text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
-            No product found.
+            找不到符合條件的商品。
           </div>
         ) : (
           <>
@@ -188,11 +188,11 @@ const ProductList = ({ products }) => {
       </div>
       <ReactPaginate
         breakLabel="..."
-        nextLabel="Next"
+        nextLabel="下一頁"
         onPageChange={handlePageClick}
         pageRangeDisplayed={3}
         pageCount={pageCount}
-        previousLabel="Prev"
+        previousLabel="上一頁"
         renderOnZeroPageCount={null}
         containerClassName="mt-8 flex flex-wrap justify-center items-center gap-2 rounded-[1.25rem] border border-zinc-200 bg-white/80 p-2 dark:border-zinc-800 dark:bg-zinc-950/80"
         pageLinkClassName="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-3 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-white"

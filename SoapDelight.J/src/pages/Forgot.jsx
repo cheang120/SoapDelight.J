@@ -22,11 +22,11 @@ const Forgot = () => {
     e.preventDefault();
 
     if (!email) {
-      return dispatch(forgotFailure("Please enter an email."));
+      return dispatch(forgotFailure("請輸入電郵地址。"));
     }
 
     if (!validateEmail(email)) {
-      return dispatch(forgotFailure("Please enter a valid email."));
+      return dispatch(forgotFailure("請輸入有效的電郵地址。"));
     }
 
     const userData = {
@@ -60,17 +60,17 @@ const Forgot = () => {
 
   return (
     <AuthShell
-      eyebrow="Account Recovery"
-      title="Forgot Password"
+      eyebrow="帳戶協助"
+      title="忘記密碼"
       subtitle="輸入你的電郵地址，我們會寄送重設密碼連結給你。"
       footer={
         <>
           <Link to="/" className={authInlineLinkClassName}>
-            Home
+            首頁
           </Link>
-          <span>Remembered your password?</span>
+          <span>記得密碼了？</span>
           <Link to="/sign-in" className={authInlineLinkClassName}>
-            Sign In
+            登入
           </Link>
         </>
       }
@@ -78,7 +78,7 @@ const Forgot = () => {
       <form onSubmit={forgot} className="flex flex-col gap-5">
         <div>
           <label htmlFor="email" className={authLabelClassName}>
-            Your email
+            電郵地址
           </label>
           <input
             id="email"
@@ -99,7 +99,7 @@ const Forgot = () => {
         ) : null}
 
         <button type="submit" className={authPrimaryButtonClassName} disabled={submitting}>
-          {submitting ? "Sending..." : "Get Reset Email"}
+          {submitting ? "寄送中..." : "取得重設密碼電郵"}
         </button>
       </form>
     </AuthShell>

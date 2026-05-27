@@ -35,19 +35,19 @@ const PasswordChecklist = ({ uCase, num, sChar, passLength }) => {
       <ul className="space-y-2">
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(uCase)}
-          <span className="ml-2">Lowercase &amp; Uppercase</span>
+          <span className="ml-2">包含英文大小寫</span>
         </li>
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(num)}
-          <span className="ml-2">Number (0-9)</span>
+          <span className="ml-2">包含數字 (0-9)</span>
         </li>
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(sChar)}
-          <span className="ml-2">Special Character (!@#$%^&*)</span>
+          <span className="ml-2">包含特殊符號 (!@#$%^&*)</span>
         </li>
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(passLength)}
-          <span className="ml-2">At least 6 characters</span>
+          <span className="ml-2">至少 6 個字元</span>
         </li>
       </ul>
     </div>
@@ -117,7 +117,7 @@ export default function SignUp() {
     });
     const data = await res.json();
     if (!res.ok || data.success === false) {
-      throw new Error(data.message || "Signin failed");
+      throw new Error(data.message || "登入失敗");
     }
     dispatch(signInSuccess(data));
     navigate("/dashboard?tab=profile");
@@ -144,14 +144,14 @@ export default function SignUp() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Subscription could not be saved.");
+        throw new Error(data.message || "未能儲存訂閱設定。");
       }
 
-      toast.success("Account created and subscription saved.");
+      toast.success("帳戶已建立，訂閱設定亦已儲存。");
       return true;
     } catch (subscriptionError) {
       toast.warn(
-        "Account created, but subscription could not be saved. You can update it later in your account."
+        "帳戶已建立，但未能儲存訂閱設定。你可稍後在帳戶中更新。"
       );
       return false;
     }
@@ -160,20 +160,20 @@ export default function SignUp() {
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password || !formData.password2) {
-      return dispatch(signInFailure("Please fill out all fields."));
+      return dispatch(signInFailure("請填寫所有必填欄位。"));
     }
     if (formData.password.length < 6) {
-      return dispatch(signInFailure("Password must be at least 6 characters"));
+      return dispatch(signInFailure("密碼至少需要 6 個字元。"));
     }
     if (!validateEmail(formData.email)) {
-      return dispatch(signInFailure("Please enter a valid email"));
+      return dispatch(signInFailure("請輸入有效的電郵地址。"));
     }
     if (formData.password !== formData.password2) {
-      return dispatch(signInFailure("Passwords do not match"));
+      return dispatch(signInFailure("兩次輸入的密碼不一致。"));
     }
     if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
       return dispatch(
-        signInFailure("Passwords must contain both uppercase and lowercase letters")
+        signInFailure("密碼必須包含英文大寫及小寫字母。")
       );
     }
 
@@ -188,7 +188,7 @@ export default function SignUp() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Signup failed");
+        throw new Error(data.message || "註冊失敗");
       }
 
       await saveSignupSubscription();
@@ -205,7 +205,7 @@ export default function SignUp() {
     } catch (error) {
       dispatch(signInFailure(error.message));
       if (error.message.includes("Email already registered")) {
-        setErrorMessage("This email is already registered. Please use a different email.");
+        setErrorMessage("此電郵地址已被註冊，請使用另一個電郵地址。");
       } else {
         setErrorMessage(error.message);
       }
@@ -218,17 +218,17 @@ export default function SignUp() {
 
   return (
     <AuthShell
-      eyebrow="Create Account"
-      title="Sign Up"
+      eyebrow="建立帳戶"
+      title="註冊"
       subtitle="建立帳戶後即可管理個人資料、訂單紀錄與收藏清單。"
       footer={
         <>
           <Link to="/" className={authInlineLinkClassName}>
-            Home
+            首頁
           </Link>
-          <span>Have an account?</span>
+          <span>已經有帳戶？</span>
           <Link to="/sign-in" className={authInlineLinkClassName}>
-            Sign In
+            登入
           </Link>
         </>
       }
@@ -236,11 +236,11 @@ export default function SignUp() {
       <form className="flex flex-col gap-5" onSubmit={handleSignup}>
         <div>
           <label htmlFor="username" className={authLabelClassName}>
-            Your username
+            用戶名稱
           </label>
           <input
             type="text"
-            placeholder="Username"
+            placeholder="用戶名稱"
             id="username"
             onChange={handleChange}
             className={authInputClassName}
@@ -249,7 +249,7 @@ export default function SignUp() {
 
         <div>
           <label htmlFor="email" className={authLabelClassName}>
-            Your email
+            電郵地址
           </label>
           <input
             type="email"
@@ -262,11 +262,11 @@ export default function SignUp() {
 
         <div>
           <label htmlFor="phone" className={authLabelClassName}>
-            WhatsApp number / WhatsApp 號碼（optional）
+            WhatsApp 號碼（選填）
           </label>
           <input
             type="tel"
-            placeholder="WhatsApp number"
+            placeholder="WhatsApp 號碼"
             id="phone"
             onChange={handleChange}
             className={authInputClassName}
@@ -275,12 +275,12 @@ export default function SignUp() {
 
         <div>
           <label htmlFor="password" className={authLabelClassName}>
-            Your password
+            密碼
           </label>
           <div className="relative">
             <input
               type={showPassword1 ? "text" : "password"}
-              placeholder="Password"
+              placeholder="密碼"
               className={`${authInputClassName} pr-12`}
               required
               id="password"
@@ -290,7 +290,7 @@ export default function SignUp() {
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               onClick={togglePassword1}
-              aria-label={showPassword1 ? "Hide password" : "Show password"}
+              aria-label={showPassword1 ? "隱藏密碼" : "顯示密碼"}
             >
               {showPassword1 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
             </button>
@@ -299,12 +299,12 @@ export default function SignUp() {
 
         <div>
           <label htmlFor="password2" className={authLabelClassName}>
-            Confirm password
+            確認密碼
           </label>
           <div className="relative">
             <input
               type={showPassword2 ? "text" : "password"}
-              placeholder="Confirm Password"
+              placeholder="確認密碼"
               className={`${authInputClassName} pr-12`}
               required
               id="password2"
@@ -315,7 +315,7 @@ export default function SignUp() {
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               onClick={togglePassword2}
-              aria-label={showPassword2 ? "Hide password confirmation" : "Show password confirmation"}
+              aria-label={showPassword2 ? "隱藏確認密碼" : "顯示確認密碼"}
             >
               {showPassword2 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
             </button>
@@ -333,7 +333,7 @@ export default function SignUp() {
             className="mt-1 h-4 w-4 rounded border-zinc-300"
           />
           <span>
-            I agree to receive offers, new product updates and promotional messages from SoapDelight.J.
+            我同意接收 SoapDelight.J 的優惠、新品更新及推廣訊息。
           </span>
         </label>
 
@@ -344,7 +344,7 @@ export default function SignUp() {
         ) : null}
 
         <button type="submit" disabled={submitting} className={authPrimaryButtonClassName}>
-          {submitting ? "Loading..." : "Sign Up"}
+          {submitting ? "註冊中..." : "註冊"}
         </button>
 
         <OAuth />

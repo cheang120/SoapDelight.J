@@ -8,7 +8,7 @@ import ListOfOrders from "./ListOfOrder";
 const EmptyState = () => (
   <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
     <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-      You have no orders yet.
+      你暫時未有訂單。
     </h2>
     <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
       你暫時未有訂單。
@@ -17,7 +17,7 @@ const EmptyState = () => (
       to="/shop"
       className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
     >
-      Continue Shopping / 繼續選購
+      繼續選購
     </Link>
   </div>
 );
@@ -25,7 +25,7 @@ const EmptyState = () => (
 const SignInPrompt = () => (
   <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
     <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-      Sign in to view your orders.
+      請登入以查看訂單。
     </h2>
     <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
       登入後即可查看訂單紀錄與詳細資料。
@@ -35,13 +35,13 @@ const SignInPrompt = () => (
         to="/sign-in"
         className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
       >
-        Sign In
+        登入
       </Link>
       <Link
         to="/shop"
         className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
       >
-        Continue Shopping
+        繼續選購
       </Link>
     </div>
   </div>
@@ -71,14 +71,13 @@ const OrderHistory = () => {
       <div className="mx-auto max-w-6xl space-y-8">
         <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-emerald-700">
-            Orders
+            訂單
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Order History / 訂單紀錄
+            訂單紀錄
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-            Review your recent purchases, check order status, and open any
-            order to view the full receipt.
+            查看近期購買紀錄、訂單狀態及完整收據。
           </p>
         </section>
 
@@ -88,7 +87,7 @@ const OrderHistory = () => {
           <Loader />
         ) : isError ? (
           <div className="rounded-[1.75rem] border border-red-200 bg-red-50 px-6 py-8 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-            {message || "We couldn't load your orders right now."}
+            {message || "暫時未能載入訂單。"}
           </div>
         ) : orders.length === 0 ? (
           <EmptyState />

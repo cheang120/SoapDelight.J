@@ -31,7 +31,7 @@ const ShippingMethods = () => {
       const data = await shippingMethodService.getAdminShippingMethods();
       setShippingMethods(Array.isArray(data) ? data : []);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to load shipping methods";
+      const message = error.response?.data?.message || error.message || "未能載入送貨方式";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -85,15 +85,15 @@ const ShippingMethods = () => {
     try {
       if (isEditing) {
         await shippingMethodService.updateShippingMethod(editingId, payload);
-        toast.success("Shipping method updated");
+        toast.success("送貨方式已更新");
       } else {
         await shippingMethodService.createShippingMethod(payload);
-        toast.success("Shipping method created");
+        toast.success("送貨方式已建立");
       }
       resetForm();
       await loadShippingMethods();
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to save shipping method";
+      const message = error.response?.data?.message || error.message || "未能儲存送貨方式";
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -101,18 +101,18 @@ const ShippingMethods = () => {
   };
 
   const handleDelete = async (method) => {
-    const shouldDelete = window.confirm(`Delete shipping method "${method.name}"?`);
+    const shouldDelete = window.confirm(`刪除送貨方式「${method.name}」？`);
     if (!shouldDelete) return;
 
     try {
       await shippingMethodService.deleteShippingMethod(method._id);
-      toast.success("Shipping method deleted");
+      toast.success("送貨方式已刪除");
       await loadShippingMethods();
       if (editingId === method._id) {
         resetForm();
       }
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to delete shipping method";
+      const message = error.response?.data?.message || error.message || "未能刪除送貨方式";
       toast.error(message);
     }
   };
@@ -121,10 +121,10 @@ const ShippingMethods = () => {
     <section className="shipping-methods-page">
       <header className="shipping-methods-header">
         <div className="shipping-methods-copy">
-          <p className="shipping-methods-eyebrow">SHIPPING</p>
-          <h2 className="shipping-methods-title">Shipping Methods</h2>
+          <p className="shipping-methods-eyebrow">送貨</p>
+          <h2 className="shipping-methods-title">送貨方式</h2>
           <p className="shipping-methods-subtitle">
-            Manage delivery regions, fees and active shipping options.
+            管理送貨地區、運費及可用送貨選項。
           </p>
         </div>
       </header>
@@ -133,16 +133,16 @@ const ShippingMethods = () => {
         <div className="shipping-methods-panel">
           <div className="shipping-methods-panel-copy">
             <h3 className="shipping-methods-panel-title">
-              {isEditing ? "Edit Shipping Method" : "Create Shipping Method"}
+              {isEditing ? "編輯送貨方式" : "建立送貨方式"}
             </h3>
             <p className="shipping-methods-panel-subtitle">
-              These methods are ready for the future delivery flow. Cart and checkout still use the existing Shipping products for now.
+              這些送貨方式供目前購物車及結帳流程使用。
             </p>
           </div>
 
           <form className="shipping-methods-form" onSubmit={handleSubmit}>
             <div className="shipping-methods-field">
-              <label className="shipping-methods-label">Name</label>
+              <label className="shipping-methods-label">名稱</label>
               <input
                 className="shipping-methods-input"
                 name="name"
@@ -154,7 +154,7 @@ const ShippingMethods = () => {
             </div>
 
             <div className="shipping-methods-field">
-              <label className="shipping-methods-label">Code</label>
+              <label className="shipping-methods-label">代碼</label>
               <input
                 className="shipping-methods-input"
                 name="code"
@@ -166,18 +166,18 @@ const ShippingMethods = () => {
             </div>
 
             <div className="shipping-methods-field">
-              <label className="shipping-methods-label">Region</label>
+              <label className="shipping-methods-label">地區</label>
               <input
                 className="shipping-methods-input"
                 name="region"
                 value={formData.region}
                 onChange={handleChange}
-                placeholder="United Kingdom"
+                placeholder="英國"
               />
             </div>
 
             <div className="shipping-methods-field">
-              <label className="shipping-methods-label">Fee</label>
+              <label className="shipping-methods-label">運費</label>
               <input
                 className="shipping-methods-input"
                 type="number"
@@ -190,7 +190,7 @@ const ShippingMethods = () => {
             </div>
 
             <div className="shipping-methods-field">
-              <label className="shipping-methods-label">Currency</label>
+              <label className="shipping-methods-label">貨幣</label>
               <input
                 className="shipping-methods-input"
                 name="currency"
@@ -201,24 +201,24 @@ const ShippingMethods = () => {
             </div>
 
             <div className="shipping-methods-field shipping-methods-field--full">
-              <label className="shipping-methods-label">Estimated delivery time</label>
+              <label className="shipping-methods-label">預計送達時間</label>
               <input
                 className="shipping-methods-input"
                 name="estimatedDeliveryTime"
                 value={formData.estimatedDeliveryTime}
                 onChange={handleChange}
-                placeholder="7-14 business days"
+                placeholder="7-14 個工作天"
               />
             </div>
 
             <div className="shipping-methods-field shipping-methods-field--full">
-              <label className="shipping-methods-label">Description</label>
+              <label className="shipping-methods-label">說明</label>
               <textarea
                 className="shipping-methods-input shipping-methods-textarea"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Internal notes or customer-facing delivery description"
+                placeholder="內部備註或顧客可見的送貨說明"
               />
             </div>
 
@@ -230,7 +230,7 @@ const ShippingMethods = () => {
                   checked={formData.active}
                   onChange={handleChange}
                 />
-                <span>Active</span>
+                <span>啟用</span>
               </label>
               <label className="shipping-methods-checkbox">
                 <input
@@ -239,17 +239,17 @@ const ShippingMethods = () => {
                   checked={formData.isPickup}
                   onChange={handleChange}
                 />
-                <span>Is pickup</span>
+                <span>自取方式</span>
               </label>
             </div>
 
             <div className="shipping-methods-actions shipping-methods-field--full">
               <button type="submit" className="shipping-methods-button" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : isEditing ? "Update Method" : "Save Method"}
+                {isSubmitting ? "儲存中..." : isEditing ? "更新方式" : "儲存方式"}
               </button>
               {isEditing && (
                 <button type="button" className="shipping-methods-button shipping-methods-button--secondary" onClick={resetForm}>
-                  Cancel Edit
+                  取消編輯
                 </button>
               )}
             </div>
@@ -258,27 +258,27 @@ const ShippingMethods = () => {
 
         <div className="shipping-methods-panel">
           <div className="shipping-methods-panel-copy">
-            <h3 className="shipping-methods-panel-title">All Shipping Methods</h3>
+            <h3 className="shipping-methods-panel-title">所有送貨方式</h3>
             <p className="shipping-methods-panel-subtitle">
-              Review delivery regions, fee settings and availability.
+              查看送貨地區、運費設定及啟用狀態。
             </p>
           </div>
 
           <div className="shipping-methods-table-wrap">
             {isLoading ? (
-              <p className="shipping-methods-empty">Loading shipping methods...</p>
+              <p className="shipping-methods-empty">正在載入送貨方式...</p>
             ) : shippingMethods.length === 0 ? (
-              <p className="shipping-methods-empty">No shipping methods found</p>
+              <p className="shipping-methods-empty">暫未有送貨方式</p>
             ) : (
               <table className="shipping-methods-table">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Region</th>
-                    <th>Fee</th>
-                    <th>Active</th>
-                    <th>Pickup</th>
-                    <th className="shipping-methods-table-head-actions">Actions</th>
+                    <th>名稱</th>
+                    <th>地區</th>
+                    <th>運費</th>
+                    <th>啟用</th>
+                    <th>自取</th>
+                    <th className="shipping-methods-table-head-actions">操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -296,15 +296,15 @@ const ShippingMethods = () => {
                       </td>
                       <td>
                         <span className={`shipping-methods-badge ${method.active ? "is-active" : "is-muted"}`}>
-                          {method.active ? "Active" : "Inactive"}
+                          {method.active ? "啟用" : "停用"}
                         </span>
                       </td>
-                      <td>{method.isPickup ? "Yes" : "No"}</td>
+                      <td>{method.isPickup ? "是" : "否"}</td>
                       <td className="shipping-methods-action-cell">
                         <button
                           type="button"
                           className="shipping-methods-icon-button"
-                          aria-label={`Edit shipping method ${method.name}`}
+                          aria-label={`編輯送貨方式 ${method.name}`}
                           onClick={() => handleEdit(method)}
                         >
                           <FaEdit size={15} />
@@ -312,7 +312,7 @@ const ShippingMethods = () => {
                         <button
                           type="button"
                           className="shipping-methods-icon-button shipping-methods-icon-button--delete"
-                          aria-label={`Delete shipping method ${method.name}`}
+                          aria-label={`刪除送貨方式 ${method.name}`}
                           onClick={() => handleDelete(method)}
                         >
                           <FaTrashAlt size={15} />

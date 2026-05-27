@@ -45,10 +45,10 @@ const ContactForm = () => {
         setMessage("訊息已送出，我們會盡快回覆你。");
         setFormData(initialFormData);
       } else {
-        setError(result.message || "Failed to send message.");
+        setError(result.message || "訊息未能送出，請稍後再試。");
       }
     } catch (err) {
-      setError("Failed to send message.");
+      setError("訊息未能送出，請稍後再試。");
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ const ContactForm = () => {
               htmlFor="username"
               className="block text-sm font-medium text-zinc-700 dark:text-zinc-200"
             >
-              Name / 聯絡人姓名
+              聯絡人姓名
             </label>
             <input
               type="text"
@@ -93,7 +93,7 @@ const ContactForm = () => {
               htmlFor="email"
               className="block text-sm font-medium text-zinc-700 dark:text-zinc-200"
             >
-              Email / 電郵
+              電郵
             </label>
             <input
               type="email"
@@ -130,7 +130,7 @@ const ContactForm = () => {
             htmlFor="content"
             className="block text-sm font-medium text-zinc-700 dark:text-zinc-200"
           >
-            Message / 內容
+            內容
           </label>
           <textarea
             id="content"
@@ -148,7 +148,7 @@ const ContactForm = () => {
           disabled={loading}
           className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
         >
-          {loading ? "Sending..." : "Send Message / 送出訊息"}
+          {loading ? "送出中..." : "送出訊息"}
         </button>
       </form>
     </div>

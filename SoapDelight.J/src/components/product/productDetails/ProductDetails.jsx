@@ -31,18 +31,18 @@ import ProductImageFallback, {
 const stockCopy = (quantity) => {
   if (quantity <= 0) {
     return {
-      label: "Out of stock / 暫時缺貨",
+      label: "暫時缺貨",
       tone: "text-zinc-500 bg-zinc-100 border-zinc-200 dark:text-zinc-300 dark:bg-zinc-900 dark:border-zinc-700",
     };
   }
   if (quantity <= 3) {
     return {
-      label: "Low stock / 少量現貨",
+      label: "少量現貨",
       tone: "text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800",
     };
   }
   return {
-    label: "In stock / 有現貨",
+    label: "有現貨",
     tone: "text-emerald-800 bg-emerald-50 border-emerald-200 dark:text-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800",
   };
 };
@@ -116,7 +116,7 @@ const ProductDetails = () => {
 
   const addToCart = () => {
     if (!product || stockQuantity <= 0) {
-      toast.error("Sorry, Product is out of stock");
+      toast.error("抱歉，商品暫時缺貨");
       return;
     }
     dispatch(ADD_TO_CART(product));
@@ -132,7 +132,7 @@ const ProductDetails = () => {
   const addWishlist = async () => {
     if (!product) return;
     if (!currentUser) {
-      toast.info("Please sign in to use wishlist");
+      toast.info("請先登入才能加入收藏");
       return;
     }
 
@@ -159,16 +159,16 @@ const ProductDetails = () => {
       <section className="min-h-[60rem] px-5 py-20">
         <div className="mx-auto max-w-3xl rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-950">
           <h1 className="text-2xl font-semibold text-zinc-950 dark:text-white">
-            Product not found
+            找不到商品
           </h1>
           <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-            This product may no longer be available.
+            此商品可能已下架或暫時未能提供。
           </p>
           <Link
             to="/shop"
             className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950"
           >
-            Continue shopping
+            繼續選購
           </Link>
         </div>
       </section>
@@ -182,7 +182,7 @@ const ProductDetails = () => {
           to="/shop"
           className="inline-flex text-sm font-medium text-zinc-500 transition hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white"
         >
-          &larr; Continue shopping
+          &larr; 繼續選購
         </Link>
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14">
@@ -217,7 +217,7 @@ const ProductDetails = () => {
                         ? "border-zinc-950 dark:border-white"
                         : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800"
                     }`}
-                    aria-label={`View product image ${index + 1}`}
+                    aria-label={`查看第 ${index + 1} 張商品圖片`}
                   >
                     <img
                       src={image}
@@ -256,7 +256,7 @@ const ProductDetails = () => {
                 />
                 {ratings.length === 0 && (
                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                    No reviews yet
+                    暫未有評價
                   </p>
                 )}
               </div>
@@ -281,7 +281,7 @@ const ProductDetails = () => {
 
               <div className="mt-8 rounded-[1.25rem] border border-zinc-100 bg-[#fcfcfa] p-4 dark:border-zinc-800 dark:bg-zinc-900/70 sm:p-5">
                 <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  Quantity
+                  數量
                 </p>
                 <div className="flex w-full flex-col gap-3">
                   <div className="flex min-h-11 w-full items-center overflow-hidden rounded-full border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
@@ -290,7 +290,7 @@ const ProductDetails = () => {
                       onClick={decreaseCart}
                       disabled={!cart || cartQuantity <= 1}
                       className="flex h-11 w-14 shrink-0 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900 sm:w-12"
-                      aria-label="Decrease quantity"
+                      aria-label="減少數量"
                     >
                       <FaMinus size={12} />
                     </button>
@@ -302,13 +302,13 @@ const ProductDetails = () => {
                       onClick={addToCart}
                       disabled={stockQuantity <= 0 || cartQuantity >= stockQuantity}
                       className="flex h-11 w-14 shrink-0 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900 sm:w-12"
-                      aria-label="Increase quantity"
+                      aria-label="增加數量"
                     >
                       <FaPlus size={12} />
                     </button>
                   </div>
                   <p className="w-full text-left text-sm text-zinc-500 dark:text-zinc-400">
-                    {cart ? "In your cart" : "Add once to start"}
+                    {cart ? "已在購物車" : "加入一次即可開始選購"}
                   </p>
                 </div>
               </div>
@@ -321,7 +321,7 @@ const ProductDetails = () => {
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                 >
                   <FaShoppingBag size={15} />
-                  加入購物車 / Add to Cart
+                  加入購物車
                 </button>
                 <button
                   type="button"
@@ -359,7 +359,7 @@ const ProductDetails = () => {
       <section className="border-y border-zinc-100 bg-[#f7faf6] px-5 py-14 dark:border-zinc-800 dark:bg-zinc-900 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-2">
           <InfoPanel
-            title="商品介紹 / Product Details"
+            title="商品介紹"
             subtitle="產品說明與質感細節"
             defaultOpen
           >
@@ -373,7 +373,7 @@ const ProductDetails = () => {
             )}
           </InfoPanel>
 
-          <InfoPanel title="主要特色 / Highlights" subtitle="手作日常護理">
+          <InfoPanel title="主要特色" subtitle="手作日常護理">
             <ul className="space-y-2">
               <li>小批量製作，重視每件作品的細節。</li>
               <li>適合作為日常護理或溫柔送禮選擇。</li>
@@ -382,14 +382,14 @@ const ProductDetails = () => {
           </InfoPanel>
 
           <InfoPanel
-            title="成分及用法 / Ingredients & How to Use"
+            title="成分及用法"
             subtitle="以商品說明為準"
           >
             <p>詳細成分及使用方法請參考商品說明。</p>
           </InfoPanel>
 
           <InfoPanel
-            title="保存及注意事項 / Care & Notes"
+            title="保存及注意事項"
             subtitle="天然手作產品的小提醒"
           >
             <p>
@@ -398,7 +398,7 @@ const ProductDetails = () => {
           </InfoPanel>
 
           <InfoPanel
-            title="送貨及自取 / Delivery & Pickup"
+            title="送貨及自取"
             subtitle="澳門本地安排"
           >
             <p>
@@ -412,17 +412,17 @@ const ProductDetails = () => {
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-              Reviews
+              評價
             </p>
             <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-              評價 / Reviews
+              評價
             </h2>
           </div>
           <Link
             to={`/review-product/${id}`}
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
           >
-            Write a review
+            撰寫評價
           </Link>
         </div>
 
@@ -454,7 +454,7 @@ const ProductDetails = () => {
                       </p>
                       <div className="mt-4 flex flex-wrap gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                         {reviewDate && <span>{reviewDate}</span>}
-                        {name && <span>by {name}</span>}
+                        {name && <span>由 {name} 撰寫</span>}
                       </div>
                     </article>
                   );
@@ -464,7 +464,7 @@ const ProductDetails = () => {
           ) : (
             <div className="mt-8 rounded-lg bg-zinc-50 p-8 text-center dark:bg-zinc-900">
               <p className="text-zinc-600 dark:text-zinc-300">
-                There are no reviews for this product yet.
+                此商品暫未有評價。
               </p>
             </div>
           )}

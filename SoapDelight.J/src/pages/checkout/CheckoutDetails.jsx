@@ -29,17 +29,17 @@ const initialAddressState = {
 };
 
 const contactFields = [
-  { name: "email", label: "Email", placeholder: "電郵地址 / Email", type: "email" },
-  { name: "phone", label: "Phone", placeholder: "聯絡電話 / Phone", type: "tel" },
+  { name: "email", label: "電郵地址", placeholder: "請輸入電郵地址", type: "email" },
+  { name: "phone", label: "聯絡電話", placeholder: "請輸入聯絡電話", type: "tel" },
 ];
 
 const deliveryFields = [
-  { name: "name", label: "Recipient Name", placeholder: "收件人姓名 / Recipient Name" },
-  { name: "line1", label: "Address line 1", placeholder: "地址第一行 / Address line 1" },
-  { name: "line2", label: "Address line 2", placeholder: "地址第二行（選填） / Address line 2" },
-  { name: "city", label: "City / Area", placeholder: "城市 / 地區 / City / Area" },
-  { name: "state", label: "State / Region", placeholder: "州 / 地區 / State / Region" },
-  { name: "postal_code", label: "Postal code", placeholder: "郵遞區號 / Postal code" },
+  { name: "name", label: "收件人姓名", placeholder: "請輸入收件人姓名" },
+  { name: "line1", label: "地址第一行", placeholder: "請輸入地址第一行" },
+  { name: "line2", label: "地址第二行", placeholder: "選填" },
+  { name: "city", label: "城市 / 地區", placeholder: "請輸入城市或地區" },
+  { name: "state", label: "州 / 地區", placeholder: "請輸入州或地區" },
+  { name: "postal_code", label: "郵遞區號", placeholder: "請輸入郵遞區號" },
 ];
 
 const CheckoutDetails = () => {
@@ -152,7 +152,7 @@ const CheckoutDetails = () => {
 
         <div className={`${styles.field} ${styles.fieldFull}`}>
           <label htmlFor={`${type}-country`}>
-            Country / Region <span>*</span>
+            國家 / 地區 <span>*</span>
           </label>
           <CountryDropdown
             id={`${type}-country`}
@@ -178,11 +178,11 @@ const CheckoutDetails = () => {
       <main className={styles.page}>
         <div className={styles.container}>
           <section className={styles.emptyState}>
-            <p className={styles.eyebrow}>Checkout</p>
-            <h1>Your cart is empty.</h1>
+            <p className={styles.eyebrow}>結帳</p>
+            <h1>購物車是空的。</h1>
             <p>先加入想要的商品，再完成結帳流程。</p>
             <Link to="/shop" className={styles.primaryButton}>
-              Continue Shopping / 繼續選購
+              繼續選購
             </Link>
           </section>
         </div>
@@ -195,11 +195,11 @@ const CheckoutDetails = () => {
       <main className={styles.page}>
         <div className={styles.container}>
           <section className={styles.emptyState}>
-            <p className={styles.eyebrow}>Delivery Method</p>
-            <h1>Please choose a delivery method first.</h1>
+            <p className={styles.eyebrow}>送貨方式</p>
+            <h1>請先選擇送貨方式。</h1>
             <p>請先返回購物車選擇送貨方式或本地自取，再繼續結帳。</p>
             <Link to="/cart" className={styles.primaryButton}>
-              Back to Cart / 返回購物車
+              返回購物車
             </Link>
           </section>
         </div>
@@ -212,14 +212,14 @@ const CheckoutDetails = () => {
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>Checkout Details</p>
+            <p className={styles.eyebrow}>結帳資料</p>
             <h1>結帳資料</h1>
             <p className={styles.lead}>
               填寫聯絡及收貨資料，下一步會進入安全付款頁面。
             </p>
           </div>
           <Link to="/cart" className={styles.secondaryLink}>
-            &larr; Back to Cart
+            &larr; 返回購物車
           </Link>
         </div>
 
@@ -234,7 +234,7 @@ const CheckoutDetails = () => {
         <form onSubmit={handleSubmit} className={styles.layout}>
           <div className={styles.formColumn}>
             {renderAddressSection(
-              "Contact Information / 聯絡資料",
+              "聯絡資料",
               "訂單更新與確認資訊會以此聯絡方式為準。",
               contactFields,
               shippingAddress,
@@ -243,7 +243,7 @@ const CheckoutDetails = () => {
             )}
 
             {renderAddressSection(
-              "Delivery Information / 收貨資料",
+              "收貨資料",
               "請填寫收件人及送貨地址資料。",
               deliveryFields,
               shippingAddress,
@@ -259,15 +259,15 @@ const CheckoutDetails = () => {
                   onChange={(e) => setUseShippingAsBilling(e.target.checked)}
                 />
                 <span>
-                  Billing details are the same as delivery details
-                  <small>帳單資料與收貨資料相同</small>
+                  帳單資料與收貨資料相同
+                  <small>如需另一個帳單地址，請取消勾選。</small>
                 </span>
               </label>
             </section>
 
             {!useShippingAsBilling &&
               renderAddressSection(
-                "Billing Address / 帳單資料",
+                "帳單資料",
                 "如需分開帳單地址，可於此填寫。",
                 deliveryFields,
                 billingAddress,
@@ -278,14 +278,14 @@ const CheckoutDetails = () => {
 
           <aside className={styles.summaryColumn}>
             <div className={styles.summaryCard}>
-              <CheckoutSummary title="Order Summary" showCouponEditor />
+              <CheckoutSummary title="訂單摘要" showCouponEditor />
 
               <div className={styles.summaryFooter}>
                 <button type="submit" className={styles.primaryButton}>
-                  Continue to Payment / 前往付款
+                  前往付款
                 </button>
                 <p>
-                  Payment is completed securely on the next step via Stripe.
+                  下一步會透過 Stripe 安全完成付款。
                 </p>
               </div>
             </div>

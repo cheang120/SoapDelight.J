@@ -6,7 +6,7 @@ const SearchUser = ({value, onChange}) => {
   return (
     <div className={styles.search}>
         <BiSearch size={18} className={styles.icon} />
-        <input type='text' placeholder='Search Users' value={value} onChange={onChange}/>
+        <input type='text' placeholder='搜尋使用者' value={value} onChange={onChange}/>
     </div>
   )
 }

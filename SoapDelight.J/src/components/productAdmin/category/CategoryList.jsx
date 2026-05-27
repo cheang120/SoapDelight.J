@@ -16,15 +16,15 @@ const CategoryList = () => {
 
       const confirmDelete = (slug) => {
         confirmAlert({
-          title: "Delete Category",
-          message: "Are you sure you want to delete this category?",
+          title: "刪除分類",
+          message: "確定要刪除此分類嗎？",
           buttons: [
             {
-              label: "Delete",
+              label: "刪除",
               onClick: () => delCat(slug),
             },
             {
-              label: "Cancel",
+              label: "取消",
               // onClick: () => alert('Click No')
             },
           ],
@@ -39,19 +39,19 @@ const CategoryList = () => {
   return (
     <div className="admin-taxonomy-panel">
       <div className="admin-taxonomy-panel-copy">
-        <h3 className="admin-taxonomy-panel-title">All Categories</h3>
-        <p className="admin-taxonomy-panel-subtitle">Manage existing product categories.</p>
+        <h3 className="admin-taxonomy-panel-title">所有分類</h3>
+        <p className="admin-taxonomy-panel-subtitle">管理現有商品分類。</p>
       </div>
       <div className="admin-taxonomy-table-wrap">
         {categories.length === 0 ? (
-          <p className="admin-taxonomy-empty">No category found!</p>
+          <p className="admin-taxonomy-empty">暫未有分類。</p>
         ) : (
           <table className="admin-taxonomy-table">
             <thead>
               <tr>
-                <th>s/n</th>
-                <th>Name</th>
-                <th className="admin-taxonomy-table-head-actions">Action</th>
+                <th>序號</th>
+                <th>名稱</th>
+                <th className="admin-taxonomy-table-head-actions">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -62,7 +62,7 @@ const CategoryList = () => {
                     <td>{index + 1}</td>
                     <td>{name}</td>
                     <td className="admin-taxonomy-action-cell">
-                      <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`Delete ${name}`} onClick={() => confirmDelete(slug)}>
+                      <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`刪除 ${name}`} onClick={() => confirmDelete(slug)}>
                         <FaTrashAlt size={16} />
                       </button>
                     </td>

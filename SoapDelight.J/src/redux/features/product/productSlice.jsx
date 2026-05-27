@@ -247,7 +247,7 @@ const productSlice = createSlice({
             return toast.error(action.payload.message)
           } else {
             state.message = "Product created successfully"
-            toast.success("Product created successfully");
+            toast.success("商品已成功建立");
           }
           state.products.push(action.payload);
         })
@@ -287,7 +287,7 @@ const productSlice = createSlice({
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          toast.success("Product deleted successfully");
+          toast.success("商品已成功刪除");
         })
         .addCase(deleteProduct.rejected, (state, action) => {
           state.isLoading = false;
@@ -323,7 +323,7 @@ const productSlice = createSlice({
             return toast.error(action.payload.message)
           } else {
             state.message = "Product updated successfully"
-            toast.success("Product updated successfully");
+            toast.success("商品已成功更新");
           }
         })
         .addCase(updateProduct.rejected, (state, action) => {

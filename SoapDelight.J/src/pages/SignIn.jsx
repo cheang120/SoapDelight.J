@@ -35,19 +35,19 @@ const PasswordChecklist = ({ uCase, num, sChar, passLength }) => {
       <ul className="space-y-2">
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(uCase)}
-          <span className="ml-2">Lowercase &amp; Uppercase</span>
+          <span className="ml-2">包含英文大小寫</span>
         </li>
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(num)}
-          <span className="ml-2">Number (0-9)</span>
+          <span className="ml-2">包含數字 (0-9)</span>
         </li>
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(sChar)}
-          <span className="ml-2">Special Character (!@#$%^&*)</span>
+          <span className="ml-2">包含特殊符號 (!@#$%^&*)</span>
         </li>
         <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
           {switchIcon(passLength)}
-          <span className="ml-2">At least 6 characters</span>
+          <span className="ml-2">至少 6 個字元</span>
         </li>
       </ul>
     </div>
@@ -104,15 +104,15 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return dispatch(signInFailure("Please fill out all fields."));
+      return dispatch(signInFailure("請填寫所有必填欄位。"));
     }
 
     if (!validateEmail(formData.email)) {
-      return dispatch(signInFailure("Please enter a valid email"));
+      return dispatch(signInFailure("請輸入有效的電郵地址。"));
     }
 
     if (!formData.password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) {
-      return dispatch(signInFailure("Passwords must contain Uppercase and Lowercase"));
+      return dispatch(signInFailure("密碼必須包含英文大寫及小寫字母。"));
     }
     setSubmitting(true);
     try {
@@ -125,7 +125,7 @@ export default function SignIn() {
       });
       const data = await res.json();
       if (!res.ok || data.success === false) {
-        throw new Error(data.message || "Sign in failed");
+        throw new Error(data.message || "登入失敗");
       }
 
       dispatch(signInSuccess(data));
@@ -138,7 +138,7 @@ export default function SignIn() {
       dispatch(getCartDB());
       navigate("/dashboard?tab=profile");
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Sign in failed";
+      const message = error.response?.data?.message || error.message || "登入失敗";
       dispatch(signInFailure(message));
     } finally {
       setSubmitting(false);
@@ -147,17 +147,17 @@ export default function SignIn() {
 
   return (
     <AuthShell
-      eyebrow="Welcome Back"
-      title="Sign In"
+      eyebrow="歡迎回來"
+      title="登入"
       subtitle="登入後即可查看帳戶資料、訂單紀錄與你的收藏清單。"
       footer={
         <>
           <Link to="/" className={authInlineLinkClassName}>
-            Home
+            首頁
           </Link>
-          <span>Don&apos;t have an account?</span>
+          <span>還未有帳戶？</span>
           <Link to="/sign-up" className={authInlineLinkClassName}>
-            Sign Up
+            註冊
           </Link>
         </>
       }
@@ -165,7 +165,7 @@ export default function SignIn() {
       <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email" className={authLabelClassName}>
-            Your email
+            電郵地址
           </label>
           <input
             type="email"
@@ -179,16 +179,16 @@ export default function SignIn() {
         <div>
           <div className="mb-2 flex items-center justify-between gap-3">
             <label htmlFor="password" className={authLabelClassName}>
-              Your password
+            密碼
             </label>
             <Link to="/forgotpassword" className={`${authInlineLinkClassName} text-xs sm:text-sm`}>
-              Forgot Password
+              忘記密碼
             </Link>
           </div>
           <div className="relative">
             <input
               type={showPassword1 ? "text" : "password"}
-              placeholder="Password"
+              placeholder="密碼"
               className={`${authInputClassName} pr-12`}
               required
               id="password"
@@ -198,7 +198,7 @@ export default function SignIn() {
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               onClick={togglePassword1}
-              aria-label={showPassword1 ? "Hide password" : "Show password"}
+              aria-label={showPassword1 ? "隱藏密碼" : "顯示密碼"}
             >
               {showPassword1 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
             </button>
@@ -214,7 +214,7 @@ export default function SignIn() {
         ) : null}
 
         <button type="submit" disabled={submitting} className={authPrimaryButtonClassName}>
-          {submitting ? "Loading..." : "Sign In"}
+          {submitting ? "登入中..." : "登入"}
         </button>
 
         <OAuth />

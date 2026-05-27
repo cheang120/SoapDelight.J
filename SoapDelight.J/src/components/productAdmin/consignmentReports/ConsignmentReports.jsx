@@ -16,19 +16,25 @@ const emptyItemRow = {
 
 const money = (value) => `$${Number(value || 0).toFixed(2)}`;
 
+const reportStatusLabel = (status) => {
+  if (status === "confirmed") return "已確認";
+  if (status === "draft") return "草稿";
+  return status || "-";
+};
+
 const getReportProductSummary = (report) => {
   const items = Array.isArray(report?.items) ? report.items : [];
 
   if (items.length === 0) return "-";
 
   const names = items
-    .map((item) => item.locationProductNameAtSale || item.productNameAtSale || "Product")
+    .map((item) => item.locationProductNameAtSale || item.productNameAtSale || "商品")
     .filter(Boolean);
 
   const uniqueNames = [...new Set(names)];
   const summary = uniqueNames.slice(0, 3).join(", ");
 
-  return uniqueNames.length > 3 ? `${summary} +${uniqueNames.length - 3} more` : summary;
+  return uniqueNames.length > 3 ? `${summary} +${uniqueNames.length - 3} 項` : summary;
 };
 
 const ConsignmentReports = () => {
@@ -117,7 +123,7 @@ const ConsignmentReports = () => {
       setProducts(Array.isArray(productData) ? productData : []);
       setReports(Array.isArray(reportData) ? reportData : []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not load consignment reports");
+      toast.error(error?.response?.data?.message || "未能載入寄賣回報");
     } finally {
       setLoading(false);
     }
@@ -134,7 +140,7 @@ const ConsignmentReports = () => {
 
   const handleSaveDraft = async () => {
     if (!reportForm.locationCode) {
-      toast.error("Please select a consignment location.");
+      toast.error("請選擇寄賣地點。");
       return;
     }
 
@@ -161,7 +167,7 @@ const ConsignmentReports = () => {
       });
 
     if (validItems.length === 0) {
-      toast.error("Please add at least one valid sales item.");
+      toast.error("請至少新增一項有效銷售項目。");
       return;
     }
 
@@ -175,7 +181,7 @@ const ConsignmentReports = () => {
         items: validItems,
       });
 
-      toast.success("Consignment report draft saved.");
+      toast.success("寄賣回報草稿已儲存。");
       setItemRows([{ ...emptyItemRow }]);
       setReportForm({
         locationCode: "",
@@ -185,7 +191,7 @@ const ConsignmentReports = () => {
       });
       loadData();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not save draft report");
+      toast.error(error?.response?.data?.message || "未能儲存草稿回報");
     } finally {
       setSaving(false);
     }
@@ -213,7 +219,7 @@ const ConsignmentReports = () => {
     if (!report?._id || report.status !== "draft") return;
 
     const ok = window.confirm(
-      `Confirm ${report.reportNumber}? This will deduct stock from the consignment location and cannot be edited afterwards.`
+      `確認 ${report.reportNumber}？確認後會從寄賣地點扣除存貨，之後不可再編輯。`
     );
 
     if (!ok) return;
@@ -221,10 +227,10 @@ const ConsignmentReports = () => {
     setConfirmingId(report._id);
     try {
       await consignmentReportService.confirmConsignmentReport(report._id);
-      toast.success("Consignment report confirmed and stock deducted.");
+      toast.success("寄賣回報已確認，存貨已扣除。");
       loadData();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not confirm report");
+      toast.error(error?.response?.data?.message || "未能確認回報");
     } finally {
       setConfirmingId("");
     }
@@ -234,29 +240,29 @@ const ConsignmentReports = () => {
     <section className="consignment-reports">
       <header className="consignment-reports__header">
         <div>
-          <p className="consignment-reports__eyebrow">Consignment</p>
-          <h2>Consignment Sales Reports / 寄賣銷售回報</h2>
-          <p>PDF and invoice generation will be added later after you provide the document style.</p>
+          <p className="consignment-reports__eyebrow">寄賣</p>
+          <h2>寄賣銷售回報</h2>
+          <p>PDF 及 invoice 會在你提供文件樣式後另行加入。</p>
         </div>
 
         <button type="button" onClick={loadData} disabled={loading}>
-          {loading ? "Refreshing..." : "Refresh"}
+          {loading ? "重新整理中..." : "重新整理"}
         </button>
       </header>
 
       <div className="consignment-reports__card">
-        <p>Consignment locations: {locations.filter((item) => item.type === "consignment").length}</p>
-        <p>Products loaded: {products.length}</p>
-        <p>Reports loaded: {reports.length}</p>
+        <p>寄賣地點：{locations.filter((item) => item.type === "consignment").length}</p>
+        <p>已載入商品：{products.length}</p>
+        <p>已載入回報：{reports.length}</p>
       </div>
 
       <div className="consignment-reports__card">
-        <h3>Report details / 回報資料</h3>
+        <h3>回報資料</h3>
 
         <label>
-          Consignment location
+          寄賣地點
           <select name="locationCode" value={reportForm.locationCode} onChange={handleReportFormChange}>
-            <option value="">Select location</option>
+            <option value="">選擇地點</option>
             {consignmentLocations.map((location) => (
               <option key={location._id} value={location.code}>
                 {location.name} ({location.code})
@@ -266,34 +272,34 @@ const ConsignmentReports = () => {
         </label>
 
         <label>
-          Sales report received date / 收到銷售回報日期
+          收到銷售回報日期
           <input name="periodStart" type="date" value={reportForm.periodStart} onChange={handleReportFormChange} />
         </label>
 <label>
-          Source document / Reference
+          來源文件 / 參考資料
           <input name="sourceDocument" value={reportForm.sourceDocument} onChange={handleReportFormChange} />
         </label>
 
         <label>
-          Note
+          備註
           <textarea name="note" rows="2" value={reportForm.note} onChange={handleReportFormChange} />
         </label>
       </div>
 
       <div className="consignment-reports__card">
-        <h3>Sales item rows / 銷售項目</h3>
-        <p>Each row can use its own discount and commission. Saving will be added in the next step.</p>
+        <h3>銷售項目</h3>
+        <p>每一列可使用不同折扣及佣金設定。</p>
 
         <div className="consignment-reports__items">
           {itemRows.map((row, index) => (
             <div className="consignment-reports__item" key={index}>
               <label>
-                Product
+                商品
                 <select
                   value={row.productId}
                   onChange={(event) => handleItemChange(index, "productId", event.target.value)}
                 >
-                  <option value="">Select product</option>
+                  <option value="">選擇商品</option>
                   {productOptions.map((product) => (
                     <option key={product.productId} value={product.productId}>
                       {product.name} {product.centralSku ? `(${product.centralSku})` : ""}
@@ -303,7 +309,7 @@ const ConsignmentReports = () => {
               </label>
 
               <label>
-                Qty
+                數量
                 <input
                   type="number"
                   min="1"
@@ -313,7 +319,7 @@ const ConsignmentReports = () => {
               </label>
 
               <label>
-                Unit price
+                單價
                 <input
                   type="number"
                   min="0"
@@ -324,7 +330,7 @@ const ConsignmentReports = () => {
               </label>
 
               <label>
-                Discount %
+                折扣 %
                 <input
                   type="number"
                   min="0"
@@ -336,82 +342,82 @@ const ConsignmentReports = () => {
               </label>
 
               <label>
-                Commission %
+                佣金 %
                 <input
                   type="number"
                   min="0"
                   step="0.01"
                   value={row.commissionRateAtSale}
                   onChange={(event) => handleItemChange(index, "commissionRateAtSale", event.target.value)}
-                  placeholder="Use product/location default"
+                  placeholder="使用商品 / 地點預設值"
                 />
               </label>
 
               <label>
-                Promotion note
+                推廣備註
                 <input
                   value={row.promotionNote}
                   onChange={(event) => handleItemChange(index, "promotionNote", event.target.value)}
-                  placeholder="Second item half price"
+                  placeholder="第二件半價"
                 />
               </label>
 
               <div className="consignment-reports__preview">
-                <span>Gross: {money(itemPreviewRows[index]?.grossAmount)}</span>
-                <span>Discount: {money(itemPreviewRows[index]?.discountAmount)}</span>
-                <span>Commission: {money(itemPreviewRows[index]?.commissionAmount)}</span>
-                <strong>Net: {money(itemPreviewRows[index]?.netPayable)}</strong>
+                <span>總額：{money(itemPreviewRows[index]?.grossAmount)}</span>
+                <span>折扣：{money(itemPreviewRows[index]?.discountAmount)}</span>
+                <span>佣金：{money(itemPreviewRows[index]?.commissionAmount)}</span>
+                <strong>應收：{money(itemPreviewRows[index]?.netPayable)}</strong>
               </div>
 
               <button type="button" onClick={() => removeItemRow(index)} disabled={itemRows.length === 1}>
-                Remove
+                移除
               </button>
             </div>
           ))}
         </div>
 
         <div className="consignment-reports__totals">
-          <span>Gross total: {money(previewTotals.grossAmount)}</span>
-          <span>Discount total: {money(previewTotals.discountAmount)}</span>
-          <span>Commission total: {money(previewTotals.commissionAmount)}</span>
-          <strong>Net payable: {money(previewTotals.netPayable)}</strong>
+          <span>總額：{money(previewTotals.grossAmount)}</span>
+          <span>折扣：{money(previewTotals.discountAmount)}</span>
+          <span>佣金：{money(previewTotals.commissionAmount)}</span>
+          <strong>應收金額：{money(previewTotals.netPayable)}</strong>
         </div>
 
         <button type="button" onClick={addItemRow}>
-          Add item row
+          新增銷售項目
         </button>
 
         <button type="button" onClick={handleSaveDraft} disabled={saving}>
-          {saving ? "Saving..." : "Save draft report"}
+          {saving ? "儲存中..." : "儲存草稿回報"}
         </button>
       </div>
 
       <div className="consignment-reports__history">
         <div className="consignment-reports__history-head">
           <div>
-            <p className="consignment-reports__eyebrow">History</p>
-            <h3>Recent reports / 最近寄賣回報</h3>
+            <p className="consignment-reports__eyebrow">紀錄</p>
+            <h3>最近寄賣回報</h3>
           </div>
-          <p>Draft reports can be reviewed before confirmation. Confirm action will be added later.</p>
+          <p>草稿回報可在確認前檢查；確認後會扣除相應寄賣存貨。</p>
         </div>
 
         {reports.length === 0 ? (
-          <p className="consignment-reports__empty">No consignment reports yet.</p>
+          <p className="consignment-reports__empty">暫未有寄賣回報。</p>
         ) : (
           <div className="consignment-reports__table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Report</th>
-                  <th>Location</th>
-                  <th>Products</th>
-                  <th>Status</th>
-                  <th>Qty</th>
-                  <th>Gross</th>
-                  <th>Discount</th>
-                  <th>Commission</th>
-                  <th>Net payable</th>
-                  <th>Action</th>
+                  <th>回報</th>
+                  <th>地點</th>
+                  <th>商品</th>
+                  <th>狀態</th>
+                  <th>數量</th>
+                  <th>總額</th>
+                  <th>折扣</th>
+                  <th>佣金</th>
+                  <th>應收金額</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -422,7 +428,7 @@ const ConsignmentReports = () => {
                     <td>{getReportProductSummary(report)}</td>
                     <td>
                       <span className={`consignment-reports__status consignment-reports__status--${report.status}`}>
-                        {report.status}
+                        {reportStatusLabel(report.status)}
                       </span>
                     </td>
                     <td>{report.totalQuantity || 0}</td>
@@ -438,10 +444,10 @@ const ConsignmentReports = () => {
                           onClick={() => handleConfirmReport(report)}
                           disabled={confirmingId === report._id}
                         >
-                          {confirmingId === report._id ? "Confirming..." : "Confirm"}
+                          {confirmingId === report._id ? "確認中..." : "確認"}
                         </button>
                       ) : (
-                        <span className="consignment-reports__muted">Confirmed</span>
+                        <span className="consignment-reports__muted">已確認</span>
                       )}
                     </td>
                   </tr>

@@ -18,15 +18,15 @@ const BrandList = () => {
   
         const confirmDelete = (slug) => {
           confirmAlert({
-            title: "Delete Category",
-            message: "Are you sure you want to delete this category?",
+            title: "刪除品牌",
+            message: "確定要刪除此品牌嗎？",
             buttons: [
               {
-                label: "Delete",
+                label: "刪除",
                 onClick: () => delBrand(slug),
               },
               {
-                label: "Cancel",
+                label: "取消",
                 // onClick: () => alert('Click No')
               },
             ],
@@ -41,20 +41,20 @@ const BrandList = () => {
     return (
       <div className="admin-taxonomy-panel">
           <div className="admin-taxonomy-panel-copy">
-            <h3 className="admin-taxonomy-panel-title">All Brands</h3>
-            <p className="admin-taxonomy-panel-subtitle">Manage product brands and their parent categories.</p>
+            <h3 className="admin-taxonomy-panel-title">所有品牌</h3>
+            <p className="admin-taxonomy-panel-subtitle">管理商品品牌與所屬分類。</p>
           </div>
           <div className="admin-taxonomy-table-wrap">
               {brands.length === 0 ? (
-                  <p className="admin-taxonomy-empty">No brand found!</p>
+                  <p className="admin-taxonomy-empty">暫未有品牌。</p>
               ) : (
                   <table className="admin-taxonomy-table">
                       <thead>
                           <tr>
-                              <th>s/n</th>
-                              <th>Name</th>
-                              <th>Category</th>
-                              <th className="admin-taxonomy-table-head-actions">Action</th>
+                              <th>序號</th>
+                              <th>名稱</th>
+                              <th>分類</th>
+                              <th className="admin-taxonomy-table-head-actions">操作</th>
                           </tr>
                       </thead>
                       <tbody>
@@ -72,7 +72,7 @@ const BrandList = () => {
                                           {category}
                                       </td>
                                       <td className="admin-taxonomy-action-cell">
-                                          <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`Delete ${name}`} onClick={() => confirmDelete(slug)}>
+                                          <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`刪除 ${name}`} onClick={() => confirmDelete(slug)}>
                                               <FaTrashAlt size={16} />
                                           </button>
                                       </td>

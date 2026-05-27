@@ -125,17 +125,17 @@ const Reset = () => {
 
   return (
     <AuthShell
-      eyebrow="ACCOUNT SECURITY"
-      title="Reset Password"
-      subtitle="Enter your new password below."
+      eyebrow="帳戶安全"
+      title="重設密碼"
+      subtitle="請在下方輸入你的新密碼。"
       footer={
         <>
           <Link to="/" className={authInlineLinkClassName}>
-            Home
+            首頁
           </Link>
-          <span>Need to go back?</span>
+          <span>需要返回？</span>
           <Link to="/sign-in" className={authInlineLinkClassName}>
-            Login
+            登入
           </Link>
         </>
       }
@@ -143,12 +143,12 @@ const Reset = () => {
       <form onSubmit={reset} className="flex flex-col gap-5">
         <div>
           <label htmlFor="password" className={authLabelClassName}>
-            Your password
+            新密碼
           </label>
           <div className="relative">
             <input
               type={showPassword1 ? "text" : "password"}
-              placeholder="Password"
+              placeholder="新密碼"
               className={`${authInputClassName} pr-12`}
               required
               id="password"
@@ -158,7 +158,7 @@ const Reset = () => {
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               onClick={togglePassword1}
-              aria-label={showPassword1 ? "Hide password" : "Show password"}
+              aria-label={showPassword1 ? "隱藏密碼" : "顯示密碼"}
             >
               {showPassword1 ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
             </button>
@@ -167,12 +167,12 @@ const Reset = () => {
 
         <div>
           <label htmlFor="password2" className={authLabelClassName}>
-            Confirm password
+            確認密碼
           </label>
           <div className="relative">
             <input
               type={showPassword2 ? "text" : "password"}
-              placeholder="Confirm Password"
+              placeholder="確認密碼"
               className={`${authInputClassName} pr-12`}
               required
               id="password2"
@@ -182,7 +182,7 @@ const Reset = () => {
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-4 text-zinc-500 transition hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               onClick={togglePassword2}
-              aria-label={showPassword2 ? "Hide password confirmation" : "Show password confirmation"}
+              aria-label={showPassword2 ? "隱藏確認密碼" : "顯示確認密碼"}
             >
               {showPassword2 ? (
                 <AiOutlineEyeInvisible size={20} />
@@ -197,25 +197,25 @@ const Reset = () => {
           <ul className="space-y-2">
             <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
               {switchIcon(uCase)}
-              <span className="ml-2">Lowercase &amp; Uppercase</span>
+              <span className="ml-2">包含英文大小寫</span>
             </li>
             <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
               {switchIcon(num)}
-              <span className="ml-2">Number (0-9)</span>
+              <span className="ml-2">包含數字 (0-9)</span>
             </li>
             <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
               {switchIcon(sChar)}
-              <span className="ml-2">Special Character (!@#$%^&*)</span>
+              <span className="ml-2">包含特殊符號 (!@#$%^&*)</span>
             </li>
             <li className="flex items-center text-[0.72rem] text-zinc-500 dark:text-zinc-400">
               {switchIcon(passLength)}
-              <span className="ml-2">At least 6 characters</span>
+              <span className="ml-2">至少 6 個字元</span>
             </li>
           </ul>
         </div>
 
         <button type="submit" className={authPrimaryButtonClassName} disabled={submitting}>
-          {submitting ? "Resetting..." : "Reset Password"}
+          {submitting ? "重設中..." : "重設密碼"}
         </button>
       </form>
     </AuthShell>

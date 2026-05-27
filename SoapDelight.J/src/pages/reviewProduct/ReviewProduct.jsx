@@ -8,6 +8,7 @@ import { BsTrash } from "react-icons/bs";
 import StarRating from "react-star-ratings";
 import { FaEdit } from "react-icons/fa";
 import { Spinner } from "../../components/Loader";
+import { ProductImage } from "../../utils/productImageFallback.jsx";
 
 const ReviewProducts = () => {
   const { id } = useParams();
@@ -30,7 +31,7 @@ const ReviewProducts = () => {
   const submitReview = async (e) => {
     e.preventDefault();
     if (rate === 0 || review === "") {
-      return toast.error("Please enter rating and review");
+      return toast.error("請輸入評分及評價內容。");
     }
 
     const today = new Date();
@@ -63,7 +64,7 @@ const ReviewProducts = () => {
   const editReview = async (e) => {
     e.preventDefault();
     if (rate === 0 || review === "") {
-      return toast.error("Please enter rating and review");
+      return toast.error("請輸入評分及評價內容。");
     }
 
     const today = new Date();
@@ -92,24 +93,25 @@ const ReviewProducts = () => {
   return (
     <section className="py-8 px-4 md:px-8 lg:px-16 min-h-[70rem]">
       <div className="container mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Review Products</h2>
+        <h2 className="text-2xl font-bold mb-6">商品評價</h2>
         {isLoading && product === null ? (
           <Spinner />
         ) : (
           <>
             <p className="text-lg mb-4">
-              <b>Product name:</b> {product?.name}
+              <b>商品名稱：</b> {product?.name}
             </p>
-            <img
-              src={product?.image[0]}
-              alt={product?.name}
+            <ProductImage
+              product={product}
+              alt={product?.name || "商品圖片"}
               className="w-24 h-24 object-cover mb-6"
+              fallbackClassName="w-24 h-24 mb-6"
             />
           </>
         )}
         {userReview?.length > 0 && !isEditing ? (
           <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-            <h3 className="text-xl font-semibold mb-4">Your Review</h3>
+            <h3 className="text-xl font-semibold mb-4">你的評價</h3>
             {userReview.map((item, index) => {
               const { star, review, reviewDate, name } = item;
               return (
@@ -127,7 +129,7 @@ const ReviewProducts = () => {
                       <b>{reviewDate}</b>
                     </span>
                     <span className="block text-sm text-gray-500">
-                      <b>by: {name}</b>
+                      <b>由 {name} 撰寫</b>
                     </span>
                   </div>
                   <div className="flex space-x-4">
@@ -149,7 +151,7 @@ const ReviewProducts = () => {
         ) : (
           <div className="bg-white shadow-md rounded-lg p-6 w-full md:w-1/2 mx-auto">
             <form>
-              <label className="block text-lg font-medium mb-2">Rating:</label>
+              <label className="block text-lg font-medium mb-2">評分：</label>
               <StarRating
                 starDimension="25px"
                 starSpacing="4px"
@@ -161,13 +163,13 @@ const ReviewProducts = () => {
                 isSelectable={true}
                 className="mb-4"
               />
-              <label className="block text-lg font-medium mb-2">Review</label>
+              <label className="block text-lg font-medium mb-2">評價內容</label>
               <textarea
                 value={review}
                 onChange={(e) => setReview(e.target.value)}
                 className="w-full p-4 rounded-md border-gray-300 mb-4"
                 rows="6"
-                placeholder="Write your review here..."
+                placeholder="請在此輸入評價..."
               ></textarea>
               <div className="flex space-x-4">
                 {!isEditing ? (
@@ -175,7 +177,7 @@ const ReviewProducts = () => {
                     onClick={submitReview}
                     className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    Submit Review
+                    提交評價
                   </button>
                 ) : (
                   <>
@@ -183,13 +185,13 @@ const ReviewProducts = () => {
                       onClick={editReview}
                       className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                     >
-                      Update Review
+                      更新評價
                     </button>
                     <button
                       onClick={() => setIsEditing(false)}
                       className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                     >
-                      Cancel
+                      取消
                     </button>
                   </>
                 )}

@@ -69,7 +69,7 @@ const CartImage = ({ image, name }) => {
   return (
     <img
       src={src}
-      alt={name || "Cart item"}
+      alt={name || "購物車商品"}
       className="h-24 w-24 shrink-0 rounded-lg object-cover"
       onError={() => setFailed(true)}
     />
@@ -173,7 +173,7 @@ const Cart = () => {
   const handleCheckout = () => {
     if (!hasRealProducts) return;
     if (!selectedDeliveryMethod) {
-      toast.info("Please select a delivery method before checkout. / 請先選擇送貨方式。");
+      toast.info("請先選擇送貨方式。");
       return;
     }
     dispatch(SAVE_PAYMENT_METHOD("stripe"));
@@ -235,27 +235,27 @@ const Cart = () => {
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-              Order Review
+              訂單確認
             </p>
             <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Shopping Cart
+              購物車
             </h1>
             <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-              Review your handmade picks before checkout.
+              結帳前請確認你選購的手作商品。
             </p>
           </div>
           <Link
             to="/shop"
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
           >
-            Continue Shopping / 繼續選購
+            繼續選購
           </Link>
         </div>
 
         {!hasRealProducts ? (
           <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
             <h2 className="text-3xl font-semibold text-zinc-950 dark:text-white">
-              Your cart is empty.
+              購物車是空的。
             </h2>
             <p className="mt-3 text-zinc-600 dark:text-zinc-300">
               你的購物車暫時沒有商品。
@@ -264,7 +264,7 @@ const Cart = () => {
               to="/shop"
               className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
             >
-              Continue Shopping / 繼續選購
+              繼續選購
             </Link>
           </section>
         ) : (
@@ -273,7 +273,7 @@ const Cart = () => {
               {productItems.map((item) => {
                 const {
                   _id,
-                  name = "Untitled product",
+                  name = "未命名商品",
                   price = 0,
                   image,
                   cartQuantity = 1,
@@ -309,13 +309,13 @@ const Cart = () => {
                               {name}
                             </Link>
                             <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                              Unit price: {formatMoney(price)}
+                              單價：{formatMoney(price)}
                             </p>
                           </div>
 
                           <div className="text-left md:text-right">
                             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                              Item subtotal
+                              商品小計
                             </p>
                             <p className="mt-1 text-xl font-semibold">
                               {formatMoney(itemTotal)}
@@ -330,7 +330,7 @@ const Cart = () => {
                               onClick={() => decreaseQuantity(item)}
                               disabled={cartQuantity <= 1}
                               className="flex h-11 w-12 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900"
-                              aria-label={`Decrease ${name} quantity`}
+                              aria-label={`減少 ${name} 數量`}
                             >
                               <FaMinus size={12} />
                             </button>
@@ -342,7 +342,7 @@ const Cart = () => {
                               onClick={() => increaseQuantity(item)}
                               disabled={!canIncrease}
                               className="flex h-11 w-12 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900"
-                              aria-label={`Increase ${name} quantity`}
+                              aria-label={`增加 ${name} 數量`}
                             >
                               <FaPlus size={12} />
                             </button>
@@ -354,7 +354,7 @@ const Cart = () => {
                             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 px-4 text-sm font-medium text-zinc-600 transition hover:border-red-200 hover:text-red-600 dark:border-zinc-800 dark:text-zinc-300"
                           >
                             <FaTrashAlt size={13} />
-                            Remove
+                            移除
                           </button>
                         </div>
                       </div>
@@ -369,7 +369,7 @@ const Cart = () => {
                   onClick={clearCartItems}
                   className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-700 transition hover:border-red-300 hover:text-red-600 dark:border-zinc-700 dark:text-zinc-200"
                 >
-                  Clear Cart / 清除購物車
+                  清除購物車
                 </button>
               </div>
             </section>
@@ -377,12 +377,12 @@ const Cart = () => {
             <aside className="w-full min-w-0 border-0 lg:sticky lg:top-24 lg:self-start">
               <div className="w-full rounded-[1.5rem] border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
                 <h2 className="text-2xl font-semibold tracking-tight">
-                  Order Summary
+                  訂單摘要
                 </h2>
                 <div className="mt-6 space-y-4 text-sm">
                   <div className="flex justify-between gap-4">
                     <span className="text-zinc-500 dark:text-zinc-400">
-                      Product subtotal / 商品小計
+                      商品小計
                     </span>
                     <span className="font-medium">
                       {formatMoney(productSubtotal)}
@@ -393,7 +393,7 @@ const Cart = () => {
                     <>
                       <div className="flex items-start justify-between gap-4 text-emerald-700 dark:text-emerald-300">
                         <div>
-                          <p>Coupon / 優惠</p>
+                          <p>優惠</p>
                           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                             {coupon.name}
                             {coupon.discount ? ` (${coupon.discount}% off)` : ""}
@@ -406,7 +406,7 @@ const Cart = () => {
 
                       <div className="flex justify-between gap-4">
                         <span className="text-zinc-500 dark:text-zinc-400">
-                          Subtotal after discount / 優惠後小計
+                          優惠後小計
                         </span>
                         <span className="font-medium">
                           {formatMoney(subtotalAfterDiscount)}
@@ -420,7 +420,7 @@ const Cart = () => {
                       htmlFor="delivery-method"
                       className="text-sm font-semibold text-zinc-950 dark:text-white"
                     >
-                      Delivery / 送貨方式
+                      送貨方式
                     </label>
                     <select
                       id="delivery-method"
@@ -439,7 +439,7 @@ const Cart = () => {
                     </select>
                     <div className="mt-3 flex items-center justify-between gap-4 text-sm">
                       <span className="text-zinc-500 dark:text-zinc-400">
-                        Delivery fee / 運費
+                        運費
                       </span>
                       <span className="font-medium text-zinc-950 dark:text-white">
                         {formatMoney(deliveryFee)}
@@ -459,7 +459,7 @@ const Cart = () => {
 
                 <div className="mt-6 border-t border-zinc-100 pt-5 dark:border-zinc-800">
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold">Total / 總數</span>
+                    <span className="text-lg font-semibold">總數</span>
                     <span className="text-3xl font-semibold">
                       {formatMoney(cartTotalAmount)}
                     </span>
@@ -470,12 +470,12 @@ const Cart = () => {
                     disabled={!hasRealProducts || !selectedDeliveryMethod}
                     className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                   >
-                    Checkout
+                    前往結帳
                   </button>
                   <p className="mt-3 text-center text-xs text-zinc-500 dark:text-zinc-400">
                     {selectedDeliveryMethod
-                      ? "You will sign in before checkout if needed."
-                      : "Please select a delivery method before checkout. / 請先選擇送貨方式。"}
+                      ? "如有需要，系統會在結帳前請你登入。"
+                      : "請先選擇送貨方式。"}
                   </p>
                 </div>
               </div>

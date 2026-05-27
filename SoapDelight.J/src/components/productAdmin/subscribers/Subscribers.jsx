@@ -4,12 +4,12 @@ import subscriberService from "./subscriberService";
 import "./Subscribers.scss";
 
 const statusFilters = [
-  { label: "All", value: "all" },
-  { label: "Registered users", value: "registered" },
-  { label: "Active subscribers", value: "active" },
-  { label: "Unsubscribed", value: "unsubscribed" },
-  { label: "Not subscribed", value: "not_subscribed" },
-  { label: "Public-only subscribers", value: "public_only" },
+  { label: "全部", value: "all" },
+  { label: "已註冊用戶", value: "registered" },
+  { label: "有效訂閱者", value: "active" },
+  { label: "已取消訂閱", value: "unsubscribed" },
+  { label: "未訂閱", value: "not_subscribed" },
+  { label: "公開頁訂閱者", value: "public_only" },
 ];
 
 const formatDate = (date) => {
@@ -26,13 +26,13 @@ const formatDate = (date) => {
 const getAccountBadge = (accountStatus) => {
   if (accountStatus === "public_only") {
     return {
-      label: "Public subscriber only",
+      label: "公開頁訂閱者",
       className: "is-public",
     };
   }
 
   return {
-    label: "Registered",
+    label: "已註冊",
     className: "is-registered",
   };
 };
@@ -40,20 +40,20 @@ const getAccountBadge = (accountStatus) => {
 const getSubscriptionBadge = (subscriptionStatus) => {
   if (subscriptionStatus === "active") {
     return {
-      label: "Active",
+      label: "有效",
       className: "is-active",
     };
   }
 
   if (subscriptionStatus === "unsubscribed") {
     return {
-      label: "Unsubscribed",
+      label: "已取消",
       className: "is-unsubscribed",
     };
   }
 
   return {
-    label: "Not subscribed",
+    label: "未訂閱",
     className: "is-not-subscribed",
   };
 };
@@ -70,7 +70,7 @@ const Subscribers = () => {
       const data = await subscriberService.getSubscribers({ status, q: searchTerm });
       setRows(Array.isArray(data) ? data : []);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to load subscription overview";
+      const message = error.response?.data?.message || error.message || "未能載入訂閱概覽";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -93,17 +93,17 @@ const Subscribers = () => {
     <section className="subscribers-page">
       <header className="subscribers-header">
         <div className="subscribers-copy">
-          <p className="subscribers-eyebrow">SUBSCRIBERS</p>
-          <h2 className="subscribers-title">Subscribers &amp; Users / 訂閱與用戶</h2>
+          <p className="subscribers-eyebrow">訂閱者</p>
+          <h2 className="subscribers-title">訂閱與用戶</h2>
           <p className="subscribers-subtitle">
-            Review registered users, public subscribers and subscription status.
+            查看已註冊用戶、公開頁訂閱者及訂閱狀態。
           </p>
         </div>
       </header>
 
       <div className="subscribers-panel">
         <div className="subscribers-toolbar">
-          <div className="subscribers-filters" aria-label="Subscriber status filter">
+          <div className="subscribers-filters" aria-label="訂閱狀態篩選">
             {statusFilters.map((filter) => (
               <button
                 key={filter.value}
@@ -116,34 +116,34 @@ const Subscribers = () => {
             ))}
           </div>
           <label className="subscribers-search">
-            <span className="sr-only">Search subscribers</span>
+            <span className="sr-only">搜尋訂閱者</span>
             <input
               type="search"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Search email, name or phone"
+              placeholder="搜尋電郵、姓名或電話"
             />
           </label>
         </div>
 
         <div className="subscribers-table-wrap">
           {isLoading ? (
-            <p className="subscribers-empty">Loading subscription overview...</p>
+            <p className="subscribers-empty">正在載入訂閱概覽...</p>
           ) : rows.length === 0 ? (
-            <p className="subscribers-empty">No records found for this filter.</p>
+            <p className="subscribers-empty">此篩選條件下沒有紀錄。</p>
           ) : (
             <table className="subscribers-table">
               <thead>
                 <tr>
-                  <th>Email</th>
-                  <th>Name / Username</th>
-                  <th>Phone</th>
-                  <th>Account</th>
-                  <th>Subscription</th>
-                  <th>Channels</th>
-                  <th>Source</th>
-                  <th>Registered</th>
-                  <th>Subscribed</th>
+                  <th>電郵</th>
+                  <th>姓名 / 用戶名稱</th>
+                  <th>電話</th>
+                  <th>帳戶</th>
+                  <th>訂閱狀態</th>
+                  <th>渠道</th>
+                  <th>來源</th>
+                  <th>註冊日期</th>
+                  <th>訂閱日期</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,7 +178,7 @@ const Subscribers = () => {
                                 key={`${row.email}-${channel}`}
                                 className="subscribers-channel"
                               >
-                                {channel}
+                                {channel === "email" ? "電郵" : channel === "whatsapp" ? "WhatsApp" : channel}
                               </span>
                             ))}
                           </div>

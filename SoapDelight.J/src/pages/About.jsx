@@ -12,7 +12,7 @@ const values = [
   },
   {
     title: "溫和日常護理",
-    description: "我們重視 everyday care 的舒服節奏，讓產品自然融入生活。",
+    description: "我們重視日常護理的舒服節奏，讓產品自然融入生活。",
   },
   {
     title: "本地小店溫度",
@@ -34,18 +34,16 @@ const About = () => {
           <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="px-6 py-12 sm:px-10 lg:px-12 lg:py-16">
               <p className="text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-                About
+                關於我們
               </p>
               <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-                About SoapDelight.J
+                關於 SoapDelight.J
               </h1>
               <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-300">
                 關於 SoapDelight.J
               </p>
               <p className="mt-6 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
-                SoapDelight.J is a small handmade skincare, soap, and candle
-                brand based in Macau. We focus on gentle daily care, natural
-                inspiration, and small-batch handmade details.
+                SoapDelight.J 是源自澳門的小型手作護膚品、手工皂及香薰蠟品牌，重視溫和日常護理、天然靈感與小批量手作細節。
               </p>
             </div>
 
@@ -57,7 +55,7 @@ const About = () => {
                 >
                   <div>
                     <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                      Brand value
+                      品牌價值
                     </p>
                     <h2 className="mt-2 text-xl font-semibold tracking-tight">
                       {value.title}
@@ -72,10 +70,10 @@ const About = () => {
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-              Brand Story
+              品牌故事
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-              Handmade care with a gentle daily rhythm.
+              以溫柔節奏做日常手作護理。
             </h2>
             <p className="mt-5 text-base leading-8 text-zinc-600 dark:text-zinc-300">
               SoapDelight.J 以小批量手作方式製作護膚品、手工皂及香薰蠟，重視天然成分、日常使用感和每一件作品的細節。每一件作品都希望為日常護理帶來一點溫柔、安心和手作的溫度。
@@ -84,10 +82,10 @@ const About = () => {
 
           <div className="rounded-[1.75rem] border border-zinc-200 bg-[#f7f8f4] px-6 py-8 dark:border-zinc-800 dark:bg-zinc-900 sm:px-8">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-              Collections
+              商品系列
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-              What we make
+              我們製作的產品
             </h2>
             <div className="mt-6 grid gap-3">
               {categories.map((category) => (
@@ -104,7 +102,7 @@ const About = () => {
 
         <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-            Values
+            品牌價值
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {values.map((value) => (
@@ -125,10 +123,10 @@ const About = () => {
 
         <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 text-center dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-            Explore
+            探索
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Discover the collection
+            探索商品系列
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
             從日常護理到送禮靈感，慢慢挑選適合自己的手作產品。

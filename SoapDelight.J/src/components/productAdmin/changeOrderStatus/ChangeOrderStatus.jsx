@@ -26,17 +26,17 @@ const ChangeOrderStatus = () => {
 
       <div className={styles.card}>
         <div className={styles.copy}>
-          <p className={styles.eyebrow}>ORDER STATUS</p>
-          <h4 className={styles.title}>Update Order Status</h4>
+          <p className={styles.eyebrow}>訂單狀態</p>
+          <h4 className={styles.title}>更新訂單狀態</h4>
           <p className={styles.subtitle}>
-            Choose the latest fulfilment stage for this order.
+            選擇此訂單目前最新的處理階段。
           </p>
         </div>
 
         <form onSubmit={(e) => updateOrder(e, id)} className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="order-status">
-              Order status
+              訂單狀態
             </label>
             <select
               id="order-status"
@@ -45,17 +45,17 @@ const ChangeOrderStatus = () => {
               className={styles.select}
             >
               <option value="" disabled>
-                -- Choose one --
+                -- 請選擇 --
               </option>
-              <option value="Order Placed...">Order Placed...</option>
-              <option value="Processing...">Processing...</option>
-              <option value="Shipped...">Shipped...</option>
-              <option value="Delivered">Delivered</option>
+              <option value="Order Placed...">已下單</option>
+              <option value="Processing...">處理中</option>
+              <option value="Shipped...">已寄出</option>
+              <option value="Delivered">已送達</option>
             </select>
           </div>
 
           <button type="submit" className={styles.button}>
-            Update Status
+            更新狀態
           </button>
         </form>
       </div>

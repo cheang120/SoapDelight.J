@@ -34,7 +34,7 @@ const Wishlist = () => {
 
   const removeWishlist = async (product) => {
     if (!currentUser) {
-      toast.info("Please sign in to manage your wishlist");
+      toast.info("請先登入以管理收藏清單。");
       return;
     }
     await dispatch(removeFromWishlist(product._id));
@@ -59,20 +59,20 @@ const Wishlist = () => {
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-              Saved Items
+              收藏項目
             </p>
             <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-              My Wishlist
+              我的收藏清單
             </h1>
             <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-              Keep handmade favourites here for later.
+              將喜歡的手作商品先收藏起來，稍後再慢慢選購。
             </p>
           </div>
           <Link
             to="/shop"
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
           >
-            Continue Shopping / 繼續選購
+            繼續選購
           </Link>
         </div>
 
@@ -80,7 +80,7 @@ const Wishlist = () => {
           <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
             <FaRegHeart className="mx-auto mb-6 h-8 w-8 text-emerald-700" />
             <h2 className="text-3xl font-semibold text-zinc-950 dark:text-white">
-              Sign in to view your wishlist.
+              請登入以查看收藏清單。
             </h2>
             <p className="mt-3 text-zinc-600 dark:text-zinc-300">
               登入後即可查看你的收藏清單。
@@ -90,20 +90,20 @@ const Wishlist = () => {
                 to="/sign-in"
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
               >
-                Sign In
+                登入
               </Link>
               <Link
                 to="/shop"
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
               >
-                Continue Shopping
+                繼續選購
               </Link>
             </div>
           </section>
         ) : visibleWishlist.length === 0 ? (
           <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
             <h2 className="text-3xl font-semibold text-zinc-950 dark:text-white">
-              Your wishlist is empty.
+              收藏清單暫時是空的。
             </h2>
             <p className="mt-3 text-zinc-600 dark:text-zinc-300">
               你暫時未收藏任何商品。
@@ -112,7 +112,7 @@ const Wishlist = () => {
               to="/shop"
               className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
             >
-              Browse Products
+              瀏覽商品
             </Link>
           </section>
         ) : (
@@ -120,7 +120,7 @@ const Wishlist = () => {
             {visibleWishlist.map((product) => {
               const {
                 _id,
-                name = "Untitled product",
+                name = "未命名商品",
                 price = 0,
                 regularPrice,
                 quantity = 0,
@@ -136,7 +136,7 @@ const Wishlist = () => {
                   <Link to={`/product-details/${_id}`} className="overflow-hidden rounded-lg">
                     <ProductImage
                       product={product}
-                      alt={name || "Wishlist product"}
+                      alt={name || "收藏商品"}
                       className="aspect-square w-full rounded-lg object-cover transition duration-300 group-hover:scale-[1.02]"
                       fallbackClassName="aspect-square rounded-lg"
                     />
@@ -168,7 +168,7 @@ const Wishlist = () => {
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                       >
                         <FaShoppingBag size={14} />
-                        {Number(quantity) > 0 ? "Add to Cart" : "Out of Stock"}
+                        {Number(quantity) > 0 ? "加入購物車" : "暫時缺貨"}
                       </button>
                       <button
                         type="button"
@@ -176,7 +176,7 @@ const Wishlist = () => {
                         className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-600 transition hover:border-red-200 hover:text-red-600 dark:border-zinc-800 dark:text-zinc-300"
                       >
                         <FaTrashAlt size={13} />
-                        Remove
+                        移除
                       </button>
                     </div>
                   </div>

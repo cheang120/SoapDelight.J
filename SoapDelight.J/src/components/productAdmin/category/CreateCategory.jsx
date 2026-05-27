@@ -15,7 +15,7 @@ const CreateCategory = ({reloadCategory}) => {
         e.preventDefault();
         // console.log(name);
         if (name.length < 3) {
-          return toast.error("Coupon must be up to 3 characters");
+          return toast.error("分類名稱至少需要 3 個字元");
         }
         const formData = {
           name,
@@ -32,15 +32,15 @@ const CreateCategory = ({reloadCategory}) => {
     <>
         <div className='admin-taxonomy-panel'>
             <div className='admin-taxonomy-panel-copy'>
-                <h3 className='admin-taxonomy-panel-title'>Create Category</h3>
-                <p className='admin-taxonomy-panel-subtitle'>Use the form to create a category.</p>
+                <h3 className='admin-taxonomy-panel-title'>建立分類</h3>
+                <p className='admin-taxonomy-panel-subtitle'>使用表格建立商品分類。</p>
             </div>
             <form onSubmit={saveCategory} className='admin-taxonomy-form'>
                 <div className='admin-taxonomy-field'>
-                    <label className='admin-taxonomy-label'>Category Name</label>
+                    <label className='admin-taxonomy-label'>分類名稱</label>
                     <input
                         type="text"
-                        placeholder="Category name"
+                        placeholder="分類名稱"
                         name="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -52,7 +52,7 @@ const CreateCategory = ({reloadCategory}) => {
                     type="submit"
                     className='admin-taxonomy-button'
                 >
-                    Save Category
+                    儲存分類
                 </button>
             </form>
         </div>

@@ -56,7 +56,7 @@ function ProductRatingSummary({ ratings }) {
     labels: ["☆☆☆☆☆", "☆☆☆☆", "☆☆☆", "☆☆", "☆"],
     datasets: [
       {
-        label: "No of stars",
+        label: "星級數量",
         data: starCounts,
         backgroundColor: "rgba(246, 176, 30, 0.8)",
       },

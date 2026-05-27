@@ -28,10 +28,10 @@ const CreateBrand = ({reloadBrands}) => {
         // console.log(name,category);
         
         if (name.length < 3) {
-          return toast.error("Brand must be up to 3 characters");
+          return toast.error("品牌名稱至少需要 3 個字元");
         }
         if (!category) {
-            return toast.error("Please add a parent category");
+            return toast.error("請選擇所屬分類");
           }
           const slug = generateSlug(name);
           const formData = {
@@ -63,15 +63,15 @@ const CreateBrand = ({reloadBrands}) => {
     <>
     <div className='admin-taxonomy-panel'>
         <div className='admin-taxonomy-panel-copy'>
-            <h3 className='admin-taxonomy-panel-title'>Create Brand</h3>
-            <p className='admin-taxonomy-panel-subtitle'>Use the form to create a brand.</p>
+            <h3 className='admin-taxonomy-panel-title'>建立品牌</h3>
+            <p className='admin-taxonomy-panel-subtitle'>使用表格建立商品品牌。</p>
         </div>
         <form onSubmit={saveBrand} className='admin-taxonomy-form'>
             <div className='admin-taxonomy-field'>
-                <label className='admin-taxonomy-label'>Brand Name</label>
+                <label className='admin-taxonomy-label'>品牌名稱</label>
                 <input
                     type="text"
-                    placeholder="Brand name"
+                    placeholder="品牌名稱"
                     name="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -80,13 +80,13 @@ const CreateBrand = ({reloadBrands}) => {
                 />
             </div>
             <div className='admin-taxonomy-field'>
-                <label className='admin-taxonomy-label'>Parent Category</label>
+                <label className='admin-taxonomy-label'>所屬分類</label>
                 <select
                     name="category"
                     className='admin-taxonomy-input admin-taxonomy-select'
                     onChange={(e) => setCategory(e.target.value)}
                 >
-                    <option value="" className="dark:bg-gray-900 dark:text-white">Select category</option>
+                    <option value="" className="dark:bg-gray-900 dark:text-white">選擇分類</option>
                     {categories.length > 0 && categories.map((cat) => (
                         <option key={cat._id} value={cat._name} className="dark:bg-gray-900 dark:text-white">
                             {cat.name}
@@ -98,7 +98,7 @@ const CreateBrand = ({reloadBrands}) => {
                 type="submit"
                 className='admin-taxonomy-button'
             >
-                Save Brand
+                儲存品牌
             </button>
         </form>
     </div>

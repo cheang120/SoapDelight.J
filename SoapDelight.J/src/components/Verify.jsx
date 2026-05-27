@@ -41,18 +41,18 @@ const Verify = () => {
         } catch (error) {
           console.error('Error verifying account:', error);
           // alert('An error occurred while verifying your account.');
-          return dispatch(signInFailure("An error occurred while verifying your account."));
+          return dispatch(signInFailure("驗證帳戶時發生錯誤。"));
         }
       };
     
   return (
     <section className='mt-10'>
       <div className="flex items-center flex-col w-full mx-auto text-center min-h-screen">
-        <h2>Account Verification</h2>
-        <p>To verify your account, click the button below...</p>
+        <h2>帳戶驗證</h2>
+        <p>請按下方按鈕完成帳戶驗證。</p>
         <br />
         <button onClick={verifyAccount} className='text-white bg-blue-500 z-10 text-base font-normal px-2 py-1 mr-5 border border-transparent rounded-md cursor-pointer flex justify-center items-center transition duration-300 ease-in-out'>
-            Verify
+            驗證
         </button>
       </div>
     </section>

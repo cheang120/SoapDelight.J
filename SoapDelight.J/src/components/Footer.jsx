@@ -13,7 +13,7 @@ export default function FooterCom() {
           </div>
 
           <p className="text-sm text-zinc-500 md:text-center">
-            © {new Date().getFullYear()} SoapDelight.J. All rights reserved.
+            © {new Date().getFullYear()} SoapDelight.J. 版權所有。
           </p>
 
           <div className="flex gap-4">

@@ -102,7 +102,7 @@ function App() {
         <Route
           path="/checkout-stripe"
           element={
-            <Suspense fallback={<div className="min-h-[20rem] px-10 py-10">Loading checkout...</div>}>
+            <Suspense fallback={<div className="min-h-[20rem] px-10 py-10">正在載入結帳...</div>}>
               <Checkout />
             </Suspense>
           }

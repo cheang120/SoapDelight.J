@@ -8,7 +8,7 @@ import OrderDetailsComp from "./OrderDetailsComp";
 const SignInPrompt = () => (
   <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
     <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-      Sign in to view this order.
+      請登入以查看此訂單。
     </h2>
     <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
       登入後即可查看完整訂單資料與收據內容。
@@ -18,13 +18,13 @@ const SignInPrompt = () => (
         to="/sign-in"
         className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
       >
-        Sign In
+        登入
       </Link>
       <Link
         to="/shop"
         className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
       >
-        Continue Shopping
+        繼續選購
       </Link>
     </div>
   </div>
@@ -54,7 +54,7 @@ const OrderDetails = () => {
           <Loader />
         ) : isError ? (
           <div className="rounded-[1.75rem] border border-red-200 bg-red-50 px-6 py-8 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-            {message || "We couldn't load this order right now."}
+            {message || "暫時未能載入此訂單。"}
           </div>
         ) : (
           <OrderDetailsComp order={order} orderPageLink="/order-history" />

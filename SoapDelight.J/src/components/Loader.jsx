@@ -7,7 +7,7 @@ const Loader = () => {
   return ReactDOM.createPortal(
     <div className="wrapper">
       <div className="loader">
-        <img src={loaderImg} alt="Loading..." />
+        <img src={loaderImg} alt="載入中..." />
       </div>
     </div>,
     document.getElementById("loader")
@@ -17,7 +17,7 @@ const Loader = () => {
 export const Spinner = () => {
   return (
     <div className="--center-all">
-      <img src={loaderImg} alt="Loading..." />
+      <img src={loaderImg} alt="載入中..." />
     </div>
   );
 };

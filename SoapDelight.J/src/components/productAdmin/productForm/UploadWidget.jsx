@@ -65,7 +65,7 @@ const UploadWidget = ({ files, setFiles }) => {
           if (imageUrls.length === images.length) {
             setFiles((prevFiles) => prevFiles.concat(imageUrls));
             setUploading(false);
-            toast.success("Image upload complete");
+            toast.success("圖片上傳完成");
             setImages([]);
             setSelectedImages([]);
             setProgress(0);
@@ -83,8 +83,8 @@ const UploadWidget = ({ files, setFiles }) => {
     <div className="admin-upload-widget">
       <div className="uploadWidget uploadWidgetNative">
         <AiOutlineCloudUpload size={35} />
-        <span>Choose product images</span>
-        <small>Use the file picker below to upload up to 5 images.</small>
+        <span>選擇商品圖片</span>
+        <small>使用下方檔案選擇器，上傳最多 5 張圖片。</small>
 
         <input
           className="uploadNativeInput"
@@ -99,9 +99,9 @@ const UploadWidget = ({ files, setFiles }) => {
       {selectedImages.length > 0 &&
         (selectedImages.length > 5 ? (
           <p className="error">
-            You can't upload more than 5 images! <br />
+            最多只可上傳 5 張圖片！<br />
             <span>
-              please remove <b>{selectedImages.length - 5}</b> of them.
+              請移除其中 <b>{selectedImages.length - 5}</b> 張。
             </span>
           </p>
         ) : (
@@ -113,10 +113,8 @@ const UploadWidget = ({ files, setFiles }) => {
               type="button"
             >
               {uploading
-                ? `Uploading... ${progress} of ${selectedImages.length}`
-                : `Upload ${selectedImages.length} Image${
-                    selectedImages.length === 1 ? "" : "s"
-                  }`}
+                ? `上傳中... ${progress} / ${selectedImages.length}`
+                : `上傳 ${selectedImages.length} 張圖片`}
             </button>
           </div>
         ))}
@@ -126,7 +124,7 @@ const UploadWidget = ({ files, setFiles }) => {
           selectedImages.map((image, index) => {
             return (
               <div key={image} className="image">
-                <img src={image} alt="productImage" width={200} />
+                <img src={image} alt="商品圖片" width={200} />
                 <div className="flex justify-between">
                   <p className="flex items-center justify-center px-10">
                     {index + 1}

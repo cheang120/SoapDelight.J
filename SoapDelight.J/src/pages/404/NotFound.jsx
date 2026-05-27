@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 const NotFound = () => {
   return (
     <div className="--center-all" style={{ minHeight: "80vh" }}>
-      <h2>Page Not Found</h2>
-      <p>Looks like the page you are looking for could not be found.</p>
+      <h2>找不到頁面</h2>
+      <p>你要查看的頁面可能不存在或已被移除。</p>
       <br />
       <Link to={"/"}>
-        <button className="--btn --btn-primary">Back To Home</button>
+        <button className="--btn --btn-primary">返回首頁</button>
       </Link>
     </div>
   );

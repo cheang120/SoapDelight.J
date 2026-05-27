@@ -26,10 +26,10 @@ const formatDate = (date) => {
 };
 
 const getStatusLabel = (status) => {
-  if (status === "sent") return "Sent";
-  if (status === "failed") return "Failed";
-  if (status === "test_sent") return "Test sent";
-  return "Draft";
+  if (status === "sent") return "已發送";
+  if (status === "failed") return "失敗";
+  if (status === "test_sent") return "測試已發送";
+  return "草稿";
 };
 
 const Campaigns = () => {
@@ -48,7 +48,7 @@ const Campaigns = () => {
   const isEditableDraft = selectedStatus === "draft";
   const isSavedDraft = Boolean(selectedCampaign?._id);
   const isSent = selectedStatus === "sent";
-  const previewButtonLabel = formData.buttonLabel || "Shop Now";
+  const previewButtonLabel = formData.buttonLabel || "立即選購";
 
   const canSend = useMemo(
     () => isSavedDraft && !isSent && eligibleRecipientCount > 0,
@@ -61,7 +61,7 @@ const Campaigns = () => {
       const data = await campaignService.getCampaigns();
       setCampaigns(Array.isArray(data) ? data : []);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to load campaigns";
+      const message = error.response?.data?.message || error.message || "未能載入推廣電郵";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -74,7 +74,7 @@ const Campaigns = () => {
       const data = await campaignService.getEligibleRecipientCount();
       setEligibleRecipientCount(Number(data?.count || 0));
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to load recipient count";
+      const message = error.response?.data?.message || error.message || "未能載入合資格收件人數量";
       toast.error(message);
       setEligibleRecipientCount(0);
     } finally {
@@ -111,7 +111,7 @@ const Campaigns = () => {
     event.preventDefault();
 
     if (!isEditableDraft) {
-      toast.error("Only draft campaigns can be edited.");
+      toast.error("只有草稿推廣電郵可以編輯。");
       return;
     }
 
@@ -131,10 +131,10 @@ const Campaigns = () => {
         buttonLabel: savedCampaign.buttonLabel || "",
         buttonLink: savedCampaign.buttonLink || "",
       });
-      toast.success("Campaign draft saved.");
+      toast.success("推廣電郵草稿已儲存。");
       await loadCampaigns();
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to save campaign";
+      const message = error.response?.data?.message || error.message || "未能儲存推廣電郵";
       toast.error(message);
     } finally {
       setIsSaving(false);
@@ -156,17 +156,17 @@ const Campaigns = () => {
 
   const sendTest = async () => {
     if (!isSavedDraft) {
-      toast.error("Please save this campaign as a draft before sending a test email.");
+      toast.error("請先儲存為草稿，再寄送測試電郵。");
       return;
     }
 
     setIsTesting(true);
     try {
       await campaignService.sendTestCampaign(selectedCampaign._id, testEmail);
-      toast.success("Test email sent.");
+      toast.success("測試電郵已寄出。");
       await loadCampaigns();
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to send test email";
+      const message = error.response?.data?.message || error.message || "未能寄送測試電郵";
       toast.error(message);
     } finally {
       setIsTesting(false);
@@ -175,12 +175,12 @@ const Campaigns = () => {
 
   const sendToSubscribers = async () => {
     if (!canSend) {
-      toast.error("Please save this campaign before sending.");
+      toast.error("請先儲存此推廣電郵。");
       return;
     }
 
     const confirmed = window.confirm(
-      `Send this campaign to ${eligibleRecipientCount} active email subscribers? This cannot be undone.`
+      `將此推廣電郵寄給 ${eligibleRecipientCount} 位有效電郵訂閱者？此操作無法復原。`
     );
     if (!confirmed) return;
 
@@ -188,13 +188,13 @@ const Campaigns = () => {
     try {
       const data = await campaignService.sendCampaign(selectedCampaign._id);
       toast.success(
-        `Campaign sent to ${data.sentCount || 0} subscribers. Failed: ${data.failedCount || 0}.`
+        `推廣電郵已寄給 ${data.sentCount || 0} 位訂閱者。失敗：${data.failedCount || 0}。`
       );
       setSelectedCampaign(data.campaign);
       await loadCampaigns();
       await loadEligibleRecipientCount();
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to send campaign";
+      const message = error.response?.data?.message || error.message || "未能寄送推廣電郵";
       toast.error(message);
     } finally {
       setIsSending(false);
@@ -202,18 +202,18 @@ const Campaigns = () => {
   };
 
   const deleteDraft = async (campaign) => {
-    const confirmed = window.confirm(`Delete draft campaign "${campaign.title}"?`);
+    const confirmed = window.confirm(`刪除推廣電郵草稿「${campaign.title}」？`);
     if (!confirmed) return;
 
     try {
       await campaignService.deleteCampaign(campaign._id);
-      toast.success("Draft campaign deleted.");
+      toast.success("草稿已刪除。");
       if (selectedCampaign?._id === campaign._id) {
         resetForm();
       }
       await loadCampaigns();
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Unable to delete campaign";
+      const message = error.response?.data?.message || error.message || "未能刪除草稿";
       toast.error(message);
     }
   };
@@ -221,58 +221,58 @@ const Campaigns = () => {
   return (
     <section className="campaigns-page">
       <header className="campaigns-header">
-        <p className="campaigns-eyebrow">EMAIL</p>
-        <h2 className="campaigns-title">Email Campaigns / 電郵推廣</h2>
+        <p className="campaigns-eyebrow">電郵</p>
+        <h2 className="campaigns-title">推廣電郵</h2>
         <p className="campaigns-subtitle">
-          Create and send promotional emails to active subscribers.
+          建立並寄送推廣電郵給有效訂閱者。
         </p>
       </header>
 
       <div className="campaigns-grid">
         <form className="campaigns-panel campaigns-form" onSubmit={saveDraft}>
           <div className="campaigns-panel-heading">
-            <h3>{isSavedDraft ? "Edit campaign draft" : "Create campaign draft"}</h3>
-            <p>Save a draft before sending tests or delivering to subscribers.</p>
+            <h3>{isSavedDraft ? "編輯推廣草稿" : "建立推廣草稿"}</h3>
+            <p>請先儲存草稿，才寄送測試或正式發送給訂閱者。</p>
           </div>
 
           <label className="campaigns-field">
-            <span>Campaign title</span>
+            <span>推廣標題</span>
             <input
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="Spring handmade soap offer"
+              placeholder="春季手作皂優惠"
               disabled={!isEditableDraft}
               required
             />
           </label>
 
           <label className="campaigns-field">
-            <span>Email subject</span>
+            <span>電郵主旨</span>
             <input
               name="subject"
               value={formData.subject}
               onChange={handleChange}
-              placeholder="A gentle update from SoapDelight.J"
+              placeholder="SoapDelight.J 最新消息"
               disabled={!isEditableDraft}
               required
             />
           </label>
 
           <label className="campaigns-field campaigns-field--full">
-            <span>Message</span>
+            <span>訊息內容</span>
             <textarea
               name="message"
               value={formData.message}
               onChange={handleChange}
-              placeholder="Share a short product update, offer or announcement."
+              placeholder="輸入新品、優惠或公告內容。"
               disabled={!isEditableDraft}
               required
             />
           </label>
 
           <label className="campaigns-field">
-            <span>Coupon code optional</span>
+            <span>優惠碼（選填）</span>
             <input
               name="couponCode"
               value={formData.couponCode}
@@ -283,18 +283,18 @@ const Campaigns = () => {
           </label>
 
           <label className="campaigns-field">
-            <span>Button label optional</span>
+            <span>按鈕文字（選填）</span>
             <input
               name="buttonLabel"
               value={formData.buttonLabel}
               onChange={handleChange}
-              placeholder="Shop Now"
+              placeholder="立即選購"
               disabled={!isEditableDraft}
             />
           </label>
 
           <label className="campaigns-field campaigns-field--full">
-            <span>Button link optional</span>
+            <span>按鈕連結（選填）</span>
             <input
               name="buttonLink"
               value={formData.buttonLink}
@@ -306,33 +306,33 @@ const Campaigns = () => {
 
           <div className="campaigns-actions campaigns-field--full">
             <button type="submit" className="campaigns-button" disabled={isSaving || !isEditableDraft}>
-              {isSaving ? "Saving..." : isSavedDraft ? "Update Draft" : "Save Draft"}
+              {isSaving ? "儲存中..." : isSavedDraft ? "更新草稿" : "儲存草稿"}
             </button>
             <button
               type="button"
               className="campaigns-button campaigns-button--secondary"
               onClick={resetForm}
             >
-              New Draft
+              新草稿
             </button>
           </div>
         </form>
 
         <aside className="campaigns-panel campaigns-preview">
           <div className="campaigns-panel-heading">
-            <h3>Email preview</h3>
-            <p>This preview uses the same content sent through the campaign email template.</p>
+            <h3>電郵預覽</h3>
+            <p>此預覽會使用正式推廣電郵範本的內容。</p>
           </div>
 
           <div className="campaigns-preview-card">
             <p className="campaigns-preview-subject">
-              {formData.subject || "Email subject"}
+              {formData.subject || "電郵主旨"}
             </p>
-            <h4>{formData.title || "Campaign title"}</h4>
-            <p>{formData.message || "Your campaign message will appear here."}</p>
+            <h4>{formData.title || "推廣標題"}</h4>
+            <p>{formData.message || "推廣訊息會顯示在這裡。"}</p>
             {formData.couponCode && (
               <div className="campaigns-coupon-preview">
-                Coupon code: <strong>{formData.couponCode.toUpperCase()}</strong>
+                優惠碼：<strong>{formData.couponCode.toUpperCase()}</strong>
               </div>
             )}
             {formData.buttonLink && (
@@ -341,14 +341,14 @@ const Campaigns = () => {
               </a>
             )}
             <p className="campaigns-preview-footer">
-              You are receiving this email because you subscribed to SoapDelight.J updates.
-              Every subscriber email includes an unsubscribe link.
+              你會收到此電郵，是因為你已訂閱 SoapDelight.J 最新消息。
+              每封訂閱電郵都會包含取消訂閱連結。
             </p>
           </div>
 
           <div className="campaigns-test-box">
             <label className="campaigns-field">
-              <span>Test email</span>
+              <span>測試電郵</span>
               <input
                 type="email"
                 value={testEmail}
@@ -362,17 +362,17 @@ const Campaigns = () => {
               onClick={sendTest}
               disabled={isTesting || !isSavedDraft}
             >
-              {isTesting ? "Sending..." : "Send Test Email"}
+              {isTesting ? "寄送中..." : "寄送測試電郵"}
             </button>
           </div>
 
           <div className="campaigns-recipient-count">
-            <span>Eligible email recipients</span>
+            <span>合資格電郵收件人</span>
             <strong>
-              {isLoadingRecipientCount ? "Loading..." : eligibleRecipientCount}
+              {isLoadingRecipientCount ? "載入中..." : eligibleRecipientCount}
             </strong>
             {eligibleRecipientCount === 0 && !isLoadingRecipientCount && (
-              <p>No active email subscribers available.</p>
+              <p>暫未有有效電郵訂閱者。</p>
             )}
           </div>
 
@@ -382,34 +382,34 @@ const Campaigns = () => {
             onClick={sendToSubscribers}
             disabled={isSending || !canSend || isLoadingRecipientCount}
           >
-            {isSending ? "Sending..." : isSent ? "Campaign Sent" : "Send to Subscribers"}
+            {isSending ? "寄送中..." : isSent ? "已發送" : "寄送給訂閱者"}
           </button>
         </aside>
       </div>
 
       <div className="campaigns-panel">
         <div className="campaigns-panel-heading">
-          <h3>Campaign history</h3>
-          <p>Sent campaigns remain as records. Draft campaigns can still be edited or deleted.</p>
+          <h3>推廣電郵紀錄</h3>
+          <p>已發送的推廣電郵會保留為紀錄；草稿仍可編輯或刪除。</p>
         </div>
 
         <div className="campaigns-table-wrap">
           {isLoading ? (
-            <p className="campaigns-empty">Loading campaigns...</p>
+            <p className="campaigns-empty">正在載入推廣電郵...</p>
           ) : campaigns.length === 0 ? (
-            <p className="campaigns-empty">No campaigns yet.</p>
+            <p className="campaigns-empty">暫未有推廣電郵。</p>
           ) : (
             <table className="campaigns-table">
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Subject</th>
-                  <th>Status</th>
-                  <th>Sent</th>
-                  <th>Failed</th>
-                  <th>Sent at</th>
-                  <th>Created</th>
-                  <th>Actions</th>
+                  <th>標題</th>
+                  <th>主旨</th>
+                  <th>狀態</th>
+                  <th>已發送</th>
+                  <th>失敗</th>
+                  <th>發送時間</th>
+                  <th>建立時間</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -433,7 +433,7 @@ const Campaigns = () => {
                           className="campaigns-mini-button"
                           onClick={() => loadCampaign(campaign)}
                         >
-                          {campaign.status === "sent" ? "View" : "Load/Edit"}
+                          {campaign.status === "sent" ? "查看" : "載入 / 編輯"}
                         </button>
                         {campaign.status === "draft" && (
                           <button
@@ -441,7 +441,7 @@ const Campaigns = () => {
                             className="campaigns-mini-button campaigns-mini-button--danger"
                             onClick={() => deleteDraft(campaign)}
                           >
-                            Delete Draft
+                            刪除草稿
                           </button>
                         )}
                       </div>

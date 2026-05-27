@@ -24,10 +24,10 @@ const Brand = () => {
     <section className="admin-taxonomy-page">
       <header className="admin-taxonomy-header">
         <div className="admin-taxonomy-copy">
-          <p className="admin-taxonomy-eyebrow">BRAND</p>
-          <h2 className="admin-taxonomy-title">Create Brand</h2>
+          <p className="admin-taxonomy-eyebrow">品牌</p>
+          <h2 className="admin-taxonomy-title">建立品牌</h2>
           <p className="admin-taxonomy-subtitle">
-            Add and manage product brands and their parent categories.
+            新增及管理商品品牌與所屬分類。
           </p>
         </div>
       </header>

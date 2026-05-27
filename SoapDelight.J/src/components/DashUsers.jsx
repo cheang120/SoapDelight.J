@@ -74,11 +74,11 @@ const UserList = () => {
       <div className="max-w-1000 mx-auto px-4">
         <div className="bg-white shadow-md rounded-lg p-6">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-700">All Users</h3>
+            <h3 className="text-2xl font-bold text-gray-700">所有使用者</h3>
             <input 
               type="text" 
               className="border border-gray-300 rounded-lg px-4 py-2"
-              placeholder="Search by username or email"
+              placeholder="按使用者名稱或電郵搜尋"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -89,44 +89,44 @@ const UserList = () => {
               <thead>
                 <tr>
                   <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600 uppercase tracking-wider">
-                    S/N
+                    序號
                   </th>
                   <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600 uppercase tracking-wider">
-                    Name
+                    名稱
                   </th>
                   <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600 uppercase tracking-wider">
-                    Email
+                    電郵
                   </th>
                   <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600 uppercase tracking-wider">
-                    Role
+                    角色
                   </th>
                   <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600 uppercase tracking-wider">
-                    Change Role
+                    更改角色
                   </th>
                   <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-600 uppercase tracking-wider">
-                    Action
+                    操作
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {Array.isArray(currentUsers) && currentUsers.map((user, index) => (
                   <tr key={user._id} className="hover:bg-gray-100">
-                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="S/N">
+                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="序號">
                       {currentPage * usersPerPage + index + 1}
                     </td>
-                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="Name">
+                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="名稱">
                       {user.username}
                     </td>
-                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="Email">
+                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="電郵">
                       {user.email}
                     </td>
-                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="Role">
+                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="角色">
                       {user.role}
                     </td>
-                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="Change Role">
+                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="更改角色">
                       <ChangeRole key={`changeRole-${user._id}`} _id={user._id} email={user.email} />
                     </td>
-                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="Action">
+                    <td className="px-6 py-2 whitespace-no-wrap border-b border-gray-200" data-label="操作">
                       <span className="cursor-pointer text-red-600">
                         <FaTrashAlt 
                           size={20} 
@@ -142,8 +142,8 @@ const UserList = () => {
 
           <div className="mt-6">
             <ReactPaginate
-              previousLabel={"Previous"}
-              nextLabel={"Next"}
+              previousLabel={"上一頁"}
+              nextLabel={"下一頁"}
               breakLabel={"..."}
               breakClassName={"break-me"}
               pageCount={pageCount}

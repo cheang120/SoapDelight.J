@@ -14,19 +14,19 @@ export const CartDiscount = () => {
         {coupon != null && hasValidCoupon && (
           <div className="coupon-msg">
             <p>
-              Coupon <b>{coupon?.name}</b> applied
+              優惠碼 <b>{coupon?.name}</b> 已套用
             </p>
             <span>
-              {coupon?.discount}% off eligible items
+              合資格商品享 {coupon?.discount}% 折扣
             </span>
           </div>
         )}
         {coupon != null && !hasValidCoupon && (
           <div className="coupon-msg">
             <p>
-              Coupon <b>{coupon?.name}</b> has expired
+              優惠碼 <b>{coupon?.name}</b> 已過期
             </p>
-            <span>Please remove it before checkout.</span>
+            <span>請在結帳前移除此優惠碼。</span>
           </div>
         )}
       </>
@@ -67,18 +67,18 @@ const VerifyCoupon = () => {
         <CartDiscount />
     
       <div className='coupon-head'>
-        <p>Coupon</p>
+        <p>優惠碼</p>
         {coupon === null ? (
           <button
             type="button"
             className="coupon-link"
             onClick={() => setShowForm(true)}
           >
-            Add Coupon
+            加入優惠碼
           </button>
         ) : (
           <button type="button" className="coupon-link danger" onClick={removeCoupon}>
-            Remove Coupon
+            移除優惠碼
           </button>
         )}
 
@@ -88,14 +88,14 @@ const VerifyCoupon = () => {
         <form onSubmit={verifyCoupon} className={"coupon-form"}>
           <input
             type="text"
-            placeholder="Coupon name"
+            placeholder="輸入優惠碼"
             name="name"
             value={couponName}
             onChange={(e) => setCouponName(e.target.value.toUpperCase())}
             required
           />
           <button type="submit" disabled={isLoading}>
-            {isLoading ? "Checking..." : "Apply"}
+            {isLoading ? "檢查中..." : "套用"}
           </button>
         </form>
       )}

@@ -16,7 +16,7 @@ const PaymentOption = ({ selectedShippingFee }) => {
         e.preventDefault()
 
         if (paymentMethod === "") {
-            return toast.error("Please select a payment method.")
+            return toast.error("請選擇付款方式。")
         }
 
         // Save the payment method to Redux
@@ -46,7 +46,7 @@ const PaymentOption = ({ selectedShippingFee }) => {
                                 onChange={(e) => setPaymentMethod(e.target.value)}
                             />
                             <span className="custom-radio"></span>
-                            Confirm Order
+                            確認訂單
                         </label>
                     </div>
                 </div>
@@ -59,7 +59,7 @@ const PaymentOption = ({ selectedShippingFee }) => {
                     value={"stripe"}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                 >
-                    Checkout
+                    結帳
                 </button>
             </form>
         </>

@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { FaRegImage } from "react-icons/fa";
 
 const CATEGORY_LABELS = {
-  soap: "Soap",
-  "手作皂": "Soap",
-  candle: "Candle",
-  "香薰蠟": "Candle",
-  "personal care": "Personal Care",
-  "個人護理": "Personal Care",
-  gift: "Gift",
-  "精選禮物": "Gift",
+  soap: "手作皂",
+  "手作皂": "手作皂",
+  candle: "香薰蠟",
+  "香薰蠟": "香薰蠟",
+  "personal care": "個人護理",
+  "個人護理": "個人護理",
+  gift: "精選禮物",
+  "精選禮物": "精選禮物",
 };
 
 export const isValidProductImage = (image) => {
@@ -33,11 +33,11 @@ export const getProductImages = (product) => {
 export const getProductImage = (product) => getProductImages(product)[0] || "";
 
 export const getProductImageStatus = (product) =>
-  getProductImage(product) ? "Real photo" : "Placeholder";
+  getProductImage(product) ? "真實相片" : "預設圖";
 
 export const getProductPlaceholderLabel = (category) => {
   const categoryKey = String(category || "").trim().toLowerCase();
-  return CATEGORY_LABELS[categoryKey] || String(category || "Product");
+  return CATEGORY_LABELS[categoryKey] || String(category || "商品");
 };
 
 const ProductImageFallback = ({ category, className = "" }) => {
@@ -46,7 +46,7 @@ const ProductImageFallback = ({ category, className = "" }) => {
   return (
     <div
       className={`flex h-full min-h-full w-full flex-col items-center justify-center gap-3 rounded-[inherit] border border-dashed border-zinc-200 bg-[#f7f8f4] p-5 text-center text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 ${className}`}
-      aria-label="Photo coming soon"
+      aria-label="相片稍後補上"
     >
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-zinc-400 shadow-sm dark:bg-zinc-950 dark:text-zinc-500">
         <FaRegImage size={22} />
@@ -55,10 +55,10 @@ const ProductImageFallback = ({ category, className = "" }) => {
         {categoryLabel}
       </span>
       <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-100">
-        Photo coming soon
+        相片稍後補上
       </span>
       <span className="text-xs text-zinc-500 dark:text-zinc-400">
-        相片稍後補上
+        商品相片整理中
       </span>
     </div>
   );
@@ -86,7 +86,7 @@ export const ProductImage = ({
   return (
     <img
       src={src}
-      alt={alt || product?.name || "Product image"}
+      alt={alt || product?.name || "商品圖片"}
       className={className}
       onError={() => setFailed(true)}
       {...imageProps}

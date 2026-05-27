@@ -155,7 +155,7 @@ const DashProfile = () => {
 
     if (!uploadPreset) {
       if (!isMountedRef.current) return;
-      setImageFileUploadError("Could not upload image: missing upload preset.");
+      setImageFileUploadError("未能上傳圖片：缺少上傳設定。");
       setImageFileUploading(false);
       setImageFile(null);
       return;
@@ -175,8 +175,8 @@ const DashProfile = () => {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        const message = data?.error?.message || data?.message || "Unknown error";
-        throw new Error(`Could not upload image: ${message}`);
+        const message = data?.error?.message || data?.message || "未知錯誤";
+        throw new Error(`未能上傳圖片：${message}`);
       }
 
       if (!isMountedRef.current) return;
@@ -198,9 +198,9 @@ const DashProfile = () => {
       }
       previewObjectUrlRef.current = null;
       const message =
-        uploadError?.message?.startsWith("Could not upload image:")
+        uploadError?.message?.startsWith("未能上傳圖片：")
           ? uploadError.message
-          : "Could not upload image. Please try again.";
+          : "未能上傳圖片，請稍後再試。";
       setImageFileUploadError(message);
       setImageFileUploadProgress(null);
       setImageFile(null);
@@ -216,7 +216,7 @@ const DashProfile = () => {
     }
 
     if (!file.type?.startsWith("image/")) {
-      setImageFileUploadError("Please select an image file.");
+      setImageFileUploadError("請選擇圖片檔案。");
       setImageFileUploadProgress(null);
       setImageFile(null);
       setImageFileUploading(false);
@@ -224,7 +224,7 @@ const DashProfile = () => {
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setImageFileUploadError("Image must be less than 5MB.");
+      setImageFileUploadError("圖片必須小於 5MB。");
       setImageFileUploadProgress(null);
       setImageFile(null);
       setImageFileUploading(false);
@@ -271,7 +271,7 @@ const DashProfile = () => {
     const preferredChannels = getPreferredChannels(phone);
 
     if (subscriptionData.whatsappChannel && !phone.trim()) {
-      throw new Error("Please enter a phone number to receive WhatsApp updates.");
+      throw new Error("請輸入電話號碼以接收 WhatsApp 更新。");
     }
 
     setSubscriptionLoading(true);
@@ -286,10 +286,10 @@ const DashProfile = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Unable to unsubscribe.");
+          throw new Error(data.message || "未能取消訂閱。");
         }
 
-        return data.message || "Subscription preferences saved.";
+        return data.message || "訂閱設定已儲存。";
       }
 
       const response = await fetch(`${API_BASE_URL}/subscribers/subscribe`, {
@@ -306,10 +306,10 @@ const DashProfile = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Unable to save subscription preferences.");
+        throw new Error(data.message || "未能儲存訂閱設定。");
       }
 
-      return data.message || "Subscription preferences saved.";
+      return data.message || "訂閱設定已儲存。";
     } finally {
       setSubscriptionLoading(false);
     }
@@ -321,7 +321,7 @@ const DashProfile = () => {
     setUpdateUserSuccess(null);
 
     if (imageFileUploading) {
-      setUpdateUserError("Please wait for image to upload");
+      setUpdateUserError("請等待圖片上傳完成");
       return;
     }
 
@@ -392,16 +392,16 @@ const DashProfile = () => {
       } catch (subscriptionError) {
         setUpdateUserError(
           profileUpdated
-            ? `Your profile was updated, but subscription preferences could not be saved: ${subscriptionError.message}`
+            ? `個人資料已更新，但訂閱設定未能儲存：${subscriptionError.message}`
             : subscriptionError.message
         );
         return;
       }
 
       if (profileUpdated) {
-        setUpdateUserSuccess("Your profile and subscription preferences have been updated.");
+        setUpdateUserSuccess("個人資料及訂閱設定已更新。");
       } else {
-        setUpdateUserSuccess("Your subscription preferences have been updated.");
+        setUpdateUserSuccess("訂閱設定已更新。");
       }
     } catch (submitError) {
       dispatch(updateFailure(submitError.message));
@@ -431,7 +431,7 @@ const DashProfile = () => {
     return (
       <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
         <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-          Sign in to view your account.
+          請登入以查看你的帳戶。
         </h2>
         <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
           登入後即可查看個人資料、更新聯絡方式，以及管理你的帳戶。
@@ -441,13 +441,13 @@ const DashProfile = () => {
             to="/sign-in"
             className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
           >
-            Sign In
+            登入
           </Link>
           <Link
             to="/shop"
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
           >
-            Continue Shopping
+            繼續選購
           </Link>
         </div>
       </div>
@@ -475,7 +475,7 @@ const DashProfile = () => {
               type="button"
               className="relative h-28 w-28 overflow-hidden rounded-full border border-zinc-200 bg-[#f7f8f4] shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
               onClick={() => filePickerRef.current?.click()}
-              aria-label="Upload profile photo"
+              aria-label="上傳個人頭像"
             >
               {imageFileUploadProgress && (
                 <CircularProgressbar
@@ -506,7 +506,7 @@ const DashProfile = () => {
               {(imageFileUrl || currentUser.profilePicture) && !avatarLoadFailed ? (
                 <img
                   src={imageFileUrl || currentUser.profilePicture}
-                  alt="User profile"
+                alt="用戶頭像"
                   onError={() => setAvatarLoadFailed(true)}
                   className={`h-full w-full object-cover ${
                     imageFileUploadProgress &&
@@ -523,7 +523,7 @@ const DashProfile = () => {
 
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-                Account overview
+                帳戶概覽
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950 dark:text-white">
                 {currentUser.username}
@@ -533,7 +533,7 @@ const DashProfile = () => {
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="rounded-full border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-                  {currentUser.role || "customer"}
+                  {currentUser.role || "顧客"}
                 </span>
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -542,7 +542,7 @@ const DashProfile = () => {
                       : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
                   }`}
                 >
-                  {currentUser.isVerified ? "Verified" : "Email not verified"}
+                  {currentUser.isVerified ? "已驗證" : "電郵未驗證"}
                 </span>
               </div>
             </div>
@@ -559,10 +559,10 @@ const DashProfile = () => {
         <div className="flex flex-col gap-3 border-b border-zinc-100 pb-6 dark:border-zinc-800">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-              Account details / 帳戶資料
+              帳戶資料
             </p>
             <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-              Update your profile, contact details and subscription preferences in one place.
+              在同一位置更新個人資料、聯絡方式及訂閱設定。
             </p>
           </div>
         </div>
@@ -570,17 +570,17 @@ const DashProfile = () => {
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
           <section className="min-w-0">
             <h3 className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Profile
+              個人資料
             </h3>
             <div className="mt-4 grid gap-5">
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  Username
+                  用戶名稱
                 </label>
                 <input
                   type="text"
                   id="username"
-                  placeholder="Username"
+                  placeholder="用戶名稱"
                   value={formData.username ?? currentUser.username ?? ""}
                   onChange={handleChange}
                   className={inputClassName}
@@ -589,12 +589,12 @@ const DashProfile = () => {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  Password
+                  密碼
                 </label>
                 <input
                   type="password"
                   id="password"
-                  placeholder="Leave blank to keep your current password"
+                  placeholder="留空即保留現有密碼"
                   value={formData.password || ""}
                   onChange={handleChange}
                   className={inputClassName}
@@ -603,10 +603,10 @@ const DashProfile = () => {
 
               <div className="rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900">
                 <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                  Profile photo
+                  個人頭像
                 </p>
                 <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-                  Click your avatar above to upload a new image.
+                  點擊上方頭像即可上傳新圖片。
                 </p>
               </div>
             </div>
@@ -614,17 +614,17 @@ const DashProfile = () => {
 
           <section className="min-w-0">
             <h3 className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Contact
+              聯絡資料
             </h3>
             <div className="mt-4 grid gap-5">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  Email
+                  電郵
                 </label>
                 <input
                   type="email"
                   id="email"
-                  placeholder="Email"
+                  placeholder="電郵"
                   value={formData.email ?? currentUser.email ?? ""}
                   onChange={handleChange}
                   className={inputClassName}
@@ -633,12 +633,12 @@ const DashProfile = () => {
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                  Phone
+                  電話
                 </label>
                 <input
                   type="text"
                   id="phone"
-                  placeholder="Phone number"
+                  placeholder="電話號碼"
                   value={formData.phone ?? currentUser.phone ?? ""}
                   onChange={handleChange}
                   className={inputClassName}
@@ -647,7 +647,7 @@ const DashProfile = () => {
 
               {!currentUser.isVerified && (
                 <InfoMessage tone="neutral">
-                  Your email is not verified yet. Updating your email will send a new verification email.
+                  你的電郵尚未驗證。更新電郵後，系統會寄出新的驗證電郵。
                 </InfoMessage>
               )}
             </div>
@@ -655,10 +655,10 @@ const DashProfile = () => {
 
           <section className="min-w-0">
             <h3 className="text-base font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Subscription preferences / 訂閱設定
+              訂閱設定
             </h3>
             <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-              Use your email and/or phone number above to receive product updates, offers and occasional promotions.
+              使用上方電郵及／或電話號碼接收新品更新、優惠及不定期推廣消息。
             </p>
             <div className="mt-4 grid gap-3 text-sm text-zinc-600 dark:text-zinc-300">
               <label className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
@@ -669,7 +669,7 @@ const DashProfile = () => {
                   onChange={handleSubscriptionChange}
                   className="h-4 w-4 rounded border-zinc-300"
                 />
-                <span>Email updates</span>
+                <span>電郵更新</span>
               </label>
               <label className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-[#fbfcfa] px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
                 <input
@@ -679,7 +679,7 @@ const DashProfile = () => {
                   onChange={handleSubscriptionChange}
                   className="h-4 w-4 rounded border-zinc-300"
                 />
-                <span>WhatsApp updates</span>
+                <span>WhatsApp 更新</span>
               </label>
             </div>
           </section>
@@ -691,25 +691,25 @@ const DashProfile = () => {
             className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-zinc-950 px-6 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
             disabled={loading || imageFileUploading || subscriptionLoading}
           >
-            {loading || subscriptionLoading ? "Saving..." : "Save Changes"}
+            {loading || subscriptionLoading ? "儲存中..." : "儲存更改"}
           </button>
         </div>
       </form>
 
       <section className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-6 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-          Danger zone / 危險操作
+          危險操作
         </p>
         <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-            Deleting your account is permanent and cannot be undone.
+            刪除帳戶是永久操作，完成後不可復原。
           </p>
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
             className="inline-flex min-h-10 items-center justify-center rounded-full border border-red-200 px-4 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/30"
           >
-            Delete Account
+            刪除帳戶
           </button>
         </div>
       </section>
@@ -718,11 +718,10 @@ const DashProfile = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/40 px-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-[1.5rem] border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
             <h3 className="text-xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Delete your account?
+              刪除你的帳戶？
             </h3>
             <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-              This action can’t be undone. If you still want to continue, we’ll
-              remove your account and sign you out.
+              此操作無法復原。如你確定繼續，我們會移除你的帳戶並登出。
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
               <button
@@ -730,14 +729,14 @@ const DashProfile = () => {
                 onClick={() => setShowDeleteModal(false)}
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
               >
-                Cancel
+                取消
               </button>
               <button
                 type="button"
                 onClick={handleDeleteUser}
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-red-600 px-5 text-sm font-medium text-white transition hover:bg-red-700"
               >
-                Yes, delete it
+                確認刪除
               </button>
             </div>
           </div>

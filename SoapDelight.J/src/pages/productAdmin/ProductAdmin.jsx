@@ -60,7 +60,7 @@ export const ProductAdmin = () => {
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
       <div className="rounded-3xl border border-zinc-200 bg-white px-6 py-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <p className="text-base font-medium text-zinc-950 dark:text-white">
-          Please Login as Admin User!
+          請以管理員帳戶登入。
         </p>
       </div>
     </div>

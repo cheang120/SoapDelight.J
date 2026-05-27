@@ -82,25 +82,25 @@ const ProductForm = ({
     const internalNetPrice = publicPrice * (1 - macauCommissionRate / 100);
     const stockCards = [
       {
-        label: "Central stock",
+        label: "中央存貨",
         value: inventoryOverview?.centralStock ?? 0,
       },
       {
-        label: "Online stock",
+        label: "網店存貨",
         value: inventoryOverview?.onlineStock ?? 0,
       },
       {
-        label: "Macau Baptist stock",
+        label: "澳浸存貨",
         value: inventoryOverview?.macauBaptistStock ?? 0,
       },
       {
-        label: "Total stock",
+        label: "總存貨",
         value: inventoryOverview?.totalStock ?? 0,
       },
       {
-        label: "Internal net price",
+        label: "內部淨價",
         value: formatMoney(internalNetPrice),
-        helper: "Internal only / 只供內部參考",
+        helper: "只供內部參考",
       },
     ];
     
@@ -109,11 +109,11 @@ const ProductForm = ({
       <form className="admin-product-form" onSubmit={saveProduct}>
         <section className="admin-product-panel admin-product-panel--upload">
           <div className="admin-product-panel-header">
-            <p className="admin-product-kicker">IMAGES</p>
+            <p className="admin-product-kicker">圖片</p>
             <div>
-              <h2 className="admin-product-panel-title">Product images</h2>
+              <h2 className="admin-product-panel-title">商品圖片</h2>
               <p className="admin-product-panel-subtitle">
-                Optional. Upload up to 5 images, or save without photos and show a placeholder.
+                選填。最多可上傳 5 張圖片；未有相片時會顯示 placeholder。
               </p>
             </div>
           </div>
@@ -125,12 +125,12 @@ const ProductForm = ({
                 {files.length > 0 &&
                   files.map((image) => (
                     <div key={image} className="thumbnail">
-                      <img src={image} alt="productImage" className="admin-product-thumbnail-image" />
+                      <img src={image} alt="商品圖片" className="admin-product-thumbnail-image" />
                       <button
                         type="button"
                         className="thumbnailIconButton"
                         onClick={() => removeImage(image)}
-                        aria-label="Remove image"
+                        aria-label="移除圖片"
                       >
                         <BsTrash size={18} className="thumbnailIcon" />
                       </button>
@@ -138,7 +138,7 @@ const ProductForm = ({
                   ))}
                 {files.length < 1 && (
                   <p className="--m admin-product-empty-images">
-                    No product photo yet. A placeholder will be shown until you upload one.
+                    暫未有商品相片。上傳前會顯示「相片稍後補上」placeholder。
                   </p>
                 )}
               </aside>
@@ -148,21 +148,21 @@ const ProductForm = ({
 
         <section className="admin-product-panel">
           <div className="admin-product-panel-header">
-            <p className="admin-product-kicker">PRODUCT INFO</p>
+            <p className="admin-product-kicker">商品資料</p>
             <div>
-              <h2 className="admin-product-panel-title">Product details</h2>
+              <h2 className="admin-product-panel-title">商品詳情</h2>
               <p className="admin-product-panel-subtitle">
-                Fill in the catalogue information, pricing and stock values.
+                填寫商品目錄資料、價格及基本庫存資料。
               </p>
             </div>
           </div>
 
           <div className="admin-product-grid">
             <div className="admin-product-field admin-product-field--full">
-              <label className="admin-product-label">Product Name</label>
+              <label className="admin-product-label">商品名稱</label>
               <input
                 type="text"
-                placeholder="Product name"
+                placeholder="商品名稱"
                 name="name"
                 value={product?.name}
                 onChange={handleInputChange}
@@ -173,11 +173,11 @@ const ProductForm = ({
 
             <div className="admin-product-field admin-product-field--full">
               <label className="admin-product-label">
-                Central SKU / 中央 SKU
+                中央 SKU
               </label>
               <input
                 type="text"
-                placeholder="Optional central SKU"
+                placeholder="選填中央 SKU"
                 name="sku"
                 value={product?.sku || ""}
                 onChange={handleInputChange}
@@ -186,14 +186,14 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field">
-              <label className="admin-product-label">Product Category</label>
+              <label className="admin-product-label">商品分類</label>
               <select
                 name="category"
                 className="admin-product-input"
                 value={product?.category}
                 onChange={handleInputChange}
               >
-                {isEditing ? <option>{product?.category}</option> : <option>Select Category</option>}
+                {isEditing ? <option>{product?.category}</option> : <option>選擇分類</option>}
                 {categories.length > 0 &&
                   categories.map((cat) => (
                     <option key={cat._id} value={cat._name}>
@@ -204,14 +204,14 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field">
-              <label className="admin-product-label">Product Brand</label>
+              <label className="admin-product-label">商品品牌</label>
               <select
                 name="brand"
                 value={product?.brand}
                 className="admin-product-input"
                 onChange={handleInputChange}
               >
-                {isEditing ? <option>{product?.brand}</option> : <option>Select Brand</option>}
+                {isEditing ? <option>{product?.brand}</option> : <option>選擇品牌</option>}
                 {filteredBrands.length > 0 &&
                   filteredBrands.map((brand) => (
                     <option key={brand._id} value={brand.name}>
@@ -222,10 +222,10 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field">
-              <label className="admin-product-label">Product Color</label>
+              <label className="admin-product-label">商品顏色</label>
               <input
                 type="text"
-                placeholder="Color"
+                placeholder="顏色"
                 name="color"
                 className="admin-product-input"
                 value={product?.color}
@@ -234,10 +234,10 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field">
-              <label className="admin-product-label">Regular Price</label>
+              <label className="admin-product-label">原價</label>
               <input
                 type="number"
-                placeholder="Regular Price"
+                placeholder="原價"
                 name="regularPrice"
                 className="admin-product-input"
                 value={product?.regularPrice}
@@ -246,10 +246,10 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field">
-              <label className="admin-product-label">Product Price</label>
+              <label className="admin-product-label">售價</label>
               <input
                 type="number"
-                placeholder="Product Price"
+                placeholder="售價"
                 name="price"
                 className="admin-product-input"
                 value={product?.price}
@@ -258,10 +258,10 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field">
-              <label className="admin-product-label">Product Quantity</label>
+              <label className="admin-product-label">商品數量</label>
               <input
                 type="number"
-                placeholder="Product Quantity"
+                placeholder="商品數量"
                 name="quantity"
                 className="admin-product-input"
                 value={product?.quantity}
@@ -270,7 +270,7 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field admin-product-field--full">
-              <label className="admin-product-label">Product Description</label>
+              <label className="admin-product-label">商品描述</label>
               <div className="admin-product-editor">
                 <ReactQuill
                   theme="snow"
@@ -288,15 +288,15 @@ const ProductForm = ({
 
         <section className="admin-product-panel">
           <div className="admin-product-panel-header">
-            <p className="admin-product-kicker">INVENTORY</p>
+            <p className="admin-product-kicker">存貨</p>
             <div>
               <h2 className="admin-product-panel-title">
-                Inventory & Consignment / 存貨及寄賣資料
+                存貨及寄賣資料
               </h2>
               <p className="admin-product-panel-subtitle">
-                Stock quantities are read-only here. Please use stock movements to adjust or transfer inventory.
-                <br />
                 此處只顯示存貨數量；如需調整或調貨，請使用存貨流動紀錄。
+                <br />
+                所有數量變動都應透過存貨流動紀錄。
               </p>
             </div>
           </div>
@@ -316,12 +316,12 @@ const ProductForm = ({
               <div className="admin-product-grid admin-inventory-edit-grid">
                 <div className="admin-product-field">
                   <label className="admin-product-label">
-                    Macau Baptist SKU / 澳門浸信書局 SKU
+                    澳門浸信書局 SKU
                   </label>
                   <input
                     type="text"
                     name="locationSku"
-                    placeholder="Optional consignment SKU"
+                    placeholder="選填寄賣點 SKU"
                     className="admin-product-input"
                     value={inventoryMapping?.locationSku || ""}
                     onChange={handleInventoryMappingChange}
@@ -330,12 +330,12 @@ const ProductForm = ({
 
                 <div className="admin-product-field">
                   <label className="admin-product-label">
-                    Macau Baptist product name / 澳浸貨品名稱
+                    澳浸貨品名稱
                   </label>
                   <input
                     type="text"
                     name="locationProductName"
-                    placeholder={product?.name || "Optional location product name"}
+                    placeholder={product?.name || "選填寄賣點貨品名稱"}
                     className="admin-product-input"
                     value={inventoryMapping?.locationProductName || ""}
                     onChange={handleInventoryMappingChange}
@@ -344,7 +344,7 @@ const ProductForm = ({
 
                 <div className="admin-product-field">
                   <label className="admin-product-label">
-                    Macau Baptist commission / 澳浸佣金
+                    澳浸佣金
                   </label>
                   <input
                     type="number"
@@ -356,21 +356,21 @@ const ProductForm = ({
                     onChange={handleInventoryMappingChange}
                   />
                   <p className="admin-product-field-note">
-                    Internal only / 只供內部參考
+                    只供內部參考
                   </p>
                 </div>
               </div>
             </>
           ) : (
             <div className="admin-product-info-note">
-              Save product first, then edit consignment references.
+              請先儲存商品，再編輯寄賣參考資料。
             </div>
           )}
         </section>
 
         <div className="admin-product-actions">
           <button type="submit" className="admin-product-submit">
-            Save Product
+            儲存商品
           </button>
         </div>
       </form>

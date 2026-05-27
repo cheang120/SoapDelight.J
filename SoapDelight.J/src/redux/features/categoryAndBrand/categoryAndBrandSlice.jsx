@@ -149,7 +149,7 @@ export const deleteBrand = createAsyncThunk(
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          toast.success("Category Created successfully");
+          toast.success("分類已成功建立");
           // console.log(action.payload);
 
         })
@@ -203,7 +203,7 @@ export const deleteBrand = createAsyncThunk(
           state.isSuccess = true;
           state.isError = false;
           // console.log(action.payload);
-          toast.success("Brand Created successfully");
+          toast.success("品牌已成功建立");
         })
         .addCase(createBrand.rejected, (state, action) => {
           state.isLoading = false;

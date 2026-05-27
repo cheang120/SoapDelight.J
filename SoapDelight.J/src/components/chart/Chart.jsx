@@ -93,10 +93,10 @@ const Chart = ({ orders: ordersProp }) => {
   const delivered = getOrderCount(orderStatuses, q4);
 
   const data = {
-    labels: ["Placed", "Processing", "Shipped", "Delivered"],
+    labels: ["已下單", "處理中", "已寄出", "已送達"],
     datasets: [
       {
-        label: "Order count",
+        label: "訂單數量",
         data: [placed, processing, shipped, delivered],
         backgroundColor: ["#18181b", "#71717a", "#a1a1aa", "#047857"],
         borderRadius: 12,
@@ -111,10 +111,10 @@ const Chart = ({ orders: ordersProp }) => {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <div>
-            <p className={styles.eyebrow}>Orders</p>
-            <h3>Order status / 訂單狀態</h3>
+            <p className={styles.eyebrow}>訂單</p>
+            <h3>訂單狀態</h3>
           </div>
-          <span>{orders.length} total</span>
+          <span>共 {orders.length} 張</span>
         </div>
         <div className={styles.chartBody}>
           <Bar options={options} data={data} />

@@ -89,26 +89,26 @@ const Orders = () => {
     <section className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerCopy}>
-          <p className={styles.eyebrow}>ORDERS</p>
-          <h2 className={styles.title}>All Orders</h2>
+          <p className={styles.eyebrow}>訂單</p>
+          <h2 className={styles.title}>所有訂單</h2>
           <p className={styles.subtitle}>
-            Open an order to review details and update its status.
+            開啟訂單以查看詳情及更新狀態。
           </p>
         </div>
       </header>
 
       <div className={styles.toolbar}>
         <label className={styles.searchWrap}>
-          <span className={styles.searchLabel}>Search orders</span>
+          <span className={styles.searchLabel}>搜尋訂單</span>
           <input
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by order ID, date or total"
+            placeholder="以訂單 ID、日期或總額搜尋"
             className={styles.searchInput}
           />
         </label>
-        <p className={styles.resultCount}>{filteredOrders.length} orders found</p>
+        <p className={styles.resultCount}>找到 {filteredOrders.length} 張訂單</p>
       </div>
 
       <div className={styles.card}>

@@ -116,7 +116,7 @@ const couponSlice = createSlice({
         state.isSuccess = true;
         state.isError = false;
         // console.log(action.payload);
-        toast.success("Coupon Created successfully");
+        toast.success("優惠券已成功建立");
       })
       .addCase(createCoupon.rejected, (state, action) => {
         state.isLoading = false;
@@ -151,13 +151,13 @@ const couponSlice = createSlice({
         state.isError = false;
         if (!isCouponValid(action.payload)) {
           state.coupon = null;
-          state.message = "Coupon has expired.";
-          toast.error("Coupon has expired.");
+          state.message = "優惠碼已過期。";
+          toast.error("優惠碼已過期。");
           return;
         }
         state.coupon = action.payload;
         state.message = "";
-        toast.success("Coupon applied.");
+        toast.success("優惠碼已套用。");
         console.log(action.payload);
       })
       .addCase(getCoupon.rejected, (state, action) => {

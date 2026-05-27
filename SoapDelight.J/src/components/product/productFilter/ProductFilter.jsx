@@ -61,16 +61,16 @@ const ProductFilter = () => {
     <div className="space-y-8 text-zinc-900 dark:text-white">
       <div>
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-          Filter
+          篩選
         </p>
         <h3 className="mt-2 text-lg font-semibold tracking-tight">
-          Refine your selection
+          收窄選購範圍
         </h3>
       </div>
 
       <div>
         <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">
-          Categories
+          分類
         </h4>
         <div className="mt-3 flex flex-wrap gap-2">
           {allCategories.map((cat) => (
@@ -84,7 +84,7 @@ const ProductFilter = () => {
               }`}
               onClick={() => filterProductCategory(cat)}
             >
-              {cat}
+              {cat === "All" ? "全部" : cat}
             </button>
           ))}
         </div>
@@ -92,7 +92,7 @@ const ProductFilter = () => {
 
       <div>
         <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">
-          Brand
+          品牌
         </h4>
         <div className="mt-3">
           <select
@@ -102,7 +102,7 @@ const ProductFilter = () => {
           >
             {allBrands.map((brandOption) => (
               <option key={brandOption} value={brandOption}>
-                {brandOption}
+                {brandOption === "All" ? "全部" : brandOption}
               </option>
             ))}
           </select>
@@ -112,7 +112,7 @@ const ProductFilter = () => {
       <div>
         <div className="flex items-center justify-between gap-3">
           <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">
-            Price
+            價格
           </h4>
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
             ${price[0]} - ${price[1]}
@@ -149,7 +149,7 @@ const ProductFilter = () => {
           className="inline-flex min-h-10 items-center rounded-full border border-zinc-200 px-4 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
           onClick={clearFilters}
         >
-          Clear filters
+          清除篩選
         </button>
       </div>
     </div>

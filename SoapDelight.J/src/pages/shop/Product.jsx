@@ -44,13 +44,13 @@ const Product = () => {
       <div className="mx-auto max-w-7xl overflow-x-hidden">
         <section className="mb-10 rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-            Collection
+            商品系列
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-5xl">
-            Shop / 選購
+            選購
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
-            Natural handmade skincare, soap and candles.
+            天然手作護膚品、手工皂與香薰蠟。
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-zinc-500 dark:text-zinc-400">
             天然手作，為日常護理帶來溫柔選擇。
@@ -64,7 +64,7 @@ const Product = () => {
             className="inline-flex min-h-11 items-center gap-2 rounded-full border border-zinc-300 bg-white px-5 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
           >
             {showFilter ? <FaTimes size={14} /> : <FaSlidersH size={14} />}
-            {showFilter ? "Close Filters" : "Filters"}
+            {showFilter ? "關閉篩選" : "篩選"}
           </button>
         </div>
 

@@ -106,7 +106,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
   if (!order) {
     return (
       <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 sm:px-8">
-        We couldn't find this order.
+        找不到此訂單。
       </div>
     );
   }
@@ -116,7 +116,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
     shippingItem?.name ||
     order?.shippingAddress?.deliveryMethod ||
     order?.shippingAddress?.shippingMethod ||
-    "Delivery information not available";
+    "未有送貨資料";
   const hasOrderCoupon =
     Boolean(order?.coupon?.name) && order.coupon.name !== "nil";
 
@@ -127,14 +127,14 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
           to={orderPageLink}
           className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
         >
-          Back to Orders
+          返回訂單
         </Link>
         <button
           type="button"
           onClick={downloadPDF}
           className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
         >
-          Download PDF
+          下載 PDF
         </button>
       </div>
 
@@ -145,10 +145,10 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
         <div className="flex flex-col gap-6 border-b border-zinc-100 pb-8 dark:border-zinc-800 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-emerald-700">
-              Receipt
+              收據
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Order Details / 訂單詳情
+              訂單詳情
             </h1>
             <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {shortenId(order._id)}
@@ -158,28 +158,28 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
           <div className="grid gap-3 text-sm text-zinc-600 dark:text-zinc-300 md:text-right">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-                Date
+                日期
               </p>
               <p className="mt-1 text-zinc-950 dark:text-white">
-                {order?.orderDate || "N/A"} {order?.orderTime ? `at ${order.orderTime}` : ""}
+                {order?.orderDate || "N/A"} {order?.orderTime ? `${order.orderTime}` : ""}
               </p>
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-                Status
+                狀態
               </p>
               <span
                 className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-medium ${statusBadgeClass(
                   order?.orderStatus
                 )}`}
               >
-                {order?.orderStatus || "Processing"}
+                {order?.orderStatus || "處理中"}
               </span>
             </div>
             {paymentLabel && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-                  Payment
+                  付款
                 </p>
                 <p className="mt-1 text-zinc-950 dark:text-white">{paymentLabel}</p>
               </div>
@@ -191,11 +191,11 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
           <section className="space-y-6">
             <div className="rounded-[1.5rem] border border-zinc-200 bg-[#fbfcfa] p-5 dark:border-zinc-800 dark:bg-zinc-900">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-                Contact
+                聯絡資料
               </p>
               <div className="mt-3 space-y-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
                 <p className="font-medium text-zinc-950 dark:text-white">
-                  {order?.shippingAddress?.name || "Customer"}
+                  {order?.shippingAddress?.name || "顧客"}
                 </p>
                 {order?.shippingAddress?.email && <p>{order.shippingAddress.email}</p>}
                 {order?.shippingAddress?.phone && <p>{order.shippingAddress.phone}</p>}
@@ -204,7 +204,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
 
             <div className="rounded-[1.5rem] border border-zinc-200 bg-[#fbfcfa] p-5 dark:border-zinc-800 dark:bg-zinc-900">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-                Delivery
+                送貨資料
               </p>
               <div className="mt-3 space-y-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
                 <p className="font-medium text-zinc-950 dark:text-white">
@@ -230,7 +230,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
 
             <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-                Items
+                商品
               </p>
               <div className="mt-5 space-y-4">
                 {productItems.map((item) => {
@@ -252,17 +252,17 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
-                            No image
+                            未有圖片
                           </div>
                         )}
                       </div>
 
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-zinc-950 dark:text-white">
-                          {item?.name || "Product"}
+                          {item?.name || "商品"}
                         </p>
                         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                          Qty {item?.cartQuantity || 0}
+                          數量 {item?.cartQuantity || 0}
                         </p>
                         <p className="mt-3 text-sm font-medium text-zinc-950 dark:text-white">
                           {formatCurrency(lineTotal)}
@@ -275,7 +275,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
                               to={`/review-product/${item?._id}`}
                               className="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
                             >
-                              Review
+                              評價
                             </Link>
                           </div>
                         )}
@@ -288,11 +288,11 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
 
           <aside className="rounded-[1.5rem] border border-zinc-200 bg-[#fbfcfa] p-5 dark:border-zinc-800 dark:bg-zinc-900 lg:sticky lg:top-24 lg:self-start">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-              Summary
+              摘要
             </p>
             <div className="mt-5 space-y-4 text-sm text-zinc-600 dark:text-zinc-300">
               <div className="flex items-center justify-between gap-4">
-                <span>Product subtotal / 商品小計</span>
+                <span>商品小計</span>
                 <span className="font-medium text-zinc-950 dark:text-white">
                   {formatCurrency(productSubtotal)}
                 </span>
@@ -301,7 +301,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
               {hasOrderCoupon && (
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p>Coupon / 優惠</p>
+                    <p>優惠</p>
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                       {order.coupon.name}
                       {order?.coupon?.discount ? ` (${order.coupon.discount}% off)` : ""}
@@ -315,7 +315,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
 
               {hasOrderCoupon && (
                 <div className="flex items-center justify-between gap-4">
-                  <span>Subtotal after discount / 優惠後小計</span>
+                  <span>優惠後小計</span>
                   <span className="font-medium text-zinc-950 dark:text-white">
                     {formatCurrency(subtotalAfterDiscount)}
                   </span>
@@ -324,13 +324,13 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
 
               <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">
-                  Delivery / 送貨方式
+                  送貨方式
                 </p>
                 <p className="mt-2 text-zinc-950 dark:text-white">{deliveryLabel}</p>
               </div>
 
               <div className="flex items-center justify-between gap-4">
-                <span>Delivery fee / 運費</span>
+                <span>運費</span>
                 <span className="font-medium text-zinc-950 dark:text-white">
                   {formatCurrency(shippingFee)}
                 </span>
@@ -339,7 +339,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
               <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-base font-semibold text-zinc-950 dark:text-white">
-                    Total / 總數
+                    總數
                   </span>
                   <span className="text-base font-semibold text-zinc-950 dark:text-white">
                     {formatCurrency(effectiveTotal)}
@@ -353,14 +353,14 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
                 to={orderPageLink}
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
               >
-                Back to Orders
+                返回訂單
               </Link>
               {!isAdminView && (
                 <Link
                   to="/shop"
                   className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 px-5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
                 >
-                  Continue Shopping
+                  繼續選購
                 </Link>
               )}
             </div>

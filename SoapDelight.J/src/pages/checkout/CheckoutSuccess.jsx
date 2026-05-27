@@ -20,34 +20,34 @@ const CheckoutSuccess = () => {
   }, [dispatch]);
 
   return (
-    <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] sm:px-10">
+    <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 dark:bg-zinc-950 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] dark:border-zinc-800 dark:bg-zinc-950 sm:px-10">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
           <FaCheckCircle size={28} />
         </div>
         <p className="mt-6 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-          Order Confirmed
+          訂單已確認
         </p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-zinc-950">
-          Checkout Successful
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+          結帳成功
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-zinc-600">
+        <p className="mx-auto mt-4 max-w-2xl text-zinc-600 dark:text-zinc-300">
           多謝你的選購。訂單已成功建立，我們會按你的資料安排後續處理與通知。
         </p>
 
         <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
           <Link
             to="/shop"
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
           >
-            Continue Shopping / 繼續選購
+            繼續選購
           </Link>
           {currentUser && (
             <Link
               to="/order-history"
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
             >
-              View Orders / 查看訂單
+              查看訂單
             </Link>
           )}
         </div>

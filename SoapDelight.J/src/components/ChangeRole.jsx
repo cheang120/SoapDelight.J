@@ -14,7 +14,7 @@ const ChangeRole = ({ _id, email, role }) => {
     e.preventDefault();
 
     if (!userRole) {
-      toast.error("Please select a role");
+      toast.error("請選擇角色。");
       return;
     }
 
@@ -24,7 +24,7 @@ const ChangeRole = ({ _id, email, role }) => {
     };
 
     const emailData = {
-      subject: "Account Role Changed - BabyCode",
+      subject: "帳戶角色已更改 - SoapDelight.J",
       send_to: email,
       reply_to: "noreply@babycode",
       template: "changeRole",
@@ -36,9 +36,9 @@ const ChangeRole = ({ _id, email, role }) => {
       await dispatch(sendAutomatedEmail(emailData)).unwrap();
       await dispatch(getUsers()).unwrap();
       dispatch(EMAIL_RESET());
-      toast.success("User role updated successfully");
+      toast.success("使用者角色已成功更新。");
     } catch (error) {
-      toast.error("Failed to update user role");
+      toast.error("未能更新使用者角色。");
     }
   };
 
@@ -49,11 +49,11 @@ const ChangeRole = ({ _id, email, role }) => {
         onSubmit={changeRole}
       >
         <select value={userRole} onChange={(e) => setUserRole(e.target.value)}>
-          <option value="">-- select --</option>
-          <option value="subscriber">Subscriber</option>
-          <option value="author">Author</option>
-          <option value="admin">Admin</option>
-          <option value="suspended">Suspended</option>
+          <option value="">-- 請選擇 --</option>
+          <option value="subscriber">訂閱者</option>
+          <option value="author">作者</option>
+          <option value="admin">管理員</option>
+          <option value="suspended">已停權</option>
         </select>
         <button className="flex items-center justify-center ml-2 z-10 text-base font-normal px-2 py-1 mr-0.5 border border-transparent rounded-md cursor-pointer transition duration-300 text-white bg-blue-500">
           <FaCheck size={15} />
@@ -64,4 +64,3 @@ const ChangeRole = ({ _id, email, role }) => {
 }
 
 export default ChangeRole;
-

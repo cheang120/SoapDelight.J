@@ -30,10 +30,10 @@ const Contact = () => {
       <div className="mx-auto max-w-6xl space-y-8">
         <section className="rounded-[2rem] border border-zinc-200 bg-white px-6 py-10 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8 lg:px-10">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-            Contact
+            聯絡我們
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-            Contact us / 聯絡我們
+            聯絡我們
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
             有產品、訂單或送貨問題？歡迎留下訊息，我們會盡快回覆。
@@ -44,10 +44,10 @@ const Contact = () => {
           <div className="space-y-6">
             <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-                Contact options
+                聯絡方式
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-                Stay in touch
+                保持聯絡
               </h2>
               <div className="mt-6 space-y-3">
                 {contactOptions.map((option) => {
@@ -74,7 +74,7 @@ const Contact = () => {
                         </div>
                       </div>
                       <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                        Open
+                        開啟
                       </span>
                     </a>
                   );
@@ -84,10 +84,10 @@ const Contact = () => {
 
             <div className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-                Subscribe
+                訂閱
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-                Subscribe for updates / 訂閱最新消息
+                訂閱最新消息
               </h2>
               <p className="mt-4 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
                 掃描 QR code 訂閱 SoapDelight.J 最新產品、優惠及推廣消息。
@@ -98,7 +98,7 @@ const Contact = () => {
               >
                 <img
                   src={subscribeQrUrl}
-                  alt="Subscribe to SoapDelight.J updates QR code"
+                  alt="訂閱 SoapDelight.J 最新消息 QR code"
                   className="h-44 w-44 rounded-xl bg-white p-2"
                   loading="lazy"
                 />
@@ -107,10 +107,10 @@ const Contact = () => {
 
             <div className="rounded-[1.75rem] border border-zinc-200 bg-[#f7f8f4] px-6 py-8 dark:border-zinc-800 dark:bg-zinc-900 sm:px-8">
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-                Response
+                回覆
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-                We’ll get back to you as soon as we can.
+                我們會盡快回覆你。
               </h2>
               <p className="mt-4 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
                 如網站內未有列出你想查詢的聯絡資料，歡迎直接透過表格留下訊息，我們會按內容回覆你。
@@ -120,10 +120,10 @@ const Contact = () => {
 
           <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-8 dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-              Message form
+              訊息表格
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-              Send us a message
+              留下訊息
             </h2>
             <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
               有任何產品、訂單或送貨問題，都可以在這裡留下訊息。

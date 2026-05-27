@@ -12,10 +12,10 @@ const Coupon = () => {
     <section className="admin-taxonomy-page">
       <header className="admin-taxonomy-header">
         <div className="admin-taxonomy-copy">
-          <p className="admin-taxonomy-eyebrow">COUPON</p>
-          <h2 className="admin-taxonomy-title">Create Coupon</h2>
+          <p className="admin-taxonomy-eyebrow">優惠券</p>
+          <h2 className="admin-taxonomy-title">建立優惠券</h2>
           <p className="admin-taxonomy-subtitle">
-            Create and manage discount codes.
+            建立及管理折扣優惠碼。
           </p>
         </div>
       </header>

@@ -38,10 +38,10 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
     return (
       <section className="rounded-[1.75rem] border border-zinc-200 bg-white px-6 py-10 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <p className="text-lg font-semibold tracking-tight text-zinc-950 dark:text-white">
-          No orders yet.
+          暫未有訂單。
         </p>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          There are no orders to display right now.
+          目前沒有可顯示的訂單。
         </p>
       </section>
     );
@@ -51,12 +51,12 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
     <>
       <section className="hidden overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 md:block">
         <div className="grid grid-cols-[1.1fr_1fr_1fr_1fr_1fr_140px] gap-4 border-b border-zinc-200 bg-zinc-50/80 px-6 py-4 text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
-          <span>Order</span>
-          <span>Date</span>
-          <span>Status</span>
-          <span>Payment</span>
-          <span>Total</span>
-          <span className="text-right">Action</span>
+          <span>訂單</span>
+          <span>日期</span>
+          <span>狀態</span>
+          <span>付款</span>
+          <span>總數</span>
+          <span className="text-right">操作</span>
         </div>
 
         <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -73,7 +73,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
                     {shortenId(order._id)}
                   </p>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {order?.cartItems?.filter((item) => item.category !== "Shipping").length || 0} items
+                    {order?.cartItems?.filter((item) => item.category !== "Shipping").length || 0} 件商品
                   </p>
                 </div>
 
@@ -90,7 +90,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
                       order.orderStatus
                     )}`}
                   >
-                    {order.orderStatus || "Processing"}
+                    {order.orderStatus || "處理中"}
                   </span>
                 </div>
 
@@ -108,7 +108,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
                     onClick={() => openOrderDetails(order._id)}
                     className="inline-flex min-h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:text-white"
                   >
-                    View details
+                    查看詳情
                   </button>
                 </div>
               </article>
@@ -129,7 +129,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-                    Order
+                    訂單
                   </p>
                   <p className="mt-2 text-lg font-semibold tracking-tight text-zinc-950 dark:text-white">
                     {shortenId(order._id)}
@@ -141,25 +141,25 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
                     order.orderStatus
                   )}`}
                 >
-                  {order.orderStatus || "Processing"}
+                  {order.orderStatus || "處理中"}
                 </span>
               </div>
 
               <div className="mt-5 grid gap-3 text-sm text-zinc-600 dark:text-zinc-300">
                 <div className="flex items-center justify-between gap-4">
-                  <span>Date</span>
+                  <span>日期</span>
                   <span className="text-right text-zinc-950 dark:text-white">
                     {order.orderDate || "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <span>Payment</span>
+                  <span>付款</span>
                   <span className="text-right text-zinc-950 dark:text-white">
                     {paymentLabel || "—"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <span>Total</span>
+                  <span>總數</span>
                   <span className="text-right font-medium text-zinc-950 dark:text-white">
                     {formatCurrency(order.orderAmount)}
                   </span>
@@ -171,7 +171,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
                 onClick={() => openOrderDetails(order._id)}
                 className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
               >
-                View details
+                查看詳情
               </button>
             </article>
           );

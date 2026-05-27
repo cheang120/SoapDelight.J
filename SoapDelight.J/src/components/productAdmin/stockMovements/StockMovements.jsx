@@ -26,7 +26,7 @@ const emptyAdjustForm = {
 };
 
 const getProductLabel = (product) =>
-  `${product?.name || "Unnamed product"}${product?.centralSku ? ` (${product.centralSku})` : ""}`;
+  `${product?.name || "未命名商品"}${product?.centralSku ? ` (${product.centralSku})` : ""}`;
 
 const StockMovements = () => {
   const [overviewRows, setOverviewRows] = useState([]);
@@ -85,7 +85,7 @@ const StockMovements = () => {
       setLocations(Array.isArray(locationData) ? locationData : []);
       setMovements(Array.isArray(movementData) ? movementData : []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not load stock movement data");
+      toast.error(error?.response?.data?.message || "未能載入存貨流動資料");
     } finally {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ const StockMovements = () => {
     event.preventDefault();
 
     if (!addForm.productId || !addForm.toLocationCode || !validatePositiveQuantity(addForm.quantity)) {
-      toast.error("Please select product, location and a positive quantity.");
+      toast.error("請選擇商品、地點及正數數量。");
       return;
     }
 
@@ -131,11 +131,11 @@ const StockMovements = () => {
         quantity: Number(addForm.quantity),
         note: addForm.note,
       });
-      toast.success("Stock added successfully");
+      toast.success("入貨已成功記錄");
       setAddForm(emptyAddForm);
       await loadData();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not add stock");
+      toast.error(error?.response?.data?.message || "未能新增存貨");
     } finally {
       setSavingType("");
     }
@@ -150,12 +150,12 @@ const StockMovements = () => {
       !transferForm.toLocationCode ||
       !validatePositiveQuantity(transferForm.quantity)
     ) {
-      toast.error("Please select product, locations and a positive quantity.");
+      toast.error("請選擇商品、地點及正數數量。");
       return;
     }
 
     if (transferForm.fromLocationCode === transferForm.toLocationCode) {
-      toast.error("From and To locations cannot be the same.");
+      toast.error("來源及目的地點不可相同。");
       return;
     }
 
@@ -163,7 +163,7 @@ const StockMovements = () => {
     const requestedQuantity = Number(transferForm.quantity);
 
     if (availableStock < requestedQuantity) {
-      toast.error(`Only ${availableStock} available at selected source location.`);
+      toast.error(`所選來源地點只有 ${availableStock} 件可用存貨。`);
       return;
     }
 
@@ -176,11 +176,11 @@ const StockMovements = () => {
         quantity: Number(transferForm.quantity),
         note: transferForm.note,
       });
-      toast.success("Stock transferred successfully");
+      toast.success("調貨已成功記錄");
       setTransferForm(emptyTransferForm);
       await loadData();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not transfer stock");
+      toast.error(error?.response?.data?.message || "未能完成調貨");
     } finally {
       setSavingType("");
     }
@@ -190,13 +190,13 @@ const StockMovements = () => {
     event.preventDefault();
 
     if (!adjustForm.productId || !adjustForm.locationCode || adjustForm.newQuantity === "") {
-      toast.error("Please select product, location and new quantity.");
+      toast.error("請選擇商品、地點及新數量。");
       return;
     }
 
     const newQuantity = Number(adjustForm.newQuantity);
     if (!Number.isFinite(newQuantity) || newQuantity < 0) {
-      toast.error("New quantity must be zero or greater.");
+      toast.error("新數量必須為 0 或以上。");
       return;
     }
 
@@ -208,11 +208,11 @@ const StockMovements = () => {
         newQuantity,
         note: adjustForm.note,
       });
-      toast.success("Stock adjusted successfully");
+      toast.success("盤點調整已儲存");
       setAdjustForm(emptyAdjustForm);
       await loadData();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not adjust stock");
+      toast.error(error?.response?.data?.message || "未能儲存盤點調整");
     } finally {
       setSavingType("");
     }
@@ -220,7 +220,7 @@ const StockMovements = () => {
 
   const renderProductSelect = (name, value, onChange) => (
     <select name={name} value={value} onChange={onChange}>
-      <option value="">Select product</option>
+      <option value="">選擇商品</option>
       {productOptions.map((product) => (
         <option key={product.productId} value={product.productId}>
           {getProductLabel(product)}
@@ -229,7 +229,7 @@ const StockMovements = () => {
     </select>
   );
 
-  const renderLocationSelect = (name, value, onChange, defaultLabel = "Select location") => (
+  const renderLocationSelect = (name, value, onChange, defaultLabel = "選擇地點") => (
     <select name={name} value={value} onChange={onChange}>
       <option value="">{defaultLabel}</option>
       {activeLocations.map((location) => (
@@ -244,65 +244,64 @@ const StockMovements = () => {
     <section className="stock-movements">
       <header className="stock-movements__header">
         <div>
-          <p className="stock-movements__eyebrow">Inventory</p>
-          <h2>Stock Movements / 存貨流動</h2>
+          <p className="stock-movements__eyebrow">存貨</p>
+          <h2>存貨流動</h2>
           <p>
-            Add stock, transfer stock between locations, and record stock count adjustments.
-            Movements cannot be deleted.
+            記錄入貨、地點之間調貨及盤點調整。存貨流動紀錄不可刪除。
           </p>
         </div>
         <button type="button" onClick={loadData} disabled={loading}>
-          {loading ? "Refreshing..." : "Refresh"}
+          {loading ? "重新整理中..." : "重新整理"}
         </button>
       </header>
 
       <div className="stock-movements__forms">
         <form onSubmit={handleAddStock} className="stock-movements__card">
-          <p className="stock-movements__eyebrow">Add stock / 入貨</p>
-          <h3>Add stock to location</h3>
+          <p className="stock-movements__eyebrow">入貨</p>
+          <h3>新增存貨到地點</h3>
           <label>
-            Product
+            商品
             {renderProductSelect("productId", addForm.productId, updateAddForm)}
           </label>
           <label>
-            To location
+            目的地點
             {renderLocationSelect("toLocationCode", addForm.toLocationCode, updateAddForm)}
           </label>
           <label>
-            Quantity
+            數量
             <input name="quantity" type="number" min="1" step="1" value={addForm.quantity} onChange={updateAddForm} />
           </label>
           <label>
-            Note
+            備註
             <textarea name="note" rows="2" value={addForm.note} onChange={updateAddForm} />
           </label>
           <button type="submit" disabled={savingType === "add"}>
-            {savingType === "add" ? "Adding..." : "Add stock"}
+            {savingType === "add" ? "新增中..." : "新增存貨"}
           </button>
         </form>
 
         <form onSubmit={handleTransferStock} className="stock-movements__card">
-          <p className="stock-movements__eyebrow">Transfer / 調貨</p>
-          <h3>Transfer between locations</h3>
+          <p className="stock-movements__eyebrow">調貨</p>
+          <h3>地點之間調貨</h3>
           <label>
-            Product
+            商品
             {renderProductSelect("productId", transferForm.productId, updateTransferForm)}
           </label>
           <label>
-            From location
+            來源地點
             {renderLocationSelect("fromLocationCode", transferForm.fromLocationCode, updateTransferForm)}
           </label>
           {transferForm.productId && transferForm.fromLocationCode && (
             <p className="stock-movements__availability">
-              Available at selected source: <strong>{transferSourceAvailableStock ?? 0}</strong>
+              所選來源可用存貨：<strong>{transferSourceAvailableStock ?? 0}</strong>
             </p>
           )}
           <label>
-            To location
+            目的地點
             {renderLocationSelect("toLocationCode", transferForm.toLocationCode, updateTransferForm)}
           </label>
           <label>
-            Quantity
+            數量
             <input
               name="quantity"
               type="number"
@@ -313,27 +312,27 @@ const StockMovements = () => {
             />
           </label>
           <label>
-            Note
+            備註
             <textarea name="note" rows="2" value={transferForm.note} onChange={updateTransferForm} />
           </label>
           <button type="submit" disabled={savingType === "transfer"}>
-            {savingType === "transfer" ? "Transferring..." : "Transfer stock"}
+            {savingType === "transfer" ? "調貨中..." : "調貨"}
           </button>
         </form>
 
         <form onSubmit={handleAdjustStock} className="stock-movements__card">
-          <p className="stock-movements__eyebrow">Adjustment / 盤點調整</p>
-          <h3>Set actual stock count</h3>
+          <p className="stock-movements__eyebrow">盤點調整</p>
+          <h3>設定實際存貨數量</h3>
           <label>
-            Product
+            商品
             {renderProductSelect("productId", adjustForm.productId, updateAdjustForm)}
           </label>
           <label>
-            Location
+            地點
             {renderLocationSelect("locationCode", adjustForm.locationCode, updateAdjustForm)}
           </label>
           <label>
-            New quantity
+            新數量
             <input
               name="newQuantity"
               type="number"
@@ -344,11 +343,11 @@ const StockMovements = () => {
             />
           </label>
           <label>
-            Note
+            備註
             <textarea name="note" rows="2" value={adjustForm.note} onChange={updateAdjustForm} />
           </label>
           <button type="submit" disabled={savingType === "adjust"}>
-            {savingType === "adjust" ? "Saving..." : "Save adjustment"}
+            {savingType === "adjust" ? "儲存中..." : "儲存調整"}
           </button>
         </form>
       </div>
@@ -356,28 +355,28 @@ const StockMovements = () => {
       <div className="stock-movements__history">
         <div className="stock-movements__history-head">
           <div>
-            <p className="stock-movements__eyebrow">History</p>
-            <h3>Latest movements</h3>
+            <p className="stock-movements__eyebrow">紀錄</p>
+            <h3>最新存貨流動</h3>
           </div>
-          <p>No delete or edit action is available. Use adjustment if a movement was entered incorrectly.</p>
+          <p>此處不可刪除或編輯紀錄。如輸入錯誤，請使用盤點調整修正。</p>
         </div>
 
         {loading ? (
-          <p className="stock-movements__empty">Loading movements...</p>
+          <p className="stock-movements__empty">正在載入存貨流動...</p>
         ) : movements.length === 0 ? (
-          <p className="stock-movements__empty">No stock movements yet.</p>
+          <p className="stock-movements__empty">暫未有存貨流動紀錄。</p>
         ) : (
           <div className="stock-movements__table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Product</th>
-                  <th>Type</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Qty</th>
-                  <th>Note</th>
+                  <th>日期</th>
+                  <th>商品</th>
+                  <th>類型</th>
+                  <th>來源</th>
+                  <th>目的地</th>
+                  <th>數量</th>
+                  <th>備註</th>
                 </tr>
               </thead>
               <tbody>

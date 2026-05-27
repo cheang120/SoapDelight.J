@@ -27,7 +27,7 @@ const formatMoney = (value) =>
 
 const mapProductToFallbackInventoryRow = (product) => ({
   productId: product?._id,
-  name: product?.name || "Untitled product",
+  name: product?.name || "未命名商品",
   centralSku: product?.sku || "",
   category: product?.category || "",
   brand: product?.brand || "",
@@ -176,10 +176,10 @@ const ViewProducts = () => {
       const overview = await inventoryService.getInventoryOverview();
       setInventoryRows(Array.isArray(overview) ? overview : []);
       setInventoryError(false);
-      toast.success("Default inventory locations ensured");
+      toast.success("已確認預設存貨地點");
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Could not ensure inventory locations"
+        error?.response?.data?.message || "未能確認預設存貨地點"
       );
     } finally {
       setEnsuringDefaults(false);
@@ -188,15 +188,15 @@ const ViewProducts = () => {
 
   const confirmDelete = (id) => {
     confirmAlert({
-      title: "Delete Product",
-      message: "Are you sure you want to delete this product.",
+      title: "刪除商品",
+      message: "確定要刪除此商品嗎？",
       buttons: [
         {
-          label: "Delete",
+          label: "刪除",
           onClick: () => delProduct(id),
         },
         {
-          label: "Cancel",
+          label: "取消",
         },
       ],
     });
@@ -206,7 +206,7 @@ const ViewProducts = () => {
     return (
       <div className="rounded-3xl border border-zinc-200 bg-white px-6 py-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <p className="text-base font-medium text-zinc-950 dark:text-white">
-          You are not admin, please login as Admin
+          你不是管理員，請以管理員身份登入。
         </p>
       </div>
     );
@@ -216,21 +216,21 @@ const ViewProducts = () => {
     <section className="admin-products-page">
       <header className="admin-products-header">
         <div className="admin-products-copy">
-          <p className="admin-products-eyebrow">PRODUCTS</p>
-          <h2 className="admin-products-title">All Products</h2>
+          <p className="admin-products-eyebrow">商品</p>
+          <h2 className="admin-products-title">查看商品</h2>
           <p className="admin-products-subtitle">
-            Manage your product catalogue, stock by location and internal consignment references.
+            管理商品目錄、各地點存貨及內部寄賣參考資料。
           </p>
           {inventoryError && (
             <p className="admin-products-warning">
-              Inventory overview is unavailable. Showing product list fallback.
+              暫時未能載入存貨總覽，現正顯示商品列表備用資料。
             </p>
           )}
         </div>
 
         <div className="admin-products-toolbar">
           <div className="admin-products-count">
-            {filteredProducts.length} products found
+            找到 {filteredProducts.length} 件商品
           </div>
           <button
             type="button"
@@ -238,10 +238,10 @@ const ViewProducts = () => {
             onClick={handleEnsureDefaultLocations}
             disabled={ensuringDefaults}
           >
-            {ensuringDefaults ? "Ensuring..." : "Ensure default inventory locations"}
+            {ensuringDefaults ? "確認中..." : "確認預設存貨地點"}
           </button>
           <div className="admin-products-internal-note">
-            Internal only / 只供內部參考
+            只供內部參考
           </div>
           <div className="admin-products-search">
             <Search
@@ -261,41 +261,41 @@ const ViewProducts = () => {
           <div className="admin-products-table-wrap">
             {currentItems.length === 0 ? (
               <div className="admin-products-empty">
-                <p className="admin-products-empty-title">No products found</p>
+                <p className="admin-products-empty-title">找不到商品</p>
                 <p className="admin-products-empty-copy">
-                  Try a different search term or check back after adding new products.
+                  請嘗試其他搜尋字眼，或新增商品後再查看。
                 </p>
               </div>
             ) : (
               <table className="admin-products-table">
                 <thead>
                   <tr>
-                    <th scope="col">S/N</th>
-                    <th scope="col">Photo</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Central SKU</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Public Price</th>
-                    <th scope="col">Central Stock</th>
-                    <th scope="col">Online Stock</th>
-                    <th scope="col">Macau Baptist SKU</th>
-                    <th scope="col">Macau Baptist Stock</th>
+                    <th scope="col">序號</th>
+                    <th scope="col">相片</th>
+                    <th scope="col">名稱</th>
+                    <th scope="col">中央 SKU</th>
+                    <th scope="col">分類</th>
+                    <th scope="col">公開價格</th>
+                    <th scope="col">中央存貨</th>
+                    <th scope="col">網店存貨</th>
+                    <th scope="col">澳浸 SKU</th>
+                    <th scope="col">澳浸存貨</th>
                     <th scope="col">
-                      Macau Commission
-                      <span className="admin-products-th-note">
-                        Internal only
-                      </span>
-                    </th>
-                    <th scope="col">
-                      Internal Net Price
+                      澳浸佣金
                       <span className="admin-products-th-note">
                         只供內部參考
                       </span>
                     </th>
-                    <th scope="col">Total Stock</th>
-                    <th scope="col">Image Status</th>
+                    <th scope="col">
+                      內部淨價
+                      <span className="admin-products-th-note">
+                        只供內部參考
+                      </span>
+                    </th>
+                    <th scope="col">總存貨</th>
+                    <th scope="col">相片狀態</th>
                     <th scope="col" className="admin-products-actions-head">
-                      Action
+                      操作
                     </th>
                   </tr>
                 </thead>
@@ -333,7 +333,7 @@ const ViewProducts = () => {
                             <Link
                               to={`/product-details/${productId}`}
                               className="admin-products-photo"
-                              aria-label={`View ${name}`}
+                              aria-label={`查看 ${name}`}
                             >
                               <ProductImage
                                 product={product}
@@ -378,14 +378,14 @@ const ViewProducts = () => {
                           <Link
                             to={`/product-details/${productId}`}
                             className="admin-products-icon-button admin-products-icon-button--view"
-                            aria-label={`View ${name}`}
+                            aria-label={`查看 ${name}`}
                           >
                             <AiOutlineEye size={18} />
                           </Link>
                           <Link
                             to={`/productAdmin/edit-product/${productId}`}
                             className="admin-products-icon-button admin-products-icon-button--edit"
-                            aria-label={`Edit ${name}`}
+                            aria-label={`編輯 ${name}`}
                           >
                             <FaEdit size={16} />
                           </Link>
@@ -393,7 +393,7 @@ const ViewProducts = () => {
                             type="button"
                             onClick={() => confirmDelete(productId)}
                             className="admin-products-icon-button admin-products-icon-button--delete"
-                            aria-label={`Delete ${name}`}
+                            aria-label={`刪除 ${name}`}
                           >
                             <FaTrashAlt size={15} />
                           </button>
@@ -412,11 +412,11 @@ const ViewProducts = () => {
         <div className="admin-products-pagination">
           <ReactPaginate
             breakLabel="..."
-            nextLabel="Next"
+            nextLabel="下一頁"
             onPageChange={handlePageClick}
             pageRangeDisplayed={3}
             pageCount={pageCount}
-            previousLabel="Prev"
+            previousLabel="上一頁"
             renderOnZeroPageCount={null}
             containerClassName="admin-products-pagination-list"
             pageLinkClassName="admin-products-pagination-link"

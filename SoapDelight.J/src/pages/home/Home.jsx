@@ -26,25 +26,25 @@ const trustPoints = [
 const categoryCards = [
   {
     title: "個人護理",
-    caption: "Daily skincare essentials",
+    caption: "日常溫柔護理",
     terms: ["個人護理", "Personal Care"],
     to: "/shop?category=%E5%80%8B%E4%BA%BA%E8%AD%B7%E7%90%86",
   },
   {
     title: "手作皂",
-    caption: "Gentle handmade soap",
+    caption: "手作清潔與滋養",
     terms: ["手作皂", "Soap"],
     to: "/shop?category=%E6%89%8B%E4%BD%9C%E7%9A%82",
   },
   {
     title: "香薰蠟",
-    caption: "Soft aroma for slow evenings",
+    caption: "慢生活香氣",
     terms: ["香薰蠟", "Candle"],
     to: "/shop?category=%E9%A6%99%E8%96%B0%E8%A0%9F",
   },
   {
     title: "精選禮物",
-    caption: "Thoughtful small-batch picks",
+    caption: "小批量心意之選",
     terms: [],
     to: "/shop",
   },
@@ -127,13 +127,13 @@ const Home = () => {
         <div className="mx-auto grid min-h-[calc(100vh-3.5rem)] max-w-7xl items-center gap-10 px-5 py-14 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:py-20 lg:px-8">
           <div className="max-w-xl">
             <p className="mb-5 text-sm font-medium tracking-[0.28em] text-emerald-800">
-              MACAU HANDMADE CARE
+              澳門手作護理
             </p>
             <h1 className="text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl">
               SoapDelight.J
             </h1>
             <p className="mt-6 text-xl leading-8 text-zinc-700 dark:text-zinc-300">
-              Natural handmade skincare, soap and candles.
+              天然手作護膚品、手工皂與香薰蠟。
             </p>
             <p className="mt-3 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
               天然手作，溫柔照顧每日肌膚。
@@ -143,13 +143,13 @@ const Home = () => {
                 to="/shop"
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
               >
-                Shop Now
+                立即選購
               </Link>
               <Link
                 to="/about"
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
               >
-                Our Story
+                品牌故事
               </Link>
             </div>
           </div>
@@ -167,7 +167,7 @@ const Home = () => {
                   <div className="flex items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">
                     <div>
                       <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                        Featured
+                        精選產品
                       </p>
                       <h2 className="text-lg font-medium text-zinc-950 dark:text-white">
                         {heroProduct.name}
@@ -178,7 +178,7 @@ const Home = () => {
                 </Link>
               ) : (
                 <div className="flex aspect-[4/5] items-center justify-center p-10 text-center text-zinc-500">
-                  {isLoading ? "Loading products..." : "Products coming soon"}
+                  {isLoading ? "正在載入商品..." : "商品即將上架"}
                 </div>
               )}
             </div>
@@ -203,7 +203,7 @@ const Home = () => {
       </section>
 
       <section className="bg-white px-5 py-16 dark:bg-zinc-950 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Shop By Mood" title="溫柔日常，由簡單開始">
+        <SectionHeading eyebrow="按心情選購" title="溫柔日常，由簡單開始">
           從清潔、護理到香氣，為每日生活留一點安靜而自然的時間。
         </SectionHeading>
 
@@ -239,7 +239,7 @@ const Home = () => {
       </section>
 
       <section className="bg-[#f6f8f4] px-5 py-16 dark:bg-zinc-900 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Featured Products" title="精選產品">
+        <SectionHeading eyebrow="精選商品" title="精選產品">
           小批量製作，選用天然植物基礎，適合日常使用與送禮。
         </SectionHeading>
 
@@ -261,7 +261,7 @@ const Home = () => {
         )}
 
         {!isLoading && featuredProducts.length === 0 && (
-          <p className="text-center text-zinc-500">Products coming soon.</p>
+          <p className="text-center text-zinc-500">商品即將上架。</p>
         )}
 
         <div className="mt-10 text-center">
@@ -269,7 +269,7 @@ const Home = () => {
             to="/shop"
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
           >
-            View All Products
+            查看全部商品
           </Link>
         </div>
       </section>
@@ -278,7 +278,7 @@ const Home = () => {
         <div className="mx-auto grid max-w-7xl items-center gap-8 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950 md:grid-cols-[1fr_0.8fr] md:p-10">
           <div>
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-              Brand Story
+              品牌故事
             </p>
             <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white md:text-4xl">
               手作，不急於大量。
@@ -299,7 +299,7 @@ const Home = () => {
       </section>
 
       <section className="bg-[#fbfcfa] px-5 py-16 dark:bg-zinc-950 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Service Notes" title="購買前的小資訊">
+        <SectionHeading eyebrow="服務資訊" title="購買前的小資訊">
           簡單清晰的安排，讓手作產品安心送到你手上。
         </SectionHeading>
 

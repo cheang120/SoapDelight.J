@@ -108,29 +108,29 @@ const AdminHome = () => {
 
   const kpis = [
     {
-      label: "Total sales / 總銷售額",
+      label: "總銷售額",
       value: formatMoney(totalOrderAmount),
-      helper: "Completed revenue",
+      helper: "已完成銷售額",
     },
     {
-      label: "Orders / 訂單",
+      label: "訂單",
       value: safeOrders.length,
-      helper: "Customer orders",
+      helper: "顧客訂單",
     },
     {
-      label: "Products / 商品",
+      label: "商品",
       value: realProducts.length,
-      helper: "Shipping excluded",
+      helper: "不包括運費商品",
     },
     {
-      label: "Active subscribers / 有效訂閱者",
+      label: "有效訂閱者",
       value: activeSubscribers.length,
-      helper: "Email subscribers",
+      helper: "電郵訂閱者",
     },
     {
-      label: "Campaigns / 推廣電郵",
+      label: "推廣電郵",
       value: Array.isArray(campaigns) ? campaigns.length : 0,
-      helper: `${sentCampaigns.length} sent campaigns`,
+      helper: `已發送 ${sentCampaigns.length} 封推廣電郵`,
     },
   ];
 
@@ -138,14 +138,14 @@ const AdminHome = () => {
     <section className={styles.home}>
       <header className={styles.header}>
         <div className={styles.headerCopy}>
-          <p className={styles.eyebrow}>Dashboard</p>
-          <h2 className={styles.title}>Admin Home / 管理首頁</h2>
+          <p className={styles.eyebrow}>管理概覽</p>
+          <h2 className={styles.title}>管理首頁</h2>
           <p className={styles.subtitle}>
-            Review sales, orders, products, subscribers and campaign activity.
+            查看銷售、訂單、商品、訂閱者及推廣電郵概況。
           </p>
         </div>
         <Link to="/productAdmin/add-product" className={styles.addProductButton}>
-          Add Product / 新增商品
+          新增商品
         </Link>
       </header>
 
@@ -159,10 +159,10 @@ const AdminHome = () => {
         <Chart orders={safeOrders} />
 
         <aside className={styles.summaryCard}>
-          <p className={styles.summaryEyebrow}>Recent activity / 最新概覽</p>
+          <p className={styles.summaryEyebrow}>最新概覽</p>
           <div className={styles.summaryRows}>
             <div>
-              <span>Latest order</span>
+              <span>最新訂單</span>
               <strong>
                 {safeOrders[0]?.createdAt
                   ? new Date(safeOrders[0].createdAt).toLocaleDateString("en-GB")
@@ -170,7 +170,7 @@ const AdminHome = () => {
               </strong>
             </div>
             <div>
-              <span>Latest sent campaign</span>
+              <span>最新已發送推廣電郵</span>
               <strong>
                 {sentCampaigns[0]?.sentAt
                   ? new Date(sentCampaigns[0].sentAt).toLocaleDateString("en-GB")

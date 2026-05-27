@@ -35,18 +35,18 @@ const hasAddressData = (address) =>
   );
 
 const CheckoutState = ({ eyebrow, title, body, ctaLabel, ctaTo }) => (
-  <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 sm:px-6 lg:px-8">
-    <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] sm:px-10">
+  <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 dark:bg-zinc-950 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] dark:border-zinc-800 dark:bg-zinc-950 sm:px-10">
       <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
         {eyebrow}
       </p>
-      <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
+      <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
         {title}
       </h1>
-      <p className="mt-4 text-zinc-600">{body}</p>
+      <p className="mt-4 text-zinc-600 dark:text-zinc-300">{body}</p>
       <Link
         to={ctaTo}
-        className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800"
+        className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
       >
         {ctaLabel}
       </Link>
@@ -121,7 +121,7 @@ export const Checkout = () => {
 
         const data = await response.json();
         if (!response.ok || !data?.clientSecret) {
-          throw new Error(data?.message || "Unable to initialize checkout.");
+          throw new Error(data?.message || "未能初始化結帳。");
         }
 
         if (!ignore) {
@@ -130,8 +130,8 @@ export const Checkout = () => {
       } catch (error) {
         if (!ignore) {
           setClientSecret("");
-          setInitError(error.message || "Unable to initialize checkout.");
-          toast.error(error.message || "Unable to initialize checkout.");
+          setInitError(error.message || "未能初始化結帳。");
+          toast.error(error.message || "未能初始化結帳。");
         }
       }
     };
@@ -159,10 +159,10 @@ export const Checkout = () => {
   if (!productItems.length) {
     return (
       <CheckoutState
-        eyebrow="Checkout"
-        title="Your cart is empty."
+        eyebrow="結帳"
+        title="購物車是空的。"
         body="先挑選想要的商品，再進入付款流程。"
-        ctaLabel="Continue Shopping / 繼續選購"
+        ctaLabel="繼續選購"
         ctaTo="/shop"
       />
     );
@@ -171,10 +171,10 @@ export const Checkout = () => {
   if (!selectedDeliveryMethod) {
     return (
       <CheckoutState
-        eyebrow="Delivery Method"
-        title="Choose a delivery method first."
+        eyebrow="送貨方式"
+        title="請先選擇送貨方式。"
         body="請先返回購物車選擇送貨方式或本地自取，系統才會計算完整總額。"
-        ctaLabel="Back to Cart / 返回購物車"
+        ctaLabel="返回購物車"
         ctaTo="/cart"
       />
     );
@@ -183,10 +183,10 @@ export const Checkout = () => {
   if (!currentUser) {
     return (
       <CheckoutState
-        eyebrow="Sign In Required"
-        title="Please sign in to continue payment."
+        eyebrow="需要登入"
+        title="請先登入以繼續付款。"
         body="目前付款流程會使用你的帳戶電郵建立付款與訂單紀錄。登入後即可繼續安全付款。"
-        ctaLabel="Sign In / 登入"
+        ctaLabel="登入"
         ctaTo="/sign-in?redirect=checkout-details"
       />
     );
@@ -195,10 +195,10 @@ export const Checkout = () => {
   if (hasExpiredCoupon) {
     return (
       <CheckoutState
-        eyebrow="Coupon"
-        title="Coupon has expired."
+        eyebrow="優惠碼"
+        title="優惠碼已過期。"
         body="請返回購物車移除已過期優惠碼，然後再繼續付款。"
-        ctaLabel="Back to Cart / 返回購物車"
+        ctaLabel="返回購物車"
         ctaTo="/cart"
       />
     );
@@ -207,10 +207,10 @@ export const Checkout = () => {
   if (!hasShippingAddress || !hasBillingAddress) {
     return (
       <CheckoutState
-        eyebrow="Checkout Details"
-        title="Complete your address details first."
+        eyebrow="結帳資料"
+        title="請先完成地址資料。"
         body="請先返回上一頁填寫送貨及帳單資料，之後再進入付款。"
-        ctaLabel="Back to Details / 返回資料頁"
+        ctaLabel="返回資料頁"
         ctaTo="/checkout-details"
       />
     );
@@ -219,10 +219,10 @@ export const Checkout = () => {
   if (initError) {
     return (
       <CheckoutState
-        eyebrow="Checkout"
-        title="We couldn't start payment just yet."
+        eyebrow="結帳"
+        title="暫時未能開始付款。"
         body={initError}
-        ctaLabel="Back to Details / 返回資料頁"
+        ctaLabel="返回資料頁"
         ctaTo="/checkout-details"
       />
     );
@@ -230,15 +230,15 @@ export const Checkout = () => {
 
   if (!clientSecret) {
     return (
-      <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] sm:px-10">
+      <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 dark:bg-zinc-950 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] dark:border-zinc-800 dark:bg-zinc-950 sm:px-10">
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-            Secure Payment
+            安全付款
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
-            Initializing checkout...
+          <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+            正在準備結帳...
           </h1>
-          <p className="mt-4 text-zinc-600">
+          <p className="mt-4 text-zinc-600 dark:text-zinc-300">
             正在準備付款頁面與訂單摘要，請稍候。
           </p>
         </div>
@@ -249,15 +249,15 @@ export const Checkout = () => {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] sm:px-10">
+        <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 dark:bg-zinc-950 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-14 text-center shadow-[0_12px_28px_rgba(24,24,27,0.04)] dark:border-zinc-800 dark:bg-zinc-950 sm:px-10">
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
-              Secure Payment
+              安全付款
             </p>
-            <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
-              Loading payment form...
+            <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+              正在載入付款表單...
             </h1>
-            <p className="mt-4 text-zinc-600">正在載入付款元件，請稍候。</p>
+            <p className="mt-4 text-zinc-600 dark:text-zinc-300">正在載入付款元件，請稍候。</p>
           </div>
         </main>
       }

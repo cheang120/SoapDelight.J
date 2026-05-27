@@ -18,11 +18,11 @@ const AdminOnlyRoute = ({children}) => {
   return (
     <section style={{height:"80vh"}}>
       <div className="container">
-        <h2>Permission denied</h2>
-        <p>This page can only be viewed by an admin user.</p>
+        <h2>權限不足</h2>
+        <p>此頁面只限管理員查看。</p>
         <br />
         <Link to={"/"}>
-            <button>Back to Home</button>
+            <button>返回首頁</button>
         </Link>
       </div>
     </section>

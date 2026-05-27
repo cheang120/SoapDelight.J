@@ -119,11 +119,11 @@ const AddProduct = () => {
         <section className="admin-product-page">
           <div className="admin-product-page__inner">
             <header className="admin-product-page-header">
-              <p className="admin-product-kicker">PRODUCT</p>
+              <p className="admin-product-kicker">商品</p>
               <div>
-                <h1 className="admin-product-page-title">Add Product</h1>
+                <h1 className="admin-product-page-title">新增商品</h1>
                 <p className="admin-product-page-subtitle">
-                  Create a new product and publish it to the shop.
+                  建立新商品並發佈到商店。
                 </p>
               </div>
             </header>
@@ -146,7 +146,7 @@ const AddProduct = () => {
       )
       } else {
         return (
-          <h2>You are not admin, please login as Admin</h2>
+          <h2>你不是管理員，請以管理員身份登入。</h2>
 
         )
       }

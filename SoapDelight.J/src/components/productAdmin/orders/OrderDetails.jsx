@@ -29,7 +29,7 @@ const OrderDetails = () => {
         <Loader />
       ) : isError && !order ? (
         <div className="rounded-[1.75rem] border border-red-200 bg-red-50 px-6 py-8 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
-          {message || "We couldn't load this order right now."}
+          {message || "暫時未能載入此訂單。"}
         </div>
       ) : (
         <OrderDetailsComp

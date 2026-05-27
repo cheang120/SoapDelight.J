@@ -52,13 +52,13 @@ export default function DashSidebar() {
     <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="border-b border-zinc-100 px-2 pb-4 dark:border-zinc-800">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
-          Navigation
+          導覽
         </p>
         <p className="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">
-          {currentUser?.username || "Account"}
+          {currentUser?.username || "帳戶"}
         </p>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          {currentUser?.email || "Signed in"}
+          {currentUser?.email || "已登入"}
         </p>
       </div>
 
@@ -66,20 +66,20 @@ export default function DashSidebar() {
         <Link to="/dashboard?tab=profile" className={navItemClass(tab === "profile")}>
           <span className="flex items-center gap-3">
             <HiUser size={18} />
-            Profile
+            個人資料
           </span>
           <span className="text-xs uppercase tracking-[0.18em] opacity-70">
-            Account
+            帳戶
           </span>
         </Link>
 
         <Link to="/order-history" className={navItemClass(false)}>
           <span className="flex items-center gap-3">
             <HiClipboardList size={18} />
-            Orders
+            訂單
           </span>
           <span className="text-xs uppercase tracking-[0.18em] opacity-70">
-            History
+            紀錄
           </span>
         </Link>
 
@@ -87,10 +87,10 @@ export default function DashSidebar() {
           <Link to="/dashboard?tab=users" className={navItemClass(tab === "users")}>
             <span className="flex items-center gap-3">
               <HiUser size={18} />
-              Users
+              使用者
             </span>
             <span className="text-xs uppercase tracking-[0.18em] opacity-70">
-              Admin
+              管理
             </span>
           </Link>
         )}
@@ -102,7 +102,7 @@ export default function DashSidebar() {
         >
           <span className="flex items-center gap-3">
             <HiArrowSmRight size={18} />
-            Sign Out
+            登出
           </span>
         </button>
       </nav>

@@ -32,7 +32,7 @@ const OAuth = () => {
             const data = await res.json()
 
             if (!res.ok) {
-                throw new Error(data?.message || 'Google sign-in failed.');
+                throw new Error(data?.message || 'Google 登入失敗。');
             }
 
             dispatch(signInSuccess(data))
@@ -40,8 +40,8 @@ const OAuth = () => {
         } catch (error) {
             const message =
               error?.code === "auth/unauthorized-domain"
-                ? "Google sign-in is not enabled for this domain yet. Please add localhost to the Firebase authorized domains."
-                : error?.message || error?.code || "Google sign-in failed.";
+                ? "此網域尚未啟用 Google 登入，請在 Firebase 授權網域加入目前網域。"
+                : error?.message || error?.code || "Google 登入失敗。";
             console.error("Google sign-in failed:", error?.code || error?.message || error);
             toast.error(message);
         }
@@ -53,7 +53,7 @@ const OAuth = () => {
       className={authSecondaryButtonClassName}
     >
         <AiFillGoogleCircle className='mr-2 h-5 w-5'/>
-        Continue with Google
+        使用 Google 繼續
     </button>
   )
 }

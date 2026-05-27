@@ -63,7 +63,7 @@ const EditProduct = () => {
         if (shouldIgnore) return;
         setInventoryOverview(null);
         toast.error(
-          error?.response?.data?.message || "Could not load inventory details"
+          error?.response?.data?.message || "未能載入存貨資料"
         );
       }
     };
@@ -154,7 +154,7 @@ const EditProduct = () => {
     } catch (error) {
       toast.error(
         error?.response?.data?.message ||
-          "Product saved, but consignment references could not be saved"
+          "商品已儲存，但寄賣參考資料未能儲存"
       );
       return;
     }
@@ -171,11 +171,11 @@ const EditProduct = () => {
     <section className="admin-product-page">
       <div className="admin-product-page__inner">
         <header className="admin-product-page-header">
-          <p className="admin-product-kicker">PRODUCT</p>
+          <p className="admin-product-kicker">商品</p>
           <div>
-            <h1 className="admin-product-page-title">Edit Product</h1>
+            <h1 className="admin-product-page-title">編輯商品</h1>
             <p className="admin-product-page-subtitle">
-              Update product details, stock and shop display information.
+              更新商品詳情、存貨參考及商店顯示資料。
             </p>
           </div>
         </header>

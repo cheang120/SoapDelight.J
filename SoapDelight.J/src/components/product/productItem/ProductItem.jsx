@@ -70,7 +70,7 @@ const ProductItem = ({
         <div className={`${styles.details} mb-3`}>
           <div className="mb-2 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
             <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium dark:bg-zinc-900">
-              {product?.category || "Product"}
+              {product?.category || "商品"}
             </span>
           </div>
 
@@ -119,9 +119,9 @@ const ProductItem = ({
                 ? "mt-auto w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300"
                 : "mt-auto block w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300 md:w-56"
             }`}
-            onClick={() => toast.error("Sorry, Product is out of stock")}
+            onClick={() => toast.error("抱歉，商品暫時缺貨")}
           >
-            Out Of Stock
+            暫時缺貨
           </button>
         ) : (
           <button

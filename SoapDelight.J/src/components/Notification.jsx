@@ -18,7 +18,7 @@ const Notification = () => {
         <TextInput
           type='email'
           id='email'
-          placeholder='Please verify your email!'
+          placeholder='請驗證你的電郵地址'
           onChange={handleChange}
         />
     </div>

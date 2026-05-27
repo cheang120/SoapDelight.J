@@ -34,7 +34,7 @@ const SummaryImage = ({ image, name }) => {
   return (
     <img
       src={src}
-      alt={name || "Checkout item"}
+      alt={name || "結帳商品"}
       className={styles.image}
       onError={() => setFailed(true)}
     />
@@ -42,7 +42,7 @@ const SummaryImage = ({ image, name }) => {
 };
 
 const CheckoutSummary = ({
-  title = "Order Summary",
+  title = "訂單摘要",
   showCouponEditor = false,
   showItems = true,
 }) => {
@@ -81,7 +81,7 @@ const CheckoutSummary = ({
       <div className={styles.header}>
         <div>
           <h2 className={styles.title}>{title}</h2>
-          <p className={styles.caption}>{cartTotalQuantity} item(s) in your order</p>
+          <p className={styles.caption}>訂單內共有 {cartTotalQuantity} 件商品</p>
         </div>
       </div>
 
@@ -93,8 +93,8 @@ const CheckoutSummary = ({
               <article key={_id} className={styles.item}>
                 <SummaryImage image={image} name={name} />
                 <div className={styles.itemDetails}>
-                  <h3>{name || "Untitled product"}</h3>
-                  <p>Qty {cartQuantity}</p>
+                  <h3>{name || "未命名商品"}</h3>
+                  <p>數量 {cartQuantity}</p>
                 </div>
                 <p className={styles.itemTotal}>
                   {formatMoney(Number(price || 0) * Number(cartQuantity || 0))}
@@ -107,7 +107,7 @@ const CheckoutSummary = ({
 
       <div className={styles.rows}>
         <div className={styles.row}>
-          <span>Product subtotal / 商品小計</span>
+          <span>商品小計</span>
           <strong>{formatMoney(productSubtotal)}</strong>
         </div>
 
@@ -115,7 +115,7 @@ const CheckoutSummary = ({
           <>
             <div className={`${styles.row} ${styles.discountRow}`}>
               <span>
-                Coupon / 優惠
+                優惠
                 <br />
                 <small>
                   {coupon.name}
@@ -126,7 +126,7 @@ const CheckoutSummary = ({
             </div>
 
             <div className={styles.row}>
-              <span>Subtotal after discount / 優惠後小計</span>
+              <span>優惠後小計</span>
               <strong>{formatMoney(subtotalAfterDiscount)}</strong>
             </div>
           </>
@@ -141,26 +141,26 @@ const CheckoutSummary = ({
         {selectedDeliveryMethod ? (
           <>
             <div className={styles.row}>
-              <span>Delivery / 送貨方式</span>
+              <span>送貨方式</span>
               <strong className={styles.methodValue}>
                 {getDeliveryMethodLabel(selectedDeliveryMethod.name)}
               </strong>
             </div>
             <div className={styles.row}>
-              <span>Delivery fee / 運費</span>
+              <span>運費</span>
               <strong>{formatMoney(shippingFee)}</strong>
             </div>
           </>
         ) : (
           <div className={styles.shippingNote}>
-            <p>Please select a delivery method</p>
+            <p>請選擇送貨方式</p>
             <span>請先返回購物車選擇送貨方式或本地自取。</span>
           </div>
         )}
       </div>
 
       <div className={styles.totalRow}>
-        <span>Total / 總數</span>
+        <span>總數</span>
         <strong>{formatMoney(cartTotalAmount)}</strong>
       </div>
     </div>

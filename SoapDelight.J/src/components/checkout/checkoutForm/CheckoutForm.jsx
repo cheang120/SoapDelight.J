@@ -68,7 +68,7 @@ export default function CheckoutForm() {
     }
 
     if (coupon && !isCouponValid(coupon)) {
-      const errorMessage = "Coupon has expired. Please remove it and try again.";
+      const errorMessage = "優惠碼已過期，請移除後再試。";
       toast.error(errorMessage);
       setMessage(errorMessage);
       return;
@@ -91,18 +91,18 @@ export default function CheckoutForm() {
       });
 
       if (result.error) {
-        const errorMessage = result.error.message || "Unable to complete payment.";
+        const errorMessage = result.error.message || "未能完成付款。";
         toast.error(errorMessage);
         setMessage(errorMessage);
         return;
       }
 
       if (result.paymentIntent?.status === "succeeded") {
-        toast.success("Payment successful");
+        toast.success("付款成功");
         await saveOrder();
       }
     } catch (error) {
-      const errorMessage = error.message || "Unable to complete payment.";
+      const errorMessage = error.message || "未能完成付款。";
       toast.error(errorMessage);
       setMessage(errorMessage);
     } finally {
@@ -115,22 +115,22 @@ export default function CheckoutForm() {
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>Secure Payment</p>
+            <p className={styles.eyebrow}>安全付款</p>
             <h1>付款</h1>
             <p className={styles.lead}>
               使用 Stripe 完成安全付款，並再次確認你的訂單摘要。
             </p>
           </div>
           <Link to="/checkout-details" className={styles.secondaryLink}>
-            &larr; Back to Details
+            &larr; 返回資料頁
           </Link>
         </div>
 
         <div className={styles.layout}>
           <section className={styles.paymentCard}>
             <div className={styles.sectionHeader}>
-              <h2>Payment Details</h2>
-              <p>Securely processed with Stripe.</p>
+              <h2>付款資料</h2>
+              <p>付款將透過 Stripe 安全處理。</p>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -143,7 +143,7 @@ export default function CheckoutForm() {
                 type="submit"
                 className={styles.button}
               >
-                <span>{isLoading ? <Spinner /> : "Pay now / 立即付款"}</span>
+                <span>{isLoading ? <Spinner /> : "立即付款"}</span>
               </button>
 
               {message && <div className={styles.message}>{message}</div>}
@@ -152,7 +152,7 @@ export default function CheckoutForm() {
 
           <aside className={styles.summaryColumn}>
             <div className={styles.summaryCard}>
-              <CheckoutSummary title="Order Summary" />
+              <CheckoutSummary title="訂單摘要" />
             </div>
           </aside>
         </div>

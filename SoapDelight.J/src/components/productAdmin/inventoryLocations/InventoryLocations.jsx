@@ -16,10 +16,10 @@ const emptyForm = {
 };
 
 const typeOptions = [
-  { value: "central", label: "Central / 中央存貨" },
-  { value: "online", label: "Online / 網店可售" },
-  { value: "consignment", label: "Consignment / 寄賣點" },
-  { value: "other", label: "Other / 其他" },
+  { value: "central", label: "中央存貨" },
+  { value: "online", label: "網店可售存貨" },
+  { value: "consignment", label: "寄賣點" },
+  { value: "other", label: "其他" },
 ];
 
 const InventoryLocations = () => {
@@ -46,7 +46,7 @@ const InventoryLocations = () => {
       const data = await inventoryService.getLocations();
       setLocations(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not load inventory locations");
+      toast.error(error?.response?.data?.message || "未能載入存貨地點");
     } finally {
       setLoading(false);
     }
@@ -89,10 +89,10 @@ const InventoryLocations = () => {
     setEnsuring(true);
     try {
       await inventoryService.ensureDefaultLocations();
-      toast.success("Default inventory locations ensured");
+      toast.success("已確認預設存貨地點");
       await loadLocations();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not ensure default locations");
+      toast.error(error?.response?.data?.message || "未能確認預設存貨地點");
     } finally {
       setEnsuring(false);
     }
@@ -102,7 +102,7 @@ const InventoryLocations = () => {
     event.preventDefault();
 
     if (!form.name.trim() || !form.code.trim()) {
-      toast.error("Location name and code are required");
+      toast.error("請填寫地點名稱及系統代碼");
       return;
     }
 
@@ -116,16 +116,16 @@ const InventoryLocations = () => {
 
       if (editingId) {
         await inventoryService.updateLocation(editingId, payload);
-        toast.success("Inventory location updated");
+        toast.success("存貨地點已更新");
       } else {
         await inventoryService.createLocation(payload);
-        toast.success("Inventory location created");
+        toast.success("存貨地點已建立");
       }
 
       resetForm();
       await loadLocations();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not save inventory location");
+      toast.error(error?.response?.data?.message || "未能儲存存貨地點");
     } finally {
       setSaving(false);
     }
@@ -135,16 +135,15 @@ const InventoryLocations = () => {
     <section className="inventory-locations">
       <header className="inventory-locations__header">
         <div>
-          <p className="inventory-locations__eyebrow">Inventory</p>
-          <h2>Inventory Locations / 存貨地點</h2>
+          <p className="inventory-locations__eyebrow">存貨</p>
+          <h2>存貨地點</h2>
           <p>
-            Manage central stock, online stock and consignment locations. Locations are not
-            deleted after use; set inactive instead.
+            管理中央存貨、網店存貨及寄賣點。地點一經用於存貨紀錄後不可刪除，請改為停用。
           </p>
         </div>
 
         <button type="button" onClick={handleEnsureDefaults} disabled={ensuring}>
-          {ensuring ? "Ensuring..." : "Ensure default locations"}
+          {ensuring ? "確認中..." : "確認預設地點"}
         </button>
       </header>
 
@@ -152,23 +151,23 @@ const InventoryLocations = () => {
         <form className="inventory-locations__form" onSubmit={handleSubmit}>
           <div>
             <p className="inventory-locations__eyebrow">
-              {editingId ? "Edit location" : "New location"}
+              {editingId ? "編輯地點" : "新增地點"}
             </p>
-            <h3>{editingId ? "Edit inventory location" : "Create inventory location"}</h3>
+            <h3>{editingId ? "編輯存貨地點" : "建立存貨地點"}</h3>
           </div>
 
           <label>
-            Name / 地點名稱
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Macau Baptist Bookstore" />
+            地點名稱
+            <input name="name" value={form.name} onChange={handleChange} placeholder="澳門浸信書局" />
           </label>
 
           <label>
-            Code / 系統代碼
+            系統代碼
             <input name="code" value={form.code} onChange={handleChange} placeholder="MACAU_BAPTIST" />
           </label>
 
           <label>
-            Type / 類型
+            類型
             <select name="type" value={form.type} onChange={handleChange}>
               {typeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -179,8 +178,8 @@ const InventoryLocations = () => {
           </label>
 
           <label>
-            Commission rate / 佣金率
-            <span className="inventory-locations__hint">Internal only / 只供內部參考</span>
+            佣金率
+            <span className="inventory-locations__hint">只供內部參考</span>
             <input
               name="commissionRate"
               type="number"
@@ -192,38 +191,38 @@ const InventoryLocations = () => {
           </label>
 
           <label>
-            Contact person / 聯絡人
+            聯絡人
             <input name="contactPerson" value={form.contactPerson} onChange={handleChange} />
           </label>
 
           <label>
-            Phone / 電話
+            電話
             <input name="phone" value={form.phone} onChange={handleChange} />
           </label>
 
           <label className="inventory-locations__full">
-            Address / 地址
+            地址
             <textarea name="address" rows="2" value={form.address} onChange={handleChange} />
           </label>
 
           <label className="inventory-locations__full">
-            Notes / 備註
+            備註
             <textarea name="notes" rows="3" value={form.notes} onChange={handleChange} />
           </label>
 
           <label className="inventory-locations__check">
             <input name="active" type="checkbox" checked={form.active} onChange={handleChange} />
-            Active / 啟用
+            啟用
           </label>
 
           <div className="inventory-locations__actions">
             {editingId && (
               <button type="button" className="secondary" onClick={resetForm}>
-                Cancel
+                取消
               </button>
             )}
             <button type="submit" disabled={saving}>
-              {saving ? "Saving..." : editingId ? "Save changes" : "Create location"}
+              {saving ? "儲存中..." : editingId ? "儲存更改" : "建立地點"}
             </button>
           </div>
         </form>
@@ -231,32 +230,32 @@ const InventoryLocations = () => {
         <div className="inventory-locations__table-card">
           <div className="inventory-locations__table-head">
             <div>
-              <p className="inventory-locations__eyebrow">Locations</p>
-              <h3>{sortedLocations.length} locations</h3>
+              <p className="inventory-locations__eyebrow">地點列表</p>
+              <h3>{sortedLocations.length} 個地點</h3>
             </div>
-            <p>Set inactive instead of deleting a location once inventory records exist.</p>
+            <p>已有存貨紀錄的地點不可刪除，請改為停用。</p>
           </div>
 
           {loading ? (
-            <p className="inventory-locations__empty">Loading locations...</p>
+            <p className="inventory-locations__empty">正在載入存貨地點...</p>
           ) : sortedLocations.length === 0 ? (
             <p className="inventory-locations__empty">
-              No inventory locations yet. Use “Ensure default locations” to create the core records.
+              暫未有存貨地點。請使用「確認預設地點」建立核心紀錄。
             </p>
           ) : (
             <div className="inventory-locations__table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Code</th>
-                    <th>Type</th>
-                    <th>Commission</th>
-                    <th>Contact</th>
-                    <th>Phone</th>
-                    <th>Status</th>
-                    <th>Notes</th>
-                    <th>Actions</th>
+                    <th>名稱</th>
+                    <th>代碼</th>
+                    <th>類型</th>
+                    <th>佣金</th>
+                    <th>聯絡人</th>
+                    <th>電話</th>
+                    <th>狀態</th>
+                    <th>備註</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -270,13 +269,13 @@ const InventoryLocations = () => {
                       <td>{location.phone || "-"}</td>
                       <td>
                         <span className={location.active === false ? "badge badge--muted" : "badge badge--active"}>
-                          {location.active === false ? "Inactive" : "Active"}
+                          {location.active === false ? "停用" : "啟用"}
                         </span>
                       </td>
                       <td>{location.notes || "-"}</td>
                       <td>
                         <button type="button" className="link-button" onClick={() => handleEdit(location)}>
-                          Edit
+                          編輯
                         </button>
                       </td>
                     </tr>
