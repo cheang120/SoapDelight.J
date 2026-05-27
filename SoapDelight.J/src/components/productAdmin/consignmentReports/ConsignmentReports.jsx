@@ -21,7 +21,19 @@ const ConsignmentReports = () => {
   const [locations, setLocations] = useState([]);
   const [products, setProducts] = useState([]);
   const [reports, setReports] = useState([]);
+  const [reportForm, setReportForm] = useState({
+    locationCode: "",
+    periodStart: "",
+    sourceDocument: "",
+    note: "",
+  });
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const consignmentLocations = useMemo(
+    () => locations.filter((location) => location.type === "consignment" && location.active !== false),
+    [locations]
+  );
 
   const productOptions = useMemo(
     () =>
@@ -99,6 +111,70 @@ const ConsignmentReports = () => {
     loadData();
   }, []);
 
+  const handleReportFormChange = (event) => {
+    const { name, value } = event.target;
+    setReportForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveDraft = async () => {
+    if (!reportForm.locationCode) {
+      toast.error("Please select a consignment location.");
+      return;
+    }
+
+    const validItems = itemRows
+      .filter((row) => row.productId && Number(row.quantitySold) > 0)
+      .map((row) => {
+        const item = {
+          productId: row.productId,
+          quantitySold: Number(row.quantitySold),
+          discountRate: Number(row.discountRate || 0),
+          promotionNote: row.promotionNote,
+          note: row.note,
+        };
+
+        if (row.publicUnitPriceAtSale !== "") {
+          item.publicUnitPriceAtSale = Number(row.publicUnitPriceAtSale);
+        }
+
+        if (row.commissionRateAtSale !== "") {
+          item.commissionRateAtSale = Number(row.commissionRateAtSale);
+        }
+
+        return item;
+      });
+
+    if (validItems.length === 0) {
+      toast.error("Please add at least one valid sales item.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await consignmentReportService.createConsignmentReport({
+        locationCode: reportForm.locationCode,
+        periodStart: reportForm.periodStart || undefined,
+        sourceDocument: reportForm.sourceDocument,
+        note: reportForm.note,
+        items: validItems,
+      });
+
+      toast.success("Consignment report draft saved.");
+      setItemRows([{ ...emptyItemRow }]);
+      setReportForm({
+        locationCode: "",
+        periodStart: "",
+            sourceDocument: "",
+        note: "",
+      });
+      loadData();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Could not save draft report");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleItemChange = (index, field, value) => {
     setItemRows((prev) =>
       prev.map((row, rowIndex) =>
@@ -135,6 +211,36 @@ const ConsignmentReports = () => {
         <p>Consignment locations: {locations.filter((item) => item.type === "consignment").length}</p>
         <p>Products loaded: {products.length}</p>
         <p>Reports loaded: {reports.length}</p>
+      </div>
+
+      <div className="consignment-reports__card">
+        <h3>Report details / 回報資料</h3>
+
+        <label>
+          Consignment location
+          <select name="locationCode" value={reportForm.locationCode} onChange={handleReportFormChange}>
+            <option value="">Select location</option>
+            {consignmentLocations.map((location) => (
+              <option key={location._id} value={location.code}>
+                {location.name} ({location.code})
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Sales report received date / 收到銷售回報日期
+          <input name="periodStart" type="date" value={reportForm.periodStart} onChange={handleReportFormChange} />
+        </label>
+<label>
+          Source document / Reference
+          <input name="sourceDocument" value={reportForm.sourceDocument} onChange={handleReportFormChange} />
+        </label>
+
+        <label>
+          Note
+          <textarea name="note" rows="2" value={reportForm.note} onChange={handleReportFormChange} />
+        </label>
       </div>
 
       <div className="consignment-reports__card">
@@ -236,6 +342,10 @@ const ConsignmentReports = () => {
 
         <button type="button" onClick={addItemRow}>
           Add item row
+        </button>
+
+        <button type="button" onClick={handleSaveDraft} disabled={saving}>
+          {saving ? "Saving..." : "Save draft report"}
         </button>
       </div>
     </section>
