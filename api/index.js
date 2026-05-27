@@ -14,6 +14,7 @@ import shippingMethodRoute from './routes/shippingMethodRoute.js'
 import subscriberRoute from './routes/subscriberRoute.js';
 import campaignRoute from './routes/campaignRoute.js';
 import inventoryRoute from './routes/inventoryRoute.js';
+import consignmentReportRoute from './routes/consignmentReportRoute.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -61,6 +62,7 @@ app.use('/api/shipping-methods', shippingMethodRoute);
 app.use('/api/subscribers', subscriberRoute);
 app.use('/api/campaigns', campaignRoute);
 app.use('/api/inventory', inventoryRoute);
+app.use('/api/consignment-reports', consignmentReportRoute);
 
 
 app.get('*', (req, res) => {

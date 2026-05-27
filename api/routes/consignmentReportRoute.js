@@ -1,0 +1,19 @@
+import express from "express";
+import {
+  createConsignmentReport,
+  getConsignmentReportById,
+  getConsignmentReports,
+  updateConsignmentReport,
+} from "../controllers/consignmentReportController.js";
+import { authorOnly, protect } from "../middleware/auth.middleware.js";
+
+const router = express.Router();
+
+router.use(protect, authorOnly);
+
+router.get("/admin", getConsignmentReports);
+router.post("/admin", createConsignmentReport);
+router.get("/admin/:id", getConsignmentReportById);
+router.patch("/admin/:id", updateConsignmentReport);
+
+export default router;
