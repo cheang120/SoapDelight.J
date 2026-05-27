@@ -106,7 +106,7 @@
 
 .admin-products-table {
   width: 100%;
-  min-width: 960px;
+  min-width: 1080px;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.95rem;
@@ -148,6 +148,63 @@
   white-space: normal;
   color: #09090b;
   font-weight: 600;
+}
+
+.admin-products-photo-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-products-photo {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(228, 228, 231, 0.92);
+  border-radius: 1rem;
+  background: #f8fafc;
+}
+
+.admin-products-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-products-photo-placeholder {
+  min-height: 100%;
+  gap: 0.15rem;
+  padding: 0.45rem;
+}
+
+.admin-products-photo-placeholder span:nth-child(2),
+.admin-products-photo-placeholder span:nth-child(3),
+.admin-products-photo-placeholder span:nth-child(4) {
+  display: none;
+}
+
+.admin-products-photo-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.8rem;
+  border-radius: 9999px;
+  padding: 0 0.65rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-products-photo-status--real {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.admin-products-photo-status--placeholder {
+  background: #f4f4f5;
+  color: #52525b;
 }
 
 .admin-products-actions-head {
@@ -309,6 +366,21 @@
   .admin-products-icon-button--delete:hover {
     background: rgba(127, 29, 29, 0.42);
     color: #fecaca;
+  }
+
+  .admin-products-photo {
+    border-color: rgba(63, 63, 70, 0.92);
+    background: #18181b;
+  }
+
+  .admin-products-photo-status--real {
+    background: rgba(6, 78, 59, 0.36);
+    color: #6ee7b7;
+  }
+
+  .admin-products-photo-status--placeholder {
+    background: rgba(63, 63, 70, 0.78);
+    color: #d4d4d8;
   }
 
   .admin-products-pagination-link {

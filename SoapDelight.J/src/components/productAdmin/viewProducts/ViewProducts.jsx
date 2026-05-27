@@ -11,6 +11,11 @@ import ReactPaginate from "react-paginate";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import "./ViewProducts.scss";
+import {
+  ProductImage,
+  getProductImage,
+  getProductImageStatus,
+} from "../../../utils/productImageFallback.jsx";
 
 const ViewProducts = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -141,6 +146,7 @@ const ViewProducts = () => {
                 <thead>
                   <tr>
                     <th scope="col">S/N</th>
+                    <th scope="col">Photo</th>
                     <th scope="col">Name</th>
                     <th scope="col">Category</th>
                     <th scope="col">Price</th>
@@ -155,10 +161,36 @@ const ViewProducts = () => {
                 <tbody>
                   {currentItems.map((product, index) => {
                     const { _id, name, category, price, quantity } = product;
+                    const productImage = getProductImage(product);
+                    const imageStatus = getProductImageStatus(product);
 
                     return (
                       <tr key={_id}>
                         <td>{itemOffset + index + 1}</td>
+                        <td>
+                          <div className="admin-products-photo-cell">
+                            <Link
+                              to={`/product-details/${_id}`}
+                              className="admin-products-photo"
+                              aria-label={`View ${name}`}
+                            >
+                              <ProductImage
+                                product={product}
+                                alt={name}
+                                fallbackClassName="admin-products-photo-placeholder"
+                              />
+                            </Link>
+                            <span
+                              className={`admin-products-photo-status ${
+                                productImage
+                                  ? "admin-products-photo-status--real"
+                                  : "admin-products-photo-status--placeholder"
+                              }`}
+                            >
+                              {imageStatus}
+                            </span>
+                          </div>
+                        </td>
                         <td className="admin-products-name">{shortenText(name, 16)}</td>
                         <td>{category}</td>
                         <td>${price}</td>

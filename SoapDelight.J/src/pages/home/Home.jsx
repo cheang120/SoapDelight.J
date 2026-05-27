@@ -14,6 +14,7 @@ import "./Home.scss";
 import { getProducts } from "../../redux/features/product/productSlice.jsx";
 import ProductItem from "../../components/product/productItem/ProductItem";
 import { Spinner } from "../../components/Loader";
+import { ProductImage } from "../../utils/productImageFallback.jsx";
 
 const trustPoints = [
   { title: "小批量手作", icon: FaHandHoldingHeart },
@@ -90,8 +91,6 @@ const SectionHeading = ({ eyebrow, title, children }) => (
   </div>
 );
 
-const pickImage = (product) => product?.image?.[0] || "";
-
 const Home = () => {
   const dispatch = useDispatch();
   const { products, isLoading } = useSelector((state) => state.product);
@@ -106,8 +105,7 @@ const Home = () => {
       (products || []).filter(
         (product) =>
           product?.quantity > 0 &&
-          product?.category !== "Shipping" &&
-          pickImage(product)
+          product?.category !== "Shipping"
       ),
     [products]
   );
@@ -160,10 +158,11 @@ const Home = () => {
             <div className="home-hero-frame mx-auto max-w-[620px] overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
               {heroProduct ? (
                 <Link to={`/product-details/${heroProduct._id}`} className="block">
-                  <img
-                    src={pickImage(heroProduct)}
+                  <ProductImage
+                    product={heroProduct}
                     alt={heroProduct.name}
                     className="aspect-[4/5] w-full object-cover"
+                    fallbackClassName="aspect-[4/5]"
                   />
                   <div className="flex items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">
                     <div>
@@ -218,10 +217,11 @@ const Home = () => {
                 className="group relative min-h-[320px] overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900"
               >
                 {product && (
-                  <img
-                    src={pickImage(product)}
+                  <ProductImage
+                    product={product}
                     alt={category.title}
                     className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    fallbackClassName="absolute inset-0 h-full w-full rounded-none"
                   />
                 )}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/90 to-transparent p-5 pt-20 dark:from-zinc-950 dark:via-zinc-950/90">

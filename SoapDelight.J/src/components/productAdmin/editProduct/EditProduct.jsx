@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
 // import Loader from "../../loader/Loader";
 import ProductForm from "../productForm/ProductForm";
 import {
@@ -26,8 +25,6 @@ const EditProduct = () => {
 
   const [files, setFiles] = useState([]);
   const [product, setProduct] = useState(productEdit);
-  const [productImage, setProductImage] = useState("");
-  const [imagePreview, setImagePreview] = useState([]);
   const [description, setDescription] = useState("");
 
   // const { categories, brands } = useSelector((state) => state.category);
@@ -81,10 +78,6 @@ const EditProduct = () => {
 
   const saveProduct = async (e) => {
     e.preventDefault();
-    console.log("Submitting form...");
-    if (files.length < 1) {
-      return toast.info("Please add an image");
-    }
 
     const formData = {
       name: product?.name,
@@ -97,8 +90,6 @@ const EditProduct = () => {
       description: description,
       image: files,
     };
-
-    console.log(formData);
 
     await dispatch(updateProduct({ id, formData }));
     // await dispatch(getProducts());
@@ -137,9 +128,6 @@ const EditProduct = () => {
         description={description}
         files={files}
         setFiles={setFiles}
-        productImage={productImage}
-        imagePreview={imagePreview}
-        setImagePreview={setImagePreview}
         setDescription={setDescription}
 
       />

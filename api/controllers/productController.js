@@ -4,6 +4,13 @@ import Product from '../models/productModel.js'
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
+const normalizeProductImages = (image) => {
+  if (Array.isArray(image)) {
+    return image.filter((item) => typeof item === "string" && item.trim());
+  }
+  return typeof image === "string" && image.trim() ? [image.trim()] : [];
+};
+
 export const createProduct = asyncHandler(async (req, res, next) => {
 //   res.send("Correct product");
     const {
@@ -35,7 +42,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         brand,
         price,
         description,
-        image,
+        image: normalizeProductImages(image),
         regularPrice,
         color,
     });
@@ -98,6 +105,10 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
       }
 
       // update product
+      const nextImages = Object.prototype.hasOwnProperty.call(req.body, "image")
+        ? normalizeProductImages(image)
+        : product.image;
+
       const updatedProduct =  await Product.findByIdAndUpdate(
         { _id: req.params.id },
         {
@@ -107,7 +118,7 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
           quantity,
           price,
           description,
-          image,
+          image: nextImages,
           regularPrice,
           color,
         },

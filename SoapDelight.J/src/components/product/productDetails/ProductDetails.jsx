@@ -9,7 +9,6 @@ import {
   FaHeart,
   FaMinus,
   FaPlus,
-  FaRegImage,
   FaShoppingBag,
 } from "react-icons/fa";
 import styles from "./ProductDetails.module.scss";
@@ -25,6 +24,9 @@ import {
 } from "../../../redux/features/cart/cartSlice.jsx";
 import { addToWishlist, getWishlist } from "../../../redux/features/auth/authSlice.js";
 import ProductRatingSummary from "../productRating/productRatingSummary.jsx";
+import ProductImageFallback, {
+  getProductImages,
+} from "../../../utils/productImageFallback.jsx";
 
 const stockCopy = (quantity) => {
   if (quantity <= 0) {
@@ -91,8 +93,7 @@ const ProductDetails = () => {
   }, [id, product?.image]);
 
   const productImages = useMemo(() => {
-    const images = Array.isArray(product?.image) ? product.image : [];
-    return images.filter((image) => image && !imageErrors[image]);
+    return getProductImages(product).filter((image) => !imageErrors[image]);
   }, [imageErrors, product?.image]);
 
   const selectedImage = productImages[imageIndex] || productImages[0];
@@ -197,12 +198,10 @@ const ProductDetails = () => {
                   onError={() => handleImageError(selectedImage)}
                 />
               ) : (
-                <div
-                  className={`${styles.imagePlaceholder} flex aspect-square w-full flex-col items-center justify-center gap-3 bg-[#fffdfa] text-zinc-400 md:aspect-[4/5] lg:aspect-auto`}
-                >
-                  <FaRegImage size={34} />
-                  <p className="text-sm">Image coming soon</p>
-                </div>
+                <ProductImageFallback
+                  category={product?.category}
+                  className={`${styles.imagePlaceholder} aspect-square md:aspect-[4/5] lg:aspect-auto`}
+                />
               )}
             </div>
 

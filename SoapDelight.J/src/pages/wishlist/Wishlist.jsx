@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -13,29 +13,8 @@ import {
 } from "../../redux/features/cart/cartSlice";
 import Loader from "../../components/Loader";
 import "./Wishlist.scss";
-import { FaRegHeart, FaRegImage, FaShoppingBag, FaTrashAlt } from "react-icons/fa";
-
-const WishlistImage = ({ image, name }) => {
-  const [failed, setFailed] = useState(false);
-  const src = Array.isArray(image) ? image[0] : image;
-
-  if (!src || failed) {
-    return (
-      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-zinc-100 text-zinc-400 dark:bg-zinc-900">
-        <FaRegImage size={28} />
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={name || "Wishlist product"}
-      className="aspect-square w-full rounded-lg object-cover transition duration-300 group-hover:scale-[1.02]"
-      onError={() => setFailed(true)}
-    />
-  );
-};
+import { FaRegHeart, FaShoppingBag, FaTrashAlt } from "react-icons/fa";
+import { ProductImage } from "../../utils/productImageFallback.jsx";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
@@ -144,7 +123,6 @@ const Wishlist = () => {
                 name = "Untitled product",
                 price = 0,
                 regularPrice,
-                image,
                 quantity = 0,
                 category,
               } = product;
@@ -156,7 +134,12 @@ const Wishlist = () => {
                   className="group flex h-full flex-col rounded-[1.25rem] border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950"
                 >
                   <Link to={`/product-details/${_id}`} className="overflow-hidden rounded-lg">
-                    <WishlistImage image={image} name={name} />
+                    <ProductImage
+                      product={product}
+                      alt={name || "Wishlist product"}
+                      className="aspect-square w-full rounded-lg object-cover transition duration-300 group-hover:scale-[1.02]"
+                      fallbackClassName="aspect-square rounded-lg"
+                    />
                   </Link>
                   <div className="flex flex-1 flex-col px-1 py-4">
                     {category && (

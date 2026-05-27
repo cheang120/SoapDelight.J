@@ -73,7 +73,7 @@ const ProductForm = ({
             <div>
               <h2 className="admin-product-panel-title">Product images</h2>
               <p className="admin-product-panel-subtitle">
-                Upload up to 5 images and choose the order customers will see.
+                Optional. Upload up to 5 images, or save without photos and show a placeholder.
               </p>
             </div>
           </div>
@@ -96,7 +96,11 @@ const ProductForm = ({
                       </button>
                     </div>
                   ))}
-                {files.length < 1 && <p className="--m admin-product-empty-images">No image set for this product.</p>}
+                {files.length < 1 && (
+                  <p className="--m admin-product-empty-images">
+                    No product photo yet. A placeholder will be shown until you upload one.
+                  </p>
+                )}
               </aside>
             </div>
           </div>

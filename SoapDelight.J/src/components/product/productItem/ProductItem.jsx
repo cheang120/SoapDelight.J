@@ -7,6 +7,7 @@ import { calculateAverageRating, shortenText } from "../../../utils";
 import DOMPurify from "dompurify";
 import { ADD_TO_CART, saveCartDB } from "../../../redux/features/cart/cartSlice";
 import { toast } from "react-toastify";
+import { ProductImage } from "../../../utils/productImageFallback";
 
 const ProductItem = ({
   product,
@@ -14,7 +15,6 @@ const ProductItem = ({
   _id,
   name,
   price,
-  image,
   regularPrice,
 }) => {
   const dispatch = useDispatch();
@@ -31,7 +31,6 @@ const ProductItem = ({
 
   const averageRating = calculateAverageRating(product?.ratings || []);
   const hasDiscount = Number(regularPrice) > Number(price);
-  const productImage = image?.[0] || "/default-image.png";
   const isGrid = grid;
   const isOutOfStock = product?.quantity <= 0;
 
@@ -51,8 +50,8 @@ const ProductItem = ({
               : `${styles.img} flex justify-center bg-[#f7f8f4] dark:bg-zinc-900`
           }`}
         >
-          <img
-            src={productImage}
+          <ProductImage
+            product={product}
             alt={name}
             className={`${
               isGrid

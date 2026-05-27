@@ -8,12 +8,11 @@ import {
     getBrands,
     getCategories,
   } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
-  import {
+import {
     RESET_PROD,
     createProduct,
     // selectIsLoading,
   } from "../../../redux/features/product/productSlice";
-import { toast } from "react-toastify";
 
 const initialState = {
     name: "",
@@ -34,9 +33,7 @@ const AddProduct = () => {
 
     const [product, setProduct] = useState(initialState);
 
-    const [productImage, setProductImage] = useState([]);
     const [files, setFiles] = useState([]);
-    const [imagePreview, setImagePreview] = useState([]);
     const [description, setDescription] = useState("");
 
     const {isLoading, message} = useSelector((state) => state.product)
@@ -76,11 +73,6 @@ const AddProduct = () => {
         // console.log(product);
         // console.log(description);
 
-        if (files.length < 1) {
-          return toast.info("Please add an image");
-        }
-
-    
         const formData = {
           name: name,
           sku: generateKSKU(category),
