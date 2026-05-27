@@ -16,6 +16,7 @@ import {
 
 const initialState = {
     name: "",
+    sku: "",
     category: "",
     brand: "",
     quantity: "",
@@ -39,7 +40,7 @@ const AddProduct = () => {
     const {isLoading, message} = useSelector((state) => state.product)
     const { categories, brands } = useSelector((state) => state.category);
 
-    const { name, category, brand, price, quantity, color, regularPrice } = product;
+    const { name, sku, category, brand, price, quantity, color, regularPrice } = product;
 
     const userRole = currentUser?.role
     const canManageProducts = userRole === 'author' || userRole === 'admin';
@@ -75,7 +76,7 @@ const AddProduct = () => {
 
         const formData = {
           name: name,
-          sku: generateKSKU(category),
+          sku: sku?.trim() || generateKSKU(category),
           category: category,
           brand: brand,
           color: color,

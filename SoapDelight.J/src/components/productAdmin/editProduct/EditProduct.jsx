@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 // import Loader from "../../loader/Loader";
 import ProductForm from "../productForm/ProductForm";
 import {
@@ -13,6 +14,7 @@ import {
   getBrands,
   getCategories,
 } from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
+import inventoryService from "../inventory/inventoryService.js";
 // import Loader from "../../Loader";
 
 const EditProduct = () => {
@@ -20,12 +22,18 @@ const EditProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {isLoading, message} = useSelector((state) => state.product)
+  const {isLoading} = useSelector((state) => state.product)
   const productEdit = useSelector(selectProduct);
 
   const [files, setFiles] = useState([]);
   const [product, setProduct] = useState(productEdit);
   const [description, setDescription] = useState("");
+  const [inventoryOverview, setInventoryOverview] = useState(null);
+  const [inventoryMapping, setInventoryMapping] = useState({
+    locationSku: "",
+    locationProductName: "",
+    commissionRate: 30,
+  });
 
   // const { categories, brands } = useSelector((state) => state.category);
 
@@ -33,6 +41,39 @@ const EditProduct = () => {
   useEffect(() => {
     dispatch(getProduct(id));
   }, [dispatch, id]);
+
+  useEffect(() => {
+    let shouldIgnore = false;
+
+    const loadProductInventory = async () => {
+      try {
+        const data = await inventoryService.getProductInventory(id);
+        if (shouldIgnore) return;
+
+        setInventoryOverview(data);
+        setInventoryMapping({
+          locationSku: data?.macauBaptistSku || "",
+          locationProductName:
+            data?.locations?.find(
+              (location) => location.locationCode === "MACAU_BAPTIST"
+            )?.locationProductName || data?.name || "",
+          commissionRate: data?.macauBaptistCommissionRate ?? 30,
+        });
+      } catch (error) {
+        if (shouldIgnore) return;
+        setInventoryOverview(null);
+        toast.error(
+          error?.response?.data?.message || "Could not load inventory details"
+        );
+      }
+    };
+
+    loadProductInventory();
+
+    return () => {
+      shouldIgnore = true;
+    };
+  }, [id]);
 
 
   // useEffect(() => {
@@ -62,8 +103,10 @@ const EditProduct = () => {
   useEffect(() => {
     setProduct(productEdit);
 
-    if (productEdit && productEdit.image) {
+    if (productEdit && Array.isArray(productEdit.image)) {
       setFiles(productEdit.image);
+    } else {
+      setFiles([]);
     }
 
     setDescription(
@@ -76,11 +119,17 @@ const EditProduct = () => {
     setProduct({ ...product, [name]: value });
   };
 
+  const handleInventoryMappingChange = (e) => {
+    const { name, value } = e.target;
+    setInventoryMapping((current) => ({ ...current, [name]: value }));
+  };
+
   const saveProduct = async (e) => {
     e.preventDefault();
 
     const formData = {
       name: product?.name,
+      sku: product?.sku || "",
       category: product?.category,
       brand: product?.brand,
       color: product?.color,
@@ -91,18 +140,32 @@ const EditProduct = () => {
       image: files,
     };
 
-    await dispatch(updateProduct({ id, formData }));
-    // await dispatch(getProducts());
-    // navigate("/productAdmin/all-products");
+    const result = await dispatch(updateProduct({ id, formData }));
+
+    if (!updateProduct.fulfilled.match(result)) return;
+
+    try {
+      await inventoryService.updateProductLocationMapping(id, {
+        locationCode: "MACAU_BAPTIST",
+        locationSku: inventoryMapping.locationSku,
+        locationProductName: inventoryMapping.locationProductName || product?.name,
+        commissionRate: inventoryMapping.commissionRate,
+      });
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Product saved, but consignment references could not be saved"
+      );
+      return;
+    }
+
+    dispatch(RESET_PROD());
+    navigate("/productAdmin/all-products");
   };
 
-
-  useEffect(() => {
-    if (message === "Product updated successfully"){
-      navigate("/productAdmin/all-products");
-    }
-    dispatch(RESET_PROD())
-  },[message, navigate,dispatch])
+  useEffect(() => () => {
+    dispatch(RESET_PROD());
+  }, [dispatch]);
 
   return (
     <section className="admin-product-page">
@@ -129,6 +192,9 @@ const EditProduct = () => {
         files={files}
         setFiles={setFiles}
         setDescription={setDescription}
+        inventoryOverview={inventoryOverview}
+        inventoryMapping={inventoryMapping}
+        handleInventoryMappingChange={handleInventoryMappingChange}
 
       />
       </div>

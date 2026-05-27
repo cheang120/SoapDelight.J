@@ -87,6 +87,7 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
     // res.send("update")
     const {
         name,
+        sku,
         category,
         brand,
         quantity,
@@ -113,6 +114,7 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
         { _id: req.params.id },
         {
           name,
+          sku,
           category,
           brand,
           quantity,

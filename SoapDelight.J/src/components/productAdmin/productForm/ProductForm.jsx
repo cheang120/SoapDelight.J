@@ -8,6 +8,12 @@ import { useSelector,useDispatch } from 'react-redux';
 import { getBrands, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
 import { selectProduct } from '../../../redux/features/product/productSlice';
 
+const formatMoney = (value) =>
+  `$${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 const ProductForm = ({
     saveProduct, 
     isEditing,
@@ -19,7 +25,10 @@ const ProductForm = ({
     description,
     setDescription,
     files,
-    setFiles
+    setFiles,
+    inventoryOverview,
+    inventoryMapping,
+    handleInventoryMappingChange,
 }) => {
 
 
@@ -63,6 +72,37 @@ const ProductForm = ({
         console.log(image);
         setFiles(files.filter((img, index) => img !== image));
       };
+
+    const rawCommissionRate = inventoryMapping?.commissionRate;
+    const macauCommissionRate =
+      rawCommissionRate === "" || rawCommissionRate === undefined || rawCommissionRate === null
+        ? Number(inventoryOverview?.macauBaptistCommissionRate ?? 30)
+        : Number(rawCommissionRate);
+    const publicPrice = Number(product?.price || inventoryOverview?.publicPrice || 0);
+    const internalNetPrice = publicPrice * (1 - macauCommissionRate / 100);
+    const stockCards = [
+      {
+        label: "Central stock",
+        value: inventoryOverview?.centralStock ?? 0,
+      },
+      {
+        label: "Online stock",
+        value: inventoryOverview?.onlineStock ?? 0,
+      },
+      {
+        label: "Macau Baptist stock",
+        value: inventoryOverview?.macauBaptistStock ?? 0,
+      },
+      {
+        label: "Total stock",
+        value: inventoryOverview?.totalStock ?? 0,
+      },
+      {
+        label: "Internal net price",
+        value: formatMoney(internalNetPrice),
+        helper: "Internal only / 只供內部參考",
+      },
+    ];
     
   return (
     <div className="admin-product-form-shell">
@@ -128,6 +168,20 @@ const ProductForm = ({
                 onChange={handleInputChange}
                 className="admin-product-input"
                 required
+              />
+            </div>
+
+            <div className="admin-product-field admin-product-field--full">
+              <label className="admin-product-label">
+                Central SKU / 中央 SKU
+              </label>
+              <input
+                type="text"
+                placeholder="Optional central SKU"
+                name="sku"
+                value={product?.sku || ""}
+                onChange={handleInputChange}
+                className="admin-product-input"
               />
             </div>
 
@@ -229,13 +283,96 @@ const ProductForm = ({
               </div>
             </div>
 
-            <div className="admin-product-actions admin-product-field--full">
-              <button type="submit" className="admin-product-submit">
-                Save Product
-              </button>
-            </div>
           </div>
         </section>
+
+        <section className="admin-product-panel">
+          <div className="admin-product-panel-header">
+            <p className="admin-product-kicker">INVENTORY</p>
+            <div>
+              <h2 className="admin-product-panel-title">
+                Inventory & Consignment / 存貨及寄賣資料
+              </h2>
+              <p className="admin-product-panel-subtitle">
+                Stock quantities are read-only here. Please use stock movements to adjust or transfer inventory.
+                <br />
+                此處只顯示存貨數量；如需調整或調貨，請使用存貨流動紀錄。
+              </p>
+            </div>
+          </div>
+
+          {isEditing ? (
+            <>
+              <div className="admin-inventory-stock-grid">
+                {stockCards.map((item) => (
+                  <div key={item.label} className="admin-inventory-stock-card">
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                    {item.helper && <small>{item.helper}</small>}
+                  </div>
+                ))}
+              </div>
+
+              <div className="admin-product-grid admin-inventory-edit-grid">
+                <div className="admin-product-field">
+                  <label className="admin-product-label">
+                    Macau Baptist SKU / 澳門浸信書局 SKU
+                  </label>
+                  <input
+                    type="text"
+                    name="locationSku"
+                    placeholder="Optional consignment SKU"
+                    className="admin-product-input"
+                    value={inventoryMapping?.locationSku || ""}
+                    onChange={handleInventoryMappingChange}
+                  />
+                </div>
+
+                <div className="admin-product-field">
+                  <label className="admin-product-label">
+                    Macau Baptist product name / 澳浸貨品名稱
+                  </label>
+                  <input
+                    type="text"
+                    name="locationProductName"
+                    placeholder={product?.name || "Optional location product name"}
+                    className="admin-product-input"
+                    value={inventoryMapping?.locationProductName || ""}
+                    onChange={handleInventoryMappingChange}
+                  />
+                </div>
+
+                <div className="admin-product-field">
+                  <label className="admin-product-label">
+                    Macau Baptist commission / 澳浸佣金
+                  </label>
+                  <input
+                    type="number"
+                    name="commissionRate"
+                    min="0"
+                    step="0.01"
+                    className="admin-product-input"
+                    value={inventoryMapping?.commissionRate ?? 30}
+                    onChange={handleInventoryMappingChange}
+                  />
+                  <p className="admin-product-field-note">
+                    Internal only / 只供內部參考
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="admin-product-info-note">
+              Save product first, then edit consignment references.
+            </div>
+          )}
+        </section>
+
+        <div className="admin-product-actions">
+          <button type="submit" className="admin-product-submit">
+            Save Product
+          </button>
+        </div>
       </form>
     </div>
   )

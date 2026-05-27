@@ -41,6 +41,17 @@
   color: #71717a;
 }
 
+.admin-products-warning {
+  margin-top: 0.7rem;
+  border: 1px solid #fbbf24;
+  border-radius: 1rem;
+  background: #fffbeb;
+  padding: 0.75rem 0.9rem;
+  color: #92400e;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .admin-products-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -54,6 +65,44 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: #52525b;
+  white-space: nowrap;
+}
+
+.admin-products-secondary-button {
+  min-height: 2.65rem;
+  border: 1px solid rgba(228, 228, 231, 0.92);
+  border-radius: 9999px;
+  background: #ffffff;
+  padding: 0 1rem;
+  color: #3f3f46;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.admin-products-secondary-button:hover {
+  border-color: rgba(212, 212, 216, 1);
+  background: #f4f4f5;
+  color: #09090b;
+}
+
+.admin-products-secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.admin-products-internal-note {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.2rem;
+  border-radius: 9999px;
+  background: #f4f4f5;
+  padding: 0 0.8rem;
+  color: #52525b;
+  font-size: 0.78rem;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -106,7 +155,7 @@
 
 .admin-products-table {
   width: 100%;
-  min-width: 1080px;
+  min-width: 1580px;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.95rem;
@@ -125,6 +174,15 @@
   color: #71717a;
   text-align: left;
   white-space: nowrap;
+}
+
+.admin-products-th-note {
+  display: block;
+  margin-top: 0.25rem;
+  color: #a1a1aa;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
 }
 
 .admin-products-table tbody tr {
@@ -304,6 +362,7 @@
   .admin-products-eyebrow,
   .admin-products-subtitle,
   .admin-products-empty-copy,
+  .admin-products-internal-note,
   .admin-products-table th {
     color: #a1a1aa;
   }
@@ -316,6 +375,29 @@
 
   .admin-products-count,
   .admin-products-table td {
+    color: #d4d4d8;
+  }
+
+  .admin-products-warning {
+    border-color: rgba(251, 191, 36, 0.42);
+    background: rgba(120, 53, 15, 0.24);
+    color: #fcd34d;
+  }
+
+  .admin-products-secondary-button {
+    border-color: rgba(63, 63, 70, 0.92);
+    background: #18181b;
+    color: #e4e4e7;
+  }
+
+  .admin-products-secondary-button:hover {
+    border-color: #71717a;
+    background: #27272a;
+    color: #ffffff;
+  }
+
+  .admin-products-internal-note {
+    background: rgba(63, 63, 70, 0.78);
     color: #d4d4d8;
   }
 

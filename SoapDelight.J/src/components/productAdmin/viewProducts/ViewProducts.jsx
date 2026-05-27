@@ -7,6 +7,7 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { AiOutlineEye } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { shortenText } from "../../../utils/index.jsx";
+import { toast } from "react-toastify";
 import ReactPaginate from "react-paginate";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
@@ -16,11 +17,58 @@ import {
   getProductImage,
   getProductImageStatus,
 } from "../../../utils/productImageFallback.jsx";
+import inventoryService from "../inventory/inventoryService.js";
+
+const formatMoney = (value) =>
+  `$${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const mapProductToFallbackInventoryRow = (product) => ({
+  productId: product?._id,
+  name: product?.name || "Untitled product",
+  centralSku: product?.sku || "",
+  category: product?.category || "",
+  brand: product?.brand || "",
+  publicPrice: Number(product?.price || 0),
+  image: product?.image || [],
+  centralStock: 0,
+  onlineStock: 0,
+  consignmentTotal: 0,
+  macauBaptistStock: 0,
+  macauBaptistSku: "",
+  macauBaptistCommissionRate: 30,
+  macauBaptistInternalNetPrice: Number(product?.price || 0) * 0.7,
+  totalStock: Number(product?.quantity || 0),
+  imageStatus: getProductImageStatus(product),
+  locations: [],
+  fallbackProduct: product,
+});
+
+const getSearchableRowText = (row) =>
+  [
+    row.name,
+    row.centralSku,
+    row.category,
+    row.brand,
+    row.macauBaptistSku,
+    ...(Array.isArray(row.locations)
+      ? row.locations.map((location) => location.locationSku)
+      : []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 
 const ViewProducts = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [search, setSearch] = useState("");
   const [itemOffset, setItemOffset] = useState(0);
+  const [inventoryRows, setInventoryRows] = useState([]);
+  const [inventoryLoading, setInventoryLoading] = useState(false);
+  const [inventoryError, setInventoryError] = useState(false);
+  const [ensuringDefaults, setEnsuringDefaults] = useState(false);
 
   const dispatch = useDispatch();
   const { products = [], isLoading } = useSelector((state) => state.product);
@@ -38,14 +86,52 @@ const ViewProducts = () => {
     }
   }, [canManageProducts, dispatch]);
 
+  useEffect(() => {
+    if (!canManageProducts) return;
+
+    let shouldIgnore = false;
+
+    const loadInventoryOverview = async () => {
+      setInventoryLoading(true);
+      setInventoryError(false);
+
+      try {
+        const overview = await inventoryService.getInventoryOverview();
+        if (shouldIgnore) return;
+        setInventoryRows(Array.isArray(overview) ? overview : []);
+      } catch (error) {
+        if (shouldIgnore) return;
+        setInventoryError(true);
+        setInventoryRows([]);
+      } finally {
+        if (!shouldIgnore) {
+          setInventoryLoading(false);
+        }
+      }
+    };
+
+    loadInventoryOverview();
+
+    return () => {
+      shouldIgnore = true;
+    };
+  }, [canManageProducts]);
+
   const safeProducts = Array.isArray(products) ? products : [];
+  const hasInventoryRows = !inventoryError && inventoryRows.length > 0;
+  const stockRows = hasInventoryRows
+    ? inventoryRows
+    : safeProducts.map(mapProductToFallbackInventoryRow);
 
   const filteredProducts = useMemo(
-    () =>
-      safeProducts.filter((product) =>
-        product?.name?.toLowerCase().includes(search.toLowerCase())
-      ),
-    [safeProducts, search]
+    () => {
+      const searchTerm = search.trim().toLowerCase();
+      if (!searchTerm) return stockRows;
+      return stockRows.filter((row) =>
+        getSearchableRowText(row).includes(searchTerm)
+      );
+    },
+    [stockRows, search]
   );
 
   useEffect(() => {
@@ -75,6 +161,29 @@ const ViewProducts = () => {
   const delProduct = async (id) => {
     await dispatch(deleteProduct(id));
     await dispatch(getProducts());
+    try {
+      const overview = await inventoryService.getInventoryOverview();
+      setInventoryRows(Array.isArray(overview) ? overview : []);
+    } catch {
+      setInventoryError(true);
+    }
+  };
+
+  const handleEnsureDefaultLocations = async () => {
+    setEnsuringDefaults(true);
+    try {
+      await inventoryService.ensureDefaultLocations();
+      const overview = await inventoryService.getInventoryOverview();
+      setInventoryRows(Array.isArray(overview) ? overview : []);
+      setInventoryError(false);
+      toast.success("Default inventory locations ensured");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Could not ensure inventory locations"
+      );
+    } finally {
+      setEnsuringDefaults(false);
+    }
   };
 
   const confirmDelete = (id) => {
@@ -110,13 +219,29 @@ const ViewProducts = () => {
           <p className="admin-products-eyebrow">PRODUCTS</p>
           <h2 className="admin-products-title">All Products</h2>
           <p className="admin-products-subtitle">
-            Manage your product catalogue, stock and product actions.
+            Manage your product catalogue, stock by location and internal consignment references.
           </p>
+          {inventoryError && (
+            <p className="admin-products-warning">
+              Inventory overview is unavailable. Showing product list fallback.
+            </p>
+          )}
         </div>
 
         <div className="admin-products-toolbar">
           <div className="admin-products-count">
             {filteredProducts.length} products found
+          </div>
+          <button
+            type="button"
+            className="admin-products-secondary-button"
+            onClick={handleEnsureDefaultLocations}
+            disabled={ensuringDefaults}
+          >
+            {ensuringDefaults ? "Ensuring..." : "Ensure default inventory locations"}
+          </button>
+          <div className="admin-products-internal-note">
+            Internal only / 只供內部參考
           </div>
           <div className="admin-products-search">
             <Search
@@ -127,7 +252,7 @@ const ViewProducts = () => {
         </div>
       </header>
 
-      {isLoading ? (
+      {isLoading || inventoryLoading ? (
         <div className="admin-products-loading">
           <Spinner />
         </div>
@@ -148,10 +273,27 @@ const ViewProducts = () => {
                     <th scope="col">S/N</th>
                     <th scope="col">Photo</th>
                     <th scope="col">Name</th>
+                    <th scope="col">Central SKU</th>
                     <th scope="col">Category</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Value</th>
+                    <th scope="col">Public Price</th>
+                    <th scope="col">Central Stock</th>
+                    <th scope="col">Online Stock</th>
+                    <th scope="col">Macau Baptist SKU</th>
+                    <th scope="col">Macau Baptist Stock</th>
+                    <th scope="col">
+                      Macau Commission
+                      <span className="admin-products-th-note">
+                        Internal only
+                      </span>
+                    </th>
+                    <th scope="col">
+                      Internal Net Price
+                      <span className="admin-products-th-note">
+                        只供內部參考
+                      </span>
+                    </th>
+                    <th scope="col">Total Stock</th>
+                    <th scope="col">Image Status</th>
                     <th scope="col" className="admin-products-actions-head">
                       Action
                     </th>
@@ -159,18 +301,37 @@ const ViewProducts = () => {
                 </thead>
 
                 <tbody>
-                  {currentItems.map((product, index) => {
-                    const { _id, name, category, price, quantity } = product;
+                  {currentItems.map((row, index) => {
+                    const {
+                      productId,
+                      name,
+                      centralSku,
+                      category,
+                      publicPrice,
+                      centralStock,
+                      onlineStock,
+                      macauBaptistSku,
+                      macauBaptistStock,
+                      macauBaptistCommissionRate,
+                      macauBaptistInternalNetPrice,
+                      totalStock,
+                      imageStatus,
+                    } = row;
+                    const product = row.fallbackProduct || {
+                      _id: productId,
+                      name,
+                      category,
+                      image: row.image,
+                    };
                     const productImage = getProductImage(product);
-                    const imageStatus = getProductImageStatus(product);
 
                     return (
-                      <tr key={_id}>
+                      <tr key={productId}>
                         <td>{itemOffset + index + 1}</td>
                         <td>
                           <div className="admin-products-photo-cell">
                             <Link
-                              to={`/product-details/${_id}`}
+                              to={`/product-details/${productId}`}
                               className="admin-products-photo"
                               aria-label={`View ${name}`}
                             >
@@ -192,20 +353,37 @@ const ViewProducts = () => {
                           </div>
                         </td>
                         <td className="admin-products-name">{shortenText(name, 16)}</td>
+                        <td>{centralSku || "-"}</td>
                         <td>{category}</td>
-                        <td>${price}</td>
-                        <td>{quantity}</td>
-                        <td>${price * quantity}</td>
+                        <td>{formatMoney(publicPrice)}</td>
+                        <td>{centralStock}</td>
+                        <td>{onlineStock}</td>
+                        <td>{macauBaptistSku || "-"}</td>
+                        <td>{macauBaptistStock}</td>
+                        <td>{Number(macauBaptistCommissionRate || 0)}%</td>
+                        <td>{formatMoney(macauBaptistInternalNetPrice)}</td>
+                        <td>{totalStock}</td>
+                        <td>
+                          <span
+                            className={`admin-products-photo-status ${
+                              productImage
+                                ? "admin-products-photo-status--real"
+                                : "admin-products-photo-status--placeholder"
+                            }`}
+                          >
+                            {imageStatus}
+                          </span>
+                        </td>
                         <td className="admin-products-actions">
                           <Link
-                            to={`/product-details/${_id}`}
+                            to={`/product-details/${productId}`}
                             className="admin-products-icon-button admin-products-icon-button--view"
                             aria-label={`View ${name}`}
                           >
                             <AiOutlineEye size={18} />
                           </Link>
                           <Link
-                            to={`/productAdmin/edit-product/${_id}`}
+                            to={`/productAdmin/edit-product/${productId}`}
                             className="admin-products-icon-button admin-products-icon-button--edit"
                             aria-label={`Edit ${name}`}
                           >
@@ -213,7 +391,7 @@ const ViewProducts = () => {
                           </Link>
                           <button
                             type="button"
-                            onClick={() => confirmDelete(_id)}
+                            onClick={() => confirmDelete(productId)}
                             className="admin-products-icon-button admin-products-icon-button--delete"
                             aria-label={`Delete ${name}`}
                           >

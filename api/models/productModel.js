@@ -14,8 +14,7 @@ const productSchema = new mongoose.Schema(
     },
     sku: {
       type: String,
-      required: true,
-      default: "SKU",
+      default: "",
       trim: true,
     },
     category: {

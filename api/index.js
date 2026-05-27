@@ -13,6 +13,7 @@ import contactRoute from './routes/contactRoute.js'
 import shippingMethodRoute from './routes/shippingMethodRoute.js'
 import subscriberRoute from './routes/subscriberRoute.js';
 import campaignRoute from './routes/campaignRoute.js';
+import inventoryRoute from './routes/inventoryRoute.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -59,6 +60,7 @@ app.use('/api/contact', contactRoute);
 app.use('/api/shipping-methods', shippingMethodRoute);
 app.use('/api/subscribers', subscriberRoute);
 app.use('/api/campaigns', campaignRoute);
+app.use('/api/inventory', inventoryRoute);
 
 
 app.get('*', (req, res) => {
