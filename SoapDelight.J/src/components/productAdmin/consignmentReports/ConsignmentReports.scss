@@ -85,3 +85,134 @@
 .dark .consignment-reports__eyebrow {
   color: #a1a1aa;
 }
+
+.consignment-reports__items {
+  display: grid;
+  gap: 1rem;
+}
+
+.consignment-reports__item {
+  display: grid;
+  grid-template-columns: minmax(16rem, 1.6fr) minmax(5rem, 0.5fr) minmax(7rem, 0.7fr) minmax(7rem, 0.7fr) minmax(8rem, 0.8fr) minmax(12rem, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+  border: 1px solid #e4e4e7;
+  border-radius: 1rem;
+  background: #fafafa;
+  padding: 1rem;
+}
+
+.consignment-reports__item label {
+  display: grid;
+  gap: 0.35rem;
+  color: #3f3f46;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.consignment-reports__item input,
+.consignment-reports__item select {
+  min-height: 2.65rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 0.85rem;
+  background: #fff;
+  color: #18181b;
+  font: inherit;
+  padding: 0 0.75rem;
+}
+
+.consignment-reports__preview {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  border-top: 1px solid #e4e4e7;
+  color: #52525b;
+  font-size: 0.88rem;
+  padding-top: 0.75rem;
+}
+
+.consignment-reports__preview strong {
+  color: #09090b;
+}
+
+.consignment-reports__item > button,
+.consignment-reports__card > button {
+  min-height: 2.65rem;
+  border: 0;
+  border-radius: 999px;
+  background: #18181b;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0 1rem;
+}
+
+.consignment-reports__item > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.consignment-reports__totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border: 1px solid #e4e4e7;
+  border-radius: 1rem;
+  background: #f8fafc;
+  color: #3f3f46;
+  font-weight: 700;
+  padding: 1rem;
+}
+
+.consignment-reports__totals strong {
+  color: #09090b;
+}
+
+@media (max-width: 1200px) {
+  .consignment-reports__item {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .consignment-reports__item > button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .consignment-reports__item {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dark .consignment-reports__item {
+  border-color: #27272a;
+  background: #111113;
+}
+
+.dark .consignment-reports__item label {
+  color: #e4e4e7;
+}
+
+.dark .consignment-reports__item input,
+.dark .consignment-reports__item select {
+  border-color: #3f3f46;
+  background: #18181b;
+  color: #fafafa;
+}
+
+.dark .consignment-reports__preview {
+  border-top-color: #27272a;
+  color: #a1a1aa;
+}
+
+.dark .consignment-reports__preview strong,
+.dark .consignment-reports__totals strong {
+  color: #fafafa;
+}
+
+.dark .consignment-reports__totals {
+  border-color: #27272a;
+  background: #111113;
+  color: #d4d4d8;
+}
