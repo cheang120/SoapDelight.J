@@ -16,6 +16,7 @@ import campaignRoute from './routes/campaignRoute.js';
 import inventoryRoute from './routes/inventoryRoute.js';
 import consignmentReportRoute from './routes/consignmentReportRoute.js';
 import companyProfileRoute from './routes/companyProfileRoute.js';
+import consignmentDeliveryRoute from './routes/consignmentDeliveryRoute.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -65,6 +66,7 @@ app.use('/api/campaigns', campaignRoute);
 app.use('/api/inventory', inventoryRoute);
 app.use('/api/consignment-reports', consignmentReportRoute);
 app.use('/api/company-profile', companyProfileRoute);
+app.use('/api/consignment-deliveries', consignmentDeliveryRoute);
 
 
 app.get('*', (req, res) => {
