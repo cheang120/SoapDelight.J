@@ -21,6 +21,7 @@ const navSections = [
     short: "存",
     items: [
       { to: "/productAdmin/stock-movements", label: "存貨流動", short: "流" },
+      { to: "/productAdmin/location-stock", label: "地點存貨總覽", short: "覽" },
       { to: "/productAdmin/consignment-deliveries", label: "寄售清單", short: "清" },
       { to: "/productAdmin/consignment-reports", label: "寄賣回報", short: "寄" },
     ],

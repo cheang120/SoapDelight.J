@@ -18,6 +18,7 @@ import Subscribers from "../../components/productAdmin/subscribers/Subscribers.j
 import Campaigns from "../../components/productAdmin/campaigns/Campaigns.jsx";
 import InventoryLocations from "../../components/productAdmin/inventoryLocations/InventoryLocations.jsx";
 import StockMovements from "../../components/productAdmin/stockMovements/StockMovements.jsx";
+import LocationStockPage from "../../components/productAdmin/locationStock/LocationStockPage.jsx";
 import ConsignmentReports from "../../components/productAdmin/consignmentReports/ConsignmentReports.jsx";
 import CompanyProfile from "../../components/productAdmin/companyProfile/CompanyProfile.jsx";
 import ConsignmentDeliveries from "../../components/productAdmin/consignmentDeliveries/ConsignmentDeliveries.jsx";
@@ -55,6 +56,7 @@ export const ProductAdmin = () => {
               <Route path="campaigns" element={<Campaigns />} />
               <Route path="inventory-locations" element={<InventoryLocations />} />
               <Route path="stock-movements" element={<StockMovements />} />
+              <Route path="location-stock" element={<LocationStockPage />} />
               <Route path="consignment-deliveries" element={<ConsignmentDeliveries />} />
               <Route path="consignment-reports" element={<ConsignmentReports />} />
             </Routes>
