@@ -193,6 +193,10 @@ const buildLocationPayload = (body = {}, { isUpdate = false } = {}) => {
   if (!isUpdate || body.phone !== undefined) {
     payload.phone = normalizeLocationText(body.phone);
   }
+  if (!isUpdate || body.email !== undefined) {
+    payload.email = normalizeLocationText(body.email).toLowerCase();
+  }
+
   if (!isUpdate || body.address !== undefined) {
     payload.address = normalizeLocationText(body.address);
   }
