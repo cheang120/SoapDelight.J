@@ -277,3 +277,235 @@
     }
   }
 }
+
+.sectionToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 2.35rem;
+  border: 0;
+  border-radius: 0.85rem;
+  background: transparent;
+  color: #71717a;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.95rem;
+  text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sectionToggle:hover {
+  background: rgba(244, 244, 245, 0.95);
+  color: #09090b;
+}
+
+.sectionChevron {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+:global(.dark) .sectionToggle {
+  color: #a1a1aa;
+}
+
+:global(.dark) .sectionToggle:hover {
+  background: rgba(39, 39, 42, 0.95);
+  color: #ffffff;
+}
+
+.collapsed {
+  .sectionToggle {
+    display: none;
+  }
+
+  .section {
+    margin-bottom: 0.7rem;
+  }
+
+  .sectionLabel {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .collapsed {
+    .sectionToggle {
+      display: flex;
+    }
+  }
+}
+
+/* Grouped collapsible sidebar navigation */
+.sectionToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 2.35rem;
+  border: 0;
+  border-radius: 0.85rem;
+  background: transparent;
+  color: #71717a;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.95rem;
+  text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sectionToggle:hover,
+.sectionToggleActive {
+  background: rgba(244, 244, 245, 0.95);
+  color: #09090b;
+}
+
+.sectionChevron {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.sectionShort {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.collapsed {
+  .section {
+    margin-bottom: 0.7rem;
+  }
+
+  .sectionLabel {
+    display: none;
+  }
+
+  .sectionToggle {
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0.45rem;
+  }
+
+  .sectionToggleActive .sectionShort {
+    background: #09090b;
+    color: #fff;
+  }
+
+  nav ul {
+    display: none;
+  }
+}
+
+:global(.dark) .sectionToggle {
+  color: #a1a1aa;
+}
+
+:global(.dark) .sectionToggle:hover,
+:global(.dark) .sectionToggleActive {
+  background: rgba(39, 39, 42, 0.95);
+  color: #ffffff;
+}
+
+:global(.dark) .collapsed {
+  .sectionToggleActive .sectionShort {
+    background: #fafafa;
+    color: #09090b;
+  }
+}
+
+@media (max-width: 768px) {
+  .collapsed {
+    .sectionToggle {
+      justify-content: space-between;
+      min-height: 2.35rem;
+      padding: 0.35rem 0.95rem;
+    }
+
+    .sectionShort {
+      width: auto;
+      height: auto;
+      border-radius: 0;
+      font-size: inherit;
+      letter-spacing: 0.12em;
+    }
+
+    nav ul {
+      display: grid;
+    }
+  }
+}
+
+
+/* Collapsed grouped menu visibility fix */
+.collapsed {
+  .sectionToggle {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0.45rem;
+  }
+
+  .sectionShort {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+
+  .sectionToggleActive .sectionShort {
+    background: #09090b;
+    color: #fff;
+  }
+
+  nav ul {
+    display: none !important;
+  }
+}
+
+:global(.dark) .collapsed {
+  .sectionToggleActive .sectionShort {
+    background: #fafafa;
+    color: #09090b;
+  }
+}
+
+@media (max-width: 768px) {
+  .collapsed {
+    .sectionToggle {
+      justify-content: space-between;
+      padding: 0.35rem 0.95rem;
+    }
+
+    .sectionShort {
+      width: auto;
+      height: auto;
+      border-radius: 0;
+      font-size: inherit;
+      letter-spacing: 0.12em;
+    }
+
+    nav ul {
+      display: grid !important;
+    }
+  }
+}
