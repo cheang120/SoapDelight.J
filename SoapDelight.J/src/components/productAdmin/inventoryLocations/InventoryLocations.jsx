@@ -10,6 +10,7 @@ const emptyForm = {
   commissionRate: 0,
   contactPerson: "",
   phone: "",
+  email: "",
   address: "",
   notes: "",
   active: true,
@@ -78,6 +79,7 @@ const InventoryLocations = () => {
       commissionRate: Number(location.commissionRate || 0),
       contactPerson: location.contactPerson || "",
       phone: location.phone || "",
+      email: location.email || "",
       address: location.address || "",
       notes: location.notes || "",
       active: location.active !== false,
@@ -198,6 +200,11 @@ const InventoryLocations = () => {
           <label>
             電話
             <input name="phone" value={form.phone} onChange={handleChange} />
+          </label>
+
+          <label>
+            電郵
+            <input name="email" type="email" value={form.email} onChange={handleChange} />
           </label>
 
           <label className="inventory-locations__full">

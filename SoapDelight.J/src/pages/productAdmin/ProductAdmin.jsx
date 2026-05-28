@@ -19,6 +19,7 @@ import Campaigns from "../../components/productAdmin/campaigns/Campaigns.jsx";
 import InventoryLocations from "../../components/productAdmin/inventoryLocations/InventoryLocations.jsx";
 import StockMovements from "../../components/productAdmin/stockMovements/StockMovements.jsx";
 import ConsignmentReports from "../../components/productAdmin/consignmentReports/ConsignmentReports.jsx";
+import CompanyProfile from "../../components/productAdmin/companyProfile/CompanyProfile.jsx";
 
 
 export const ProductAdmin = () => {
@@ -48,6 +49,7 @@ export const ProductAdmin = () => {
               <Route path="category" element={<Category />} />
               <Route path="brand" element={<Brand />} />
               <Route path="shipping-methods" element={<ShippingMethods />} />
+              <Route path="company-profile" element={<CompanyProfile />} />
               <Route path="subscribers" element={<Subscribers />} />
               <Route path="campaigns" element={<Campaigns />} />
               <Route path="inventory-locations" element={<InventoryLocations />} />
