@@ -20,6 +20,7 @@ import InventoryLocations from "../../components/productAdmin/inventoryLocations
 import StockMovements from "../../components/productAdmin/stockMovements/StockMovements.jsx";
 import ConsignmentReports from "../../components/productAdmin/consignmentReports/ConsignmentReports.jsx";
 import CompanyProfile from "../../components/productAdmin/companyProfile/CompanyProfile.jsx";
+import ConsignmentDeliveries from "../../components/productAdmin/consignmentDeliveries/ConsignmentDeliveries.jsx";
 
 
 export const ProductAdmin = () => {
@@ -54,6 +55,7 @@ export const ProductAdmin = () => {
               <Route path="campaigns" element={<Campaigns />} />
               <Route path="inventory-locations" element={<InventoryLocations />} />
               <Route path="stock-movements" element={<StockMovements />} />
+              <Route path="consignment-deliveries" element={<ConsignmentDeliveries />} />
               <Route path="consignment-reports" element={<ConsignmentReports />} />
             </Routes>
           </div>

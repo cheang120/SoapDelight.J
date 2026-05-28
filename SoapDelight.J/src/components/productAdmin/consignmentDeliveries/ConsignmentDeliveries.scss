@@ -1,0 +1,430 @@
+.consignment-deliveries {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  color: #18181b;
+}
+
+.consignment-deliveries > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.consignment-deliveries__header,
+.consignment-deliveries__card,
+.consignment-deliveries__history,
+.consignment-deliveries__detail {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(228, 228, 231, 0.9);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.consignment-deliveries__header,
+.consignment-deliveries__card,
+.consignment-deliveries__history,
+.consignment-deliveries__detail {
+  padding: 1.2rem;
+}
+
+.consignment-deliveries__header h2,
+.consignment-deliveries__card h3,
+.consignment-deliveries__history h3,
+.consignment-deliveries__detail h3,
+.consignment-deliveries__detail h4 {
+  margin: 0;
+  color: #09090b;
+}
+
+.consignment-deliveries__header p,
+.consignment-deliveries__card p,
+.consignment-deliveries__history p,
+.consignment-deliveries__detail p {
+  margin: 0;
+  color: #71717a;
+}
+
+.consignment-deliveries__eyebrow {
+  margin: 0 0 0.25rem;
+  color: #71717a;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.consignment-deliveries__section-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.consignment-deliveries__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  min-width: 0;
+}
+
+.consignment-deliveries__field,
+.consignment-deliveries__item-field {
+  display: grid;
+  gap: 0.42rem;
+  min-width: 0;
+  color: #3f3f46;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.consignment-deliveries__field--wide {
+  grid-column: 1 / -1;
+}
+
+.consignment-deliveries__field input,
+.consignment-deliveries__field select,
+.consignment-deliveries__field textarea,
+.consignment-deliveries__item input,
+.consignment-deliveries__item select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 0.85rem;
+  background: #fff;
+  color: #18181b;
+  font: inherit;
+  box-sizing: border-box;
+  padding: 0.7rem 0.85rem;
+}
+
+.consignment-deliveries__field textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.consignment-deliveries__items {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.consignment-deliveries__item {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 2.1fr)
+    minmax(0, 0.8fr)
+    minmax(0, 1fr)
+    minmax(0, 1.35fr)
+    auto;
+  gap: 0.85rem;
+  align-items: end;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e4e4e7;
+  border-radius: 1rem;
+  background: #fafafa;
+  box-sizing: border-box;
+  padding: 1rem;
+}
+
+.consignment-deliveries__item-field--product,
+.consignment-deliveries__item-field--note {
+  min-width: 0;
+}
+
+.consignment-deliveries__item > button,
+.consignment-deliveries__card-actions > button,
+.consignment-deliveries__secondary-button,
+.consignment-deliveries__action-button {
+  min-height: 2.65rem;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+  box-sizing: border-box;
+  padding: 0 1rem;
+}
+
+.consignment-deliveries__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.consignment-deliveries__card-actions > button,
+.consignment-deliveries__secondary-button,
+.consignment-deliveries__action-button--primary,
+.consignment-deliveries__action-button {
+  background: #18181b;
+  color: #fff;
+}
+
+.consignment-deliveries__secondary-button {
+  background: #f4f4f5;
+  color: #18181b;
+}
+
+.consignment-deliveries__action-button--ghost {
+  background: #fff;
+  color: #18181b;
+  border: 1px solid #d4d4d8;
+}
+
+.consignment-deliveries__item > button:disabled,
+.consignment-deliveries__card-actions > button:disabled,
+.consignment-deliveries__secondary-button:disabled,
+.consignment-deliveries__action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.consignment-deliveries__preview,
+.consignment-deliveries__totals,
+.consignment-deliveries__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  min-width: 0;
+}
+
+.consignment-deliveries__preview {
+  grid-column: 1 / -1;
+  border-top: 1px solid #e4e4e7;
+  color: #52525b;
+  font-size: 0.88rem;
+  padding-top: 0.75rem;
+}
+
+.consignment-deliveries__preview strong,
+.consignment-deliveries__totals strong,
+.consignment-deliveries__meta strong {
+  color: #09090b;
+}
+
+.consignment-deliveries__totals {
+  border: 1px solid #e4e4e7;
+  border-radius: 1rem;
+  background: #f8fafc;
+  color: #3f3f46;
+  font-weight: 700;
+  padding: 1rem;
+}
+
+.consignment-deliveries__table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.consignment-deliveries__history table,
+.consignment-deliveries__detail-table {
+  width: 100%;
+  min-width: 56rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.consignment-deliveries__history th,
+.consignment-deliveries__history td,
+.consignment-deliveries__detail-table th,
+.consignment-deliveries__detail-table td {
+  border-bottom: 1px solid #f4f4f5;
+  padding: 0.85rem;
+  text-align: left;
+}
+
+.consignment-deliveries__history th,
+.consignment-deliveries__detail-table th {
+  color: #71717a;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.consignment-deliveries__history td,
+.consignment-deliveries__detail-table td {
+  color: #18181b;
+  font-size: 0.88rem;
+  vertical-align: top;
+}
+
+.consignment-deliveries__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.consignment-deliveries__status,
+.consignment-deliveries__action-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.55rem;
+}
+
+.consignment-deliveries__status {
+  background: #f4f4f5;
+  color: #18181b;
+}
+
+.consignment-deliveries__status--draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.consignment-deliveries__status--issued {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.consignment-deliveries__status--cancelled,
+.consignment-deliveries__action-pill--cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.consignment-deliveries__action-pill {
+  background: #f4f4f5;
+  color: #18181b;
+}
+
+.consignment-deliveries__detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.consignment-deliveries__detail-card {
+  border: 1px solid #e4e4e7;
+  border-radius: 1rem;
+  background: #fafafa;
+  padding: 1rem;
+}
+
+.consignment-deliveries__detail-card ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.8rem 0 0;
+  padding-left: 1rem;
+  color: #3f3f46;
+}
+
+.consignment-deliveries__meta {
+  margin: 1rem 0;
+  color: #3f3f46;
+}
+
+.consignment-deliveries__loading,
+.consignment-deliveries__empty {
+  color: #71717a;
+}
+
+@media (max-width: 1120px) {
+  .consignment-deliveries__item {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .consignment-deliveries__form-grid,
+  .consignment-deliveries__detail-grid,
+  .consignment-deliveries__item {
+    grid-template-columns: 1fr;
+  }
+
+  .consignment-deliveries__card-actions > button,
+  .consignment-deliveries__secondary-button {
+    width: 100%;
+  }
+}
+
+:global(.dark) .consignment-deliveries {
+  color: #f4f4f5;
+}
+
+:global(.dark) .consignment-deliveries__header,
+:global(.dark) .consignment-deliveries__card,
+:global(.dark) .consignment-deliveries__history,
+:global(.dark) .consignment-deliveries__detail,
+:global(.dark) .consignment-deliveries__detail-card,
+:global(.dark) .consignment-deliveries__item {
+  border-color: rgba(63, 63, 70, 0.9);
+  background: rgba(24, 24, 27, 0.94);
+  box-shadow: none;
+}
+
+:global(.dark) .consignment-deliveries__header h2,
+:global(.dark) .consignment-deliveries__card h3,
+:global(.dark) .consignment-deliveries__history h3,
+:global(.dark) .consignment-deliveries__detail h3,
+:global(.dark) .consignment-deliveries__detail h4,
+:global(.dark) .consignment-deliveries__preview strong,
+:global(.dark) .consignment-deliveries__totals strong,
+:global(.dark) .consignment-deliveries__meta strong,
+:global(.dark) .consignment-deliveries__history td,
+:global(.dark) .consignment-deliveries__detail-table td {
+  color: #fafafa;
+}
+
+:global(.dark) .consignment-deliveries__header p,
+:global(.dark) .consignment-deliveries__card p,
+:global(.dark) .consignment-deliveries__history p,
+:global(.dark) .consignment-deliveries__detail p,
+:global(.dark) .consignment-deliveries__eyebrow,
+:global(.dark) .consignment-deliveries__history th,
+:global(.dark) .consignment-deliveries__detail-table th,
+:global(.dark) .consignment-deliveries__detail-card ul,
+:global(.dark) .consignment-deliveries__loading,
+:global(.dark) .consignment-deliveries__empty,
+:global(.dark) .consignment-deliveries__preview,
+:global(.dark) .consignment-deliveries__totals,
+:global(.dark) .consignment-deliveries__meta,
+:global(.dark) .consignment-deliveries__field,
+:global(.dark) .consignment-deliveries__item-field {
+  color: #d4d4d8;
+}
+
+:global(.dark) .consignment-deliveries__field input,
+:global(.dark) .consignment-deliveries__field select,
+:global(.dark) .consignment-deliveries__field textarea,
+:global(.dark) .consignment-deliveries__item input,
+:global(.dark) .consignment-deliveries__item select {
+  border-color: #3f3f46;
+  background: #09090b;
+  color: #fafafa;
+}
+
+:global(.dark) .consignment-deliveries__secondary-button,
+:global(.dark) .consignment-deliveries__action-button--ghost {
+  border-color: #3f3f46;
+  background: #18181b;
+  color: #f4f4f5;
+}
+
+:global(.dark) .consignment-deliveries__preview,
+:global(.dark) .consignment-deliveries__totals,
+:global(.dark) .consignment-deliveries__detail-card {
+  border-color: #3f3f46;
+}
+
+:global(.dark) .consignment-deliveries__totals {
+  background: #111827;
+}
