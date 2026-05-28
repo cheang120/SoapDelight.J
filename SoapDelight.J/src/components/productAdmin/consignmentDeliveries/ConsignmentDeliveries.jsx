@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import inventoryService from "../inventory/inventoryService";
 import consignmentDeliveryService from "./consignmentDeliveryService";
@@ -63,7 +63,7 @@ const getDetailLocationLines = (selectedDelivery) => {
 
 const ConsignmentDeliveries = () => {
   const [deliveryForm, setDeliveryForm] = useState({
-    locationCode: "",
+    locationId: "",
     issueDate: "",
     note: "",
   });
@@ -74,9 +74,13 @@ const ConsignmentDeliveries = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [viewingId, setViewingId] = useState("");
+  const [editingId, setEditingId] = useState("");
+  const [editingDeliveryNumber, setEditingDeliveryNumber] = useState("");
+  const [editingLoadingId, setEditingLoadingId] = useState("");
   const [issuingId, setIssuingId] = useState("");
   const [cancellingId, setCancellingId] = useState("");
   const [selectedDelivery, setSelectedDelivery] = useState(null);
+  const formCardRef = useRef(null);
 
   const consignmentLocations = useMemo(
     () =>
@@ -162,11 +166,13 @@ const ConsignmentDeliveries = () => {
 
   const resetForm = () => {
     setDeliveryForm({
-      locationCode: "",
+      locationId: "",
       issueDate: "",
       note: "",
     });
     setItemRows([{ ...emptyItemRow }]);
+    setEditingId("");
+    setEditingDeliveryNumber("");
   };
 
   const handleFormChange = (event) => {
@@ -192,13 +198,8 @@ const ConsignmentDeliveries = () => {
     );
   };
 
-  const handleCreateDraft = async () => {
-    if (!deliveryForm.locationCode) {
-      toast.error("請先選擇寄賣點。");
-      return;
-    }
-
-    const validItems = itemRows
+  const buildPayloadItems = () =>
+    itemRows
       .filter((row) => row.productId && Number(row.quantity) > 0)
       .map((row) => {
         const item = {
@@ -214,6 +215,14 @@ const ConsignmentDeliveries = () => {
         return item;
       });
 
+  const handleSaveDraft = async () => {
+    if (!deliveryForm.locationId) {
+      toast.error("請先選擇寄賣點。");
+      return;
+    }
+
+    const validItems = buildPayloadItems();
+
     if (validItems.length === 0) {
       toast.error("請至少加入一項有效商品。");
       return;
@@ -221,18 +230,39 @@ const ConsignmentDeliveries = () => {
 
     setSaving(true);
     try {
-      await consignmentDeliveryService.createConsignmentDelivery({
-        locationCode: deliveryForm.locationCode,
+      const currentEditingId = editingId;
+      const payload = {
+        locationId: deliveryForm.locationId,
         issueDate: deliveryForm.issueDate || undefined,
         note: deliveryForm.note,
         items: validItems,
-      });
+      };
 
-      toast.success("寄售清單草稿已建立");
+      if (currentEditingId) {
+        await consignmentDeliveryService.updateConsignmentDelivery(
+          currentEditingId,
+          payload
+        );
+        toast.success("寄售清單草稿已更新");
+      } else {
+        await consignmentDeliveryService.createConsignmentDelivery(payload);
+        toast.success("寄售清單草稿已建立");
+      }
+
       resetForm();
       await loadData();
+
+      if (selectedDelivery?._id === currentEditingId) {
+        const detail = await consignmentDeliveryService.getConsignmentDeliveryById(
+          currentEditingId
+        );
+        setSelectedDelivery(detail);
+      }
     } catch (error) {
-      toast.error(error?.response?.data?.message || "未能建立寄售清單草稿");
+      toast.error(
+        error?.response?.data?.message ||
+          (editingId ? "未能更新寄售清單草稿" : "未能建立寄售清單草稿")
+      );
     } finally {
       setSaving(false);
     }
@@ -252,9 +282,63 @@ const ConsignmentDeliveries = () => {
     }
   };
 
+  const handleEditDraft = async (deliveryId) => {
+    setEditingLoadingId(deliveryId);
+    try {
+      const detail = await consignmentDeliveryService.getConsignmentDeliveryById(
+        deliveryId
+      );
+
+      const locationId =
+        detail?.locationId?._id ||
+        detail?.locationId ||
+        "";
+
+      const nextRows = Array.isArray(detail?.items) && detail.items.length > 0
+        ? detail.items.map((item) => ({
+            productId: item?.productId?._id || item?.productId || "",
+            quantity: Number(item?.quantity || 1),
+            unitPriceAtIssue:
+              item?.unitPriceAtIssue !== undefined &&
+              item?.unitPriceAtIssue !== null
+                ? String(item.unitPriceAtIssue)
+                : "",
+            note: item?.note || "",
+          }))
+        : [{ ...emptyItemRow }];
+
+      setDeliveryForm({
+        locationId,
+        issueDate: detail?.issueDate
+          ? new Date(detail.issueDate).toISOString().slice(0, 10)
+          : "",
+        note: detail?.note || "",
+      });
+      setItemRows(nextRows);
+      setEditingId(detail._id);
+      setEditingDeliveryNumber(detail.deliveryNumber || "");
+      setSelectedDelivery(detail);
+
+      window.requestAnimationFrame(() => {
+        formCardRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "未能載入草稿以供編輯");
+    } finally {
+      setEditingLoadingId("");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    resetForm();
+  };
+
   const handleIssue = async (deliveryId) => {
     const confirmed = window.confirm(
-      "發出後狀態會變為已發出；目前不會扣庫存，稍後才會接入正式存貨流動。確定發出？"
+      "發出後會從中央存貨扣除並加入寄賣點存貨，確定發出？"
     );
 
     if (!confirmed) return;
@@ -263,6 +347,7 @@ const ConsignmentDeliveries = () => {
     try {
       await consignmentDeliveryService.issueConsignmentDelivery(deliveryId);
       toast.success("寄售清單已發出");
+      resetForm();
 
       if (selectedDelivery?._id === deliveryId) {
         const detail = await consignmentDeliveryService.getConsignmentDeliveryById(
@@ -288,6 +373,7 @@ const ConsignmentDeliveries = () => {
     try {
       await consignmentDeliveryService.cancelConsignmentDelivery(deliveryId);
       toast.success("寄售清單已取消");
+      resetForm();
 
       if (selectedDelivery?._id === deliveryId) {
         const detail = await consignmentDeliveryService.getConsignmentDeliveryById(
@@ -314,11 +400,15 @@ const ConsignmentDeliveries = () => {
         </div>
       </header>
 
-      <section className="consignment-deliveries__card">
+      <section className="consignment-deliveries__card" ref={formCardRef}>
         <div className="consignment-deliveries__section-head">
           <div>
-            <h3>建立寄售清單草稿</h3>
-            <p>先建立交貨草稿，之後再決定何時正式發出。</p>
+            <h3>{editingId ? "編輯寄售清單草稿" : "建立寄售清單草稿"}</h3>
+            <p>
+              {editingId
+                ? `正在編輯：${editingDeliveryNumber || "未命名草稿"}`
+                : "先建立交貨草稿，之後再決定何時正式發出。"}
+            </p>
           </div>
         </div>
 
@@ -326,13 +416,13 @@ const ConsignmentDeliveries = () => {
           <label className="consignment-deliveries__field">
             <span>寄賣點</span>
             <select
-              name="locationCode"
-              value={deliveryForm.locationCode}
+              name="locationId"
+              value={deliveryForm.locationId}
               onChange={handleFormChange}
             >
               <option value="">請選擇寄賣點</option>
               {consignmentLocations.map((location) => (
-                <option key={location._id} value={location.code}>
+                <option key={location._id} value={location._id}>
                   {location.name} {location.code ? `(${location.code})` : ""}
                 </option>
               ))}
@@ -478,9 +568,19 @@ const ConsignmentDeliveries = () => {
         </div>
 
         <div className="consignment-deliveries__card-actions">
-          <button type="button" onClick={handleCreateDraft} disabled={saving}>
-            {saving ? "儲存中..." : "儲存寄售清單草稿"}
+          <button type="button" onClick={handleSaveDraft} disabled={saving}>
+            {saving ? "儲存中..." : editingId ? "儲存更改" : "儲存寄售清單草稿"}
           </button>
+          {editingId && (
+            <button
+              type="button"
+              className="consignment-deliveries__secondary-button"
+              onClick={handleCancelEdit}
+              disabled={saving}
+            >
+              取消編輯
+            </button>
+          )}
         </div>
       </section>
 
@@ -546,14 +646,24 @@ const ConsignmentDeliveries = () => {
                           </button>
 
                           {isDraft ? (
-                            <button
-                              type="button"
-                              className="consignment-deliveries__action-button consignment-deliveries__action-button--primary"
-                              onClick={() => handleIssue(delivery._id)}
-                              disabled={issuingId === delivery._id}
-                            >
-                              {issuingId === delivery._id ? "發出中..." : "發出"}
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                className="consignment-deliveries__action-button consignment-deliveries__action-button--ghost"
+                                onClick={() => handleEditDraft(delivery._id)}
+                                disabled={editingLoadingId === delivery._id}
+                              >
+                                {editingLoadingId === delivery._id ? "載入中..." : "編輯"}
+                              </button>
+                              <button
+                                type="button"
+                                className="consignment-deliveries__action-button consignment-deliveries__action-button--primary"
+                                onClick={() => handleIssue(delivery._id)}
+                                disabled={issuingId === delivery._id}
+                              >
+                                {issuingId === delivery._id ? "發出中..." : "發出"}
+                              </button>
+                            </>
                           ) : isIssued ? (
                             <span className="consignment-deliveries__action-pill">
                               已發出
@@ -564,7 +674,7 @@ const ConsignmentDeliveries = () => {
                             </span>
                           )}
 
-                          {(isDraft || isIssued) && (
+                          {isDraft && (
                             <button
                               type="button"
                               className="consignment-deliveries__action-button consignment-deliveries__action-button--ghost"

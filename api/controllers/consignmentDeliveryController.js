@@ -1,9 +1,11 @@
 import asyncHandler from "express-async-handler";
 import CompanyProfile from "../models/companyProfileModel.js";
 import ConsignmentDelivery from "../models/consignmentDeliveryModel.js";
+import InventoryBalance from "../models/inventoryBalanceModel.js";
 import InventoryLocation from "../models/inventoryLocationModel.js";
 import ProductLocationMapping from "../models/productLocationMappingModel.js";
 import Product from "../models/productModel.js";
+import StockMovement from "../models/stockMovementModel.js";
 
 const normalizeCode = (value = "") => String(value).trim().toUpperCase();
 
@@ -71,6 +73,13 @@ const getLocation = async (res, { locationId, locationCode }) => {
   }
 
   return location;
+};
+
+const getOrCreateBalance = async (productId, locationId) => {
+  const balance = await InventoryBalance.findOne({ productId, locationId });
+  if (balance) return balance;
+
+  return InventoryBalance.create({ productId, locationId, quantity: 0 });
 };
 
 const buildCompanySnapshot = (profile) => ({
@@ -334,12 +343,97 @@ export const markConsignmentDeliveryIssued = asyncHandler(async (req, res) => {
     throwHttpError(res, 400, "Only draft deliveries can be issued");
   }
 
+  const centralLocation = await InventoryLocation.findOne({ code: "CENTRAL" });
+
+  if (!centralLocation) {
+    throwHttpError(res, 404, "Central stock location not found");
+  }
+
+  if (String(centralLocation._id) === String(delivery.locationId)) {
+    throwHttpError(res, 400, "Delivery location must be different from central stock");
+  }
+
+  const items = Array.isArray(delivery.items) ? delivery.items : [];
+
+  if (items.length === 0) {
+    throwHttpError(res, 400, "At least one delivery item is required");
+  }
+
+  const requiredByProduct = new Map();
+
+  for (const item of items) {
+    const quantity = Number(item.quantity || 0);
+
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throwHttpError(res, 400, "Delivery item quantity must be greater than zero");
+    }
+
+    const productKey = String(item.productId);
+    const current = requiredByProduct.get(productKey) || {
+      productId: item.productId,
+      productName: item.productNameAtIssue || "商品",
+      quantity: 0,
+    };
+
+    current.quantity += quantity;
+    requiredByProduct.set(productKey, current);
+  }
+
+  const centralBalances = await InventoryBalance.find({
+    locationId: centralLocation._id,
+    productId: {
+      $in: [...requiredByProduct.values()].map((item) => item.productId),
+    },
+  });
+
+  const centralBalanceByProduct = new Map(
+    centralBalances.map((balance) => [String(balance.productId), balance])
+  );
+
+  for (const requiredItem of requiredByProduct.values()) {
+    const balance = centralBalanceByProduct.get(String(requiredItem.productId));
+    const availableQuantity = Number(balance?.quantity || 0);
+
+    if (availableQuantity < requiredItem.quantity) {
+      throwHttpError(
+        res,
+        400,
+        `中央庫存不足：${requiredItem.productName}，可用 ${availableQuantity}，需要 ${requiredItem.quantity}`
+      );
+    }
+  }
+
+  for (const item of items) {
+    const quantity = Number(item.quantity || 0);
+    const fromBalance = await getOrCreateBalance(
+      item.productId,
+      centralLocation._id
+    );
+    const toBalance = await getOrCreateBalance(item.productId, delivery.locationId);
+
+    fromBalance.quantity = Number(fromBalance.quantity || 0) - quantity;
+    toBalance.quantity = Number(toBalance.quantity || 0) + quantity;
+
+    await Promise.all([fromBalance.save(), toBalance.save()]);
+
+    await StockMovement.create({
+      productId: item.productId,
+      fromLocationId: centralLocation._id,
+      toLocationId: delivery.locationId,
+      quantity,
+      type: "consignment_out",
+      direction: "transfer",
+      sourceDocument: delivery.deliveryNumber,
+      sourceDate: delivery.issueDate,
+      note: `寄售清單發出：${delivery.deliveryNumber}`,
+      createdBy: req.user?._id,
+    });
+  }
+
   delivery.status = "issued";
   delivery.issuedBy = req.user?._id;
   delivery.issuedAt = new Date();
 
-  // Stock movement integration is intentionally deferred until the
-  // delivery UI and future PDF workflow are confirmed.
   const updatedDelivery = await delivery.save();
 
   res.status(200).json(updatedDelivery);
@@ -354,6 +448,14 @@ export const cancelConsignmentDelivery = asyncHandler(async (req, res) => {
 
   if (delivery.status === "cancelled") {
     throwHttpError(res, 400, "Consignment delivery is already cancelled");
+  }
+
+  if (delivery.status === "issued") {
+    throwHttpError(
+      res,
+      400,
+      "已發出的寄售清單不可直接取消，日後需用退貨流程處理。"
+    );
   }
 
   delivery.status = "cancelled";
