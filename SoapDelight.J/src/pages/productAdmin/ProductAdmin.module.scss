@@ -54,3 +54,33 @@
     }
   }
 }
+
+
+.adminCollapsed {
+  .navbar {
+    width: 5.75rem;
+    flex: 0 0 5.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .adminCollapsed {
+    .navbar {
+      width: 100%;
+      flex-basis: auto;
+    }
+  }
+}
+
+
+.navbarCollapsed {
+  width: 5.75rem !important;
+  flex: 0 0 5.75rem !important;
+}
+
+@media (max-width: 768px) {
+  .navbarCollapsed {
+    width: 100% !important;
+    flex-basis: auto !important;
+  }
+}

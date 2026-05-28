@@ -137,3 +137,143 @@
     }
   }
 }
+
+
+.toggle {
+  width: 100%;
+  min-height: 2.35rem;
+  border: 1px solid rgba(228, 228, 231, 0.9);
+  border-radius: 1rem;
+  background: #fff;
+  color: #18181b;
+  cursor: pointer;
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.toggle:hover {
+  background: #f4f4f5;
+}
+
+.section {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.9rem;
+}
+
+.sectionLabel {
+  margin: 0 0 0.15rem;
+  padding: 0 0.95rem;
+  color: #71717a;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.linkText {
+  min-width: 0;
+}
+
+.collapsed {
+  padding: 0.75rem;
+
+  .user {
+    justify-content: center;
+    padding: 0.85rem 0.5rem;
+
+    .userText {
+      display: none;
+    }
+  }
+
+  .sectionLabel {
+    display: none;
+  }
+
+  nav ul {
+    gap: 0.4rem;
+
+    li {
+      border-bottom: 0;
+
+      a {
+        justify-content: center;
+        min-height: 3rem;
+        padding: 0.75rem 0.4rem;
+        font-size: 0;
+      }
+
+      a::before {
+        content: attr(data-short);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        font-weight: 800;
+      }
+    }
+  }
+
+  .linkText {
+    display: none;
+  }
+}
+
+:global(.dark) .toggle {
+  border-color: rgba(63, 63, 70, 0.9);
+  background: #18181b;
+  color: #fafafa;
+}
+
+:global(.dark) .toggle:hover {
+  background: #27272a;
+}
+
+:global(.dark) .sectionLabel {
+  color: #a1a1aa;
+}
+
+@media (max-width: 768px) {
+  .toggle {
+    display: none;
+  }
+
+  .collapsed {
+    padding: 0.75rem;
+
+    .user {
+      justify-content: flex-start;
+
+      .userText {
+        display: block;
+      }
+    }
+
+    .sectionLabel {
+      display: block;
+    }
+
+    nav ul li {
+      border-bottom: 1px solid rgba(228, 228, 231, 0.75);
+
+      a {
+        justify-content: flex-start;
+        font-size: inherit;
+        padding: 0.8rem 0.95rem;
+      }
+
+      a::before {
+        content: none;
+      }
+    }
+
+    .linkText {
+      display: inline;
+    }
+  }
+}

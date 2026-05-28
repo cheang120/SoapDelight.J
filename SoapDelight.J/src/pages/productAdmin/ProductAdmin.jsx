@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import styles from "./ProductAdmin.module.scss";
 import Navbar from "../../components/productAdmin/navbar/Navbar";
@@ -24,13 +24,17 @@ import ConsignmentReports from "../../components/productAdmin/consignmentReports
 export const ProductAdmin = () => {
   const { currentUser } = useSelector((state) => state.user);
   const userRole = currentUser?.role;
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   if (userRole === "author" || userRole === "admin") {
     return (
-      <div className={styles.admin}>
-        <aside className={styles.navbar}>
-          <Navbar />
-        </aside>
+      <div className={`${styles.admin} ${isSidebarCollapsed ? styles.adminCollapsed : ""}`}>
+        <aside className={`${styles.navbar} ${isSidebarCollapsed ? styles.navbarCollapsed : ""}`}>
+            <Navbar
+              isCollapsed={isSidebarCollapsed}
+              onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+            />
+          </aside>
         <main className={styles.content}>
           <div className={styles.contentInner}>
             <Routes>
