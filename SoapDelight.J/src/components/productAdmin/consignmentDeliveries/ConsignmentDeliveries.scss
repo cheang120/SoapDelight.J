@@ -337,6 +337,27 @@
   color: #3f3f46;
 }
 
+.consignment-deliveries__return-panel {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+  border: 1px solid #e4e4e7;
+  border-radius: 1rem;
+  background: #fafafa;
+  padding: 1rem;
+}
+
+.consignment-deliveries__detail-table input {
+  width: 7rem;
+  min-height: 2.25rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #18181b;
+  font: inherit;
+  padding: 0.45rem 0.65rem;
+}
+
 .consignment-deliveries__loading,
 .consignment-deliveries__empty {
   color: #71717a;
@@ -370,7 +391,8 @@
 :global(.dark) .consignment-deliveries__history,
 :global(.dark) .consignment-deliveries__detail,
 :global(.dark) .consignment-deliveries__detail-card,
-:global(.dark) .consignment-deliveries__item {
+:global(.dark) .consignment-deliveries__item,
+:global(.dark) .consignment-deliveries__return-panel {
   border-color: rgba(63, 63, 70, 0.9);
   background: rgba(24, 24, 27, 0.94);
   box-shadow: none;
@@ -411,7 +433,8 @@
 :global(.dark) .consignment-deliveries__field select,
 :global(.dark) .consignment-deliveries__field textarea,
 :global(.dark) .consignment-deliveries__item input,
-:global(.dark) .consignment-deliveries__item select {
+:global(.dark) .consignment-deliveries__item select,
+:global(.dark) .consignment-deliveries__detail-table input {
   border-color: #3f3f46;
   background: #09090b;
   color: #fafafa;

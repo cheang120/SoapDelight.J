@@ -4,6 +4,7 @@ import path from "path";
 import PDFDocument from "pdfkit";
 import CompanyProfile from "../models/companyProfileModel.js";
 import ConsignmentDelivery from "../models/consignmentDeliveryModel.js";
+import ConsignmentDeliveryReturn from "../models/consignmentDeliveryReturnModel.js";
 import InventoryBalance from "../models/inventoryBalanceModel.js";
 import InventoryLocation from "../models/inventoryLocationModel.js";
 import ProductLocationMapping from "../models/productLocationMappingModel.js";
@@ -190,6 +191,25 @@ const formatRate = (value) => {
 
 const getDeliveryPdfFilename = (delivery) =>
   `consignment-delivery-${delivery.deliveryNumber || delivery._id}.pdf`;
+
+const getNextReturnNo = async () => {
+  const year = new Date().getFullYear();
+  const prefix = `CDR-${year}-`;
+  const latestReturn = await ConsignmentDeliveryReturn.findOne({
+    returnNo: new RegExp(`^${prefix}`),
+  })
+    .sort({ createdAt: -1, returnNo: -1 })
+    .lean();
+
+  if (!latestReturn?.returnNo) {
+    return `${prefix}0001`;
+  }
+
+  const lastSequence = Number(String(latestReturn.returnNo).replace(prefix, ""));
+  const nextSequence = Number.isFinite(lastSequence) ? lastSequence + 1 : 1;
+
+  return `${prefix}${String(nextSequence).padStart(4, "0")}`;
+};
 
 const getNextDeliveryNumber = async () => {
   const year = new Date().getFullYear();
@@ -869,4 +889,185 @@ export const cancelConsignmentDelivery = asyncHandler(async (req, res) => {
   const updatedDelivery = await delivery.save();
 
   res.status(200).json(updatedDelivery);
+});
+
+export const createConsignmentDeliveryReturn = asyncHandler(async (req, res) => {
+  const delivery = await ConsignmentDelivery.findById(req.params.id);
+
+  if (!delivery) {
+    throwHttpError(res, 404, "Consignment delivery not found");
+  }
+
+  if (delivery.status !== "issued") {
+    throwHttpError(res, 400, "Only issued deliveries can be returned");
+  }
+
+  const reason = normalizeText(req.body?.reason);
+  const note = normalizeText(req.body?.note);
+
+  if (!reason) {
+    throwHttpError(res, 400, "Return reason is required");
+  }
+
+  const requestedItems = Array.isArray(req.body?.items) ? req.body.items : [];
+
+  if (requestedItems.length === 0) {
+    throwHttpError(res, 400, "At least one return item is required");
+  }
+
+  const centralLocation = await InventoryLocation.findOne({ code: "CENTRAL" });
+
+  if (!centralLocation) {
+    throwHttpError(res, 404, "Central stock location not found");
+  }
+
+  const deliveryItemsById = new Map(
+    delivery.items.map((item) => [String(item._id), item])
+  );
+  const requestedByItemId = new Map();
+
+  for (const requestedItem of requestedItems) {
+    const itemId = normalizeText(requestedItem?.itemId);
+    const returnQuantity = toPositiveNumber(requestedItem?.quantity);
+
+    if (!itemId || !deliveryItemsById.has(itemId)) {
+      throwHttpError(res, 400, "Return item is invalid");
+    }
+
+    if (!returnQuantity) {
+      throwHttpError(res, 400, "Return quantity must be greater than zero");
+    }
+
+    const currentQuantity = requestedByItemId.get(itemId) || 0;
+    requestedByItemId.set(itemId, currentQuantity + returnQuantity);
+  }
+
+  const returnItems = [];
+  const requiredByProduct = new Map();
+
+  for (const [itemId, returnQuantity] of requestedByItemId.entries()) {
+    const deliveryItem = deliveryItemsById.get(itemId);
+    const originalQuantity = Number(deliveryItem.quantity || 0);
+    const previouslyReturnedQuantity = Number(deliveryItem.returnedQuantity || 0);
+    const availableToReturn = originalQuantity - previouslyReturnedQuantity;
+
+    if (returnQuantity > availableToReturn) {
+      throwHttpError(
+        res,
+        400,
+        `退貨數量超過可退數量：${deliveryItem.productNameAtIssue}，可退 ${availableToReturn}，今次退 ${returnQuantity}`
+      );
+    }
+
+    const productKey = String(deliveryItem.productId);
+    const currentRequired = requiredByProduct.get(productKey) || {
+      productId: deliveryItem.productId,
+      productName: deliveryItem.productNameAtIssue || "商品",
+      quantity: 0,
+    };
+
+    currentRequired.quantity += returnQuantity;
+    requiredByProduct.set(productKey, currentRequired);
+
+    returnItems.push({
+      deliveryItemId: deliveryItem._id,
+      productId: deliveryItem.productId,
+      productCodeAtReturn:
+        deliveryItem.productCodeAtIssue ||
+        deliveryItem.locationSkuAtIssue ||
+        deliveryItem.centralSkuAtIssue ||
+        "",
+      productNameAtReturn: deliveryItem.productNameAtIssue,
+      originalQuantity,
+      previouslyReturnedQuantity,
+      returnQuantity,
+      remainingQuantityAfterReturn: availableToReturn - returnQuantity,
+    });
+  }
+
+  const consignmentBalances = await InventoryBalance.find({
+    locationId: delivery.locationId,
+    productId: {
+      $in: [...requiredByProduct.values()].map((item) => item.productId),
+    },
+  });
+  const consignmentBalanceByProduct = new Map(
+    consignmentBalances.map((balance) => [String(balance.productId), balance])
+  );
+
+  for (const requiredItem of requiredByProduct.values()) {
+    const balance = consignmentBalanceByProduct.get(String(requiredItem.productId));
+    const availableQuantity = Number(balance?.quantity || 0);
+
+    if (availableQuantity < requiredItem.quantity) {
+      throwHttpError(
+        res,
+        400,
+        `寄賣點庫存不足：${requiredItem.productName}，可用 ${availableQuantity}，需要退 ${requiredItem.quantity}`
+      );
+    }
+  }
+
+  const returnNo = await getNextReturnNo();
+  const totalQuantity = returnItems.reduce(
+    (sum, item) => sum + Number(item.returnQuantity || 0),
+    0
+  );
+
+  const returnRecord = await ConsignmentDeliveryReturn.create({
+    returnNo,
+    originalDeliveryId: delivery._id,
+    deliveryNumberAtReturn: delivery.deliveryNumber,
+    locationId: delivery.locationId,
+    locationNameAtReturn: delivery.locationNameAtIssue,
+    reason,
+    note,
+    items: returnItems,
+    totalQuantity,
+    createdBy: req.user?._id,
+  });
+
+  for (const returnItem of returnItems) {
+    const quantity = Number(returnItem.returnQuantity || 0);
+    const fromBalance = await getOrCreateBalance(
+      returnItem.productId,
+      delivery.locationId
+    );
+    const toBalance = await getOrCreateBalance(
+      returnItem.productId,
+      centralLocation._id
+    );
+
+    fromBalance.quantity = Number(fromBalance.quantity || 0) - quantity;
+    toBalance.quantity = Number(toBalance.quantity || 0) + quantity;
+
+    await Promise.all([fromBalance.save(), toBalance.save()]);
+
+    await StockMovement.create({
+      productId: returnItem.productId,
+      fromLocationId: delivery.locationId,
+      toLocationId: centralLocation._id,
+      quantity,
+      type: "consignment_return",
+      direction: "transfer",
+      sourceDocument: returnNo,
+      sourceDate: new Date(),
+      note: `${reason}${note ? `：${note}` : ""}`,
+      createdBy: req.user?._id,
+      referenceType: "ConsignmentDeliveryReturn",
+      referenceId: returnRecord._id,
+    });
+
+    const deliveryItem = deliveryItemsById.get(String(returnItem.deliveryItemId));
+    deliveryItem.returnedQuantity =
+      Number(deliveryItem.returnedQuantity || 0) + quantity;
+  }
+
+  const updatedDelivery = await delivery.save();
+
+  res.status(201).json({
+    message: "Consignment delivery return created",
+    returnRecord,
+    delivery: updatedDelivery,
+  });
 });

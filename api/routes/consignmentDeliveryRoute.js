@@ -2,6 +2,7 @@ import express from "express";
 import {
   cancelConsignmentDelivery,
   createConsignmentDelivery,
+  createConsignmentDeliveryReturn,
   downloadConsignmentDeliveryPdf,
   getConsignmentDeliveries,
   getConsignmentDeliveryById,
@@ -21,5 +22,6 @@ router.post("/admin", createConsignmentDelivery);
 router.patch("/admin/:id", updateConsignmentDelivery);
 router.post("/admin/:id/issue", markConsignmentDeliveryIssued);
 router.post("/admin/:id/cancel", cancelConsignmentDelivery);
+router.post("/admin/:id/returns", createConsignmentDeliveryReturn);
 
 export default router;

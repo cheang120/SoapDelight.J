@@ -24,6 +24,22 @@ const deliveryStatusLabel = (status) => {
   return status || "-";
 };
 
+const returnStatusLabel = (delivery) => {
+  const items = Array.isArray(delivery?.items) ? delivery.items : [];
+  const totalQuantity = items.reduce(
+    (sum, item) => sum + Number(item?.quantity || 0),
+    0
+  );
+  const returnedQuantity = items.reduce(
+    (sum, item) => sum + Number(item?.returnedQuantity || 0),
+    0
+  );
+
+  if (totalQuantity <= 0 || returnedQuantity <= 0) return "未退貨";
+  if (returnedQuantity >= totalQuantity) return "已全數退貨";
+  return "部分退貨";
+};
+
 const formatDate = (value) => {
   if (!value) return "-";
   const date = new Date(value);
@@ -61,6 +77,11 @@ const getDetailLocationLines = (selectedDelivery) => {
   ].filter(Boolean);
 };
 
+const getDeliveryItemId = (item) => item?._id || `${item?.productId}-${item?.productCodeAtIssue}`;
+
+const getProductId = (item) =>
+  typeof item?.productId === "object" ? item.productId?._id : item?.productId;
+
 const ConsignmentDeliveries = () => {
   const [deliveryForm, setDeliveryForm] = useState({
     locationId: "",
@@ -80,6 +101,11 @@ const ConsignmentDeliveries = () => {
   const [pdfLoadingId, setPdfLoadingId] = useState("");
   const [issuingId, setIssuingId] = useState("");
   const [cancellingId, setCancellingId] = useState("");
+  const [returning, setReturning] = useState(false);
+  const [showReturnForm, setShowReturnForm] = useState(false);
+  const [returnReason, setReturnReason] = useState("");
+  const [returnNote, setReturnNote] = useState("");
+  const [returnRows, setReturnRows] = useState([]);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const formCardRef = useRef(null);
 
@@ -142,6 +168,11 @@ const ConsignmentDeliveries = () => {
     [selectedDelivery]
   );
 
+  const selectedReturnStatus = useMemo(
+    () => returnStatusLabel(selectedDelivery),
+    [selectedDelivery]
+  );
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -174,6 +205,13 @@ const ConsignmentDeliveries = () => {
     setItemRows([{ ...emptyItemRow }]);
     setEditingId("");
     setEditingDeliveryNumber("");
+  };
+
+  const resetReturnForm = () => {
+    setShowReturnForm(false);
+    setReturnReason("");
+    setReturnNote("");
+    setReturnRows([]);
   };
 
   const handleFormChange = (event) => {
@@ -276,6 +314,7 @@ const ConsignmentDeliveries = () => {
         deliveryId
       );
       setSelectedDelivery(detail);
+      resetReturnForm();
     } catch (error) {
       toast.error(error?.response?.data?.message || "未能載入寄售清單明細");
     } finally {
@@ -417,6 +456,104 @@ const ConsignmentDeliveries = () => {
       toast.error(error?.response?.data?.message || "未能取消寄售清單");
     } finally {
       setCancellingId("");
+    }
+  };
+
+  const getItemLocationStock = (item) => {
+    const product = productById.get(getProductId(item));
+    const locationId =
+      selectedDelivery?.locationId?._id || selectedDelivery?.locationId || "";
+    const locationRow = product?.locations?.find(
+      (location) => String(location.locationId) === String(locationId)
+    );
+
+    return Number(locationRow?.quantity || 0);
+  };
+
+  const startReturnFlow = () => {
+    if (!selectedDelivery || selectedDelivery.status !== "issued") return;
+
+    setReturnRows(
+      selectedItems.map((item) => ({
+        itemId: getDeliveryItemId(item),
+        productId: getProductId(item),
+        quantity: "",
+      }))
+    );
+    setReturnReason("");
+    setReturnNote("");
+    setShowReturnForm(true);
+  };
+
+  const handleReturnRowChange = (itemId, value) => {
+    setReturnRows((prev) =>
+      prev.map((row) =>
+        String(row.itemId) === String(itemId) ? { ...row, quantity: value } : row
+      )
+    );
+  };
+
+  const handleSubmitReturn = async () => {
+    if (!selectedDelivery?._id) return;
+
+    if (!returnReason.trim()) {
+      toast.error("請填寫退貨 / 逆轉原因。");
+      return;
+    }
+
+    const items = returnRows
+      .map((row) => ({
+        itemId: row.itemId,
+        productId: row.productId,
+        quantity: Number(row.quantity || 0),
+      }))
+      .filter((row) => row.quantity > 0);
+
+    if (items.length === 0) {
+      toast.error("請至少輸入一項退回數量。");
+      return;
+    }
+
+    for (const row of items) {
+      const item = selectedItems.find(
+        (selectedItem) => String(getDeliveryItemId(selectedItem)) === String(row.itemId)
+      );
+      const availableToReturn =
+        Number(item?.quantity || 0) - Number(item?.returnedQuantity || 0);
+      const locationStock = getItemLocationStock(item);
+
+      if (row.quantity > availableToReturn) {
+        toast.error(`${item?.productNameAtIssue || "商品"} 的退回數量超過可退數量。`);
+        return;
+      }
+
+      if (row.quantity > locationStock) {
+        toast.error(`${item?.productNameAtIssue || "商品"} 的退回數量超過寄賣點現有庫存。`);
+        return;
+      }
+    }
+
+    setReturning(true);
+    try {
+      await consignmentDeliveryService.createConsignmentDeliveryReturn(
+        selectedDelivery._id,
+        {
+          reason: returnReason,
+          note: returnNote,
+          items,
+        }
+      );
+      toast.success("退貨 / 逆轉紀錄已建立");
+      resetReturnForm();
+      await loadData();
+      const detail = await consignmentDeliveryService.getConsignmentDeliveryById(
+        selectedDelivery._id
+      );
+      setSelectedDelivery(detail);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "未能建立退貨 / 逆轉紀錄");
+    } finally {
+      setReturning(false);
     }
   };
 
@@ -757,6 +894,16 @@ const ConsignmentDeliveries = () => {
             >
               關閉明細
             </button>
+            {selectedDelivery.status === "issued" &&
+              selectedReturnStatus !== "已全數退貨" && (
+                <button
+                  type="button"
+                  className="consignment-deliveries__secondary-button"
+                  onClick={startReturnFlow}
+                >
+                  建立退貨 / 逆轉
+                </button>
+              )}
             {selectedDelivery.status !== "cancelled" && (
               <button
                 type="button"
@@ -810,6 +957,12 @@ const ConsignmentDeliveries = () => {
               <strong>備註：</strong>
               {selectedDelivery.note || "—"}
             </span>
+            {selectedDelivery.status === "issued" && (
+              <span>
+                <strong>退貨狀態：</strong>
+                {selectedReturnStatus}
+              </span>
+            )}
           </div>
 
           <div className="consignment-deliveries__table-wrap">
@@ -821,13 +974,15 @@ const ConsignmentDeliveries = () => {
                   <th>價格</th>
                   <th>折扣</th>
                   <th>數量</th>
+                  <th>已退</th>
+                  <th>可退</th>
                   <th>金額</th>
                 </tr>
               </thead>
               <tbody>
                 {selectedItems.length === 0 ? (
                   <tr>
-                    <td colSpan="6">
+                    <td colSpan="8">
                       <div className="consignment-deliveries__empty">
                         這張寄售清單沒有商品項目。
                       </div>
@@ -841,6 +996,14 @@ const ConsignmentDeliveries = () => {
                       <td>{money(item.unitPriceAtIssue || 0)}</td>
                       <td>{Number(item.settlementRateAtIssue || 0)}%</td>
                       <td>{Number(item.quantity || 0)}</td>
+                      <td>{Number(item.returnedQuantity || 0)}</td>
+                      <td>
+                        {Math.max(
+                          Number(item.quantity || 0) -
+                            Number(item.returnedQuantity || 0),
+                          0
+                        )}
+                      </td>
                       <td>{money(item.lineAmount || 0)}</td>
                     </tr>
                   ))
@@ -848,6 +1011,115 @@ const ConsignmentDeliveries = () => {
               </tbody>
             </table>
           </div>
+
+          {showReturnForm && (
+            <div className="consignment-deliveries__return-panel">
+              <div className="consignment-deliveries__section-head">
+                <div>
+                  <h4>建立退貨 / 逆轉</h4>
+                  <p>退貨會從寄賣點扣庫存，並加回 Central Stock。</p>
+                </div>
+                <button
+                  type="button"
+                  className="consignment-deliveries__secondary-button"
+                  onClick={resetReturnForm}
+                  disabled={returning}
+                >
+                  取消退貨
+                </button>
+              </div>
+
+              <div className="consignment-deliveries__form-grid">
+                <label className="consignment-deliveries__field">
+                  <span>原因</span>
+                  <select
+                    value={returnReason}
+                    onChange={(event) => setReturnReason(event.target.value)}
+                  >
+                    <option value="">請選擇原因</option>
+                    <option value="錯誤發出">錯誤發出</option>
+                    <option value="寄賣點退貨">寄賣點退貨</option>
+                    <option value="商品損壞退回">商品損壞退回</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </label>
+
+                <label className="consignment-deliveries__field">
+                  <span>補充備註</span>
+                  <input
+                    type="text"
+                    value={returnNote}
+                    onChange={(event) => setReturnNote(event.target.value)}
+                    placeholder="可選填"
+                  />
+                </label>
+              </div>
+
+              <div className="consignment-deliveries__table-wrap">
+                <table className="consignment-deliveries__detail-table">
+                  <thead>
+                    <tr>
+                      <th>商品編號</th>
+                      <th>名稱</th>
+                      <th>原發出</th>
+                      <th>已退</th>
+                      <th>可退</th>
+                      <th>寄賣點庫存</th>
+                      <th>今次退回</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedItems.map((item) => {
+                      const itemId = getDeliveryItemId(item);
+                      const returnedQuantity = Number(item.returnedQuantity || 0);
+                      const originalQuantity = Number(item.quantity || 0);
+                      const availableToReturn = Math.max(
+                        originalQuantity - returnedQuantity,
+                        0
+                      );
+                      const locationStock = getItemLocationStock(item);
+                      const row = returnRows.find(
+                        (returnRow) => String(returnRow.itemId) === String(itemId)
+                      );
+
+                      return (
+                        <tr key={`return-${itemId}`}>
+                          <td>{item.productCodeAtIssue || "-"}</td>
+                          <td>{item.productNameAtIssue || "-"}</td>
+                          <td>{originalQuantity}</td>
+                          <td>{returnedQuantity}</td>
+                          <td>{availableToReturn}</td>
+                          <td>{locationStock}</td>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              max={Math.min(availableToReturn, locationStock)}
+                              value={row?.quantity || ""}
+                              onChange={(event) =>
+                                handleReturnRowChange(itemId, event.target.value)
+                              }
+                              disabled={availableToReturn <= 0 || locationStock <= 0}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="consignment-deliveries__card-actions">
+                <button
+                  type="button"
+                  onClick={handleSubmitReturn}
+                  disabled={returning}
+                >
+                  {returning ? "建立中..." : "確認建立退貨 / 逆轉"}
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="consignment-deliveries__totals">
             <span>

@@ -33,6 +33,11 @@ const cancelConsignmentDelivery = async (id) => {
   return response.data;
 };
 
+const createConsignmentDeliveryReturn = async (id, payload) => {
+  const response = await axios.post(`${API_URL}/admin/${id}/returns`, payload);
+  return response.data;
+};
+
 const downloadConsignmentDeliveryPdf = async (id) => {
   const response = await axios.get(`${API_URL}/${id}/pdf`, {
     responseType: "blob",
@@ -47,6 +52,7 @@ const consignmentDeliveryService = {
   updateConsignmentDelivery,
   issueConsignmentDelivery,
   cancelConsignmentDelivery,
+  createConsignmentDeliveryReturn,
   downloadConsignmentDeliveryPdf,
 };
 

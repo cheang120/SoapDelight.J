@@ -67,6 +67,15 @@ const stockMovementSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "StockMovement",
     },
+    referenceType: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    referenceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
     reversed: {
       type: Boolean,
       default: false,
@@ -79,6 +88,7 @@ stockMovementSchema.index({ productId: 1, createdAt: -1 });
 stockMovementSchema.index({ fromLocationId: 1, createdAt: -1 });
 stockMovementSchema.index({ toLocationId: 1, createdAt: -1 });
 stockMovementSchema.index({ type: 1, createdAt: -1 });
+stockMovementSchema.index({ referenceType: 1, referenceId: 1 });
 
 const StockMovement = mongoose.model("StockMovement", stockMovementSchema);
 
