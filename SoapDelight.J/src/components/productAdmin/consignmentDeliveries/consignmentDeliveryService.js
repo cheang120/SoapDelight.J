@@ -33,6 +33,13 @@ const cancelConsignmentDelivery = async (id) => {
   return response.data;
 };
 
+const downloadConsignmentDeliveryPdf = async (id) => {
+  const response = await axios.get(`${API_URL}/${id}/pdf`, {
+    responseType: "blob",
+  });
+  return response.data;
+};
+
 const consignmentDeliveryService = {
   getConsignmentDeliveries,
   getConsignmentDeliveryById,
@@ -40,6 +47,7 @@ const consignmentDeliveryService = {
   updateConsignmentDelivery,
   issueConsignmentDelivery,
   cancelConsignmentDelivery,
+  downloadConsignmentDeliveryPdf,
 };
 
 export default consignmentDeliveryService;

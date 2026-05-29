@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import inventoryService from "../inventory/inventoryService";
 import consignmentDeliveryService from "./consignmentDeliveryService";
@@ -77,6 +77,7 @@ const ConsignmentDeliveries = () => {
   const [editingId, setEditingId] = useState("");
   const [editingDeliveryNumber, setEditingDeliveryNumber] = useState("");
   const [editingLoadingId, setEditingLoadingId] = useState("");
+  const [pdfLoadingId, setPdfLoadingId] = useState("");
   const [issuingId, setIssuingId] = useState("");
   const [cancellingId, setCancellingId] = useState("");
   const [selectedDelivery, setSelectedDelivery] = useState(null);
@@ -336,6 +337,35 @@ const ConsignmentDeliveries = () => {
     resetForm();
   };
 
+  const handleDownloadPdf = async (delivery) => {
+    if (!delivery?._id) return;
+
+    setPdfLoadingId(delivery._id);
+    try {
+      const blob = await consignmentDeliveryService.downloadConsignmentDeliveryPdf(
+        delivery._id
+      );
+      const url = window.URL.createObjectURL(
+        new Blob([blob], { type: "application/pdf" })
+      );
+      const link = document.createElement("a");
+      const fileName = `consignment-delivery-${
+        delivery.deliveryNumber || delivery._id
+      }.pdf`;
+
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "未能下載寄售清單 PDF");
+    } finally {
+      setPdfLoadingId("");
+    }
+  };
+
   const handleIssue = async (deliveryId) => {
     const confirmed = window.confirm(
       "發出後會從中央存貨扣除並加入寄賣點存貨，確定發出？"
@@ -396,7 +426,7 @@ const ConsignmentDeliveries = () => {
         <div>
           <p className="consignment-deliveries__eyebrow">寄售</p>
           <h2>寄售清單</h2>
-          <p>建立交貨予寄賣點的清單；PDF 下載會在確認格式後加入。</p>
+          <p>建立交貨予寄賣點的清單，並可預覽或下載寄售交貨清單 PDF。</p>
         </div>
       </header>
 
@@ -645,6 +675,21 @@ const ConsignmentDeliveries = () => {
                             {viewingId === delivery._id ? "載入明細中..." : "查看"}
                           </button>
 
+                          {!isCancelled && (
+                            <button
+                              type="button"
+                              className="consignment-deliveries__action-button consignment-deliveries__action-button--ghost"
+                              onClick={() => handleDownloadPdf(delivery)}
+                              disabled={pdfLoadingId === delivery._id}
+                            >
+                              {pdfLoadingId === delivery._id
+                                ? "準備 PDF..."
+                                : isDraft
+                                  ? "預覽 PDF"
+                                  : "下載 PDF"}
+                            </button>
+                          )}
+
                           {isDraft ? (
                             <>
                               <button
@@ -712,6 +757,20 @@ const ConsignmentDeliveries = () => {
             >
               關閉明細
             </button>
+            {selectedDelivery.status !== "cancelled" && (
+              <button
+                type="button"
+                className="consignment-deliveries__secondary-button"
+                onClick={() => handleDownloadPdf(selectedDelivery)}
+                disabled={pdfLoadingId === selectedDelivery._id}
+              >
+                {pdfLoadingId === selectedDelivery._id
+                  ? "準備 PDF..."
+                  : selectedDelivery.status === "draft"
+                    ? "預覽 PDF"
+                    : "下載 PDF"}
+              </button>
+            )}
           </div>
 
           <div className="consignment-deliveries__detail-grid">

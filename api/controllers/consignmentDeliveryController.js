@@ -1,4 +1,7 @@
 import asyncHandler from "express-async-handler";
+import fs from "fs";
+import path from "path";
+import PDFDocument from "pdfkit";
 import CompanyProfile from "../models/companyProfileModel.js";
 import ConsignmentDelivery from "../models/consignmentDeliveryModel.js";
 import InventoryBalance from "../models/inventoryBalanceModel.js";
@@ -12,6 +15,19 @@ const normalizeCode = (value = "") => String(value).trim().toUpperCase();
 const normalizeText = (value = "") => String(value ?? "").trim();
 
 const toMoney = (value) => Math.round((Number(value) || 0) * 100) / 100;
+
+const formatMoney = (value) =>
+  `MOP$${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const formatDate = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("zh-HK");
+};
 
 const parseMoneyNumber = (value, fallback = 0) => {
   if (value === undefined || value === null || value === "") {
@@ -90,6 +106,90 @@ const buildCompanySnapshot = (profile) => ({
   facebookPage: normalizeText(profile?.facebookPage),
   address: normalizeText(profile?.address),
 });
+
+const pickSnapshotValue = (snapshotValue, fallbackValue) =>
+  normalizeText(snapshotValue) || normalizeText(fallbackValue);
+
+const getReadableFontPath = () => {
+  const candidates = [
+    path.resolve("api/assets/fonts/NotoSansCJKtc-Regular.otf"),
+    "/Library/Fonts/Arial Unicode.ttf",
+    "/System/Library/Fonts/STHeiti Medium.ttc",
+    "/System/Library/Fonts/STHeiti Light.ttc",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/opentype/noto/NotoSansCJKtc-Regular.otf",
+    "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/truetype/arphic/uming.ttc",
+  ];
+
+  return candidates.find((fontPath) => fs.existsSync(fontPath));
+};
+
+const setPdfFont = (doc) => {
+  const fontPath = getReadableFontPath();
+
+  if (fontPath) {
+    doc.registerFont("CJK", fontPath);
+    doc.font("CJK");
+    return;
+  }
+
+  doc.font("Helvetica");
+};
+
+const drawTextLine = (doc, label, value, x, y, options = {}) => {
+  const width = options.width || 220;
+  const labelText = `${label}：`;
+  const text = `${labelText} ${value || ""}`;
+
+  doc
+    .fontSize(options.fontSize || 11)
+    .fillColor("#111111")
+    .text(text, x, y, {
+      width,
+      height: options.height || 30,
+      ellipsis: true,
+      lineGap: options.lineGap || 1,
+    });
+};
+
+const drawCell = (doc, text, x, y, width, height, options = {}) => {
+  doc
+    .rect(x, y, width, height)
+    .lineWidth(options.lineWidth || 0.9)
+    .strokeColor("#111111")
+    .stroke();
+
+  if (options.fill) {
+    doc.save();
+    doc.rect(x, y, width, height).fill(options.fill);
+    doc.restore();
+    doc
+      .rect(x, y, width, height)
+      .lineWidth(options.lineWidth || 0.9)
+      .strokeColor("#111111")
+      .stroke();
+  }
+
+  doc
+    .fontSize(options.fontSize || 10.5)
+    .fillColor("#111111")
+    .text(String(text ?? ""), x + (options.paddingX || 6), y + (options.paddingY || 7), {
+      width: width - ((options.paddingX || 6) * 2),
+      height: height - 8,
+      align: options.align || "left",
+      ellipsis: options.ellipsis ?? true,
+    });
+};
+
+const formatRate = (value) => {
+  const rate = Number(value || 0);
+  if (!Number.isFinite(rate)) return "0";
+  return Number.isInteger(rate) ? String(rate) : rate.toFixed(2);
+};
+
+const getDeliveryPdfFilename = (delivery) =>
+  `consignment-delivery-${delivery.deliveryNumber || delivery._id}.pdf`;
 
 const getNextDeliveryNumber = async () => {
   const year = new Date().getFullYear();
@@ -275,6 +375,310 @@ export const getConsignmentDeliveryById = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json(delivery);
+});
+
+export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
+  const delivery = await ConsignmentDelivery.findById(req.params.id)
+    .populate("locationId", "name code phone email address")
+    .populate("items.productId", "name sku price")
+    .lean();
+
+  if (!delivery) {
+    throwHttpError(res, 404, "Consignment delivery not found");
+  }
+
+  if (delivery.status === "cancelled") {
+    throwHttpError(res, 400, "已取消的寄售清單不可下載正式 PDF。");
+  }
+
+  const companyProfile = await CompanyProfile.findOne({
+    profileKey: "default",
+  }).lean();
+  const currentCompany = buildCompanySnapshot(companyProfile);
+  const snapshotCompany = delivery.companySnapshot || {};
+  const company = {
+    businessName: pickSnapshotValue(
+      snapshotCompany.businessName,
+      currentCompany.businessName || "SoapDelight.J"
+    ),
+    contactName: pickSnapshotValue(
+      snapshotCompany.contactName,
+      currentCompany.contactName
+    ),
+    phone: pickSnapshotValue(snapshotCompany.phone, currentCompany.phone),
+    email: pickSnapshotValue(snapshotCompany.email, currentCompany.email),
+    facebookPage: pickSnapshotValue(
+      snapshotCompany.facebookPage,
+      currentCompany.facebookPage
+    ),
+    address: pickSnapshotValue(snapshotCompany.address, currentCompany.address),
+  };
+  const location = delivery.locationId || {};
+  const locationSnapshot = {
+    name: delivery.locationNameAtIssue || location.name || "",
+    phone: delivery.locationPhoneAtIssue || location.phone || "",
+    email: delivery.locationEmailAtIssue || location.email || "",
+    address: delivery.locationAddressAtIssue || location.address || "",
+  };
+  const isDraft = delivery.status === "draft";
+  const doc = new PDFDocument({
+    size: "A4",
+    layout: "landscape",
+    margin: 24,
+    info: {
+      Title: `寄售清單 ${delivery.deliveryNumber || ""}`,
+      Author: company.businessName || "SoapDelight.J",
+    },
+  });
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="${getDeliveryPdfFilename(delivery)}"`
+  );
+
+  doc.pipe(res);
+  setPdfFont(doc);
+
+  const pageWidth = doc.page.width;
+  const pageHeight = doc.page.height;
+  const margin = 32;
+  const contentWidth = pageWidth - margin * 2;
+  const topY = 38;
+  const rowGap = 20;
+  const columnGap = 28;
+  const leftColumnWidth = 278;
+  const middleColumnWidth = 220;
+  const rightColumnWidth = contentWidth - leftColumnWidth - middleColumnWidth - columnGap * 2;
+  const leftX = margin;
+  const middleX = leftX + leftColumnWidth + columnGap;
+  const rightX = middleX + middleColumnWidth + columnGap;
+  const tableTop = 158;
+  const rowHeight = 30;
+  const headerHeight = 34;
+  const tableColumns = [
+    { label: "商品編號", width: 122, align: "left" },
+    { label: "名稱", width: 222, align: "left" },
+    { label: "價格", width: 126, align: "center" },
+    { label: "折扣", width: 86, align: "center" },
+    { label: "數量", width: 86, align: "center" },
+    { label: "金額", width: 136, align: "center" },
+  ];
+  const tableWidth = tableColumns.reduce((sum, column) => sum + column.width, 0);
+  const tableX = margin + (contentWidth - tableWidth) / 2;
+  const items = Array.isArray(delivery.items) ? delivery.items : [];
+  const rowsPerPage = 8;
+  const totalPages = Math.max(1, Math.ceil(items.length / rowsPerPage));
+
+  const drawPageHeader = (pageNumber) => {
+    doc.save().rect(0, 0, pageWidth, pageHeight).fill("#ffffff").restore();
+    setPdfFont(doc);
+    doc.fontSize(11).fillColor("#111111");
+    drawTextLine(doc, "公司", company.businessName || "SoapDelight.J", leftX, topY, {
+      width: leftColumnWidth,
+    });
+    drawTextLine(doc, "電話", company.phone, leftX, topY + rowGap, {
+      width: leftColumnWidth,
+    });
+    drawTextLine(doc, "電郵", company.email, leftX, topY + rowGap * 2, {
+      width: leftColumnWidth,
+    });
+    drawTextLine(doc, "專頁", company.facebookPage, leftX, topY + rowGap * 3, {
+      width: leftColumnWidth,
+      height: 44,
+    });
+
+    drawTextLine(doc, "寄售單", "Consignment", middleX, topY, {
+      width: middleColumnWidth,
+    });
+    drawTextLine(doc, "寄售單號", delivery.deliveryNumber || "-", middleX, topY + rowGap, {
+      width: middleColumnWidth,
+    });
+    drawTextLine(doc, "合共頁數", `${pageNumber} / ${totalPages}`, middleX, topY + rowGap * 2, {
+      width: middleColumnWidth,
+    });
+    drawTextLine(doc, "由售賣方", company.businessName || "SoapDelight.J", middleX, topY + rowGap * 3, {
+      width: middleColumnWidth,
+    });
+    drawTextLine(doc, "致寄售點", locationSnapshot.name, middleX, topY + rowGap * 4, {
+      width: middleColumnWidth,
+    });
+
+    drawTextLine(doc, "開單日期", formatDate(delivery.issueDate || delivery.createdAt), rightX, topY, {
+      width: rightColumnWidth,
+    });
+    drawTextLine(doc, "寄售電話", locationSnapshot.phone, rightX, topY + rowGap, {
+      width: rightColumnWidth,
+    });
+    drawTextLine(doc, "寄售電郵", locationSnapshot.email, rightX, topY + rowGap * 2, {
+      width: rightColumnWidth,
+    });
+    drawTextLine(doc, "寄售地址", locationSnapshot.address, rightX, topY + rowGap * 3, {
+      width: rightColumnWidth,
+      height: 52,
+    });
+
+    if (isDraft) {
+      doc
+        .save()
+        .fontSize(44)
+        .fillColor("#d1d5db")
+        .opacity(0.35)
+        .rotate(-24, { origin: [pageWidth / 2, pageHeight / 2] })
+        .text("DRAFT / 草稿", pageWidth / 2 - 145, pageHeight / 2 - 24, {
+          width: 290,
+          align: "center",
+        })
+        .restore();
+    }
+  };
+
+  const drawTable = (pageItems) => {
+    let x = tableX;
+    tableColumns.forEach((column, columnIndex) => {
+      drawCell(doc, column.label, x, tableTop, column.width, headerHeight, {
+        align: "center",
+        fill: "#f3f4f6",
+        fontSize: 11,
+      });
+      x += column.width;
+    });
+
+    let y = tableTop + headerHeight;
+
+    for (let index = 0; index < rowsPerPage; index += 1) {
+      const item = pageItems[index];
+      const rowValues = item
+        ? [
+            item.productCodeAtIssue || item.locationSkuAtIssue || item.centralSkuAtIssue || "",
+            item.productNameAtIssue || "",
+            formatMoney(item.unitPriceAtIssue),
+            formatRate(item.commissionRateAtIssue),
+            Number(item.quantity || 0),
+            formatMoney(item.lineAmount),
+          ]
+        : ["", "", "", "", "", ""];
+
+      x = tableX;
+      tableColumns.forEach((column, columnIndex) => {
+        const isSkuColumn = columnIndex === 0;
+        drawCell(
+          doc,
+          rowValues[columnIndex],
+          x,
+          y,
+          column.width,
+          rowHeight,
+          isSkuColumn
+            ? {
+                align: column.align,
+                fontSize: 9.2,
+                ellipsis: false,
+                paddingX: 4,
+              }
+            : {
+                align: column.align,
+                fontSize: 10.5,
+              }
+        );
+        x += column.width;
+      });
+      y += rowHeight;
+    }
+
+    return y;
+  };
+
+  const drawFinalPageFooter = (y) => {
+    const totalY = y + 12;
+    const totalLabelX = tableX + tableWidth - 198;
+    const totalValueX = tableX + tableWidth - 112;
+
+    doc
+      .fontSize(11)
+      .fillColor("#111111")
+      .text("總額：", totalLabelX, totalY, {
+        width: 80,
+        align: "left",
+      })
+      .text(formatMoney(delivery.totalAmount), totalValueX, totalY, {
+        width: 112,
+        align: "right",
+      });
+
+    if (delivery.note) {
+      doc
+        .fontSize(9)
+        .fillColor("#111111")
+        .text(`備註：${delivery.note}`, tableX, totalY + 28, {
+          width: tableWidth - 230,
+        });
+    }
+
+    const signatureLabelY = pageHeight - 116;
+    const signatureLineY = pageHeight - 38;
+    const signatureWidth = 288;
+    const sellerX = tableX + 4;
+    const consigneeX = tableX + tableWidth / 2 + 20;
+
+    doc
+      .fontSize(11)
+      .fillColor("#111111")
+      .text("售賣方簽署・蓋章", sellerX, signatureLabelY, {
+        width: signatureWidth,
+        align: "left",
+      });
+
+    doc
+      .moveTo(sellerX, signatureLineY)
+      .lineTo(sellerX + signatureWidth, signatureLineY)
+      .lineWidth(1.1)
+      .strokeColor("#111111")
+      .stroke();
+
+    doc
+      .fontSize(11)
+      .fillColor("#111111")
+      .text("寄售點簽署・蓋章", consigneeX, signatureLabelY, {
+        width: signatureWidth,
+        align: "left",
+      });
+
+    doc
+      .moveTo(consigneeX, signatureLineY)
+      .lineTo(consigneeX + signatureWidth, signatureLineY)
+      .lineWidth(1.1)
+      .strokeColor("#111111")
+      .stroke();
+  };
+
+  for (let pageIndex = 0; pageIndex < totalPages; pageIndex += 1) {
+    if (pageIndex > 0) {
+      doc.addPage();
+      setPdfFont(doc);
+    }
+
+    const pageItems = items.slice(
+      pageIndex * rowsPerPage,
+      pageIndex * rowsPerPage + rowsPerPage
+    );
+    drawPageHeader(pageIndex + 1);
+    const tableBottom = drawTable(pageItems);
+
+    if (pageIndex === totalPages - 1) {
+      drawFinalPageFooter(tableBottom);
+    } else {
+      doc
+        .fontSize(9)
+        .fillColor("#111111")
+        .text("續下頁...", tableX + tableWidth - 90, pageHeight - 62, {
+          width: 90,
+          align: "right",
+        });
+    }
+  }
+
+  doc.end();
 });
 
 export const createConsignmentDelivery = asyncHandler(async (req, res) => {

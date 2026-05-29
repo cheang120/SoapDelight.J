@@ -2,6 +2,7 @@ import express from "express";
 import {
   cancelConsignmentDelivery,
   createConsignmentDelivery,
+  downloadConsignmentDeliveryPdf,
   getConsignmentDeliveries,
   getConsignmentDeliveryById,
   markConsignmentDeliveryIssued,
@@ -14,6 +15,7 @@ const router = express.Router();
 router.use(protect, authorOnly);
 
 router.get("/", getConsignmentDeliveries);
+router.get("/:id/pdf", downloadConsignmentDeliveryPdf);
 router.get("/:id", getConsignmentDeliveryById);
 router.post("/admin", createConsignmentDelivery);
 router.patch("/admin/:id", updateConsignmentDelivery);
