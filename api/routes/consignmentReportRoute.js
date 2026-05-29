@@ -2,6 +2,7 @@ import express from "express";
 import {
   confirmConsignmentReport,
   createConsignmentReport,
+  downloadConsignmentReportInvoicePdf,
   getConsignmentReportById,
   getConsignmentReports,
   updateConsignmentReport,
@@ -15,6 +16,7 @@ router.use(protect, authorOnly);
 router.get("/admin", getConsignmentReports);
 router.post("/admin", createConsignmentReport);
 router.get("/admin/:id", getConsignmentReportById);
+router.get("/admin/:id/invoice-pdf", downloadConsignmentReportInvoicePdf);
 router.patch("/admin/:id", updateConsignmentReport);
 router.post("/admin/:id/confirm", confirmConsignmentReport);
 

@@ -28,12 +28,20 @@ const confirmConsignmentReport = async (id) => {
   return response.data;
 };
 
+const downloadInvoicePdf = async (id) => {
+  const response = await axios.get(`${API_URL}/${id}/invoice-pdf`, {
+    responseType: "blob",
+  });
+  return response.data;
+};
+
 const consignmentReportService = {
   getConsignmentReports,
   getConsignmentReportById,
   createConsignmentReport,
   updateConsignmentReport,
   confirmConsignmentReport,
+  downloadInvoicePdf,
 };
 
 export default consignmentReportService;

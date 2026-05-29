@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import inventoryService from "../inventory/inventoryService";
 import consignmentReportService from "./consignmentReportService";
@@ -71,6 +71,7 @@ const ConsignmentReports = () => {
   const [confirmingId, setConfirmingId] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
   const [viewingId, setViewingId] = useState("");
+  const [invoiceLoadingId, setInvoiceLoadingId] = useState("");
 
   const consignmentLocations = useMemo(
     () => locations.filter((location) => location.type === "consignment" && location.active !== false),
@@ -306,13 +307,40 @@ const ConsignmentReports = () => {
     setViewingId("");
   };
 
+  const handleDownloadInvoice = async (report) => {
+    if (!report?._id || report.status !== "confirmed") return;
+
+    setInvoiceLoadingId(report._id);
+    try {
+      const fileBlob = await consignmentReportService.downloadInvoicePdf(
+        report._id
+      );
+      const blobUrl = window.URL.createObjectURL(
+        new Blob([fileBlob], { type: "application/pdf" })
+      );
+      const link = document.createElement("a");
+      const safeNumber = report.reportNumber || report._id;
+
+      link.href = blobUrl;
+      link.download = `invoice-${safeNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "未能下載 Invoice PDF");
+    } finally {
+      setInvoiceLoadingId("");
+    }
+  };
+
   return (
     <section className="consignment-reports">
       <header className="consignment-reports__header">
         <div>
           <p className="consignment-reports__eyebrow">寄賣</p>
           <h2>寄賣銷售回報</h2>
-          <p>PDF 及 invoice 會在你提供文件樣式後另行加入。</p>
+          <p>已確認的寄賣回報可下載正式 Invoice PDF。</p>
         </div>
 
         <button type="button" onClick={loadData} disabled={loading}>
@@ -526,6 +554,22 @@ const ConsignmentReports = () => {
                           >
                             {confirmingId === report._id ? "確認中..." : "確認"}
                           </button>
+                        ) : report.status === "confirmed" ? (
+                          <>
+                            <button
+                              type="button"
+                              className="consignment-reports__confirm"
+                              onClick={() => handleDownloadInvoice(report)}
+                              disabled={invoiceLoadingId === report._id}
+                            >
+                              {invoiceLoadingId === report._id
+                                ? "下載中..."
+                                : "下載 Invoice"}
+                            </button>
+                            <span className="consignment-reports__muted">
+                              已確認
+                            </span>
+                          </>
                         ) : (
                           <span className="consignment-reports__muted">已確認</span>
                         )}
@@ -547,13 +591,27 @@ const ConsignmentReports = () => {
               <h3>寄賣回報明細</h3>
               <p>查看每項商品的銷售、折扣、佣金及應收金額。</p>
             </div>
-            <button
-              type="button"
-              className="consignment-reports__detail-close"
-              onClick={closeDetail}
-            >
-              關閉明細
-            </button>
+            <div className="consignment-reports__actions">
+              {selectedReport.status === "confirmed" && (
+                <button
+                  type="button"
+                  className="consignment-reports__confirm"
+                  onClick={() => handleDownloadInvoice(selectedReport)}
+                  disabled={invoiceLoadingId === selectedReport._id}
+                >
+                  {invoiceLoadingId === selectedReport._id
+                    ? "下載中..."
+                    : "下載 Invoice"}
+                </button>
+              )}
+              <button
+                type="button"
+                className="consignment-reports__detail-close"
+                onClick={closeDetail}
+              >
+                關閉明細
+              </button>
+            </div>
           </div>
 
           <div className="consignment-reports__detail-meta">
