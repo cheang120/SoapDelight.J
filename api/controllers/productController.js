@@ -1,6 +1,9 @@
 // productController.js
 import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js'
+import InventoryLocation from "../models/inventoryLocationModel.js";
+import InventoryBalance from "../models/inventoryBalanceModel.js";
+import StockMovement from "../models/stockMovementModel.js";
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
@@ -19,8 +22,81 @@ const normalizeProductStatus = (status) =>
 const shouldIncludeDiscontinued = (query) =>
   String(query?.includeDiscontinued || "").toLowerCase() === "true";
 
+const getOrCreateCentralInventoryLocation = async (session) =>
+  InventoryLocation.findOneAndUpdate(
+    { code: "CENTRAL" },
+    {
+      $setOnInsert: {
+        name: "Central Stock",
+        code: "CENTRAL",
+        type: "central",
+        commissionRate: 0,
+        active: true,
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true,
+      session,
+    }
+  );
+
+const createInitialCentralStockForProduct = async ({
+  product,
+  quantity,
+  createdBy,
+  session,
+}) => {
+  const initialQuantity = Number(quantity || 0);
+
+  if (!Number.isFinite(initialQuantity) || initialQuantity <= 0) {
+    return null;
+  }
+
+  const centralLocation = await getOrCreateCentralInventoryLocation(session);
+
+  const balance = await InventoryBalance.findOneAndUpdate(
+    {
+      productId: product._id,
+      locationId: centralLocation._id,
+    },
+    {
+      $set: {
+        quantity: initialQuantity,
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true,
+      session,
+    }
+  );
+
+  const [movement] = await StockMovement.create(
+    [
+      {
+        productId: product._id,
+        fromLocationId: null,
+        toLocationId: centralLocation._id,
+        quantity: initialQuantity,
+        type: "initial_stock",
+        direction: "in",
+        note: "Initial central stock from product creation",
+        sourceDocument: product.sku
+          ? `Product creation - ${product.sku}`
+          : `Product creation - ${product._id}`,
+        createdBy,
+      },
+    ],
+    { session }
+  );
+
+  return { balance, movement };
+};
+
 export const createProduct = asyncHandler(async (req, res, next) => {
-//   res.send("Correct product");
     const {
         name,
         sku,
@@ -37,7 +113,6 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         featuredOrder,
     } = req.body;
 
-      //   Validation
   const hasQuantity =
     quantity !== undefined && quantity !== null && String(quantity).trim() !== "";
 
@@ -46,26 +121,53 @@ export const createProduct = asyncHandler(async (req, res, next) => {
     throw new Error("Please fill in all fields");
   }
 
-    // Create Product
-    const product = await Product.create({
-        // user: req.user.id,
-        name,
-        sku,
-        category,
-        quantity,
-        brand,
-        price,
-        description,
-        image: normalizeProductImages(image),
-        regularPrice,
-        color,
-        productStatus: normalizeProductStatus(productStatus),
-        isFeatured: Boolean(isFeatured),
-        featuredOrder: Number(featuredOrder || 0),
+  const initialQuantity = Number(quantity);
+
+  if (!Number.isFinite(initialQuantity) || initialQuantity < 0) {
+    res.status(400);
+    throw new Error("Quantity must be zero or greater");
+  }
+
+  let product;
+  const session = await mongoose.startSession();
+
+  try {
+    await session.withTransaction(async () => {
+      const createdProducts = await Product.create(
+        [
+          {
+            name,
+            sku,
+            category,
+            quantity: initialQuantity,
+            brand,
+            price,
+            description,
+            image: normalizeProductImages(image),
+            regularPrice,
+            color,
+            productStatus: normalizeProductStatus(productStatus),
+            isFeatured: Boolean(isFeatured),
+            featuredOrder: Number(featuredOrder || 0),
+          },
+        ],
+        { session }
+      );
+
+      product = createdProducts[0];
+
+      await createInitialCentralStockForProduct({
+        product,
+        quantity: initialQuantity,
+        createdBy: req.user?._id,
+        session,
+      });
     });
+  } finally {
+    await session.endSession();
+  }
 
-    res.status(201).json(product);
-
+  res.status(201).json(product);
 });
 
 
