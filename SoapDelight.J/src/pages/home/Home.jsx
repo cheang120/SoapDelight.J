@@ -141,7 +141,14 @@ const Home = () => {
   }, [heroProducts.length]);
 
   const heroProduct = heroProducts[heroIndex] || visibleProducts[0];
-  const latestProducts = visibleProducts.slice(0, 9);
+  const latestProducts = visibleProducts
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(b?.createdAt || 0).getTime() -
+        new Date(a?.createdAt || 0).getTime()
+    )
+    .slice(0, 9);
 
   const collectionCards = useMemo(() => {
     const groupedCollections = new Map();
