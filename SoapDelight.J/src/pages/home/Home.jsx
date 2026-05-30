@@ -373,7 +373,7 @@ const Home = () => {
               手作，不急於大量。
             </h2>
             <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
-              SoapDelight.J 以小批量手作與生活選物為核心，從護理、香氣、陶瓷到禮品，每一件都重視日常使用感與細節。
+              SoapDelight.J 以小批量手作與生活選物為核心，整理護理、香氣、陶瓷、燈箱及禮品選物；每一件都重視日常使用感、手作溫度與送禮心意。
             </p>
           </div>
           <div className="flex md:justify-end">

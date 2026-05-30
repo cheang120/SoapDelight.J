@@ -13,6 +13,11 @@ import { useSearchParams } from "react-router-dom";
 const ProductList = ({ products }) => {
 
   const [grid, setGrid] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window === "undefined"
+      ? true
+      : window.matchMedia("(min-width: 1024px)").matches
+  );
   const [search, setSearch] = useState("");
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
@@ -103,6 +108,32 @@ const ProductList = ({ products }) => {
     setItemOffset(0);
   }, [search, sort, categoryQuery, displayedProducts.length]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+
+    const handleViewportChange = () => {
+      setIsDesktop(mediaQuery.matches);
+      if (!mediaQuery.matches) {
+        setGrid(true);
+      }
+    };
+
+    handleViewportChange();
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleViewportChange);
+      return () => mediaQuery.removeEventListener("change", handleViewportChange);
+    }
+
+    mediaQuery.addListener(handleViewportChange);
+    return () => mediaQuery.removeListener(handleViewportChange);
+  }, []);
+
+  const isListView = isDesktop && !grid;
+  const useGridLayout = !isListView;
+
   return (
     <div className={`${styles["product-list"]} min-w-0`} id="product">
       <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
@@ -118,7 +149,7 @@ const ProductList = ({ products }) => {
                 <span>件商品</span>
               </div>
 
-              <div className="flex items-center gap-1 rounded-full border border-zinc-200 p-1 dark:border-zinc-700">
+              <div className="hidden items-center gap-1 rounded-full border border-zinc-200 p-1 dark:border-zinc-700 lg:flex">
                 <button
                   type="button"
                   onClick={() => setGrid(true)}
@@ -168,7 +199,7 @@ const ProductList = ({ products }) => {
 
       <div
         className={
-          grid
+          useGridLayout
             ? "mt-6 grid min-w-0 grid-cols-1 gap-4 min-[440px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"
             : "mt-6 space-y-4"
         }
@@ -182,7 +213,7 @@ const ProductList = ({ products }) => {
             {currentItems.map((product) => {
               return (
                 <div key={product._id} className="dark:text-white">
-                  <ProductItem {...product} grid={grid} product={product} />
+                  <ProductItem {...product} grid={useGridLayout} product={product} />
                 </div>
               );
             })}

@@ -53,14 +53,7 @@ const getProductStatusMeta = (product) => {
   };
 };
 
-const ProductItem = ({
-  product,
-  grid,
-  _id,
-  name,
-  price,
-  regularPrice,
-}) => {
+const ProductItem = ({ product, grid, _id, name, price, regularPrice }) => {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
 
@@ -79,40 +72,95 @@ const ProductItem = ({
   const statusMeta = getProductStatusMeta(product);
   const isPurchasable = statusMeta.purchasable;
 
+  if (!isGrid) {
+    return (
+      <div className={`${styles.list} rounded-[1.35rem] border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:text-white`}>
+        <Link to={`/product-details/${_id}`} className={styles.listImageLink}>
+          <div className={styles.listImageShell}>
+            <ProductImage
+              product={product}
+              alt={name}
+              className={styles.listImage}
+              fallbackClassName={styles.listImageFallback}
+            />
+          </div>
+        </Link>
+
+        <div className={styles.listContent}>
+          <div className={styles.listBadges}>
+            <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-500 dark:bg-zinc-900 dark:text-zinc-300">
+              {product?.category || "商品"}
+            </span>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusMeta.tone}`}>
+              {statusMeta.label}
+            </span>
+          </div>
+
+          <Link to={`/product-details/${_id}`} className="transition hover:text-emerald-700">
+            <h4 className={styles.listTitle}>{shortenText(name, 72)}</h4>
+          </Link>
+
+          <ProductRating
+            averageRating={averageRating}
+            noOfRatings={product?.ratings?.length || 0}
+          />
+
+          {product?.description && (
+            <div
+              className={styles.listDescription}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(shortenText(product.description, 120)),
+              }}
+            />
+          )}
+        </div>
+
+        <div className={styles.listAction}>
+          <p className={styles.listPrice}>
+            {hasDiscount && (
+              <del className="mr-2 text-sm font-medium text-zinc-400">
+                ${regularPrice}
+              </del>
+            )}
+            ${price}
+          </p>
+
+          {!isPurchasable ? (
+            <button
+              type="button"
+              className={`${styles.listButton} ${styles.listButtonDisabled}`}
+              onClick={() => toast.info(statusMeta.reason)}
+            >
+              {statusMeta.actionLabel}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`${styles.listButton} ${styles.listButtonPrimary}`}
+              onClick={() => addToCart(product)}
+            >
+              {statusMeta.actionLabel}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={
-        isGrid
-          ? "group mx-auto flex h-full min-h-[320px] flex-col overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white transition hover:-translate-y-0.5 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
-          : `${styles.list} overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:text-white`
-      }
-    >
+    <div className="group mx-auto flex h-full min-h-[320px] flex-col overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white transition hover:-translate-y-0.5 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white">
       <Link to={`/product-details/${_id}`}>
-        <div
-          className={`${
-            isGrid
-              ? "aspect-[4/4.2] overflow-hidden bg-[#f7f8f4] dark:bg-zinc-900"
-              : `${styles.img} flex justify-center bg-[#f7f8f4] dark:bg-zinc-900`
-          }`}
-        >
+        <div className="aspect-[4/4.2] overflow-hidden bg-[#f7f8f4] dark:bg-zinc-900">
           <ProductImage
             product={product}
             alt={name}
-            className={`${
-              isGrid
-                ? "h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                : "h-full w-full object-cover"
-            }`}
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
           />
         </div>
       </Link>
 
-      <div
-        className={`${styles.content} flex flex-1 flex-col ${
-          isGrid ? "px-4 pb-4 pt-4" : "px-4 py-4"
-        }`}
-      >
-        <div className={`${styles.details} mb-3`}>
+      <div className="flex flex-1 flex-col px-4 pb-4 pt-4">
+        <div className="mb-3">
           <div className="mb-2 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
             <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium dark:bg-zinc-900">
               {product?.category || "商品"}
@@ -122,14 +170,8 @@ const ProductItem = ({
             </span>
           </div>
 
-          <h4
-            className={`text-zinc-950 dark:text-white ${
-              isGrid
-                ? "min-h-[3rem] text-[15px] font-medium leading-6"
-                : "text-lg font-semibold leading-7"
-            }`}
-          >
-            {shortenText(name, isGrid ? 30 : 60)}
+          <h4 className="min-h-[3rem] text-[15px] font-medium leading-6 text-zinc-950 dark:text-white">
+            {shortenText(name, 30)}
           </h4>
 
           <div className="mt-3">
@@ -139,11 +181,7 @@ const ProductItem = ({
             />
           </div>
 
-          <p
-            className={`mt-3 flex items-center gap-2 ${
-              isGrid ? "justify-start" : "justify-start"
-            }`}
-          >
+          <p className="mt-3 flex items-center gap-2">
             {hasDiscount && (
               <del className="text-sm text-zinc-400">${regularPrice}</del>
             )}
@@ -151,33 +189,18 @@ const ProductItem = ({
           </p>
         </div>
 
-        {!isGrid && (
-          <div
-            className="mb-4 text-sm leading-7 text-gray-600 dark:text-gray-300"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(shortenText(product?.description, 60)),
-            }}
-          />
-        )}
-
         {!isPurchasable ? (
           <button
-            className={`${
-              isGrid
-                ? "mt-auto w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300"
-                : "mt-auto block w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300 md:w-56"
-            }`}
+            type="button"
+            className="mt-auto w-full rounded-full bg-zinc-200 py-3 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300"
             onClick={() => toast.info(statusMeta.reason)}
           >
             {statusMeta.actionLabel}
           </button>
         ) : (
           <button
-            className={`${
-              isGrid
-                ? "mt-auto w-full rounded-full bg-zinc-950 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
-                : "mt-auto block w-full rounded-full bg-zinc-950 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 md:w-56"
-            }`}
+            type="button"
+            className="mt-auto w-full rounded-full bg-zinc-950 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
             onClick={() => addToCart(product)}
           >
             {statusMeta.actionLabel}

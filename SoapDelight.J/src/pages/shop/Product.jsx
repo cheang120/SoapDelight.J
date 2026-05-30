@@ -50,10 +50,10 @@ const Product = () => {
             選購
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
-            天然手作護膚品、手工皂與香薰蠟。
+            由手作護理、香氣蠟燭、陶瓷器物到生活禮品，慢慢選一件適合日常或送禮的作品。
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-7 text-zinc-500 dark:text-zinc-400">
-            天然手作，為日常護理帶來溫柔選擇。
+            部分商品可能暫時缺貨，仍可透過聯絡我們查詢補貨或寄賣點供應。
           </p>
         </section>
 
