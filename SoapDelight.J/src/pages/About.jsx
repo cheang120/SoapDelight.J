@@ -4,23 +4,30 @@ import { Link } from "react-router-dom";
 const values = [
   {
     title: "小批量手作",
-    description: "每一件作品都以細緻手作方式完成，保留小批量製作的溫度與質感。",
+    description: "重視手作細節與小批量製作的質感，讓每件作品保留獨特溫度。",
   },
   {
-    title: "天然靈感",
-    description: "從植物、香氣與日常護理習慣出發，保持乾淨溫和的使用感。",
+    title: "生活選物",
+    description: "從護理、香氣、陶瓷、家居擺設到禮品，整理適合日常與送禮的作品。",
   },
   {
-    title: "溫和日常護理",
-    description: "我們重視日常護理的舒服節奏，讓產品自然融入生活。",
+    title: "自然靈感",
+    description: "由植物、香氣、材質與生活節奏出發，保留舒服、溫和而自然的感覺。",
   },
   {
     title: "本地小店溫度",
-    description: "來自澳門的小品牌，希望把安心、溫柔與手作細節帶到每一次使用。",
+    description: "來自澳門的小品牌，希望把安心、心意與手作細節帶到每一次使用和送禮。",
   },
 ];
 
-const categories = ["個人護理", "手作皂", "香薰蠟", "精選禮物"];
+const categories = [
+  "手作護理",
+  "手工皂",
+  "香氣蠟燭",
+  "陶瓷器物",
+  "燈箱與家居擺設",
+  "禮品選物",
+];
 
 const About = () => {
   useEffect(() => {
@@ -43,7 +50,7 @@ const About = () => {
                 關於 SoapDelight.J
               </p>
               <p className="mt-6 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
-                SoapDelight.J 是源自澳門的小型手作護膚品、手工皂及香薰蠟品牌，重視溫和日常護理、天然靈感與小批量手作細節。
+                SoapDelight.J 是源自澳門的小型手作與生活選物品牌，整理手作護理、香氣蠟燭、陶瓷器物、燈箱家居擺設及禮品選物，重視日常使用感、手作溫度與送禮心意。
               </p>
             </div>
 
@@ -73,10 +80,10 @@ const About = () => {
               品牌故事
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-              以溫柔節奏做日常手作護理。
+              以手作溫度整理日常與送禮選物。
             </h2>
             <p className="mt-5 text-base leading-8 text-zinc-600 dark:text-zinc-300">
-              SoapDelight.J 以小批量手作方式製作護膚品、手工皂及香薰蠟，重視天然成分、日常使用感和每一件作品的細節。每一件作品都希望為日常護理帶來一點溫柔、安心和手作的溫度。
+              SoapDelight.J 以小批量手作與生活選物為核心，從手作護理、手工皂、香氣蠟燭，到陶瓷器物、燈箱與禮品選物，每一件都重視日常使用感、手作細節和送禮時的心意。希望這些作品不只是商品，也能為生活帶來一點溫柔、安心和溫度。
             </p>
           </div>
 
@@ -85,7 +92,7 @@ const About = () => {
               商品系列
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-              我們製作的產品
+              我們整理的系列
             </h2>
             <div className="mt-6 grid gap-3">
               {categories.map((category) => (
@@ -129,7 +136,7 @@ const About = () => {
             探索商品系列
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
-            從日常護理到送禮靈感，慢慢挑選適合自己的手作產品。
+            從日常護理、香氣、陶瓷器物到生活禮品，慢慢挑選適合自用或送禮的作品。
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
