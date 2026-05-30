@@ -4,6 +4,18 @@ import mongoose from "mongoose";
 import slugify from "slugify";
 import Category from "../models/categoryModel.js";
 
+const createCategorySlug = (name) => {
+  const trimmedName = String(name || "").trim();
+  const latinSlug = slugify(trimmedName, {
+    lower: true,
+    strict: true,
+    trim: true,
+  });
+
+  return latinSlug || trimmedName;
+};
+
+
 
 
 // // Create Category
@@ -11,20 +23,27 @@ export const createCategory = asyncHandler(async (req, res,next) => {
     // res.send("create category")
     // console.log(req.body);
     console.log('Request body:', req.body);
-  const { name } = req.body;
+  const categoryName = String(req.body?.name || "").trim();
   
-  if (!name) {
+  if (!categoryName) {
     res.status(400);
     throw new Error("Please fill in category name");
   }
-  const categoryExists = await Category.findOne({ name: name });
+
+  const slug = createCategorySlug(categoryName);
+
+  const categoryExists = await Category.findOne({
+    $or: [{ name: categoryName }, { slug }],
+  });
+
   if (categoryExists) {
     res.status(400);
     throw new Error("Category name already exists.");
   }
+
   const category = await Category.create({
-    name,
-    slug: slugify(name),
+    name: categoryName,
+    slug,
   });
   if (category) {
     res.status(201).json(category);
