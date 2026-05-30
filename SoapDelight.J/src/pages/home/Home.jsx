@@ -18,36 +18,9 @@ import { ProductImage } from "../../utils/productImageFallback.jsx";
 
 const trustPoints = [
   { title: "小批量手作", icon: FaHandHoldingHeart },
-  { title: "天然植物基礎", icon: FaLeaf },
+  { title: "生活選物", icon: FaLeaf },
   { title: "澳門本地品牌", icon: FaMapMarkerAlt },
-  { title: "日常溫柔護理", icon: FaSeedling },
-];
-
-const categoryCards = [
-  {
-    title: "個人護理",
-    caption: "日常溫柔護理",
-    terms: ["個人護理", "Personal Care"],
-    to: "/shop?category=%E5%80%8B%E4%BA%BA%E8%AD%B7%E7%90%86",
-  },
-  {
-    title: "手作皂",
-    caption: "手作清潔與滋養",
-    terms: ["手作皂", "Soap"],
-    to: "/shop?category=%E6%89%8B%E4%BD%9C%E7%9A%82",
-  },
-  {
-    title: "香薰蠟",
-    caption: "慢生活香氣",
-    terms: ["香薰蠟", "Candle"],
-    to: "/shop?category=%E9%A6%99%E8%96%B0%E8%A0%9F",
-  },
-  {
-    title: "精選禮物",
-    caption: "小批量心意之選",
-    terms: [],
-    to: "/shop",
-  },
+  { title: "自用與送禮", icon: FaSeedling },
 ];
 
 const serviceCards = [
@@ -162,21 +135,54 @@ const Home = () => {
 
     const timer = window.setInterval(() => {
       setHeroIndex((currentIndex) => (currentIndex + 1) % heroProducts.length);
-    }, 60000);
+    }, 30000);
 
     return () => window.clearInterval(timer);
   }, [heroProducts.length]);
 
   const heroProduct = heroProducts[heroIndex] || visibleProducts[0];
-  const featuredProducts = visibleProducts.slice(0, 8);
+  const latestProducts = visibleProducts.slice(0, 9);
 
-  const findCategoryProduct = (terms) => {
-    if (!terms.length) return visibleProducts[3] || visibleProducts[0];
-    return (
-      visibleProducts.find((product) => terms.includes(product.category)) ||
-      visibleProducts[0]
+  const collectionCards = useMemo(() => {
+    const groupedCollections = new Map();
+
+    visibleProducts.forEach((product) => {
+      const categoryName =
+        typeof product?.category === "string" && product.category.trim()
+          ? product.category.trim()
+          : "其他選物";
+
+      if (!categoryName || categoryName === "Shipping") return;
+
+      const currentCollection = groupedCollections.get(categoryName);
+
+      if (!currentCollection) {
+        groupedCollections.set(categoryName, {
+          title: categoryName,
+          caption: "系列選物",
+          count: 1,
+          product,
+          to: `/shop?category=${encodeURIComponent(categoryName)}`,
+        });
+        return;
+      }
+
+      currentCollection.count += 1;
+
+      if (sortHomeProducts(product, currentCollection.product) < 0) {
+        currentCollection.product = product;
+      }
+    });
+
+    return Array.from(groupedCollections.values()).sort((a, b) =>
+      a.title.localeCompare(b.title, "zh-Hant")
     );
-  };
+  }, [visibleProducts]);
+
+  const loopingCollectionCards =
+    collectionCards.length > 1
+      ? [...collectionCards, ...collectionCards]
+      : collectionCards;
 
   return (
     <main className="home-page bg-white text-zinc-950 dark:bg-zinc-950 dark:text-white">
@@ -184,16 +190,16 @@ const Home = () => {
         <div className="mx-auto grid min-h-[calc(100vh-3.5rem)] max-w-7xl items-center gap-10 px-5 py-14 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:py-20 lg:px-8">
           <div className="max-w-xl">
             <p className="mb-5 text-sm font-medium tracking-[0.28em] text-emerald-800">
-              澳門手作護理
+              澳門手作・生活選物
             </p>
             <h1 className="text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl">
               SoapDelight.J
             </h1>
             <p className="mt-6 text-xl leading-8 text-zinc-700 dark:text-zinc-300">
-              天然手作護膚品、手工皂與香薰蠟。
+              精選手作護理、香氣、陶瓷與生活禮品。
             </p>
             <p className="mt-3 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-              天然手作，溫柔照顧每日肌膚。
+              由日常自用到送禮心意，為生活留一點溫柔。
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -276,53 +282,63 @@ const Home = () => {
       </section>
 
       <section className="bg-white px-5 py-16 dark:bg-zinc-950 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="按心情選購" title="溫柔日常，由簡單開始">
-          從清潔、護理到香氣，為每日生活留一點安靜而自然的時間。
+        <SectionHeading eyebrow="按系列選購" title="從日常護理到生活禮品">
+          由護理、香氣、陶瓷到禮品選物，慢慢探索不同手作系列。
         </SectionHeading>
 
-        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
-          {categoryCards.map((category) => {
-            const product = findCategoryProduct(category.terms);
-            return (
-              <Link
-                key={category.title}
-                to={category.to}
-                className="group relative min-h-[320px] overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                {product && (
-                  <ProductImage
-                    product={product}
-                    alt={category.title}
-                    className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                    fallbackClassName="absolute inset-0 h-full w-full rounded-none"
-                  />
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/90 to-transparent p-5 pt-20 dark:from-zinc-950 dark:via-zinc-950/90">
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-700">
-                    {category.caption}
-                  </p>
-                  <h3 className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                    {category.title}
-                  </h3>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        {collectionCards.length > 0 ? (
+          <div className="home-category-carousel mx-auto max-w-7xl">
+            <div
+              className={`home-category-track ${
+                collectionCards.length <= 1 ? "home-category-track--static" : ""
+              }`}
+            >
+              {loopingCollectionCards.map((collection, index) => (
+                <Link
+                  key={`home-category-${collection.title}-${index}`}
+                  to={collection.to}
+                  className="home-category-card group relative min-h-[320px] overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                  {collection.product && (
+                    <ProductImage
+                      product={collection.product}
+                      alt={collection.title}
+                      className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                      fallbackClassName="absolute inset-0 h-full w-full rounded-none"
+                    />
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/90 to-transparent p-5 pt-20 dark:from-zinc-950 dark:via-zinc-950/90">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-700">
+                      {collection.caption}
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
+                      {collection.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      {collection.count} 件選物
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="text-center text-zinc-500">系列即將整理。</p>
+        )}
       </section>
 
       <section className="bg-[#f6f8f4] px-5 py-16 dark:bg-zinc-900 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="精選商品" title="精選產品">
-          小批量製作，選用天然植物基礎，適合日常使用與送禮。
+        <SectionHeading eyebrow="最新選物" title="近期上架">
+          探索最新加入的護理、香氣、陶瓷與禮品選物。
         </SectionHeading>
 
-        {isLoading && featuredProducts.length === 0 ? (
+        {isLoading && latestProducts.length === 0 ? (
           <div className="flex justify-center py-12">
             <Spinner />
           </div>
         ) : (
-          <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((product) => (
+          <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {latestProducts.map((product) => (
               <ProductItem
                 key={`home-product-${product._id}`}
                 {...product}
@@ -333,7 +349,7 @@ const Home = () => {
           </div>
         )}
 
-        {!isLoading && featuredProducts.length === 0 && (
+        {!isLoading && latestProducts.length === 0 && (
           <p className="text-center text-zinc-500">商品即將上架。</p>
         )}
 
@@ -357,7 +373,7 @@ const Home = () => {
               手作，不急於大量。
             </h2>
             <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
-              SoapDelight.J 以小批量手作方式製作護膚品、手工皂及香薰蠟，重視天然成分、日常使用感和每一件作品的細節。
+              SoapDelight.J 以小批量手作與生活選物為核心，從護理、香氣、陶瓷到禮品，每一件都重視日常使用感與細節。
             </p>
           </div>
           <div className="flex md:justify-end">

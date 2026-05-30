@@ -14,4 +14,62 @@
   border-radius: 1.5rem;
   pointer-events: none;
   z-index: 1;
+}\n\n.home-category-carousel {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 4rem,
+    #000 calc(100% - 4rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 4rem,
+    #000 calc(100% - 4rem),
+    transparent
+  );
+}
+
+.home-category-track {
+  display: flex;
+  width: max-content;
+  gap: 1rem;
+  animation: homeCategoryScroll 48s linear infinite;
+}
+
+.home-category-track--static {
+  animation: none;
+}
+
+.home-category-carousel:hover .home-category-track {
+  animation-play-state: paused;
+}
+
+.home-category-card {
+  flex: 0 0 auto;
+  width: min(78vw, 320px);
+}
+
+@media (min-width: 1024px) {
+  .home-category-card {
+    width: 320px;
+  }
+}
+
+@keyframes homeCategoryScroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-category-track {
+    animation: none;
+  }
 }
