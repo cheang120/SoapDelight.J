@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import "./ProductForm.scss"
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -6,7 +6,6 @@ import UploadWidget from './UploadWidget';
 import { BsTrash } from 'react-icons/bs';
 import { useSelector,useDispatch } from 'react-redux';
 import { getBrands, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
-import { selectProduct } from '../../../redux/features/product/productSlice';
 
 const formatMoney = (value) =>
   `$${Number(value || 0).toLocaleString("en-US", {
@@ -18,7 +17,6 @@ const ProductForm = ({
     saveProduct, 
     isEditing,
     product,
-    setProduct,
     handleInputChange, 
     // categories,
     // filteredBrands,
@@ -267,6 +265,23 @@ const ProductForm = ({
                 value={product?.quantity}
                 onChange={handleInputChange}
               />
+            </div>
+
+            <div className="admin-product-field">
+              <label className="admin-product-label">商品狀態</label>
+              <select
+                name="productStatus"
+                className="admin-product-input"
+                value={product?.productStatus || "active"}
+                onChange={handleInputChange}
+              >
+                <option value="active">正常上架</option>
+                <option value="out_of_stock">缺貨</option>
+                <option value="discontinued">停產</option>
+              </select>
+              <small className="admin-product-field-hint">
+                缺貨仍會顯示在前台但不可加入購物車；停產會於前台隱藏，後台仍保留。
+              </small>
             </div>
 
             <div className="admin-product-field admin-product-field--full">

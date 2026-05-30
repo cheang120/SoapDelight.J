@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -6,14 +6,9 @@ import { toast } from "react-toastify";
 import ProductForm from "../productForm/ProductForm";
 import {
   getProduct, selectProduct,
-  selectIsLoading,
   updateProduct,
   RESET_PROD,
 } from "../../../redux/features/product/productSlice";
-import {
-  getBrands,
-  getCategories,
-} from "../../../redux/features/categoryAndBrand/categoryAndBrandSlice";
 import inventoryService from "../inventory/inventoryService.js";
 // import Loader from "../../Loader";
 
@@ -22,7 +17,6 @@ const EditProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {isLoading} = useSelector((state) => state.product)
   const productEdit = useSelector(selectProduct);
 
   const [files, setFiles] = useState([]);
@@ -39,7 +33,7 @@ const EditProduct = () => {
 
 
   useEffect(() => {
-    dispatch(getProduct(id));
+    dispatch(getProduct({ id, options: { includeDiscontinued: true } }));
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -101,7 +95,11 @@ const EditProduct = () => {
 
 
   useEffect(() => {
-    setProduct(productEdit);
+    setProduct(
+      productEdit
+        ? { ...productEdit, productStatus: productEdit.productStatus || "active" }
+        : productEdit
+    );
 
     if (productEdit && Array.isArray(productEdit.image)) {
       setFiles(productEdit.image);
@@ -138,6 +136,7 @@ const EditProduct = () => {
       price: product?.price,
       description: description,
       image: files,
+      productStatus: product?.productStatus || "active",
     };
 
     const result = await dispatch(updateProduct({ id, formData }));

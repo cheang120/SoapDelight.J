@@ -38,6 +38,12 @@ const productSchema = new mongoose.Schema(
       required: [true, "Please add a quantity"],
       trim: true,
     },
+    productStatus: {
+      type: String,
+      enum: ["active", "out_of_stock", "discontinued"],
+      default: "active",
+      trim: true,
+    },
     sold: {
       type: Number,
       default: 0,

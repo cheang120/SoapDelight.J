@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
@@ -28,21 +28,38 @@ import ProductImageFallback, {
   getProductImages,
 } from "../../../utils/productImageFallback.jsx";
 
-const stockCopy = (quantity) => {
+const stockCopy = (productStatus, quantity) => {
+  if (productStatus === "discontinued") {
+    return {
+      label: "此商品已下架或停產",
+      helper: "如需瀏覽現有商品，請返回選購頁面。",
+      tone: "text-zinc-500 bg-zinc-100 border-zinc-200 dark:text-zinc-300 dark:bg-zinc-900 dark:border-zinc-700",
+    };
+  }
+  if (productStatus === "out_of_stock") {
+    return {
+      label: "暫時缺貨・可查詢",
+      helper: "如想查詢補貨或寄賣點供應，可透過聯絡我們查詢。",
+      tone: "text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800",
+    };
+  }
   if (quantity <= 0) {
     return {
       label: "暫時缺貨",
+      helper: "此商品暫時未能加入購物車。",
       tone: "text-zinc-500 bg-zinc-100 border-zinc-200 dark:text-zinc-300 dark:bg-zinc-900 dark:border-zinc-700",
     };
   }
   if (quantity <= 3) {
     return {
       label: "少量現貨",
+      helper: "庫存有限，建議儘早下單。",
       tone: "text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800",
     };
   }
   return {
     label: "有現貨",
+    helper: "可正常加入購物車。",
     tone: "text-emerald-800 bg-emerald-50 border-emerald-200 dark:text-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800",
   };
 };
@@ -100,11 +117,16 @@ const ProductDetails = () => {
   const ratings = product?.ratings || [];
   const averageRating = calculateAverageRating(ratings);
   const stockQuantity = Number(product?.quantity || 0);
-  const stock = stockCopy(stockQuantity);
+  const productStatus = product?.productStatus || "active";
+  const stock = stockCopy(productStatus, stockQuantity);
   const cart = cartItems.find((item) => item._id === id);
   const cartQuantity = cart?.cartQuantity || 1;
   const hasDiscount = Number(product?.regularPrice) > Number(product?.price);
   const sanitizedDescription = DOMPurify.sanitize(product?.description || "");
+  const canPurchase =
+    productStatus !== "discontinued" &&
+    productStatus !== "out_of_stock" &&
+    stockQuantity > 0;
 
   const syncCartIfLoggedIn = () => {
     if (currentUser) {
@@ -115,8 +137,8 @@ const ProductDetails = () => {
   };
 
   const addToCart = () => {
-    if (!product || stockQuantity <= 0) {
-      toast.error("抱歉，商品暫時缺貨");
+    if (!product || !canPurchase) {
+      toast.info(stock.helper);
       return;
     }
     dispatch(ADD_TO_CART(product));
@@ -278,6 +300,11 @@ const ProductDetails = () => {
                 <FaCheckCircle size={14} />
                 {stock.label}
               </div>
+              {stock.helper && (
+                <p className="mt-3 text-sm leading-7 text-zinc-500 dark:text-zinc-400">
+                  {stock.helper}
+                </p>
+              )}
 
               <div className="mt-8 rounded-[1.25rem] border border-zinc-100 bg-[#fcfcfa] p-4 dark:border-zinc-800 dark:bg-zinc-900/70 sm:p-5">
                 <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-200">
@@ -288,7 +315,7 @@ const ProductDetails = () => {
                     <button
                       type="button"
                       onClick={decreaseCart}
-                      disabled={!cart || cartQuantity <= 1}
+                      disabled={!cart || cartQuantity <= 1 || !canPurchase}
                       className="flex h-11 w-14 shrink-0 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900 sm:w-12"
                       aria-label="減少數量"
                     >
@@ -300,7 +327,7 @@ const ProductDetails = () => {
                     <button
                       type="button"
                       onClick={addToCart}
-                      disabled={stockQuantity <= 0 || cartQuantity >= stockQuantity}
+                      disabled={!canPurchase || cartQuantity >= stockQuantity}
                       className="flex h-11 w-14 shrink-0 items-center justify-center text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:text-zinc-300 dark:text-zinc-200 dark:hover:bg-zinc-900 sm:w-12"
                       aria-label="增加數量"
                     >
@@ -317,11 +344,17 @@ const ProductDetails = () => {
                 <button
                   type="button"
                   onClick={addToCart}
-                  disabled={stockQuantity <= 0}
+                  disabled={!canPurchase}
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                 >
                   <FaShoppingBag size={15} />
-                  加入購物車
+                  {productStatus === "out_of_stock"
+                    ? "暫時缺貨・可查詢"
+                    : productStatus === "discontinued"
+                    ? "此商品已下架"
+                    : stockQuantity <= 0
+                    ? "暫時缺貨"
+                    : "加入購物車"}
                 </button>
                 <button
                   type="button"

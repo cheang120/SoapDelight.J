@@ -155,7 +155,7 @@
 
 .admin-products-table {
   width: 100%;
-  min-width: 1580px;
+  min-width: 1660px;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.95rem;
@@ -206,6 +206,32 @@
   white-space: normal;
   color: #09090b;
   font-weight: 600;
+}
+
+.admin-products-status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  border-radius: 9999px;
+  padding: 0 0.75rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-products-status-badge--active {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.admin-products-status-badge--out_of_stock {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.admin-products-status-badge--discontinued {
+  background: #f4f4f5;
+  color: #52525b;
 }
 
 .admin-products-photo-cell {
@@ -465,6 +491,21 @@
     color: #d4d4d8;
   }
 
+  .admin-products-status-badge--active {
+    background: rgba(6, 78, 59, 0.36);
+    color: #6ee7b7;
+  }
+
+  .admin-products-status-badge--out_of_stock {
+    background: rgba(120, 53, 15, 0.28);
+    color: #fde68a;
+  }
+
+  .admin-products-status-badge--discontinued {
+    background: rgba(63, 63, 70, 0.78);
+    color: #e4e4e7;
+  }
+
   .admin-products-pagination-link {
     border-color: rgba(63, 63, 70, 0.92);
     background: #18181b;
@@ -497,5 +538,9 @@
 
   .admin-products-count {
     width: 100%;
+  }
+
+  .admin-products-table {
+    min-width: 1380px;
   }
 }

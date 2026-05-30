@@ -10,8 +10,8 @@ const createProduct = async (formData) => {
 };
 
 // Get all products
-const getProducts = async () => {
-  const response = await axios.get(API_URL);
+const getProducts = async (options = {}) => {
+  const response = await axios.get(API_URL, { params: options });
   return response.data;
 };
 
@@ -21,8 +21,8 @@ const deleteProduct = async (id) => {
   return response.data;
 };
 // Get a Product
-const getProduct = async (id) => {
-  const response = await axios.get(API_URL + id);
+const getProduct = async (id, options = {}) => {
+  const response = await axios.get(API_URL + id, { params: options });
   return response.data;
 };
 // Update Product

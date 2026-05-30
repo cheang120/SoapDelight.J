@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteProduct, getProducts } from "../../../redux/features/product/productSlice";
 import Search from "../../search/Search.jsx";
@@ -31,6 +31,7 @@ const mapProductToFallbackInventoryRow = (product) => ({
   centralSku: product?.sku || "",
   category: product?.category || "",
   brand: product?.brand || "",
+  productStatus: product?.productStatus || "active",
   publicPrice: Number(product?.price || 0),
   image: product?.image || [],
   centralStock: 0,
@@ -46,12 +47,22 @@ const mapProductToFallbackInventoryRow = (product) => ({
   fallbackProduct: product,
 });
 
+const getProductStatus = (product) => product?.productStatus || "active";
+
+const getProductStatusLabel = (status) => {
+  if (status === "out_of_stock") return "缺貨";
+  if (status === "discontinued") return "停產";
+  return "正常上架";
+};
+
 const getSearchableRowText = (row) =>
   [
     row.name,
     row.centralSku,
     row.category,
     row.brand,
+    row.productStatus,
+    getProductStatusLabel(row.productStatus),
     row.macauBaptistSku,
     ...(Array.isArray(row.locations)
       ? row.locations.map((location) => location.locationSku)
@@ -82,7 +93,7 @@ const ViewProducts = () => {
 
   useEffect(() => {
     if (canManageProducts) {
-      dispatch(getProducts());
+      dispatch(getProducts({ includeDiscontinued: true }));
     }
   }, [canManageProducts, dispatch]);
 
@@ -117,11 +128,45 @@ const ViewProducts = () => {
     };
   }, [canManageProducts]);
 
-  const safeProducts = Array.isArray(products) ? products : [];
+  const safeProducts = useMemo(
+    () => (Array.isArray(products) ? products : []),
+    [products]
+  );
+  const productById = useMemo(
+    () =>
+      new Map(
+        safeProducts.map((product) => [
+          product?._id,
+          { ...product, productStatus: getProductStatus(product) },
+        ])
+      ),
+    [safeProducts]
+  );
   const hasInventoryRows = !inventoryError && inventoryRows.length > 0;
-  const stockRows = hasInventoryRows
-    ? inventoryRows
-    : safeProducts.map(mapProductToFallbackInventoryRow);
+  const stockRows = useMemo(() => {
+    if (!hasInventoryRows) {
+      return safeProducts.map(mapProductToFallbackInventoryRow);
+    }
+
+    const mappedRows = inventoryRows.map((row) => {
+      const matchedProduct = productById.get(row.productId);
+      return {
+        ...row,
+        productStatus:
+          row.productStatus ||
+          matchedProduct?.productStatus ||
+          "active",
+        fallbackProduct: matchedProduct || row.fallbackProduct,
+      };
+    });
+
+    const existingIds = new Set(mappedRows.map((row) => row.productId));
+    const missingRows = safeProducts
+      .filter((product) => !existingIds.has(product?._id))
+      .map(mapProductToFallbackInventoryRow);
+
+    return [...mappedRows, ...missingRows];
+  }, [hasInventoryRows, inventoryRows, productById, safeProducts]);
 
   const filteredProducts = useMemo(
     () => {
@@ -160,7 +205,7 @@ const ViewProducts = () => {
 
   const delProduct = async (id) => {
     await dispatch(deleteProduct(id));
-    await dispatch(getProducts());
+    await dispatch(getProducts({ includeDiscontinued: true }));
     try {
       const overview = await inventoryService.getInventoryOverview();
       setInventoryRows(Array.isArray(overview) ? overview : []);
@@ -275,6 +320,7 @@ const ViewProducts = () => {
                     <th scope="col">名稱</th>
                     <th scope="col">中央 SKU</th>
                     <th scope="col">分類</th>
+                    <th scope="col">商品狀態</th>
                     <th scope="col">公開價格</th>
                     <th scope="col">中央存貨</th>
                     <th scope="col">網店存貨</th>
@@ -307,6 +353,7 @@ const ViewProducts = () => {
                       name,
                       centralSku,
                       category,
+                      productStatus,
                       publicPrice,
                       centralStock,
                       onlineStock,
@@ -321,9 +368,11 @@ const ViewProducts = () => {
                       _id: productId,
                       name,
                       category,
+                      productStatus,
                       image: row.image,
                     };
                     const productImage = getProductImage(product);
+                    const statusLabel = getProductStatusLabel(productStatus);
 
                     return (
                       <tr key={productId}>
@@ -355,6 +404,13 @@ const ViewProducts = () => {
                         <td className="admin-products-name">{shortenText(name, 16)}</td>
                         <td>{centralSku || "-"}</td>
                         <td>{category}</td>
+                        <td>
+                          <span
+                            className={`admin-products-status-badge admin-products-status-badge--${productStatus || "active"}`}
+                          >
+                            {statusLabel}
+                          </span>
+                        </td>
                         <td>{formatMoney(publicPrice)}</td>
                         <td>{centralStock}</td>
                         <td>{onlineStock}</td>

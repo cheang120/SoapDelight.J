@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -73,6 +73,19 @@ const serviceCards = [
   },
 ];
 
+const getProductStatus = (product) => product?.productStatus || "active";
+const isVisibleProduct = (product) =>
+  getProductStatus(product) !== "discontinued" && product?.category !== "Shipping";
+const getHomePriority = (product) => {
+  const status = getProductStatus(product);
+  const quantity = Number(product?.quantity || 0);
+
+  if (status === "active" && quantity > 0) return 0;
+  if (status === "active") return 1;
+  if (status === "out_of_stock") return 2;
+  return 3;
+};
+
 const SectionHeading = ({ eyebrow, title, children }) => (
   <div className="mx-auto mb-8 max-w-3xl text-center">
     {eyebrow && (
@@ -102,11 +115,14 @@ const Home = () => {
 
   const visibleProducts = useMemo(
     () =>
-      (products || []).filter(
-        (product) =>
-          product?.quantity > 0 &&
-          product?.category !== "Shipping"
-      ),
+      (products || [])
+        .filter(isVisibleProduct)
+        .slice()
+        .sort((a, b) => {
+          const priorityDifference = getHomePriority(a) - getHomePriority(b);
+          if (priorityDifference !== 0) return priorityDifference;
+          return new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0);
+        }),
     [products]
   );
 

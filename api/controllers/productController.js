@@ -4,12 +4,20 @@ import Product from '../models/productModel.js'
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
+const PRODUCT_STATUS_VALUES = ["active", "out_of_stock", "discontinued"];
+
 const normalizeProductImages = (image) => {
   if (Array.isArray(image)) {
     return image.filter((item) => typeof item === "string" && item.trim());
   }
   return typeof image === "string" && image.trim() ? [image.trim()] : [];
 };
+
+const normalizeProductStatus = (status) =>
+  PRODUCT_STATUS_VALUES.includes(status) ? status : "active";
+
+const shouldIncludeDiscontinued = (query) =>
+  String(query?.includeDiscontinued || "").toLowerCase() === "true";
 
 export const createProduct = asyncHandler(async (req, res, next) => {
 //   res.send("Correct product");
@@ -24,10 +32,14 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         image,
         regularPrice,
         color,
+        productStatus,
     } = req.body;
 
       //   Validation
-  if (!name || !category || !brand || !quantity || !price || !description) {
+  const hasQuantity =
+    quantity !== undefined && quantity !== null && String(quantity).trim() !== "";
+
+  if (!name || !category || !brand || !hasQuantity || !price || !description) {
     res.status(400);
     throw new Error("Please fill in all fields");
   }
@@ -45,6 +57,7 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         image: normalizeProductImages(image),
         regularPrice,
         color,
+        productStatus: normalizeProductStatus(productStatus),
     });
 
     res.status(201).json(product);
@@ -54,14 +67,30 @@ export const createProduct = asyncHandler(async (req, res, next) => {
 
 export const getProducts = asyncHandler(async (req, res, next) => {
     // res.send("get product")
-    const products = await Product.find().sort("-createdAt");
+    const includeDiscontinued = shouldIncludeDiscontinued(req.query);
+    const query = includeDiscontinued
+      ? {}
+      : {
+          $or: [
+            { productStatus: { $exists: false } },
+            { productStatus: { $ne: "discontinued" } },
+          ],
+        };
+    const products = await Product.find(query).sort("-createdAt");
     res.status(200).json(products);
 })
 
 export const getProduct = asyncHandler(async (req, res, next) => {
+    const includeDiscontinued = shouldIncludeDiscontinued(req.query);
     const product = await Product.findById(req.params.id);
     // if product doesnt exist
     if (!product) {
+      res.status(404);
+      throw new Error("Product not found");
+    }
+
+    const productStatus = product?.productStatus || "active";
+    if (!includeDiscontinued && productStatus === "discontinued") {
       res.status(404);
       throw new Error("Product not found");
     }
@@ -96,6 +125,7 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
         image,
         regularPrice,
         color,
+        productStatus,
       }= req.body;
 
       const product = await Product.findById(req.params.id);
@@ -123,6 +153,7 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
           image: nextImages,
           regularPrice,
           color,
+          productStatus: normalizeProductStatus(productStatus),
         },
         {
           new: true,

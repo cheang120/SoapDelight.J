@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "./AddProduce.scss"
@@ -23,6 +23,7 @@ const initialState = {
     price: "",
     color: "",
     regularPrice: "",
+    productStatus: "active",
   };
 
 const AddProduct = () => {
@@ -37,10 +38,10 @@ const AddProduct = () => {
     const [files, setFiles] = useState([]);
     const [description, setDescription] = useState("");
 
-    const {isLoading, message} = useSelector((state) => state.product)
+    const {message} = useSelector((state) => state.product)
     const { categories, brands } = useSelector((state) => state.category);
 
-    const { name, sku, category, brand, price, quantity, color, regularPrice } = product;
+    const { name, sku, category, brand, price, quantity, color, regularPrice, productStatus } = product;
 
     const userRole = currentUser?.role
     const canManageProducts = userRole === 'author' || userRole === 'admin';
@@ -85,6 +86,7 @@ const AddProduct = () => {
           price: price,
           description: description,
           image: files,
+          productStatus,
         };
     
         // console.log(formData);

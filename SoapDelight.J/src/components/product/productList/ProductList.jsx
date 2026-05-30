@@ -26,6 +26,9 @@ const ProductList = ({ products }) => {
     "個人護理": ["個人護理", "Personal Care"],
     "香薰蠟": ["香薰蠟", "Candle"],
   };
+  const isVisibleProduct = (product) =>
+    (product?.productStatus || "active") !== "discontinued" &&
+    product?.category !== "Shipping";
 
   const displayedProducts = useMemo(() => {
     const searchTerm = search.trim().toLocaleLowerCase();
@@ -34,7 +37,7 @@ const ProductList = ({ products }) => {
       : null;
 
     const visibleProducts = baseProducts
-      .filter((product) => product.category !== "Shipping")
+      .filter(isVisibleProduct)
       .filter((product) => {
         if (!categoryTerms) return true;
         return categoryTerms.includes(product.category);

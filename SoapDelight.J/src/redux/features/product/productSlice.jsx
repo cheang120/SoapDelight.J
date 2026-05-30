@@ -38,9 +38,9 @@ export const createProduct = createAsyncThunk(
 // Get all products
 export const getProducts = createAsyncThunk(
   "products/getAll",
-  async (_, thunkAPI) => {
+  async (options = {}, thunkAPI) => {
     try {
-      return await productService.getProducts();
+      return await productService.getProducts(options);
     } catch (error) {
       const message =
         (error.response &&
@@ -76,9 +76,15 @@ export const deleteProduct = createAsyncThunk(
 // Get a product
 export const getProduct = createAsyncThunk(
   "products/getProduct",
-  async (id, thunkAPI) => {
+  async (payload, thunkAPI) => {
     try {
-      return await productService.getProduct(id);
+      if (typeof payload === "string") {
+        return await productService.getProduct(payload);
+      }
+
+      const id = payload?.id;
+      const options = payload?.options || {};
+      return await productService.getProduct(id, options);
     } catch (error) {
       const message =
         (error.response &&
@@ -243,7 +249,7 @@ const productSlice = createSlice({
           state.isSuccess = true;
           state.isError = false;
           // console.log(action.payload);
-          if (action.payload && action.payload.hasOwnProperty("message")) {
+          if (Object.prototype.hasOwnProperty.call(action.payload || {}, "message")) {
             return toast.error(action.payload.message)
           } else {
             state.message = "Product created successfully"
@@ -283,7 +289,7 @@ const productSlice = createSlice({
         .addCase(deleteProduct.pending, (state) => {
           state.isLoading = true;
         })
-        .addCase(deleteProduct.fulfilled, (state, action) => {
+        .addCase(deleteProduct.fulfilled, (state) => {
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
@@ -319,7 +325,7 @@ const productSlice = createSlice({
           state.isLoading = false;
           state.isSuccess = true;
           state.isError = false;
-          if (action.payload && action.payload.hasOwnProperty("message")) {
+          if (Object.prototype.hasOwnProperty.call(action.payload || {}, "message")) {
             return toast.error(action.payload.message)
           } else {
             state.message = "Product updated successfully"
