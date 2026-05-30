@@ -44,6 +44,15 @@ const productSchema = new mongoose.Schema(
       default: "active",
       trim: true,
     },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    featuredOrder: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     sold: {
       type: Number,
       default: 0,

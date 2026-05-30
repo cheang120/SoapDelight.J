@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Navbar.module.scss";
-import { useSelector } from "react-redux";
-import { FaUserCircle } from "react-icons/fa";
 import { NavLink, useLocation } from "react-router-dom";
 
 const navSections = [
@@ -53,9 +51,7 @@ const navSections = [
 const activeLink = ({ isActive }) => (isActive ? `${styles.active}` : "");
 
 const Navbar = ({ isCollapsed = false, onToggleCollapse }) => {
-  const { currentUser } = useSelector((state) => state.user);
   const location = useLocation();
-  const username = currentUser?.username || "管理員";
 
   const [openSections, setOpenSections] = useState({
     main: true,
@@ -95,16 +91,6 @@ const Navbar = ({ isCollapsed = false, onToggleCollapse }) => {
       >
         {isCollapsed ? "›" : "‹"}
       </button>
-
-      <div className={styles.user}>
-        <div className={styles.avatar}>
-          <FaUserCircle size={32} />
-        </div>
-        <div className={styles.userText}>
-          <p className={styles.userLabel}>登入身份</p>
-          <h4>{username}</h4>
-        </div>
-      </div>
 
       <nav>
         {navSections.map((section) => {

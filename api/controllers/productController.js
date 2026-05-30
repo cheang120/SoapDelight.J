@@ -33,6 +33,8 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         regularPrice,
         color,
         productStatus,
+        isFeatured,
+        featuredOrder,
     } = req.body;
 
       //   Validation
@@ -58,6 +60,8 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         regularPrice,
         color,
         productStatus: normalizeProductStatus(productStatus),
+        isFeatured: Boolean(isFeatured),
+        featuredOrder: Number(featuredOrder || 0),
     });
 
     res.status(201).json(product);
@@ -126,6 +130,8 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
         regularPrice,
         color,
         productStatus,
+        isFeatured,
+        featuredOrder,
       }= req.body;
 
       const product = await Product.findById(req.params.id);
@@ -154,6 +160,8 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
           regularPrice,
           color,
           productStatus: normalizeProductStatus(productStatus),
+          isFeatured: Boolean(isFeatured),
+          featuredOrder: Number(featuredOrder || 0),
         },
         {
           new: true,

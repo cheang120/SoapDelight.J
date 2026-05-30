@@ -24,6 +24,8 @@ const initialState = {
     color: "",
     regularPrice: "",
     productStatus: "active",
+    isFeatured: false,
+    featuredOrder: 0,
   };
 
 const AddProduct = () => {
@@ -41,7 +43,19 @@ const AddProduct = () => {
     const {message} = useSelector((state) => state.product)
     const { categories, brands } = useSelector((state) => state.category);
 
-    const { name, sku, category, brand, price, quantity, color, regularPrice, productStatus } = product;
+    const {
+      name,
+      sku,
+      category,
+      brand,
+      price,
+      quantity,
+      color,
+      regularPrice,
+      productStatus,
+      isFeatured,
+      featuredOrder,
+    } = product;
 
     const userRole = currentUser?.role
     const canManageProducts = userRole === 'author' || userRole === 'admin';
@@ -58,8 +72,8 @@ const AddProduct = () => {
 
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setProduct({ ...product, [name]: value });
+        const { name, value, type, checked } = e.target;
+        setProduct({ ...product, [name]: type === "checkbox" ? checked : value });
       };
 
       const generateKSKU = (category) => {
@@ -87,6 +101,8 @@ const AddProduct = () => {
           description: description,
           image: files,
           productStatus,
+          isFeatured: Boolean(isFeatured),
+          featuredOrder: Number(featuredOrder || 0),
         };
     
         // console.log(formData);

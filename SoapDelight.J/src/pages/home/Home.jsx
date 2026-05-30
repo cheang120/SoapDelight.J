@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -86,6 +86,23 @@ const getHomePriority = (product) => {
   return 3;
 };
 
+const getFeaturedOrder = (product) => {
+  const order = Number(product?.featuredOrder || 0);
+  return Number.isFinite(order) ? order : 0;
+};
+
+const sortHomeProducts = (a, b) => {
+  const priorityDifference = getHomePriority(a) - getHomePriority(b);
+  if (priorityDifference !== 0) return priorityDifference;
+  return new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0);
+};
+
+const sortFeaturedProducts = (a, b) => {
+  const orderDifference = getFeaturedOrder(a) - getFeaturedOrder(b);
+  if (orderDifference !== 0) return orderDifference;
+  return sortHomeProducts(a, b);
+};
+
 const SectionHeading = ({ eyebrow, title, children }) => (
   <div className="mx-auto mb-8 max-w-3xl text-center">
     {eyebrow && (
@@ -118,15 +135,39 @@ const Home = () => {
       (products || [])
         .filter(isVisibleProduct)
         .slice()
-        .sort((a, b) => {
-          const priorityDifference = getHomePriority(a) - getHomePriority(b);
-          if (priorityDifference !== 0) return priorityDifference;
-          return new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0);
-        }),
+        .sort(sortHomeProducts),
     [products]
   );
 
-  const heroProduct = visibleProducts[0];
+  const heroProducts = useMemo(() => {
+    const selectedFeaturedProducts = visibleProducts
+      .filter((product) => Boolean(product?.isFeatured))
+      .sort(sortFeaturedProducts);
+
+    if (selectedFeaturedProducts.length > 0) {
+      return selectedFeaturedProducts;
+    }
+
+    return visibleProducts.slice(0, Math.min(4, visibleProducts.length));
+  }, [visibleProducts]);
+
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  useEffect(() => {
+    setHeroIndex(0);
+  }, [heroProducts.length]);
+
+  useEffect(() => {
+    if (heroProducts.length <= 1) return undefined;
+
+    const timer = window.setInterval(() => {
+      setHeroIndex((currentIndex) => (currentIndex + 1) % heroProducts.length);
+    }, 60000);
+
+    return () => window.clearInterval(timer);
+  }, [heroProducts.length]);
+
+  const heroProduct = heroProducts[heroIndex] || visibleProducts[0];
   const featuredProducts = visibleProducts.slice(0, 8);
 
   const findCategoryProduct = (terms) => {
@@ -189,7 +230,23 @@ const Home = () => {
                         {heroProduct.name}
                       </h2>
                     </div>
-                    <p className="text-lg font-semibold">${heroProduct.price}</p>
+                    <div className="flex flex-col items-end gap-2">
+                      <p className="text-lg font-semibold">${heroProduct.price}</p>
+                      {heroProducts.length > 1 && (
+                        <div className="flex items-center gap-1" aria-label="首頁推薦商品輪播">
+                          {heroProducts.map((item, index) => (
+                            <span
+                              key={`hero-dot-${item._id}`}
+                              className={`h-1.5 w-1.5 rounded-full ${
+                                index === heroIndex
+                                  ? "bg-zinc-950 dark:bg-white"
+                                  : "bg-zinc-300 dark:bg-zinc-700"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </Link>
               ) : (

@@ -284,6 +284,40 @@ const ProductForm = ({
               </small>
             </div>
 
+            <div className="admin-product-field">
+              <label className="admin-product-label">首頁推薦</label>
+              <label className="flex min-h-11 items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
+                <input
+                  type="checkbox"
+                  name="isFeatured"
+                  checked={Boolean(product?.isFeatured)}
+                  onChange={handleInputChange}
+                  className="h-4 w-4"
+                />
+                設為首頁推薦商品
+              </label>
+              <small className="admin-product-field-hint">
+                推薦商品會在首頁右側主卡片輪播；停產商品不會在前台顯示。
+              </small>
+            </div>
+
+            <div className="admin-product-field">
+              <label className="admin-product-label">推薦排序</label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                placeholder="例如 1、2、3"
+                name="featuredOrder"
+                className="admin-product-input"
+                value={product?.featuredOrder ?? 0}
+                onChange={handleInputChange}
+              />
+              <small className="admin-product-field-hint">
+                數字越細越優先；相同排序會按商品狀態及建立時間排列。
+              </small>
+            </div>
+
             <div className="admin-product-field admin-product-field--full">
               <label className="admin-product-label">商品描述</label>
               <div className="admin-product-editor">

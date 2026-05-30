@@ -113,8 +113,8 @@ const EditProduct = () => {
   }, [productEdit]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProduct({ ...product, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setProduct({ ...product, [name]: type === "checkbox" ? checked : value });
   };
 
   const handleInventoryMappingChange = (e) => {
@@ -137,6 +137,8 @@ const EditProduct = () => {
       description: description,
       image: files,
       productStatus: product?.productStatus || "active",
+      isFeatured: Boolean(product?.isFeatured),
+      featuredOrder: Number(product?.featuredOrder || 0),
     };
 
     const result = await dispatch(updateProduct({ id, formData }));
