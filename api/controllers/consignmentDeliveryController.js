@@ -183,6 +183,24 @@ const drawCell = (doc, text, x, y, width, height, options = {}) => {
     });
 };
 
+const measurePdfTextWidth = (doc, text, fontSize) => {
+  doc.fontSize(fontSize);
+  return doc.widthOfString(String(text ?? ""));
+};
+
+const fitCellFontSize = (doc, text, width, maxSize, minSize) => {
+  let currentSize = maxSize;
+
+  while (currentSize > minSize) {
+    if (measurePdfTextWidth(doc, text, currentSize) <= width) {
+      return currentSize;
+    }
+    currentSize -= 0.2;
+  }
+
+  return minSize;
+};
+
 const formatRate = (value) => {
   const rate = Number(value || 0);
   if (!Number.isFinite(rate)) return "0";
@@ -476,9 +494,16 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
   const tableTop = 158;
   const rowHeight = 30;
   const headerHeight = 34;
+  const items = Array.isArray(delivery.items) ? delivery.items : [];
+  const maxSkuWidth = items.reduce((largest, item) => {
+    const sku =
+      item?.productCodeAtIssue || item?.locationSkuAtIssue || item?.centralSkuAtIssue || "";
+    return Math.max(largest, measurePdfTextWidth(doc, sku, 9.2));
+  }, 110);
+  const skuWidth = Math.min(Math.max(Math.ceil(maxSkuWidth) + 10, 122), 148);
   const tableColumns = [
-    { label: "商品編號", width: 122, align: "left" },
-    { label: "名稱", width: 222, align: "left" },
+    { label: "商品編號", width: skuWidth, align: "left" },
+    { label: "名稱", width: 344 - skuWidth, align: "left" },
     { label: "價格", width: 126, align: "center" },
     { label: "折扣", width: 86, align: "center" },
     { label: "數量", width: 86, align: "center" },
@@ -486,7 +511,6 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
   ];
   const tableWidth = tableColumns.reduce((sum, column) => sum + column.width, 0);
   const tableX = margin + (contentWidth - tableWidth) / 2;
-  const items = Array.isArray(delivery.items) ? delivery.items : [];
   const rowsPerPage = 8;
   const totalPages = Math.max(1, Math.ceil(items.length / rowsPerPage));
 
@@ -582,6 +606,15 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
       x = tableX;
       tableColumns.forEach((column, columnIndex) => {
         const isSkuColumn = columnIndex === 0;
+        const skuFontSize = isSkuColumn
+          ? fitCellFontSize(
+              doc,
+              rowValues[columnIndex],
+              column.width - 8,
+              9.2,
+              7.2
+            )
+          : 10.5;
         drawCell(
           doc,
           rowValues[columnIndex],
@@ -592,13 +625,13 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
           isSkuColumn
             ? {
                 align: column.align,
-                fontSize: 9.2,
+                fontSize: skuFontSize,
                 ellipsis: false,
                 paddingX: 4,
               }
             : {
                 align: column.align,
-                fontSize: 10.5,
+                fontSize: skuFontSize,
               }
         );
         x += column.width;
