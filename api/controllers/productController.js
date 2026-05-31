@@ -96,6 +96,74 @@ const createInitialCentralStockForProduct = async ({
   return { balance, movement };
 };
 
+const syncCentralStockForProduct = async ({
+  product,
+  quantity,
+  createdBy,
+  session,
+}) => {
+  const nextQuantity = Number(quantity || 0);
+
+  if (!Number.isFinite(nextQuantity) || nextQuantity < 0) {
+    throw new Error("Quantity must be zero or greater");
+  }
+
+  const centralLocation = await getOrCreateCentralInventoryLocation(session);
+
+  const existingBalance = await InventoryBalance.findOne({
+    productId: product._id,
+    locationId: centralLocation._id,
+  }).session(session);
+
+  const previousQuantity = Number(existingBalance?.quantity || 0);
+
+  const balance = await InventoryBalance.findOneAndUpdate(
+    {
+      productId: product._id,
+      locationId: centralLocation._id,
+    },
+    {
+      $set: {
+        quantity: nextQuantity,
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true,
+      session,
+    }
+  );
+
+  const diff = nextQuantity - previousQuantity;
+  let movement = null;
+
+  if (diff !== 0) {
+    const [createdMovement] = await StockMovement.create(
+      [
+        {
+          productId: product._id,
+          fromLocationId: null,
+          toLocationId: centralLocation._id,
+          quantity: Math.abs(diff),
+          type: "adjustment",
+          direction: "adjustment",
+          note: `Central stock synced from product edit (${previousQuantity} -> ${nextQuantity})`,
+          sourceDocument: product.sku
+            ? `Product edit - ${product.sku}`
+            : `Product edit - ${product._id}`,
+          createdBy,
+        },
+      ],
+      { session }
+    );
+
+    movement = createdMovement;
+  }
+
+  return { balance, movement };
+};
+
 export const createProduct = asyncHandler(async (req, res, next) => {
     const {
         name,
@@ -243,33 +311,60 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
         throw new Error("Product not found");
       }
 
+      const hasQuantity = Object.prototype.hasOwnProperty.call(req.body, "quantity");
+      const nextQuantity = hasQuantity ? Number(quantity) : Number(product.quantity || 0);
+
+      if (hasQuantity && (!Number.isFinite(nextQuantity) || nextQuantity < 0)) {
+        res.status(400);
+        throw new Error("Quantity must be zero or greater");
+      }
+
       // update product
       const nextImages = Object.prototype.hasOwnProperty.call(req.body, "image")
         ? normalizeProductImages(image)
         : product.image;
 
-      const updatedProduct =  await Product.findByIdAndUpdate(
-        { _id: req.params.id },
-        {
-          name,
-          sku,
-          category,
-          brand,
-          quantity,
-          price,
-          description,
-          image: nextImages,
-          regularPrice,
-          color,
-          productStatus: normalizeProductStatus(productStatus),
-          isFeatured: Boolean(isFeatured),
-          featuredOrder: Number(featuredOrder || 0),
-        },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
+      let updatedProduct;
+      const session = await mongoose.startSession();
+
+      try {
+        await session.withTransaction(async () => {
+          updatedProduct = await Product.findByIdAndUpdate(
+            { _id: req.params.id },
+            {
+              name,
+              sku,
+              category,
+              brand,
+              quantity: hasQuantity ? nextQuantity : product.quantity,
+              price,
+              description,
+              image: nextImages,
+              regularPrice,
+              color,
+              productStatus: normalizeProductStatus(productStatus),
+              isFeatured: Boolean(isFeatured),
+              featuredOrder: Number(featuredOrder || 0),
+            },
+            {
+              new: true,
+              runValidators: true,
+              session,
+            }
+          );
+
+          if (hasQuantity) {
+            await syncCentralStockForProduct({
+              product: updatedProduct,
+              quantity: nextQuantity,
+              createdBy: req.user?._id,
+              session,
+            });
+          }
+        });
+      } finally {
+        await session.endSession();
+      }
     
       res.status(200).json(updatedProduct);
 
