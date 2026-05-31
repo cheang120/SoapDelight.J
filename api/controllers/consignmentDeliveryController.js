@@ -461,7 +461,7 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
   const isDraft = delivery.status === "draft";
   const doc = new PDFDocument({
     size: "A4",
-    layout: "landscape",
+    layout: "portrait",
     margin: 24,
     info: {
       Title: `寄售清單 ${delivery.deliveryNumber || ""}`,
@@ -484,33 +484,40 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
   const contentWidth = pageWidth - margin * 2;
   const topY = 38;
   const rowGap = 20;
-  const columnGap = 28;
-  const leftColumnWidth = 278;
-  const middleColumnWidth = 220;
-  const rightColumnWidth = contentWidth - leftColumnWidth - middleColumnWidth - columnGap * 2;
+  const columnGap = 18;
+  const leftColumnWidth = 160;
+  const middleColumnWidth = 170;
+  const rightColumnWidth =
+    contentWidth - leftColumnWidth - middleColumnWidth - columnGap * 2;
   const leftX = margin;
   const middleX = leftX + leftColumnWidth + columnGap;
   const rightX = middleX + middleColumnWidth + columnGap;
-  const tableTop = 158;
-  const rowHeight = 30;
-  const headerHeight = 34;
+  const tableTop = 174;
+  const rowHeight = 28;
+  const headerHeight = 30;
   const items = Array.isArray(delivery.items) ? delivery.items : [];
   const maxSkuWidth = items.reduce((largest, item) => {
     const sku =
       item?.productCodeAtIssue || item?.locationSkuAtIssue || item?.centralSkuAtIssue || "";
     return Math.max(largest, measurePdfTextWidth(doc, sku, 9.2));
   }, 110);
-  const skuWidth = Math.min(Math.max(Math.ceil(maxSkuWidth) + 10, 122), 148);
+  const skuWidth = Math.min(Math.max(Math.ceil(maxSkuWidth) + 10, 64), 86);
+  const priceWidth = 84;
+  const discountWidth = 50;
+  const quantityWidth = 48;
+  const amountWidth = 96;
+  const nameWidth =
+    contentWidth - skuWidth - priceWidth - discountWidth - quantityWidth - amountWidth;
   const tableColumns = [
     { label: "商品編號", width: skuWidth, align: "left" },
-    { label: "名稱", width: 344 - skuWidth, align: "left" },
-    { label: "價格", width: 126, align: "center" },
-    { label: "折扣", width: 86, align: "center" },
-    { label: "數量", width: 86, align: "center" },
-    { label: "金額", width: 136, align: "center" },
+    { label: "名稱", width: nameWidth, align: "left" },
+    { label: "價格", width: priceWidth, align: "center" },
+    { label: "折扣", width: discountWidth, align: "center" },
+    { label: "數量", width: quantityWidth, align: "center" },
+    { label: "金額", width: amountWidth, align: "center" },
   ];
   const tableWidth = tableColumns.reduce((sum, column) => sum + column.width, 0);
-  const tableX = margin + (contentWidth - tableWidth) / 2;
+  const tableX = margin;
   const rowsPerPage = 8;
   const totalPages = Math.max(1, Math.ceil(items.length / rowsPerPage));
 
@@ -538,7 +545,7 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
     drawTextLine(doc, "寄售單號", delivery.deliveryNumber || "-", middleX, topY + rowGap, {
       width: middleColumnWidth,
     });
-    drawTextLine(doc, "合共頁數", `${pageNumber} / ${totalPages}`, middleX, topY + rowGap * 2, {
+    drawTextLine(doc, "合共頁數", `${pageNumber}/${totalPages}`, middleX, topY + rowGap * 2, {
       width: middleColumnWidth,
     });
     drawTextLine(doc, "由售賣方", company.businessName || "SoapDelight.J", middleX, topY + rowGap * 3, {
@@ -583,7 +590,7 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
       drawCell(doc, column.label, x, tableTop, column.width, headerHeight, {
         align: "center",
         fill: "#f3f4f6",
-        fontSize: 11,
+        fontSize: 10,
       });
       x += column.width;
     });
@@ -611,10 +618,10 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
               doc,
               rowValues[columnIndex],
               column.width - 8,
-              9.2,
-              7.2
+              8.8,
+              6.8
             )
-          : 10.5;
+          : 9.2;
         drawCell(
           doc,
           rowValues[columnIndex],
@@ -640,6 +647,16 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
     }
 
     return y;
+  };
+
+  const drawPageNumberFooter = (pageNumber) => {
+    doc
+      .fontSize(9)
+      .fillColor("#111111")
+      .text(`${pageNumber}/${totalPages}`, tableX + tableWidth - 80, pageHeight - 26, {
+        width: 80,
+        align: "right",
+      });
   };
 
   const drawFinalPageFooter = (y) => {
@@ -668,11 +685,11 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
         });
     }
 
-    const signatureLabelY = pageHeight - 116;
-    const signatureLineY = pageHeight - 38;
-    const signatureWidth = 288;
+    const signatureLabelY = pageHeight - 118;
+    const signatureLineY = pageHeight - 44;
+    const signatureWidth = 220;
     const sellerX = tableX + 4;
-    const consigneeX = tableX + tableWidth / 2 + 20;
+    const consigneeX = tableX + tableWidth / 2 + 12;
 
     doc
       .fontSize(11)
@@ -720,15 +737,9 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
 
     if (pageIndex === totalPages - 1) {
       drawFinalPageFooter(tableBottom);
-    } else {
-      doc
-        .fontSize(9)
-        .fillColor("#111111")
-        .text("續下頁...", tableX + tableWidth - 90, pageHeight - 62, {
-          width: 90,
-          align: "right",
-        });
     }
+
+    drawPageNumberFooter(pageIndex + 1);
   }
 
   doc.end();
