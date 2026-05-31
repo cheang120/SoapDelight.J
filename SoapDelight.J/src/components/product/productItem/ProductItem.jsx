@@ -148,7 +148,7 @@ const ProductItem = ({ product, grid, _id, name, price, regularPrice }) => {
   }
 
   return (
-    <div className="group mx-auto flex h-full min-h-[320px] flex-col overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white transition hover:-translate-y-0.5 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white">
+    <div className="group flex h-full min-h-[320px] w-full max-w-none flex-col overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white transition hover:-translate-y-0.5 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white">
       <Link to={`/product-details/${_id}`}>
         <div className="aspect-[4/4.2] overflow-hidden bg-[#f7f8f4] dark:bg-zinc-900">
           <ProductImage

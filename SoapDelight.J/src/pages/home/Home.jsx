@@ -133,14 +133,24 @@ const Home = () => {
   useEffect(() => {
     if (heroProducts.length <= 1) return undefined;
 
-    const timer = window.setInterval(() => {
+    const timer = window.setTimeout(() => {
       setHeroIndex((currentIndex) => (currentIndex + 1) % heroProducts.length);
-    }, 30000);
+    }, 8000);
 
-    return () => window.clearInterval(timer);
-  }, [heroProducts.length]);
+    return () => window.clearTimeout(timer);
+  }, [heroProducts.length, heroIndex]);
 
   const heroProduct = heroProducts[heroIndex] || visibleProducts[0];
+  const heroSlides = heroProducts.length > 0 ? heroProducts : heroProduct ? [heroProduct] : [];
+  const goToHeroProduct = (nextIndex) => {
+    if (heroSlides.length <= 1) return;
+
+    setHeroIndex(
+      ((nextIndex % heroSlides.length) + heroSlides.length) % heroSlides.length
+    );
+  };
+  const goToPreviousHeroProduct = () => goToHeroProduct(heroIndex - 1);
+  const goToNextHeroProduct = () => goToHeroProduct(heroIndex + 1);
   const latestProducts = visibleProducts
     .slice()
     .sort(
@@ -226,42 +236,73 @@ const Home = () => {
 
           <div className="relative">
             <div className="home-hero-frame mx-auto max-w-[620px] overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-              {heroProduct ? (
-                <Link to={`/product-details/${heroProduct._id}`} className="block">
-                  <ProductImage
-                    product={heroProduct}
-                    alt={heroProduct.name}
-                    className="aspect-[4/5] w-full object-cover"
-                    fallbackClassName="aspect-[4/5]"
-                  />
-                  <div className="flex items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">
-                    <div>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                        精選產品
-                      </p>
-                      <h2 className="text-lg font-medium text-zinc-950 dark:text-white">
-                        {heroProduct.name}
-                      </h2>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <p className="text-lg font-semibold">${heroProduct.price}</p>
-                      {heroProducts.length > 1 && (
-                        <div className="flex items-center gap-1" aria-label="首頁推薦商品輪播">
-                          {heroProducts.map((item, index) => (
-                            <span
-                              key={`hero-dot-${item._id}`}
-                              className={`h-1.5 w-1.5 rounded-full ${
-                                index === heroIndex
-                                  ? "bg-zinc-950 dark:bg-white"
-                                  : "bg-zinc-300 dark:bg-zinc-700"
-                              }`}
-                            />
-                          ))}
+              {heroSlides.length > 0 ? (
+                <div className="home-hero-carousel" aria-roledescription="carousel">
+                  <div
+                    className="home-hero-track"
+                    style={{ transform: `translateX(-${heroIndex * 100}%)` }}
+                  >
+                    {heroSlides.map((slideProduct) => (
+                      <Link
+                        key={slideProduct._id}
+                        to={`/product-details/${slideProduct._id}`}
+                        className="home-hero-slide block"
+                      >
+                        <ProductImage
+                          product={slideProduct}
+                          alt={slideProduct.name}
+                          className="aspect-[4/5] w-full object-cover"
+                          fallbackClassName="aspect-[4/5]"
+                        />
+                        <div className="flex items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">
+                          <div>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                              精選產品
+                            </p>
+                            <h2 className="text-lg font-medium text-zinc-950 dark:text-white">
+                              {slideProduct.name}
+                            </h2>
+                          </div>
+                          <p className="text-lg font-semibold">${slideProduct.price}</p>
                         </div>
-                      )}
-                    </div>
+                      </Link>
+                    ))}
                   </div>
-                </Link>
+
+                  {heroSlides.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="home-hero-arrow home-hero-arrow--left"
+                        aria-label="上一件推薦產品"
+                        onClick={goToPreviousHeroProduct}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        className="home-hero-arrow home-hero-arrow--right"
+                        aria-label="下一件推薦產品"
+                        onClick={goToNextHeroProduct}
+                      >
+                        ›
+                      </button>
+                      <div className="home-hero-dots" aria-label="首頁推薦商品輪播">
+                        {heroSlides.map((item, index) => (
+                          <button
+                            type="button"
+                            key={`hero-dot-${item._id}`}
+                            aria-label={`查看第 ${index + 1} 件推薦產品`}
+                            className={`home-hero-dot ${
+                              index === heroIndex ? "home-hero-dot--active" : ""
+                            }`}
+                            onClick={() => goToHeroProduct(index)}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               ) : (
                 <div className="flex aspect-[4/5] items-center justify-center p-10 text-center text-zinc-500">
                   {isLoading ? "正在載入商品..." : "商品即將上架"}
