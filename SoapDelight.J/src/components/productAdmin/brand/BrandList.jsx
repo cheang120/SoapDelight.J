@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react'
 import { FaTrashAlt } from 'react-icons/fa';
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteBrand, getBrands, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
 
@@ -17,20 +15,13 @@ const BrandList = () => {
         }, [dispatch]);
   
         const confirmDelete = (brand) => {
-          confirmAlert({
-            title: "刪除品牌",
-            message: `確定要刪除「${brand.name}」嗎？`,
-            buttons: [
-              {
-                label: "刪除",
-                onClick: () => delBrand(brand._id),
-              },
-              {
-                label: "取消",
-                // onClick: () => alert('Click No')
-              },
-            ],
-          });
+          if (!brand?._id) return;
+
+          const confirmed = window.confirm(`確定要刪除「${brand.name}」嗎？`);
+
+          if (confirmed) {
+            delBrand(brand._id);
+          }
         };
         
         const delBrand = async (brandId) => {

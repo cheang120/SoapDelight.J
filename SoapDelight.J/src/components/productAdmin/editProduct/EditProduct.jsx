@@ -130,7 +130,7 @@ const EditProduct = () => {
       sku: product?.sku || "",
       category: product?.category,
       brand: product?.brand,
-      color: product?.color,
+      color: product?.color?.trim() || "",
       quantity: Number(product?.quantity),
       regularPrice: product?.regularPrice,
       price: product?.price,

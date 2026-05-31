@@ -2,8 +2,6 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteCategory, getCategories } from '../../../redux/features/categoryAndBrand/categoryAndBrandSlice';
 import { FaTrashAlt } from 'react-icons/fa';
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
 
 const CategoryList = () => {
   const { isLoading, categories = [] } = useSelector((state) => state.category || {});
@@ -15,20 +13,13 @@ const CategoryList = () => {
       }, [dispatch]);
 
       const confirmDelete = (category) => {
-        confirmAlert({
-          title: "刪除分類",
-          message: `確定要刪除「${category.name}」嗎？`,
-          buttons: [
-            {
-              label: "刪除",
-              onClick: () => delCat(category._id),
-            },
-            {
-              label: "取消",
-              // onClick: () => alert('Click No')
-            },
-          ],
-        });
+        if (!category?._id) return;
+
+        const confirmed = window.confirm(`確定要刪除「${category.name}」嗎？`);
+
+        if (confirmed) {
+          delCat(category._id);
+        }
       };
       
       const delCat = async (categoryId) => {
@@ -62,7 +53,7 @@ const CategoryList = () => {
                     <td>{index + 1}</td>
                     <td>{name}</td>
                     <td className="admin-taxonomy-action-cell">
-                      <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`刪除 ${name}`} onClick={() => confirmDelete(slug)}>
+                      <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`刪除 ${name}`} onClick={() => confirmDelete(cat)}>
                         <FaTrashAlt size={16} />
                       </button>
                     </td>

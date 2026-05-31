@@ -94,7 +94,7 @@ const AddProduct = () => {
           sku: sku?.trim() || generateKSKU(category),
           category: category,
           brand: brand,
-          color: color,
+          color: color?.trim() || "",
           quantity: Number(quantity),
           regularPrice: regularPrice,
           price: price,

@@ -220,10 +220,10 @@ const ProductForm = ({
             </div>
 
             <div className="admin-product-field">
-              <label className="admin-product-label">商品顏色</label>
+              <label className="admin-product-label">商品顏色（選填）</label>
               <input
                 type="text"
-                placeholder="顏色"
+                placeholder="選填，例如：藍色 / 啡色 / 可留空"
                 name="color"
                 className="admin-product-input"
                 value={product?.color}
