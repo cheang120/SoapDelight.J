@@ -111,6 +111,19 @@ const buildCompanySnapshot = (profile) => ({
 const pickSnapshotValue = (snapshotValue, fallbackValue) =>
   normalizeText(snapshotValue) || normalizeText(fallbackValue);
 
+const preferPrimaryChineseName = (value) => {
+  const text = normalizeText(value);
+
+  if (!text.includes("/")) {
+    return text;
+  }
+
+  const [primary] = text.split("/");
+  const primaryText = normalizeText(primary);
+
+  return /[\u3400-\u9fff]/.test(primaryText) ? primaryText : text;
+};
+
 const getReadableFontPath = () => {
   const candidates = [
     path.resolve("api/assets/fonts/NotoSansCJKtc-Regular.otf"),
@@ -453,7 +466,7 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
   };
   const location = delivery.locationId || {};
   const locationSnapshot = {
-    name: delivery.locationNameAtIssue || location.name || "",
+    name: preferPrimaryChineseName(delivery.locationNameAtIssue || location.name || ""),
     phone: delivery.locationPhoneAtIssue || location.phone || "",
     email: delivery.locationEmailAtIssue || location.email || "",
     address: delivery.locationAddressAtIssue || location.address || "",
@@ -704,9 +717,11 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
     doc
       .fontSize(8.5)
       .fillColor("#111111")
-      .text(`${pageNumber}/${totalPages}`, tableX + tableWidth - 80, pageHeight - 25, {
+      .text(`${pageNumber}/${totalPages}`, tableX + tableWidth - 80, pageHeight - 40, {
         width: 80,
+        height: 12,
         align: "right",
+        lineBreak: false,
       });
   };
 
@@ -738,8 +753,8 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
         });
     }
 
-    const signatureLabelY = pageHeight - 100;
-    const signatureLineY = pageHeight - 46;
+    const signatureLabelY = Math.min(totalY + 52, pageHeight - 138);
+    const signatureLineY = signatureLabelY + 64;
     const signatureWidth = 210;
     const sellerX = tableX + 4;
     const consigneeX = tableX + tableWidth / 2 + 12;
