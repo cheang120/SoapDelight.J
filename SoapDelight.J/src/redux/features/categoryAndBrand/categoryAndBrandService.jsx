@@ -21,8 +21,10 @@ const getCategories = async () => {
 };
 
 // Delete a Cat
-const deleteCategory = async (slug) => {
-  const response = await axios.delete(API_URL + "category/" + slug);
+const deleteCategory = async (categoryId) => {
+  const response = await axios.delete(
+    API_URL + "category/" + encodeURIComponent(categoryId)
+  );
   return response.data.message;
 };
 
@@ -39,8 +41,10 @@ const getBrands = async () => {
 };
 
 // Delete a Cat
-const deleteBrand = async (slug) => {
-  const response = await axios.delete(API_URL + "brand/" + slug);
+const deleteBrand = async (brandId) => {
+  const response = await axios.delete(
+    API_URL + "brand/" + encodeURIComponent(brandId)
+  );
   return response.data.message;
 };
 

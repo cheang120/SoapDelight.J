@@ -14,14 +14,14 @@ const CategoryList = () => {
         dispatch(getCategories());
       }, [dispatch]);
 
-      const confirmDelete = (slug) => {
+      const confirmDelete = (category) => {
         confirmAlert({
           title: "刪除分類",
-          message: "確定要刪除此分類嗎？",
+          message: `確定要刪除「${category.name}」嗎？`,
           buttons: [
             {
               label: "刪除",
-              onClick: () => delCat(slug),
+              onClick: () => delCat(category._id),
             },
             {
               label: "取消",
@@ -31,8 +31,8 @@ const CategoryList = () => {
         });
       };
       
-      const delCat = async (slug) => {
-        await dispatch(deleteCategory(slug));
+      const delCat = async (categoryId) => {
+        await dispatch(deleteCategory(categoryId));
         await dispatch(getCategories());
       };
 
@@ -56,7 +56,7 @@ const CategoryList = () => {
             </thead>
             <tbody>
               {categories.map((cat, index) => {
-                const { _id, name, slug } = cat;
+                const { _id, name } = cat;
                 return (
                   <tr key={_id}>
                     <td>{index + 1}</td>

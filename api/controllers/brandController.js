@@ -1,7 +1,19 @@
 import asyncHandler from "express-async-handler";
+import mongoose from "mongoose";
 import Brand from "../models/brandModel.js";
 import Category from "../models/categoryModel.js";
 import slugify from "slugify";
+
+const createBrandSlug = (name) => {
+  const trimmedName = String(name || "").trim();
+  const latinSlug = slugify(trimmedName, {
+    lower: true,
+    strict: true,
+    trim: true,
+  });
+
+  return latinSlug || trimmedName;
+};
 
 export const createBrand = asyncHandler(async (req, res,next) => {
     // res.send("create brand")
@@ -15,9 +27,12 @@ export const createBrand = asyncHandler(async (req, res,next) => {
     res.status(400);
     throw new Error("Parent category not found.");
   }
+  const brandName = String(name || "").trim();
+  const slug = createBrandSlug(brandName);
+
   const brand = await Brand.create({
-    name,
-    slug: slugify(name),
+    name: brandName,
+    slug,
     category,
   });
   if (brand) {
@@ -31,11 +46,22 @@ export const getBrands = asyncHandler(async (req, res,next) => {
 });
 
 export const deleteBrand = asyncHandler(async (req, res,next) => {
-  const brand = await Brand.findOneAndDelete({ slug: req.params.slug });
+  const identifier = decodeURIComponent(String(req.params.slug || "")).trim();
+
+  if (!identifier) {
+    res.status(400);
+    throw new Error("Missing brand identifier");
+  }
+
+  const brand = mongoose.Types.ObjectId.isValid(identifier)
+    ? await Brand.findByIdAndDelete(identifier)
+    : await Brand.findOneAndDelete({ slug: identifier });
+
   if (!brand) {
     res.status(404);
-    throw new Error("Category not found");
+    throw new Error("Brand not found");
   }
-  res.status(200).json({ message: "Brand deleted." });
+
+  res.status(200).json({ message: `Brand "${brand.name}" deleted.` });
 });
 

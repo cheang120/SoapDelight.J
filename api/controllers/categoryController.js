@@ -56,11 +56,21 @@ export const getCategories = asyncHandler(async (req, res,next) => {
 });
 
 export const deleteCategory = asyncHandler(async (req, res,next) => {
-  const slug = req.params.slug.toLowerCase();
-  const category = await Category.findOneAndDelete({ slug: slug });
+  const identifier = decodeURIComponent(String(req.params.slug || "")).trim();
+
+  if (!identifier) {
+    res.status(400);
+    throw new Error("Missing category identifier");
+  }
+
+  const category = mongoose.Types.ObjectId.isValid(identifier)
+    ? await Category.findByIdAndDelete(identifier)
+    : await Category.findOneAndDelete({ slug: identifier });
+
   if (!category) {
     res.status(404);
     throw new Error("Category not found");
   }
-  res.status(200).json({ message: "Category deleted." });
+
+  res.status(200).json({ message: `Category "${category.name}" deleted.` });
 });

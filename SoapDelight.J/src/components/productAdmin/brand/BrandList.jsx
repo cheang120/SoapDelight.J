@@ -16,14 +16,14 @@ const BrandList = () => {
           dispatch(getBrands());
         }, [dispatch]);
   
-        const confirmDelete = (slug) => {
+        const confirmDelete = (brand) => {
           confirmAlert({
             title: "刪除品牌",
-            message: "確定要刪除此品牌嗎？",
+            message: `確定要刪除「${brand.name}」嗎？`,
             buttons: [
               {
                 label: "刪除",
-                onClick: () => delBrand(slug),
+                onClick: () => delBrand(brand._id),
               },
               {
                 label: "取消",
@@ -33,8 +33,8 @@ const BrandList = () => {
           });
         };
         
-        const delBrand = async (slug) => {
-          await dispatch(deleteBrand(slug));
+        const delBrand = async (brandId) => {
+          await dispatch(deleteBrand(brandId));
           await dispatch(getBrands());
         };
   
@@ -59,7 +59,7 @@ const BrandList = () => {
                       </thead>
                       <tbody>
                           {brands.map((brand, index) => {
-                              const { _id, name, slug, category } = brand;
+                              const { _id, name, category } = brand;
                               return (
                                   <tr key={_id}>
                                       <td>
@@ -72,7 +72,7 @@ const BrandList = () => {
                                           {category}
                                       </td>
                                       <td className="admin-taxonomy-action-cell">
-                                          <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`刪除 ${name}`} onClick={() => confirmDelete(slug)}>
+                                          <button type="button" className="admin-taxonomy-icon-button admin-taxonomy-icon-button--delete" aria-label={`刪除 ${name}`} onClick={() => confirmDelete(brand)}>
                                               <FaTrashAlt size={16} />
                                           </button>
                                       </td>
