@@ -31,10 +31,6 @@ const CreateCategory = ({reloadCategory}) => {
   return (
     <>
         <div className='admin-taxonomy-panel'>
-            <div className='admin-taxonomy-panel-copy'>
-                <h3 className='admin-taxonomy-panel-title'>建立分類</h3>
-                <p className='admin-taxonomy-panel-subtitle'>使用表格建立商品分類。</p>
-            </div>
             <form onSubmit={saveCategory} className='admin-taxonomy-form'>
                 <div className='admin-taxonomy-field'>
                     <label className='admin-taxonomy-label'>分類名稱</label>

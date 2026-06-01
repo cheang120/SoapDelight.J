@@ -62,10 +62,6 @@ const CreateBrand = ({reloadBrands}) => {
   return (
     <>
     <div className='admin-taxonomy-panel'>
-        <div className='admin-taxonomy-panel-copy'>
-            <h3 className='admin-taxonomy-panel-title'>建立品牌</h3>
-            <p className='admin-taxonomy-panel-subtitle'>使用表格建立商品品牌。</p>
-        </div>
         <form onSubmit={saveBrand} className='admin-taxonomy-form'>
             <div className='admin-taxonomy-field'>
                 <label className='admin-taxonomy-label'>品牌名稱</label>

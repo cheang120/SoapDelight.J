@@ -353,14 +353,6 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
             }
           );
 
-          if (hasQuantity) {
-            await syncCentralStockForProduct({
-              product: updatedProduct,
-              quantity: nextQuantity,
-              createdBy: req.user?._id,
-              session,
-            });
-          }
         });
       } finally {
         await session.endSession();
