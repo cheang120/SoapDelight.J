@@ -53,12 +53,7 @@ const activeLink = ({ isActive }) => (isActive ? `${styles.active}` : "");
 const Navbar = ({ isCollapsed = false, onToggleCollapse }) => {
   const location = useLocation();
 
-  const [openSections, setOpenSections] = useState({
-    main: true,
-    inventory: true,
-    settings: false,
-    marketing: false,
-  });
+  const [openSection, setOpenSection] = useState("main");
 
   useEffect(() => {
     const matchedSection = navSections.find((section) =>
@@ -66,18 +61,20 @@ const Navbar = ({ isCollapsed = false, onToggleCollapse }) => {
     );
 
     if (matchedSection) {
-      setOpenSections((prev) => ({ ...prev, [matchedSection.key]: true }));
+      setOpenSection(matchedSection.key);
     }
   }, [location.pathname]);
 
   const handleSectionToggle = (sectionKey) => {
     if (isCollapsed) {
-      setOpenSections((prev) => ({ ...prev, [sectionKey]: true }));
+      setOpenSection(sectionKey);
       onToggleCollapse?.();
       return;
     }
 
-    setOpenSections((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
+    setOpenSection((currentSection) =>
+      currentSection === sectionKey ? "" : sectionKey
+    );
   };
 
   return (
@@ -94,7 +91,7 @@ const Navbar = ({ isCollapsed = false, onToggleCollapse }) => {
 
       <nav>
         {navSections.map((section) => {
-          const isOpen = openSections[section.key];
+          const isOpen = openSection === section.key;
           const hasActiveItem = section.items.some((item) =>
             location.pathname.startsWith(item.to)
           );
