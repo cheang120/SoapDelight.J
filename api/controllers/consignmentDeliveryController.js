@@ -485,7 +485,7 @@ export const downloadConsignmentDeliveryPdf = asyncHandler(async (req, res) => {
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
     "Content-Disposition",
-    `attachment; filename="${getDeliveryPdfFilename(delivery)}"`
+    `inline; filename="${getDeliveryPdfFilename(delivery)}"`
   );
 
   doc.pipe(res);

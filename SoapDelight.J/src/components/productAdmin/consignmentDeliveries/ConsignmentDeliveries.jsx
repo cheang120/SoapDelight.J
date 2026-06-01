@@ -376,32 +376,17 @@ const ConsignmentDeliveries = () => {
     resetForm();
   };
 
-  const handleDownloadPdf = async (delivery) => {
+  const handleDownloadPdf = (delivery) => {
     if (!delivery?._id) return;
 
-    setPdfLoadingId(delivery._id);
-    try {
-      const blob = await consignmentDeliveryService.downloadConsignmentDeliveryPdf(
-        delivery._id
-      );
-      const url = window.URL.createObjectURL(
-        new Blob([blob], { type: "application/pdf" })
-      );
-      const link = document.createElement("a");
-      const fileName = `consignment-delivery-${
-        delivery.deliveryNumber || delivery._id
-      }.pdf`;
+    const previewUrl = consignmentDeliveryService.getConsignmentDeliveryPdfUrl(
+      delivery._id
+    );
 
-      link.href = url;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "未能下載寄售清單 PDF");
-    } finally {
-      setPdfLoadingId("");
+    const previewWindow = window.open(previewUrl, "_blank", "noopener,noreferrer");
+
+    if (!previewWindow) {
+      window.location.href = previewUrl;
     }
   };
 
@@ -563,7 +548,7 @@ const ConsignmentDeliveries = () => {
         <div>
           <p className="consignment-deliveries__eyebrow">寄售</p>
           <h2>寄售清單</h2>
-          <p>建立交貨予寄賣點的清單，並可預覽或下載寄售交貨清單 PDF。</p>
+          <p>建立交貨予寄賣點的清單，並可在網頁預覽、列印或另存寄售清單 PDF。</p>
         </div>
       </header>
 
@@ -819,11 +804,7 @@ const ConsignmentDeliveries = () => {
                               onClick={() => handleDownloadPdf(delivery)}
                               disabled={pdfLoadingId === delivery._id}
                             >
-                              {pdfLoadingId === delivery._id
-                                ? "準備 PDF..."
-                                : isDraft
-                                  ? "預覽 PDF"
-                                  : "下載 PDF"}
+                              預覽 / 列印 PDF
                             </button>
                           )}
 
@@ -911,11 +892,7 @@ const ConsignmentDeliveries = () => {
                 onClick={() => handleDownloadPdf(selectedDelivery)}
                 disabled={pdfLoadingId === selectedDelivery._id}
               >
-                {pdfLoadingId === selectedDelivery._id
-                  ? "準備 PDF..."
-                  : selectedDelivery.status === "draft"
-                    ? "預覽 PDF"
-                    : "下載 PDF"}
+                預覽 / 列印 PDF
               </button>
             )}
           </div>
