@@ -22,6 +22,52 @@ const normalizeProductStatus = (status) =>
 const shouldIncludeDiscontinued = (query) =>
   String(query?.includeDiscontinued || "").toLowerCase() === "true";
 
+const getPublicProductAvailability = async (productId) => {
+  const locations = await InventoryLocation.find({
+    active: { $ne: false },
+    type: { $in: ["online", "consignment"] },
+  })
+    .sort({ type: 1, name: 1 })
+    .lean();
+
+  const balances = await InventoryBalance.find({
+    productId,
+    locationId: { $in: locations.map((location) => location._id) },
+  }).lean();
+
+  const balanceByLocation = new Map(
+    balances.map((balance) => [String(balance.locationId), Number(balance.quantity || 0)])
+  );
+
+  const onlineLocation = locations.find((location) => location.code === "ONLINE");
+  const onlineStock = onlineLocation
+    ? Number(balanceByLocation.get(String(onlineLocation._id)) || 0)
+    : 0;
+
+  const consignmentAvailability = locations
+    .filter((location) => location.type === "consignment")
+    .map((location) => {
+      const quantity = Number(balanceByLocation.get(String(location._id)) || 0);
+
+      return {
+        locationId: String(location._id),
+        name: location.name,
+        code: location.code,
+        phone: location.phone || "",
+        email: location.email || "",
+        address: location.address || "",
+        hasStock: quantity > 0,
+      };
+    })
+    .filter((location) => location.hasStock)
+    .map(({ hasStock, ...location }) => location);
+
+  return {
+    onlineStock,
+    consignmentAvailability,
+  };
+};
+
 const getOrCreateCentralInventoryLocation = async (session) =>
   InventoryLocation.findOneAndUpdate(
     { code: "CENTRAL" },
@@ -256,7 +302,7 @@ export const getProducts = asyncHandler(async (req, res, next) => {
 
 export const getProduct = asyncHandler(async (req, res, next) => {
     const includeDiscontinued = shouldIncludeDiscontinued(req.query);
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).lean();
     // if product doesnt exist
     if (!product) {
       res.status(404);
@@ -268,8 +314,13 @@ export const getProduct = asyncHandler(async (req, res, next) => {
       res.status(404);
       throw new Error("Product not found");
     }
+
+    const availability = await getPublicProductAvailability(product._id);
   
-    res.status(200).json(product);
+    res.status(200).json({
+      ...product,
+      ...availability,
+    });
 })
 
 // Delete Product

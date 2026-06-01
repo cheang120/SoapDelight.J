@@ -28,7 +28,7 @@ import ProductImageFallback, {
   getProductImages,
 } from "../../../utils/productImageFallback.jsx";
 
-const stockCopy = (productStatus, quantity) => {
+const stockCopy = (productStatus, quantity, consignmentAvailability = []) => {
   if (productStatus === "discontinued") {
     return {
       label: "此商品已下架或停產",
@@ -43,26 +43,41 @@ const stockCopy = (productStatus, quantity) => {
       tone: "text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800",
     };
   }
+  if (quantity <= 0 && consignmentAvailability.length > 0) {
+    return {
+      label: "寄售點可查詢",
+      helper: "此商品暫未能在網頁直接購買。如有興趣，可到以下合作寄售點查詢或選購，建議前往前先與店舖確認供應情況。",
+      tone: "text-emerald-800 bg-emerald-50 border-emerald-200 dark:text-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800",
+    };
+  }
   if (quantity <= 0) {
     return {
-      label: "暫時缺貨",
-      helper: "此商品暫時未能加入購物車。",
+      label: "網頁暫未能購買",
+      helper: "此商品暫時未能加入網頁購物車。",
       tone: "text-zinc-500 bg-zinc-100 border-zinc-200 dark:text-zinc-300 dark:bg-zinc-900 dark:border-zinc-700",
     };
   }
   if (quantity <= 3) {
     return {
-      label: "少量現貨",
-      helper: "庫存有限，建議儘早下單。",
+      label: "少量網店現貨",
+      helper: "網店庫存有限，建議儘早下單。",
       tone: "text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-200 dark:bg-amber-950/40 dark:border-amber-800",
     };
   }
   return {
-    label: "有現貨",
+    label: "網店有現貨",
     helper: "可正常加入購物車。",
     tone: "text-emerald-800 bg-emerald-50 border-emerald-200 dark:text-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800",
   };
 };
+
+const formatLocationName = (name) =>
+  String(name || "")
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)[0] || String(name || "").trim();
+
+const formatLocationAvailability = (location) => formatLocationName(location?.name);
 
 const InfoPanel = ({ title, subtitle, children, defaultOpen = false }) => (
   <details
@@ -116,9 +131,17 @@ const ProductDetails = () => {
   const selectedImage = productImages[imageIndex] || productImages[0];
   const ratings = product?.ratings || [];
   const averageRating = calculateAverageRating(ratings);
-  const stockQuantity = Number(product?.quantity || 0);
+  const rawProductQuantity = Number(product?.quantity || 0);
+  const consignmentAvailability = Array.isArray(product?.consignmentAvailability)
+    ? product.consignmentAvailability
+    : [];
+  const onlineStockQuantity =
+    product?.onlineStock !== undefined && product?.onlineStock !== null
+      ? Number(product.onlineStock || 0)
+      : rawProductQuantity;
+  const stockQuantity = onlineStockQuantity;
   const productStatus = product?.productStatus || "active";
-  const stock = stockCopy(productStatus, stockQuantity);
+  const stock = stockCopy(productStatus, stockQuantity, consignmentAvailability);
   const cart = cartItems.find((item) => item._id === id);
   const cartQuantity = cart?.cartQuantity || 1;
   const hasDiscount = Number(product?.regularPrice) > Number(product?.price);
@@ -306,6 +329,22 @@ const ProductDetails = () => {
                 </p>
               )}
 
+              {!canPurchase && consignmentAvailability.length > 0 && (
+                <div className="mt-4 rounded-[1rem] border border-emerald-100 bg-emerald-50/70 p-4 text-sm leading-7 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/25 dark:text-emerald-100">
+                  <p className="font-semibold">網頁暫未能購買</p>
+                  <p className="mt-1">
+                    此商品目前可向以下合作寄售點查詢或選購，建議前往前先確認供應情況：
+                  </p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    {consignmentAvailability.map((location) => (
+                      <li key={location.locationId || location.code || location.name}>
+                        {formatLocationAvailability(location)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="mt-8 rounded-[1.25rem] border border-zinc-100 bg-[#fcfcfa] p-4 dark:border-zinc-800 dark:bg-zinc-900/70 sm:p-5">
                 <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-200">
                   數量
@@ -335,7 +374,11 @@ const ProductDetails = () => {
                     </button>
                   </div>
                   <p className="w-full text-left text-sm text-zinc-500 dark:text-zinc-400">
-                    {cart ? "已在購物車" : "加入一次即可開始選購"}
+                    {canPurchase
+                      ? cart
+                        ? "已在購物車"
+                        : "加入一次即可開始選購"
+                      : "網頁暫未能購買，可參考寄售點資訊。"}
                   </p>
                 </div>
               </div>
@@ -352,6 +395,8 @@ const ProductDetails = () => {
                     ? "暫時缺貨・可查詢"
                     : productStatus === "discontinued"
                     ? "此商品已下架"
+                    : !canPurchase && consignmentAvailability.length > 0
+                    ? "網頁暫未能購買"
                     : stockQuantity <= 0
                     ? "暫時缺貨"
                     : "加入購物車"}
