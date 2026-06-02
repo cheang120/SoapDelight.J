@@ -150,7 +150,7 @@ const ProductForm = ({
             <div>
               <h2 className="admin-product-panel-title">商品詳情</h2>
               <p className="admin-product-panel-subtitle">
-                填寫商品目錄資料、價格及基本庫存資料。
+                填寫商品目錄資料、價格及商店顯示設定。
               </p>
             </div>
           </div>
@@ -251,18 +251,6 @@ const ProductForm = ({
                 name="price"
                 className="admin-product-input"
                 value={product?.price}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="admin-product-field">
-              <label className="admin-product-label">商品數量</label>
-              <input
-                type="number"
-                placeholder="商品數量"
-                name="quantity"
-                className="admin-product-input"
-                value={product?.quantity}
                 onChange={handleInputChange}
               />
             </div>

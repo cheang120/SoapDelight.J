@@ -131,7 +131,6 @@ const EditProduct = () => {
       category: product?.category,
       brand: product?.brand,
       color: product?.color?.trim() || "",
-      quantity: Number(product?.quantity),
       regularPrice: product?.regularPrice,
       price: product?.price,
       description: description,
