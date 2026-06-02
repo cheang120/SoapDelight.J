@@ -291,3 +291,87 @@ export const restoreOnlineStockForCancelledOrder = async (
 
   return { restored: true };
 };
+
+export const restoreOnlineStockForReturnedOrder = async (
+  order,
+  { createdBy, stripeRefundId, session } = {}
+) => {
+  if (!order?._id) {
+    throwStockError("找不到需要補回庫存的退貨訂單");
+  }
+
+  if (order.stockRestoreStatus === "restored") {
+    return { restored: false };
+  }
+
+  const productItems = (Array.isArray(order.cartItems) ? order.cartItems : []).filter(
+    (item) => item?.category !== "Shipping"
+  );
+  const restoreByProduct = new Map();
+
+  for (const item of productItems) {
+    const productId = String(item?._id || "").trim();
+    const quantity = Number(item?.cartQuantity || 0);
+
+    if (!productId || !Number.isFinite(quantity) || quantity <= 0) {
+      throwStockError("退貨訂單商品資料不完整，未能補回網店庫存");
+    }
+
+    restoreByProduct.set(
+      productId,
+      Number(restoreByProduct.get(productId) || 0) + quantity
+    );
+  }
+
+  if (restoreByProduct.size === 0) {
+    throwStockError("退貨訂單沒有可補回網店庫存的商品");
+  }
+
+  const onlineLocation = await InventoryLocation.findOne({
+    code: "ONLINE",
+  }).session(session);
+
+  if (!onlineLocation) {
+    throwStockError("找不到 ONLINE 網店存貨地點");
+  }
+
+  const movements = [];
+
+  for (const [productId, quantity] of restoreByProduct.entries()) {
+    await InventoryBalance.findOneAndUpdate(
+      {
+        productId,
+        locationId: onlineLocation._id,
+      },
+      {
+        $inc: {
+          quantity,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+        session,
+      }
+    );
+
+    movements.push({
+      productId,
+      fromLocationId: null,
+      toLocationId: onlineLocation._id,
+      quantity,
+      type: "order_return_restore",
+      direction: "in",
+      referenceType: "Order",
+      referenceId: order._id,
+      sourceDocument: stripeRefundId || String(order._id),
+      note: "Returned shipped order refunded; restocked ONLINE inventory",
+      createdBy,
+    });
+  }
+
+  await StockMovement.create(movements, { session });
+
+  return { restored: true };
+};

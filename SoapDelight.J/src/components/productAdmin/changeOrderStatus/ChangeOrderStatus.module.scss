@@ -39,6 +39,18 @@
   color: #71717a;
 }
 
+.currentStatus {
+  margin-top: 0.75rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #27272a;
+}
+
+.currentStatus strong {
+  font-weight: 700;
+  color: #09090b;
+}
+
 .form {
   display: grid;
   gap: 1rem;

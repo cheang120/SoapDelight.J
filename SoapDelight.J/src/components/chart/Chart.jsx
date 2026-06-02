@@ -80,13 +80,18 @@ const Chart = ({ orders: ordersProp }) => {
     return arr.filter((n) => n === value).length;
   };
 
-  const [q1, q2, q3, q4, q5, q6] = [
+  const [q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11] = [
     "Order Placed...",
     "Processing...",
     "Shipped...",
     "Delivered",
     "Cancellation / Refund Processing",
     "Cancelled / Refunded",
+    "Return Requested / Awaiting Return",
+    "Return Approved / No Return Required",
+    "Return Received / Refund Processing",
+    "Returned / Refunded",
+    "Return Closed / No Refund",
   ];
 
   const placed = getOrderCount(orderStatuses, q1);
@@ -95,9 +100,26 @@ const Chart = ({ orders: ordersProp }) => {
   const delivered = getOrderCount(orderStatuses, q4);
   const refundProcessing = getOrderCount(orderStatuses, q5);
   const cancelledRefunded = getOrderCount(orderStatuses, q6);
+  const returnRequested = getOrderCount(orderStatuses, q7);
+  const returnApproved = getOrderCount(orderStatuses, q8);
+  const returnRefundProcessing = getOrderCount(orderStatuses, q9);
+  const returnedRefunded = getOrderCount(orderStatuses, q10);
+  const returnClosedNoRefund = getOrderCount(orderStatuses, q11);
 
   const data = {
-    labels: ["已下單", "處理中", "已寄出", "已送達", "退款處理中", "已取消退款"],
+    labels: [
+      "已下單",
+      "處理中",
+      "已寄出",
+      "已送達",
+      "退款處理中",
+      "已取消退款",
+      "等待退貨",
+      "毋須退貨",
+      "退貨退款中",
+      "已退貨退款",
+      "退貨無退款結案",
+    ],
     datasets: [
       {
         label: "訂單數量",
@@ -108,6 +130,11 @@ const Chart = ({ orders: ordersProp }) => {
           delivered,
           refundProcessing,
           cancelledRefunded,
+          returnRequested,
+          returnApproved,
+          returnRefundProcessing,
+          returnedRefunded,
+          returnClosedNoRefund,
         ],
         backgroundColor: [
           "#18181b",
@@ -116,6 +143,11 @@ const Chart = ({ orders: ordersProp }) => {
           "#047857",
           "#d97706",
           "#b91c1c",
+          "#2563eb",
+          "#7c3aed",
+          "#ea580c",
+          "#0f766e",
+          "#52525b",
         ],
         borderRadius: 12,
         borderSkipped: false,

@@ -34,6 +34,7 @@ const stockMovementSchema = new mongoose.Schema(
         "online_allocated",
         "online_sold",
         "order_cancel_restore",
+        "order_return_restore",
         "adjustment",
         "damaged",
         "lost",

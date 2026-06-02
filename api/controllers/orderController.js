@@ -5,6 +5,7 @@ import Coupon from "../models/couponMondel.js";
 import {
   calculateTotalPrice,
   restoreOnlineStockForCancelledOrder,
+  restoreOnlineStockForReturnedOrder,
   updateProductQuantity,
 } from "../utils/index.js";
 // import calculateTotalPrice from "../utils"
@@ -17,8 +18,11 @@ import { sendGmail } from "../utils/sendGmail.js";
 import mongoose from "mongoose";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 const REFUND_ELIGIBLE_ORDER_STATUSES = ["Order Placed...", "Processing..."];
+const RETURN_REFUND_ELIGIBLE_ORDER_STATUSES = ["Shipped...", "Delivered"];
 const REFUND_SUBMITTED_MESSAGE =
   "退款已提交，等待 Stripe 確認。客人通知會在退款成功及庫存補回後發出。";
+const RETURN_REFUND_SUBMITTED_MESSAGE =
+  "已提交 Stripe 退款，等待確認。客人通知會在退款成功及退貨商品處理完成後發出。";
 
 const throwHttpError = (statusCode, message) => {
   const error = new Error(message);
@@ -64,6 +68,135 @@ const getAmountMinor = (amountMinor, amount) => {
   }
 
   return undefined;
+};
+
+const roundMoney = (value) => Math.round(Number(value || 0) * 100) / 100;
+
+const getOrderReturnBreakdown = (order) => {
+  const cartItems = Array.isArray(order?.cartItems) ? order.cartItems : [];
+  const productSubtotal = roundMoney(
+    cartItems
+      .filter((item) => item?.category !== "Shipping")
+      .reduce(
+        (total, item) =>
+          total + Number(item?.price || 0) * Number(item?.cartQuantity || 0),
+        0
+      )
+  );
+  const shippingFee = roundMoney(
+    cartItems
+      .filter((item) => item?.category === "Shipping")
+      .reduce((total, item) => total + Number(item?.price || 0), 0)
+  );
+  const couponDiscountRate =
+    String(order?.coupon?.name || "nil").toLowerCase() !== "nil"
+      ? Number(order?.coupon?.discount || 0)
+      : 0;
+  const couponDiscountAmount = roundMoney(
+    (productSubtotal * couponDiscountRate) / 100
+  );
+  const productSubtotalAfterDiscount = roundMoney(
+    Math.max(productSubtotal - couponDiscountAmount, 0)
+  );
+
+  return {
+    productSubtotal,
+    productSubtotalMinor: Math.round(productSubtotal * 100),
+    couponDiscountRate,
+    couponDiscountAmount,
+    couponDiscountAmountMinor: Math.round(couponDiscountAmount * 100),
+    productSubtotalAfterDiscount,
+    productSubtotalAfterDiscountMinor: Math.round(
+      productSubtotalAfterDiscount * 100
+    ),
+    originalShippingFee: shippingFee,
+    originalShippingFeeMinor: Math.round(shippingFee * 100),
+  };
+};
+
+const isStripePaidOrder = (order) =>
+  String(order?.paymentProvider || order?.paymentMethod || "")
+    .trim()
+    .toLowerCase() === "stripe";
+
+const getReturnRefundEligibility = (order) => {
+  if (!order) {
+    return "找不到此訂單";
+  }
+
+  if (!RETURN_REFUND_ELIGIBLE_ORDER_STATUSES.includes(order.orderStatus)) {
+    return "只有已寄出或已送達的訂單可以建立退貨個案";
+  }
+
+  if (!isStripePaidOrder(order)) {
+    return "此訂單不是 Stripe 付款訂單";
+  }
+
+  if (order.paymentStatus !== "paid") {
+    return "此訂單目前不是可建立退貨個案的已付款狀態";
+  }
+
+  if (!order.stripePaymentIntentId && !order.stripeChargeId) {
+    return "此訂單缺少 Stripe 付款參照，請人工跟進";
+  }
+
+  if (
+    order.stripeRefundId ||
+    ["processing", "succeeded"].includes(order.refundStatus) ||
+    !["none", null, undefined].includes(order.returnStatus)
+  ) {
+    return "此訂單已有退貨或退款個案";
+  }
+
+  const paymentAmountMinor = getAmountMinor(
+    order.paymentAmountMinor,
+    order.paymentAmount
+  );
+
+  if (!Number.isInteger(paymentAmountMinor) || paymentAmountMinor <= 0) {
+    return "此訂單缺少有效 Stripe 付款金額，請人工跟進";
+  }
+
+  return "";
+};
+
+const canSubmitReturnRefund = (order) =>
+  ["awaiting_return", "no_return_required"].includes(order?.returnStatus) &&
+  order?.paymentStatus === "paid" &&
+  !order?.stripeRefundId &&
+  ["none", null, undefined].includes(order?.refundStatus);
+
+const getReturnRefundPreviewPayload = (order) => {
+  const createCaseError = getReturnRefundEligibility(order);
+  const breakdown = getOrderReturnBreakdown(order);
+  const paymentAmountMinor = getAmountMinor(
+    order?.paymentAmountMinor,
+    order?.paymentAmount
+  );
+  const stripeFeeAmountMinor = getOptionalNumber(order?.stripeFeeAmountMinor);
+  const hasReturnCase = !["none", null, undefined].includes(order?.returnStatus);
+
+  return {
+    canCreateReturnCase: !createCaseError,
+    cannotCreateReturnCaseReason: createCaseError || "",
+    canSubmitStripeRefund: canSubmitReturnRefund(order),
+    hasReturnCase,
+    returnStatus: order?.returnStatus || "none",
+    returnReasonType: order?.returnReasonType || "",
+    returnRequiresReturn: order?.returnRequiresReturn,
+    returnShippingResponsibility: order?.returnShippingResponsibility || "",
+    returnInspectionStatus: order?.returnInspectionStatus || "",
+    paymentAmountMinor: paymentAmountMinor ?? null,
+    paymentAmount: toMajorCurrencyAmount(paymentAmountMinor) ?? null,
+    paymentCurrency: order?.paymentCurrency || "hkd",
+    stripeFeeAmountMinor: stripeFeeAmountMinor ?? null,
+    stripeFeeAmount: toMajorCurrencyAmount(stripeFeeAmountMinor) ?? null,
+    stripeFeeCurrency:
+      order?.stripeFeeCurrency || order?.paymentCurrency || "hkd",
+    stripeFeeSource: order?.stripeFeeSource || "unavailable",
+    eligibleOrderStatuses: RETURN_REFUND_ELIGIBLE_ORDER_STATUSES,
+    ...breakdown,
+  };
 };
 
 const getRefundEligibility = (order) => {
@@ -257,23 +390,43 @@ const findOrderForStripeRefund = async (refund, session) => {
   return Order.findOne(query).session(session || null);
 };
 
+const isShippedReturnRefund = (refund, order) =>
+  refund?.metadata?.refundFlow === "shipped_return" ||
+  order?.refundFlow === "shipped_return" ||
+  [
+    "refund_processing",
+    "returned_refunded",
+    "return_refund_failed",
+  ].includes(order?.returnStatus);
+
 const markStripeRefundFailed = async (refund) => {
   const order = await findOrderForStripeRefund(refund);
 
-  if (!order || order.stockRestoreStatus === "restored") {
+  if (
+    !order ||
+    order.stockRestoreStatus === "restored" ||
+    order.returnStatus === "returned_refunded"
+  ) {
     return;
   }
 
   order.stripeRefundId = refund.id;
   order.stripeRefundStatus = refund.status || "failed";
   order.refundStatus = "failed";
-  order.cancellationStatus = "refund_failed";
   order.paymentStatus = "refund_failed";
-  order.orderStatus = "Refund Failed / Manual Follow-up Required";
   order.stockRestoreStatus = "not_applicable";
   order.refundFailedAt = new Date();
   order.refundFailureReason =
     refund.failure_reason || "Stripe refund failed; manual follow-up required";
+
+  if (isShippedReturnRefund(refund, order)) {
+    order.returnStatus = "return_refund_failed";
+    order.orderStatus = "Return Refund Failed / Manual Follow-up Required";
+  } else {
+    order.cancellationStatus = "refund_failed";
+    order.orderStatus = "Refund Failed / Manual Follow-up Required";
+  }
+
   await order.save();
 };
 
@@ -281,7 +434,7 @@ const sendRefundCompletionEmailIfNeeded = async (orderId) => {
   const order = await Order.findOneAndUpdate(
     {
       _id: orderId,
-      stockRestoreStatus: "restored",
+      stockRestoreStatus: { $in: ["restored", "not_restocked"] },
       refundEmailStatus: { $in: ["not_sent", "failed", null] },
     },
     {
@@ -313,6 +466,8 @@ const sendRefundCompletionEmailIfNeeded = async (orderId) => {
     refundAmount: order.refundAmount,
     refundCurrency: order.refundCurrency,
     refundPolicyType: order.refundPolicyType,
+    refundFlow: order.refundFlow,
+    stockRestoreStatus: order.stockRestoreStatus,
   });
 
   try {
@@ -339,11 +494,167 @@ const sendRefundCompletionEmailIfNeeded = async (orderId) => {
   }
 };
 
+const processSucceededShippedReturnRefund = async (refund, existingOrder) => {
+  const claimedOrder = await Order.findOneAndUpdate(
+    {
+      _id: existingOrder._id,
+      stockRestoreStatus: {
+        $in: ["pending", "not_restocked", "not_applicable", "failed"],
+      },
+      returnStatus: { $in: ["refund_processing", "return_refund_failed"] },
+      $or: [
+        { stripeRefundId: refund.id },
+        { stripeRefundId: { $exists: false } },
+        { stripeRefundId: null },
+      ],
+    },
+    {
+      $set: {
+        stockRestoreStatus: "restoring",
+        stripeRefundId: refund.id,
+        stripeRefundStatus: refund.status || "succeeded",
+      },
+    },
+    { new: true }
+  );
+
+  if (!claimedOrder) {
+    const latestOrder = await Order.findById(existingOrder._id);
+
+    if (
+      ["restored", "not_restocked"].includes(latestOrder?.stockRestoreStatus) ||
+      latestOrder?.returnStatus === "returned_refunded" ||
+      latestOrder?.paymentStatus === "refunded"
+    ) {
+      return;
+    }
+
+    console.warn(
+      `Shipped return stock action was not claimed for Stripe refund ${refund?.id || ""}`
+    );
+    return;
+  }
+
+  const session = await mongoose.startSession();
+  const orderId = claimedOrder._id;
+
+  try {
+    await session.withTransaction(async () => {
+      const order = await Order.findById(orderId).session(session);
+
+      if (
+        !order ||
+        ["restored", "not_restocked"].includes(order.stockRestoreStatus)
+      ) {
+        return;
+      }
+
+      if (
+        order.stockRestoreStatus !== "restoring" ||
+        !["refund_processing", "return_refund_failed"].includes(
+          order.returnStatus
+        )
+      ) {
+        return;
+      }
+
+      if (order.stripeRefundId && order.stripeRefundId !== refund.id) {
+        throwHttpError(409, "Stripe refund reference does not match order");
+      }
+
+      if (
+        getOptionalNumber(order.refundAmountMinor) !== undefined &&
+        getOptionalNumber(refund.amount) !== order.refundAmountMinor
+      ) {
+        throwHttpError(409, "Stripe refund amount does not match order request");
+      }
+
+      const restockable =
+        order.returnedItemsRestockable === true ||
+        order.returnInspectionStatus === "restockable";
+
+      if (restockable) {
+        await restoreOnlineStockForReturnedOrder(order, {
+          createdBy: order.refundRequestedBy,
+          stripeRefundId: refund.id,
+          session,
+        });
+      }
+
+      order.stripeRefundId = refund.id;
+      order.stripeRefundStatus = refund.status || "succeeded";
+      order.refundStatus = "succeeded";
+      order.paymentStatus = "refunded";
+      order.returnStatus = "returned_refunded";
+      order.orderStatus = "Returned / Refunded";
+      order.refundAmountMinor =
+        getOptionalNumber(refund.amount) ?? order.refundAmountMinor;
+      order.refundAmount = toMajorCurrencyAmount(order.refundAmountMinor);
+      order.refundCurrency = refund.currency || order.refundCurrency;
+      order.refundSucceededAt = new Date();
+      order.stockRestoreStatus = restockable ? "restored" : "not_restocked";
+      order.stockRestoredAt = restockable ? new Date() : undefined;
+      order.stockRestoreError = restockable
+        ? ""
+        : "Returned goods were not restocked";
+      await order.save({ session });
+    });
+  } catch (error) {
+    console.error(
+      `Unable to finalize shipped return Stripe refund ${refund?.id || ""}:`,
+      error?.message || error
+    );
+
+    const latestOrder = await Order.findById(orderId);
+
+    if (
+      ["restored", "not_restocked"].includes(latestOrder?.stockRestoreStatus) ||
+      latestOrder?.returnStatus === "returned_refunded"
+    ) {
+      return;
+    }
+
+    if (["restoring", "pending"].includes(latestOrder?.stockRestoreStatus)) {
+      await Order.findOneAndUpdate(
+        {
+          _id: orderId,
+          stockRestoreStatus: { $in: ["restoring", "pending"] },
+        },
+        {
+          $set: {
+            stripeRefundId: refund?.id,
+            stripeRefundStatus: refund?.status || "succeeded",
+            refundStatus: "succeeded",
+            paymentStatus: "refunded",
+            returnStatus: "return_refund_failed",
+            orderStatus:
+              "Refund Succeeded / Return Stock Follow-up Required",
+            stockRestoreStatus: "failed",
+            stockRestoreError:
+              "Unable to restore returned ONLINE inventory automatically",
+          },
+        }
+      );
+    }
+
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+
+  await sendRefundCompletionEmailIfNeeded(orderId);
+};
+
 const processSucceededStripeRefund = async (refund) => {
   const existingOrder = await findOrderForStripeRefund(refund);
 
   if (!existingOrder) {
     console.warn(`No order found for Stripe refund ${refund?.id || ""}`);
+    return;
+  }
+
+  if (isShippedReturnRefund(refund, existingOrder)) {
+    await processSucceededShippedReturnRefund(refund, existingOrder);
     return;
   }
 
@@ -768,6 +1079,568 @@ export const getRefundPreview = asyncHandler(async (req, res) => {
   res.status(200).json(getRefundPreviewPayload(order));
 });
 
+export const getReturnRefundPreview = asyncHandler(async (req, res) => {
+  let order = await Order.findById(req.params.id);
+
+  if (!order) {
+    throwHttpError(404, "Order not found");
+  }
+
+  if (
+    isStripePaidOrder(order) &&
+    order.paymentStatus === "paid" &&
+    getOptionalNumber(order.stripeFeeAmountMinor) === undefined &&
+    order.stripePaymentIntentId
+  ) {
+    order = await refreshStripePaymentSnapshot(order);
+  }
+
+  res.status(200).json(getReturnRefundPreviewPayload(order));
+});
+
+export const createReturnRequest = asyncHandler(async (req, res) => {
+  const {
+    returnReasonType,
+    returnReason,
+    returnNote,
+    returnRequiresReturn,
+    returnShippingResponsibility,
+    confirmCustomerCommunication,
+  } = req.body;
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    throwHttpError(404, "Order not found");
+  }
+
+  const eligibilityError = getReturnRefundEligibility(order);
+
+  if (eligibilityError) {
+    throwHttpError(400, eligibilityError);
+  }
+
+  const normalizedReasonType = String(returnReasonType || "").trim();
+  const normalizedReason = String(returnReason || "").trim();
+  const normalizedNote = String(returnNote || "").trim();
+  const normalizedShippingResponsibility = String(
+    returnShippingResponsibility || ""
+  ).trim();
+  const allowedReasonTypes = [
+    "customer_change_mind",
+    "company_error",
+    "damaged",
+    "other",
+  ];
+  const allowedShippingResponsibilities = [
+    "customer",
+    "company",
+    "waived",
+    "other",
+  ];
+
+  if (!allowedReasonTypes.includes(normalizedReasonType)) {
+    throwHttpError(400, "請選擇有效退貨原因類型");
+  }
+
+  if (!normalizedReason || !normalizedNote) {
+    throwHttpError(400, "請填寫退貨原因及內部處理備註");
+  }
+
+  if (!allowedShippingResponsibilities.includes(normalizedShippingResponsibility)) {
+    throwHttpError(400, "請選擇退回運費承擔方式");
+  }
+
+  if (typeof returnRequiresReturn !== "boolean") {
+    throwHttpError(400, "請確認是否需要客人退回商品");
+  }
+
+  if (!confirmCustomerCommunication) {
+    throwHttpError(400, "請確認已與客人確認退貨安排");
+  }
+
+  if (normalizedReasonType === "customer_change_mind" && !returnRequiresReturn) {
+    throwHttpError(400, "客人個人原因取消必須先收到退回商品");
+  }
+
+  if (
+    !returnRequiresReturn &&
+    !["company_error", "damaged"].includes(normalizedReasonType)
+  ) {
+    throwHttpError(400, "只有公司出錯或商品損壞個案可以選擇毋須退回商品");
+  }
+
+  const nextReturnStatus = returnRequiresReturn
+    ? "awaiting_return"
+    : "no_return_required";
+  const nextOrderStatus = returnRequiresReturn
+    ? "Return Requested / Awaiting Return"
+    : "Return Approved / No Return Required";
+  const updatedOrder = await Order.findOneAndUpdate(
+    {
+      _id: order._id,
+      orderStatus: { $in: RETURN_REFUND_ELIGIBLE_ORDER_STATUSES },
+      paymentStatus: "paid",
+      returnStatus: { $in: ["none", null] },
+      refundStatus: { $in: ["none", null] },
+      $or: [
+        { stripeRefundId: { $exists: false } },
+        { stripeRefundId: null },
+      ],
+    },
+    {
+      $set: {
+        returnStatus: nextReturnStatus,
+        orderStatus: nextOrderStatus,
+        returnReasonType: normalizedReasonType,
+        returnReason: normalizedReason,
+        returnNote: normalizedNote,
+        returnRequestedAt: new Date(),
+        returnRequestedBy: req.user?._id,
+        returnRequiresReturn,
+        returnShippingResponsibility: normalizedShippingResponsibility,
+      },
+    },
+    { new: true }
+  );
+
+  if (!updatedOrder) {
+    throwHttpError(409, "此訂單已有退貨個案或目前不可建立退貨個案");
+  }
+
+  res.status(201).json({
+    message: returnRequiresReturn
+      ? "已建立退貨個案，等待退貨。"
+      : "已建立退貨個案，已確認毋須退回商品。",
+    order: updatedOrder,
+  });
+});
+
+export const receiveReturnRefund = asyncHandler(async (req, res) => {
+  const {
+    confirmReturnReceived,
+    confirmNoReturnRequired,
+    returnInspectionStatus,
+    returnInspectionNote,
+    returnShippingDeductionMinor,
+    returnShippingDeduction,
+    customRefundAmountMinor,
+    customRefundAmount,
+    manualStripeFeeAmountMinor,
+    manualStripeFeeAmount,
+    confirmRefundAmount,
+    confirmProductCondition,
+    confirmCustomerAgreedFeeAndDeductions,
+    confirmCustomRefundAgreement,
+  } = req.body;
+  let order = await Order.findById(req.params.id);
+
+  if (!order) {
+    throwHttpError(404, "Order not found");
+  }
+
+  if (!canSubmitReturnRefund(order)) {
+    throwHttpError(400, "此訂單目前不可提交已出貨退款");
+  }
+
+  if (!isStripePaidOrder(order)) {
+    throwHttpError(400, "此訂單不是 Stripe 付款訂單");
+  }
+
+  if (!confirmRefundAmount || !confirmProductCondition) {
+    throwHttpError(400, "請確認退款金額及商品狀態");
+  }
+
+  const normalizedInspectionNote = String(returnInspectionNote || "").trim();
+
+  if (!normalizedInspectionNote) {
+    throwHttpError(400, "請填寫商品檢查或毋須退回的處理備註");
+  }
+
+  let normalizedInspectionStatus = String(returnInspectionStatus || "").trim();
+
+  if (order.returnRequiresReturn) {
+    if (!confirmReturnReceived) {
+      throwHttpError(400, "請確認已收到客人退回商品");
+    }
+
+    if (!["restockable", "not_restockable"].includes(normalizedInspectionStatus)) {
+      throwHttpError(400, "請選擇商品檢查結果");
+    }
+  } else {
+    if (!confirmNoReturnRequired) {
+      throwHttpError(400, "請確認此個案毋須客人退回商品");
+    }
+
+    normalizedInspectionStatus = "not_applicable";
+  }
+
+  if (
+    getOptionalNumber(order.stripeFeeAmountMinor) === undefined &&
+    order.stripePaymentIntentId
+  ) {
+    order = await refreshStripePaymentSnapshot(order);
+  }
+
+  const paymentAmountMinor = getAmountMinor(
+    order.paymentAmountMinor,
+    order.paymentAmount
+  );
+
+  if (!Number.isInteger(paymentAmountMinor) || paymentAmountMinor <= 0) {
+    throwHttpError(400, "此訂單缺少有效 Stripe 付款金額，請人工跟進");
+  }
+
+  const breakdown = getOrderReturnBreakdown(order);
+  const savedStripeFeeAmountMinor = getOptionalNumber(
+    order.stripeFeeAmountMinor
+  );
+  const normalizedManualStripeFeeAmountMinor = getAmountMinor(
+    manualStripeFeeAmountMinor,
+    manualStripeFeeAmount
+  );
+  const normalizedReturnShippingDeductionMinor = getAmountMinor(
+    returnShippingDeductionMinor,
+    returnShippingDeduction
+  );
+  const normalizedCustomRefundAmountMinor = getAmountMinor(
+    customRefundAmountMinor,
+    customRefundAmount
+  );
+  let refundAmountMinor;
+  let refundPolicyType;
+  let refundFeeSource =
+    savedStripeFeeAmountMinor !== undefined
+      ? "stripe_balance_transaction"
+      : "unavailable";
+
+  if (order.returnReasonType === "customer_change_mind") {
+    if (!order.returnRequiresReturn || !confirmCustomerAgreedFeeAndDeductions) {
+      throwHttpError(400, "請確認客人已同意扣除手續費及退回運費");
+    }
+
+    const applicableFeeAmountMinor =
+      savedStripeFeeAmountMinor !== undefined
+        ? savedStripeFeeAmountMinor
+        : normalizedManualStripeFeeAmountMinor;
+
+    if (
+      applicableFeeAmountMinor === undefined ||
+      applicableFeeAmountMinor < 0
+    ) {
+      throwHttpError(
+        400,
+        "Stripe 手續費暫未能取得，請輸入已確認的手續費金額並在備註記錄"
+      );
+    }
+
+    if (
+      normalizedReturnShippingDeductionMinor === undefined ||
+      normalizedReturnShippingDeductionMinor < 0
+    ) {
+      throwHttpError(400, "請輸入有效的退回運費扣除金額，可以填寫 0");
+    }
+
+    if (savedStripeFeeAmountMinor === undefined) {
+      refundFeeSource = "manual";
+    }
+
+    refundPolicyType = "customer_pays_fee";
+    refundAmountMinor =
+      breakdown.productSubtotalAfterDiscountMinor -
+      applicableFeeAmountMinor -
+      normalizedReturnShippingDeductionMinor;
+  }
+
+  if (["company_error", "damaged"].includes(order.returnReasonType)) {
+    refundPolicyType = "company_absorbs_fee";
+    refundAmountMinor =
+      breakdown.productSubtotalAfterDiscountMinor +
+      breakdown.originalShippingFeeMinor;
+  }
+
+  if (order.returnReasonType === "other") {
+    if (!confirmCustomRefundAgreement) {
+      throwHttpError(400, "請確認自訂退款金額已與客人協商並記錄原因");
+    }
+
+    refundPolicyType = "custom";
+    refundAmountMinor = normalizedCustomRefundAmountMinor;
+  }
+
+  if (
+    !Number.isInteger(refundAmountMinor) ||
+    refundAmountMinor <= 0 ||
+    refundAmountMinor > paymentAmountMinor
+  ) {
+    throwHttpError(400, "退款金額必須大於 0，並且不可超過 Stripe 付款金額");
+  }
+
+  const returnedItemsRestockable =
+    order.returnRequiresReturn &&
+    normalizedInspectionStatus === "restockable";
+  const claimedOrder = await Order.findOneAndUpdate(
+    {
+      _id: order._id,
+      returnStatus: { $in: ["awaiting_return", "no_return_required"] },
+      paymentStatus: "paid",
+      refundStatus: { $in: ["none", null] },
+      $or: [
+        { stripeRefundId: { $exists: false } },
+        { stripeRefundId: null },
+      ],
+    },
+    {
+      $set: {
+        refundFlow: "shipped_return",
+        returnStatus: "refund_processing",
+        refundStatus: "processing",
+        paymentStatus: "refund_processing",
+        orderStatus: order.returnRequiresReturn
+          ? "Return Received / Refund Processing"
+          : "Return Refund Processing",
+        stockRestoreStatus: returnedItemsRestockable
+          ? "pending"
+          : "not_restocked",
+        returnReceivedAt: order.returnRequiresReturn ? new Date() : undefined,
+        returnReceivedBy: order.returnRequiresReturn ? req.user?._id : undefined,
+        returnInspectionStatus: normalizedInspectionStatus,
+        returnInspectionNote: normalizedInspectionNote,
+        returnedItemsRestockable,
+        returnShippingDeductionMinor:
+          normalizedReturnShippingDeductionMinor ?? 0,
+        returnShippingDeduction: toMajorCurrencyAmount(
+          normalizedReturnShippingDeductionMinor ?? 0
+        ),
+        returnRefundSubmittedAt: new Date(),
+        refundPolicyType,
+        refundReason: order.returnReason,
+        refundNote: `${order.returnNote}\n${normalizedInspectionNote}`.trim(),
+        refundAmountMinor,
+        refundAmount: toMajorCurrencyAmount(refundAmountMinor),
+        refundCurrency: order.paymentCurrency || "hkd",
+        refundRequestedAt: new Date(),
+        refundRequestedBy: req.user?._id,
+        refundFeeSource,
+        manualStripeFeeAmountMinor:
+          refundFeeSource === "manual"
+            ? normalizedManualStripeFeeAmountMinor
+            : undefined,
+        manualStripeFeeAmount:
+          refundFeeSource === "manual"
+            ? toMajorCurrencyAmount(normalizedManualStripeFeeAmountMinor)
+            : undefined,
+      },
+    },
+    { new: true }
+  );
+
+  if (!claimedOrder) {
+    throwHttpError(409, "此訂單已提交退款或目前不可退款");
+  }
+
+  let stripeRefund;
+
+  try {
+    stripeRefund = await stripe.refunds.create(
+      {
+        ...(claimedOrder.stripePaymentIntentId
+          ? { payment_intent: claimedOrder.stripePaymentIntentId }
+          : { charge: claimedOrder.stripeChargeId }),
+        amount: refundAmountMinor,
+        ...(order.returnReasonType === "customer_change_mind"
+          ? { reason: "requested_by_customer" }
+          : {}),
+        metadata: {
+          orderId: String(claimedOrder._id),
+          refundFlow: "shipped_return",
+          returnReasonType: order.returnReasonType,
+          source: "SoapDelight.J",
+        },
+      },
+      {
+        idempotencyKey: `shipped-return-refund:${claimedOrder._id}`,
+      }
+    );
+  } catch (error) {
+    console.error(
+      `Unable to submit shipped return Stripe refund for order ${claimedOrder._id}:`,
+      error?.message || error
+    );
+    await Order.findByIdAndUpdate(claimedOrder._id, {
+      returnStatus: "return_refund_failed",
+      refundStatus: "failed",
+      paymentStatus: "refund_failed",
+      orderStatus: "Return Refund Failed / Manual Follow-up Required",
+      stockRestoreStatus: "not_applicable",
+      refundFailedAt: new Date(),
+      refundFailureReason:
+        "Unable to submit shipped return Stripe refund; manual follow-up required",
+    });
+    throwHttpError(502, "未能提交 Stripe 退款，請稍後再試或人工跟進");
+  }
+
+  const stripeRefundFailed = stripeRefund.status === "failed";
+
+  await Order.findByIdAndUpdate(claimedOrder._id, {
+    stripeRefundId: stripeRefund.id,
+    stripeRefundStatus: stripeRefund.status,
+    stripeRefundCreatedAt: stripeRefund.created
+      ? new Date(Number(stripeRefund.created) * 1000)
+      : new Date(),
+    ...(stripeRefundFailed
+      ? {
+          returnStatus: "return_refund_failed",
+          refundStatus: "failed",
+          paymentStatus: "refund_failed",
+          orderStatus: "Return Refund Failed / Manual Follow-up Required",
+          stockRestoreStatus: "not_applicable",
+          refundFailedAt: new Date(),
+          refundFailureReason:
+            stripeRefund.failure_reason ||
+            "Stripe refund failed; manual follow-up required",
+        }
+      : {}),
+  });
+
+  if (stripeRefundFailed) {
+    throwHttpError(502, "Stripe 退款未能完成，請人工跟進");
+  }
+
+  res.status(202).json({
+    message: RETURN_REFUND_SUBMITTED_MESSAGE,
+  });
+});
+
+export const closeReturnNoRefund = asyncHandler(async (req, res) => {
+  const {
+    noRefundReason,
+    noRefundNote,
+    returnInspectionStatus,
+    returnInspectionNote,
+    confirmReturnReceived,
+    confirmNoReturnRequired,
+    confirmNoRefund,
+  } = req.body;
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    throwHttpError(404, "Order not found");
+  }
+
+  const allowedOrderStatuses = [
+    ...RETURN_REFUND_ELIGIBLE_ORDER_STATUSES,
+    "Return Requested / Awaiting Return",
+    "Return Approved / No Return Required",
+  ];
+
+  if (!allowedOrderStatuses.includes(order.orderStatus)) {
+    throwHttpError(400, "只有已出貨退貨個案可以不設退款結案");
+  }
+
+  if (!["awaiting_return", "no_return_required"].includes(order.returnStatus)) {
+    throwHttpError(400, "此訂單未有可結案的退貨個案");
+  }
+
+  if (order.stripeRefundId) {
+    throwHttpError(400, "此訂單已建立 Stripe 退款，不可不設退款結案");
+  }
+
+  if (["processing", "succeeded", "no_refund"].includes(order.refundStatus)) {
+    throwHttpError(400, "此訂單退款或不退款結案已在處理中");
+  }
+
+  if (["refund_processing", "refunded"].includes(order.paymentStatus)) {
+    throwHttpError(400, "此訂單付款狀態不可不設退款結案");
+  }
+
+  if (order.returnedItemsRestockable === true) {
+    throwHttpError(400, "可重新上架的退貨不可使用不退款結案");
+  }
+
+  if (
+    order.returnInspectionStatus === "restockable" ||
+    returnInspectionStatus === "restockable"
+  ) {
+    throwHttpError(400, "可重新上架的退貨不可使用不退款結案");
+  }
+
+  if (order.returnRequiresReturn && !confirmReturnReceived) {
+    throwHttpError(400, "請確認已收到退回商品");
+  }
+
+  if (!order.returnRequiresReturn && !confirmNoReturnRequired) {
+    throwHttpError(400, "請確認此個案毋須退回商品");
+  }
+
+  const normalizedNoRefundReason = String(noRefundReason || "").trim();
+  const normalizedNoRefundNote = String(noRefundNote || "").trim();
+  const normalizedInspectionNote = String(returnInspectionNote || "").trim();
+
+  if (!normalizedNoRefundReason) {
+    throwHttpError(400, "請填寫不設退款原因");
+  }
+
+  if (!normalizedNoRefundNote) {
+    throwHttpError(400, "請填寫不設退款內部備註");
+  }
+
+  if (!normalizedInspectionNote) {
+    throwHttpError(400, "請填寫商品檢查或處理備註");
+  }
+
+  if (!confirmNoRefund) {
+    throwHttpError(400, "請確認此退貨個案不設退款，且商品不會重新上架");
+  }
+
+  const updatedOrder = await Order.findOneAndUpdate(
+    {
+      _id: order._id,
+      orderStatus: { $in: allowedOrderStatuses },
+      returnStatus: { $in: ["awaiting_return", "no_return_required"] },
+      paymentStatus: "paid",
+      refundStatus: { $in: ["none", null] },
+      $or: [
+        { stripeRefundId: { $exists: false } },
+        { stripeRefundId: null },
+      ],
+      returnedItemsRestockable: { $ne: true },
+      returnInspectionStatus: { $ne: "restockable" },
+    },
+    {
+      $set: {
+        orderStatus: "Return Closed / No Refund",
+        paymentStatus: "paid",
+        refundStatus: "no_refund",
+        returnStatus: "closed_no_refund",
+        refundFlow: "shipped_return_no_refund",
+        refundAmountMinor: 0,
+        refundAmount: 0,
+        refundCurrency: order.paymentCurrency || "hkd",
+        stockRestoreStatus: "not_restocked",
+        returnInspectionStatus: "not_restockable",
+        returnInspectionNote: normalizedInspectionNote,
+        returnedItemsRestockable: false,
+        returnReceivedAt: order.returnRequiresReturn ? new Date() : undefined,
+        returnReceivedBy: order.returnRequiresReturn ? req.user?._id : undefined,
+        noRefundReason: normalizedNoRefundReason,
+        noRefundNote: normalizedNoRefundNote,
+        noRefundClosedAt: new Date(),
+        noRefundClosedBy: req.user?._id,
+      },
+    },
+    { new: true }
+  );
+
+  if (!updatedOrder) {
+    throwHttpError(409, "此退貨個案已被處理，請重新整理後再試");
+  }
+
+  res.status(200).json({
+    message: "退貨已處理，未有退款；商品未重新上架。",
+    order: updatedOrder,
+  });
+});
+
 export const createCancelRefund = asyncHandler(async (req, res) => {
   const {
     refundPolicyType,
@@ -1024,6 +1897,10 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     order.cancellationStatus !== "none"
   ) {
     throwHttpError(400, "退款處理中的訂單不可手動更改狀態");
+  }
+
+  if (order.returnStatus && order.returnStatus !== "none") {
+    throwHttpError(400, "退貨處理中的訂單不可手動更改狀態");
   }
 
   // Update Product

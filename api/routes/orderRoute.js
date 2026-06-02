@@ -4,6 +4,8 @@ import { protect, adminOnly,authorOnly } from "../middleware/auth.middleware.js"
 import {
   createOrder, getOrder, getOrders, updateOrderStatus,
   createCancelRefund, getRefundPreview,
+  closeReturnNoRefund, createReturnRequest, getReturnRefundPreview,
+  receiveReturnRefund,
   payWithStripe,
   // payWithFlutterwave,
   // verifyFlwPayment,
@@ -14,6 +16,10 @@ import {
 router.post("/", protect, createOrder);
 router.get("/admin/:id/refund-preview", protect, authorOnly, getRefundPreview);
 router.post("/admin/:id/cancel-refund", protect, authorOnly, createCancelRefund);
+router.get("/admin/:id/return-refund-preview", protect, authorOnly, getReturnRefundPreview);
+router.post("/admin/:id/return-request", protect, authorOnly, createReturnRequest);
+router.post("/admin/:id/receive-return-refund", protect, authorOnly, receiveReturnRefund);
+router.post("/admin/:id/close-return-no-refund", protect, authorOnly, closeReturnNoRefund);
 router.patch("/:id", protect, authorOnly, updateOrderStatus);
 
 router.get("/", protect, getOrders);

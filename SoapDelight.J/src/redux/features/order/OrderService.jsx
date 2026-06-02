@@ -37,6 +37,32 @@ const cancelRefund = async (id, formData) => {
   return response.data;
 };
 
+const getReturnRefundPreview = async (id) => {
+  const response = await axios.get(`${API_URL}admin/${id}/return-refund-preview`);
+  return response.data;
+};
+
+const createReturnRequest = async (id, formData) => {
+  const response = await axios.post(`${API_URL}admin/${id}/return-request`, formData);
+  return response.data;
+};
+
+const receiveReturnRefund = async (id, formData) => {
+  const response = await axios.post(
+    `${API_URL}admin/${id}/receive-return-refund`,
+    formData
+  );
+  return response.data;
+};
+
+const closeReturnNoRefund = async (id, formData) => {
+  const response = await axios.post(
+    `${API_URL}admin/${id}/close-return-no-refund`,
+    formData
+  );
+  return response.data;
+};
+
 const orderService = {
   createOrder,
   getOrders,
@@ -44,6 +70,10 @@ const orderService = {
   updateOrderStatus,
   getRefundPreview,
   cancelRefund,
+  getReturnRefundPreview,
+  createReturnRequest,
+  receiveReturnRefund,
+  closeReturnNoRefund,
 };
 
 export default orderService;

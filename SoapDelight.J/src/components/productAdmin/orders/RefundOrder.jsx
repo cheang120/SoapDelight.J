@@ -62,6 +62,7 @@ const RefundOrder = ({ order }) => {
   const [submittedMessage, setSubmittedMessage] = useState("");
   const [isPolling, setIsPolling] = useState(false);
   const [pollTimedOut, setPollTimedOut] = useState(false);
+  const [shouldPollAfterSubmit, setShouldPollAfterSubmit] = useState(false);
   const pollIntervalRef = useRef(null);
   const pollTimeoutRef = useRef(null);
 
@@ -80,6 +81,7 @@ const RefundOrder = ({ order }) => {
   const stopPolling = useCallback(() => {
     clearPollingTimers();
     setIsPolling(false);
+    setShouldPollAfterSubmit(false);
   }, [clearPollingTimers]);
 
   const startPolling = useCallback(
@@ -101,6 +103,7 @@ const RefundOrder = ({ order }) => {
       pollTimeoutRef.current = setTimeout(() => {
         clearPollingTimers();
         setIsPolling(false);
+        setShouldPollAfterSubmit(false);
         setPollTimedOut(true);
       }, REFUND_POLL_TIMEOUT_MS);
     },
@@ -120,15 +123,17 @@ const RefundOrder = ({ order }) => {
     order?.refundStatus === "succeeded" &&
     order?.stockRestoreStatus === "restored";
   const isRefundFailed =
-    order?.cancellationStatus === "refund_failed" ||
-    order?.refundStatus === "failed";
+    order?.cancellationStatus === "refund_failed";
   const isRefundProcessing =
-    order?.cancellationStatus === "refund_processing" ||
-    order?.paymentStatus === "refund_processing" ||
-    order?.refundStatus === "processing";
+    order?.cancellationStatus === "refund_processing";
   const existingRefundMessage = refundStatusLabel(order, pollTimedOut);
+  const isPhase1OrderStatus = ["Order Placed...", "Processing..."].includes(
+    order?.orderStatus
+  );
+  const hasPhase1RefundState =
+    Boolean(order?.cancellationStatus) && order.cancellationStatus !== "none";
   const isEligibleOrder =
-    ["Order Placed...", "Processing..."].includes(order?.orderStatus) &&
+    isPhase1OrderStatus &&
     String(order?.paymentProvider || order?.paymentMethod || "").toLowerCase() ===
       "stripe" &&
     order?.paymentStatus === "paid" &&
@@ -153,7 +158,12 @@ const RefundOrder = ({ order }) => {
       return;
     }
 
-    if (isRefundProcessing && !isPolling && !pollTimedOut) {
+    if (
+      isRefundProcessing &&
+      shouldPollAfterSubmit &&
+      !isPolling &&
+      !pollTimedOut
+    ) {
       startPolling(order?._id);
     }
   }, [
@@ -163,11 +173,16 @@ const RefundOrder = ({ order }) => {
     isRefundProcessing,
     order?._id,
     pollTimedOut,
+    shouldPollAfterSubmit,
     startPolling,
     stopPolling,
   ]);
 
   if (!order) return null;
+
+  if (!isPhase1OrderStatus && !hasPhase1RefundState) {
+    return null;
+  }
 
   const closePanel = () => {
     setIsOpen(false);
@@ -240,6 +255,7 @@ const RefundOrder = ({ order }) => {
 
     toast.success(result.payload?.message || "退款已提交");
     setSubmittedMessage(REFUND_WAITING_MESSAGE);
+    setShouldPollAfterSubmit(true);
     closePanel();
     startPolling(order._id);
   };

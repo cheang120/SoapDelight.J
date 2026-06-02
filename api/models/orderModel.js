@@ -184,6 +184,67 @@ const orderSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    refundFlow: {
+      type: String,
+      trim: true,
+    },
+    returnStatus: {
+      type: String,
+      default: "none",
+      trim: true,
+    },
+    returnReasonType: {
+      type: String,
+      trim: true,
+    },
+    returnReason: {
+      type: String,
+      trim: true,
+    },
+    returnNote: {
+      type: String,
+      trim: true,
+    },
+    returnRequestedAt: Date,
+    returnRequestedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    returnRequiresReturn: Boolean,
+    returnShippingResponsibility: {
+      type: String,
+      trim: true,
+    },
+    returnShippingDeductionMinor: Number,
+    returnShippingDeduction: Number,
+    returnReceivedAt: Date,
+    returnReceivedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    returnInspectionStatus: {
+      type: String,
+      trim: true,
+    },
+    returnInspectionNote: {
+      type: String,
+      trim: true,
+    },
+    returnedItemsRestockable: Boolean,
+    returnRefundSubmittedAt: Date,
+    noRefundReason: {
+      type: String,
+      trim: true,
+    },
+    noRefundNote: {
+      type: String,
+      trim: true,
+    },
+    noRefundClosedAt: Date,
+    noRefundClosedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     cartItems: {
         // type:String,
       type: [Object],

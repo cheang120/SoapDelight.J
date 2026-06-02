@@ -5,6 +5,7 @@ import Loader from "../../Loader";
 import OrderDetailsComp from "../../../pages/order/OrderDetailsComp";
 import ChangeOrderStatus from "../changeOrderStatus/ChangeOrderStatus";
 import RefundOrder from "./RefundOrder";
+import ReturnRefundOrder from "./ReturnRefundOrder";
 import { getOrder } from "../../../redux/features/order/OrderSlice";
 
 const OrderDetails = () => {
@@ -41,7 +42,9 @@ const OrderDetails = () => {
       )}
 
       <RefundOrder order={order} />
-      {(!order?.cancellationStatus || order.cancellationStatus === "none") && (
+      <ReturnRefundOrder order={order} />
+      {(!order?.cancellationStatus || order.cancellationStatus === "none") &&
+        (!order?.returnStatus || order.returnStatus === "none") && (
         <ChangeOrderStatus />
       )}
     </>

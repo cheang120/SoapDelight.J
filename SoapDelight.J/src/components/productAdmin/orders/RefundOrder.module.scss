@@ -140,6 +140,7 @@
 }
 
 .field input,
+.field select,
 .field textarea {
   width: 100%;
   border: 1px solid #d4d4d8;
@@ -152,6 +153,7 @@
 }
 
 .field input:focus,
+.field select:focus,
 .field textarea:focus {
   border-color: #a1a1aa;
   box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.06);
@@ -241,6 +243,7 @@
 }
 
 :global(.dark) .field input,
+:global(.dark) .field select,
 :global(.dark) .field textarea,
 :global(.dark) .secondaryButton {
   border-color: #52525b;

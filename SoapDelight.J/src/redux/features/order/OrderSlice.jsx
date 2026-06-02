@@ -10,9 +10,16 @@ const isRefundedOrCancelledOrder = (order) =>
     order?.cancellationStatus
   ) ||
   ["processing", "succeeded", "failed"].includes(order?.refundStatus) ||
-  ["Cancelled / Refunded", "Cancellation / Refund Processing"].includes(
-    order?.orderStatus
-  );
+  ["refund_processing", "returned_refunded", "return_refund_failed"].includes(
+    order?.returnStatus
+  ) ||
+  [
+    "Cancelled / Refunded",
+    "Cancellation / Refund Processing",
+    "Return Received / Refund Processing",
+    "Return Refund Processing",
+    "Returned / Refunded",
+  ].includes(order?.orderStatus);
 
 const initialState = {
   order: null,
@@ -25,6 +32,9 @@ const initialState = {
   message: "",
   refundMessage: "",
   refundPreview: null,
+  isReturnRefundLoading: false,
+  returnRefundMessage: "",
+  returnRefundPreview: null,
 };
 
 // Create New Order
@@ -129,6 +139,58 @@ export const cancelRefund = createAsyncThunk(
   }
 );
 
+export const getReturnRefundPreview = createAsyncThunk(
+  "orders/getReturnRefundPreview",
+  async (id, thunkAPI) => {
+    try {
+      return await orderService.getReturnRefundPreview(id);
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const createReturnRequest = createAsyncThunk(
+  "orders/createReturnRequest",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await orderService.createReturnRequest(id, formData);
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const receiveReturnRefund = createAsyncThunk(
+  "orders/receiveReturnRefund",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await orderService.receiveReturnRefund(id, formData);
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const closeReturnNoRefund = createAsyncThunk(
+  "orders/closeReturnNoRefund",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await orderService.closeReturnNoRefund(id, formData);
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const orderSlice = createSlice({
   name: "order",
   initialState,
@@ -141,6 +203,10 @@ const orderSlice = createSlice({
     CLEAR_REFUND_PREVIEW(state) {
       state.refundPreview = null;
       state.refundMessage = "";
+    },
+    CLEAR_RETURN_REFUND_PREVIEW(state) {
+      state.returnRefundPreview = null;
+      state.returnRefundMessage = "";
     },
   },
   extraReducers: (builder) => {
@@ -233,11 +299,63 @@ const orderSlice = createSlice({
       .addCase(cancelRefund.rejected, (state, action) => {
         state.isRefundLoading = false;
         state.refundMessage = action.payload;
+      })
+      .addCase(getReturnRefundPreview.pending, (state) => {
+        state.isReturnRefundLoading = true;
+        state.returnRefundMessage = "";
+      })
+      .addCase(getReturnRefundPreview.fulfilled, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundPreview = action.payload;
+      })
+      .addCase(getReturnRefundPreview.rejected, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundMessage = action.payload;
+      })
+      .addCase(createReturnRequest.pending, (state) => {
+        state.isReturnRefundLoading = true;
+        state.returnRefundMessage = "";
+      })
+      .addCase(createReturnRequest.fulfilled, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundMessage = action.payload?.message || "";
+      })
+      .addCase(createReturnRequest.rejected, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundMessage = action.payload;
+      })
+      .addCase(receiveReturnRefund.pending, (state) => {
+        state.isReturnRefundLoading = true;
+        state.returnRefundMessage = "";
+      })
+      .addCase(receiveReturnRefund.fulfilled, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundMessage = action.payload?.message || "";
+      })
+      .addCase(receiveReturnRefund.rejected, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundMessage = action.payload;
+      })
+      .addCase(closeReturnNoRefund.pending, (state) => {
+        state.isReturnRefundLoading = true;
+        state.returnRefundMessage = "";
+      })
+      .addCase(closeReturnNoRefund.fulfilled, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundMessage = action.payload?.message || "";
+      })
+      .addCase(closeReturnNoRefund.rejected, (state, action) => {
+        state.isReturnRefundLoading = false;
+        state.returnRefundMessage = action.payload;
       });
   },
 });
 
-export const { CALC_TOTAL_ORDER_AMOUNT, CLEAR_REFUND_PREVIEW } = orderSlice.actions;
+export const {
+  CALC_TOTAL_ORDER_AMOUNT,
+  CLEAR_REFUND_PREVIEW,
+  CLEAR_RETURN_REFUND_PREVIEW,
+} = orderSlice.actions;
 
 export const selectOrders = (state) => state.order.orders;
 export const selectTotalOrderAmount = (state) => state.order.totalOrderAmount;
