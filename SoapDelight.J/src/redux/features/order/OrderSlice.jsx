@@ -2,6 +2,18 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import orderService from "./OrderService";
 import { toast } from "react-toastify";
 
+const isRefundedOrCancelledOrder = (order) =>
+  ["refunded", "refund_processing", "refund_failed"].includes(
+    order?.paymentStatus
+  ) ||
+  ["refund_processing", "cancelled_refunded", "refund_failed"].includes(
+    order?.cancellationStatus
+  ) ||
+  ["processing", "succeeded", "failed"].includes(order?.refundStatus) ||
+  ["Cancelled / Refunded", "Cancellation / Refund Processing"].includes(
+    order?.orderStatus
+  );
+
 const initialState = {
   order: null,
   orders: [],
@@ -122,15 +134,9 @@ const orderSlice = createSlice({
   initialState,
   reducers: {
     CALC_TOTAL_ORDER_AMOUNT(state) {
-      const array = [];
-      state.orders.map((item) => {
-        const { orderAmount } = item;
-        return array.push(orderAmount);
-      });
-      const totalAmount = array.reduce((a, b) => {
-        return a + b;
-      }, 0);
-      state.totalOrderAmount = totalAmount;
+      state.totalOrderAmount = (Array.isArray(state.orders) ? state.orders : [])
+        .filter((order) => !isRefundedOrCancelledOrder(order))
+        .reduce((total, order) => total + Number(order?.orderAmount || 0), 0);
     },
     CLEAR_REFUND_PREVIEW(state) {
       state.refundPreview = null;

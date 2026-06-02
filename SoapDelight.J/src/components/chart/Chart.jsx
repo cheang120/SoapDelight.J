@@ -1,4 +1,4 @@
-import React from "react";
+/* eslint-disable react/prop-types */
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -80,25 +80,43 @@ const Chart = ({ orders: ordersProp }) => {
     return arr.filter((n) => n === value).length;
   };
 
-  const [q1, q2, q3, q4] = [
+  const [q1, q2, q3, q4, q5, q6] = [
     "Order Placed...",
     "Processing...",
     "Shipped...",
     "Delivered",
+    "Cancellation / Refund Processing",
+    "Cancelled / Refunded",
   ];
 
   const placed = getOrderCount(orderStatuses, q1);
   const processing = getOrderCount(orderStatuses, q2);
   const shipped = getOrderCount(orderStatuses, q3);
   const delivered = getOrderCount(orderStatuses, q4);
+  const refundProcessing = getOrderCount(orderStatuses, q5);
+  const cancelledRefunded = getOrderCount(orderStatuses, q6);
 
   const data = {
-    labels: ["已下單", "處理中", "已寄出", "已送達"],
+    labels: ["已下單", "處理中", "已寄出", "已送達", "退款處理中", "已取消退款"],
     datasets: [
       {
         label: "訂單數量",
-        data: [placed, processing, shipped, delivered],
-        backgroundColor: ["#18181b", "#71717a", "#a1a1aa", "#047857"],
+        data: [
+          placed,
+          processing,
+          shipped,
+          delivered,
+          refundProcessing,
+          cancelledRefunded,
+        ],
+        backgroundColor: [
+          "#18181b",
+          "#71717a",
+          "#a1a1aa",
+          "#047857",
+          "#d97706",
+          "#b91c1c",
+        ],
         borderRadius: 12,
         borderSkipped: false,
         maxBarThickness: 52,

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -9,6 +9,13 @@ import {
   getRefundPreview,
 } from "../../../redux/features/order/OrderSlice";
 import styles from "./RefundOrder.module.scss";
+
+const REFUND_POLL_INTERVAL_MS = 2500;
+const REFUND_POLL_TIMEOUT_MS = 60000;
+const REFUND_WAITING_MESSAGE =
+  "退款已提交，正在等待 Stripe 確認及庫存回補...";
+const REFUND_TIMEOUT_MESSAGE =
+  "退款已提交，仍在等待 Stripe webhook 確認。請稍後重新整理。";
 
 const formatMoney = (value, currency = "HKD") => {
   if (value === null || value === undefined || value === "") return "未能取得";
@@ -21,7 +28,7 @@ const feeSourceLabel = (source) => {
   return "暫未能從 Stripe 取得";
 };
 
-const refundStatusLabel = (order) => {
+const refundStatusLabel = (order, pollTimedOut = false) => {
   if (order?.cancellationStatus === "cancelled_refunded") {
     return "退款已完成，網店庫存已補回。";
   }
@@ -29,7 +36,7 @@ const refundStatusLabel = (order) => {
     return "退款處理失敗，請人工跟進。";
   }
   if (order?.cancellationStatus === "refund_processing") {
-    return "退款已提交，正在等待 Stripe 確認。";
+    return pollTimedOut ? REFUND_TIMEOUT_MESSAGE : REFUND_WAITING_MESSAGE;
   }
   return "";
 };
@@ -53,22 +60,79 @@ const RefundOrder = ({ order }) => {
   const [confirmCustomRefundAgreement, setConfirmCustomRefundAgreement] =
     useState(false);
   const [submittedMessage, setSubmittedMessage] = useState("");
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollTimedOut, setPollTimedOut] = useState(false);
+  const pollIntervalRef = useRef(null);
+  const pollTimeoutRef = useRef(null);
+
+  const clearPollingTimers = useCallback(() => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
+    }
+  }, []);
+
+  const stopPolling = useCallback(() => {
+    clearPollingTimers();
+    setIsPolling(false);
+  }, [clearPollingTimers]);
+
+  const startPolling = useCallback(
+    (orderId) => {
+      if (!orderId || pollIntervalRef.current) return;
+
+      setPollTimedOut(false);
+      setIsPolling(true);
+
+      const refreshOrder = () => {
+        dispatch(getOrder(orderId));
+      };
+
+      refreshOrder();
+      pollIntervalRef.current = setInterval(
+        refreshOrder,
+        REFUND_POLL_INTERVAL_MS
+      );
+      pollTimeoutRef.current = setTimeout(() => {
+        clearPollingTimers();
+        setIsPolling(false);
+        setPollTimedOut(true);
+      }, REFUND_POLL_TIMEOUT_MS);
+    },
+    [clearPollingTimers, dispatch]
+  );
 
   useEffect(() => {
     return () => {
+      clearPollingTimers();
       dispatch(CLEAR_REFUND_PREVIEW());
     };
-  }, [dispatch]);
+  }, [clearPollingTimers, dispatch]);
 
-  if (!order) return null;
-
-  const existingRefundMessage = refundStatusLabel(order);
+  const isRefundCompleted =
+    order?.cancellationStatus === "cancelled_refunded" &&
+    order?.paymentStatus === "refunded" &&
+    order?.refundStatus === "succeeded" &&
+    order?.stockRestoreStatus === "restored";
+  const isRefundFailed =
+    order?.cancellationStatus === "refund_failed" ||
+    order?.refundStatus === "failed";
+  const isRefundProcessing =
+    order?.cancellationStatus === "refund_processing" ||
+    order?.paymentStatus === "refund_processing" ||
+    order?.refundStatus === "processing";
+  const existingRefundMessage = refundStatusLabel(order, pollTimedOut);
   const isEligibleOrder =
-    ["Order Placed...", "Processing..."].includes(order.orderStatus) &&
-    String(order.paymentProvider || order.paymentMethod || "").toLowerCase() ===
+    ["Order Placed...", "Processing..."].includes(order?.orderStatus) &&
+    String(order?.paymentProvider || order?.paymentMethod || "").toLowerCase() ===
       "stripe" &&
-    order.paymentStatus === "paid" &&
-    Boolean(order.stripePaymentIntentId || order.stripeChargeId);
+    order?.paymentStatus === "paid" &&
+    Boolean(order?.stripePaymentIntentId || order?.stripeChargeId);
   const feeUnavailable =
     refundPreview?.stripeFeeAmountMinor === null ||
     refundPreview?.stripeFeeAmountMinor === undefined;
@@ -82,6 +146,28 @@ const RefundOrder = ({ order }) => {
         : feeUnavailable
           ? Math.max(paymentAmount - manualFee, 0)
           : Number(refundPreview?.defaultRefundAmount || 0);
+
+  useEffect(() => {
+    if (isRefundCompleted || isRefundFailed) {
+      stopPolling();
+      return;
+    }
+
+    if (isRefundProcessing && !isPolling && !pollTimedOut) {
+      startPolling(order?._id);
+    }
+  }, [
+    isPolling,
+    isRefundCompleted,
+    isRefundFailed,
+    isRefundProcessing,
+    order?._id,
+    pollTimedOut,
+    startPolling,
+    stopPolling,
+  ]);
+
+  if (!order) return null;
 
   const closePanel = () => {
     setIsOpen(false);
@@ -152,11 +238,10 @@ const RefundOrder = ({ order }) => {
       return;
     }
 
-    const message = result.payload?.message || "退款已提交";
-    toast.success(message);
-    setSubmittedMessage(message);
+    toast.success(result.payload?.message || "退款已提交");
+    setSubmittedMessage(REFUND_WAITING_MESSAGE);
     closePanel();
-    await dispatch(getOrder(order._id));
+    startPolling(order._id);
   };
 
   if (!isEligibleOrder && !existingRefundMessage && !submittedMessage) {
