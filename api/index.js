@@ -17,6 +17,7 @@ import inventoryRoute from './routes/inventoryRoute.js';
 import consignmentReportRoute from './routes/consignmentReportRoute.js';
 import companyProfileRoute from './routes/companyProfileRoute.js';
 import consignmentDeliveryRoute from './routes/consignmentDeliveryRoute.js';
+import { stripeRefundWebhook } from './controllers/orderController.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -48,7 +49,12 @@ app.use(express.static(path.join(__dirname, '/SoapDelight.J/dist')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// app.use("/api/transaction", transactionRoute);
+// Stripe requires the untouched request bytes for webhook signature verification.
+app.post(
+  '/api/order/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  stripeRefundWebhook
+);
 
 app.use(express.json());
 

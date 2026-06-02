@@ -9,7 +9,10 @@ const initialState = {
   isError: false,
   isSuccess: false,
   isLoading: false,
+  isRefundLoading: false,
   message: "",
+  refundMessage: "",
+  refundPreview: null,
 };
 
 // Create New Order
@@ -88,11 +91,37 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
+export const getRefundPreview = createAsyncThunk(
+  "orders/getRefundPreview",
+  async (id, thunkAPI) => {
+    try {
+      return await orderService.getRefundPreview(id);
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const cancelRefund = createAsyncThunk(
+  "orders/cancelRefund",
+  async ({ id, formData }, thunkAPI) => {
+    try {
+      return await orderService.cancelRefund(id, formData);
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const orderSlice = createSlice({
   name: "order",
   initialState,
   reducers: {
-    CALC_TOTAL_ORDER_AMOUNT(state, action) {
+    CALC_TOTAL_ORDER_AMOUNT(state) {
       const array = [];
       state.orders.map((item) => {
         const { orderAmount } = item;
@@ -102,6 +131,10 @@ const orderSlice = createSlice({
         return a + b;
       }, 0);
       state.totalOrderAmount = totalAmount;
+    },
+    CLEAR_REFUND_PREVIEW(state) {
+      state.refundPreview = null;
+      state.refundMessage = "";
     },
   },
   extraReducers: (builder) => {
@@ -170,11 +203,35 @@ const orderSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         toast.error(action.payload);
+      })
+      .addCase(getRefundPreview.pending, (state) => {
+        state.isRefundLoading = true;
+        state.refundMessage = "";
+      })
+      .addCase(getRefundPreview.fulfilled, (state, action) => {
+        state.isRefundLoading = false;
+        state.refundPreview = action.payload;
+      })
+      .addCase(getRefundPreview.rejected, (state, action) => {
+        state.isRefundLoading = false;
+        state.refundMessage = action.payload;
+      })
+      .addCase(cancelRefund.pending, (state) => {
+        state.isRefundLoading = true;
+        state.refundMessage = "";
+      })
+      .addCase(cancelRefund.fulfilled, (state, action) => {
+        state.isRefundLoading = false;
+        state.refundMessage = action.payload?.message || "";
+      })
+      .addCase(cancelRefund.rejected, (state, action) => {
+        state.isRefundLoading = false;
+        state.refundMessage = action.payload;
       });
   },
 });
 
-export const { CALC_TOTAL_ORDER_AMOUNT } = orderSlice.actions;
+export const { CALC_TOTAL_ORDER_AMOUNT, CLEAR_REFUND_PREVIEW } = orderSlice.actions;
 
 export const selectOrders = (state) => state.order.orders;
 export const selectTotalOrderAmount = (state) => state.order.totalOrderAmount;

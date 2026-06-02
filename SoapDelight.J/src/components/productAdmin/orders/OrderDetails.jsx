@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Loader from "../../Loader";
 import OrderDetailsComp from "../../../pages/order/OrderDetailsComp";
 import ChangeOrderStatus from "../changeOrderStatus/ChangeOrderStatus";
+import RefundOrder from "./RefundOrder";
 import { getOrder } from "../../../redux/features/order/OrderSlice";
 
 const OrderDetails = () => {
@@ -39,7 +40,10 @@ const OrderDetails = () => {
         />
       )}
 
-      <ChangeOrderStatus />
+      <RefundOrder order={order} />
+      {(!order?.cancellationStatus || order.cancellationStatus === "none") && (
+        <ChangeOrderStatus />
+      )}
     </>
   );
 };

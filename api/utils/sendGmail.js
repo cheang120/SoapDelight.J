@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import MailGen from "mailgen";
-import fs from "fs";
 
 
 export const sendGmail = async(subject, send_to,reply_to, template, cc) => {
@@ -29,7 +28,6 @@ export const sendGmail = async(subject, send_to,reply_to, template, cc) => {
             },
         });
         const emailTemplate = mailGenerator.generate(template);
-        fs.writeFileSync("preview.html", emailTemplate, "utf8");
 
           // Options f0r sending email
         const options = {
@@ -42,13 +40,9 @@ export const sendGmail = async(subject, send_to,reply_to, template, cc) => {
         };
 
           // Send Email
-          Transporter.sendMail(options, function (err, info) {
-            if (err) {
-            console.log(err);
-            } else {
-            console.log(info);
-            }
-        });
+        const info = await Transporter.sendMail(options);
+        console.log(info);
+        return info;
 }
 
 

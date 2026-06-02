@@ -27,11 +27,23 @@ const updateOrderStatus = async (id, formData) => {
   return response.data.message;
 };
 
+const getRefundPreview = async (id) => {
+  const response = await axios.get(`${API_URL}admin/${id}/refund-preview`);
+  return response.data;
+};
+
+const cancelRefund = async (id, formData) => {
+  const response = await axios.post(`${API_URL}admin/${id}/cancel-refund`, formData);
+  return response.data;
+};
+
 const orderService = {
   createOrder,
   getOrders,
   getOrder,
   updateOrderStatus,
+  getRefundPreview,
+  cancelRefund,
 };
 
 export default orderService;

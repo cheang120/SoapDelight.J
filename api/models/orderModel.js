@@ -87,6 +87,103 @@ const orderSchema = new mongoose.Schema(
     paidAt: {
       type: Date,
     },
+    cancellationStatus: {
+      type: String,
+      default: "none",
+      trim: true,
+    },
+    refundStatus: {
+      type: String,
+      default: "none",
+      trim: true,
+    },
+    refundPolicyType: {
+      type: String,
+      trim: true,
+    },
+    refundReason: {
+      type: String,
+      trim: true,
+    },
+    refundNote: {
+      type: String,
+      trim: true,
+    },
+    refundAmountMinor: {
+      type: Number,
+    },
+    refundAmount: {
+      type: Number,
+    },
+    refundCurrency: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    stripeRefundId: {
+      type: String,
+      trim: true,
+      sparse: true,
+      index: true,
+    },
+    stripeRefundStatus: {
+      type: String,
+      trim: true,
+    },
+    stripeRefundCreatedAt: {
+      type: Date,
+    },
+    refundRequestedAt: {
+      type: Date,
+    },
+    refundRequestedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    refundSucceededAt: {
+      type: Date,
+    },
+    refundFailedAt: {
+      type: Date,
+    },
+    refundFailureReason: {
+      type: String,
+      trim: true,
+    },
+    stockRestoreStatus: {
+      type: String,
+      default: "not_applicable",
+      trim: true,
+    },
+    stockRestoredAt: {
+      type: Date,
+    },
+    stockRestoreError: {
+      type: String,
+      trim: true,
+    },
+    refundEmailStatus: {
+      type: String,
+      default: "not_sent",
+      trim: true,
+    },
+    refundEmailSentAt: {
+      type: Date,
+    },
+    refundEmailError: {
+      type: String,
+      trim: true,
+    },
+    manualStripeFeeAmountMinor: {
+      type: Number,
+    },
+    manualStripeFeeAmount: {
+      type: Number,
+    },
+    refundFeeSource: {
+      type: String,
+      trim: true,
+    },
     cartItems: {
         // type:String,
       type: [Object],
