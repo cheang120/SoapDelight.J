@@ -56,6 +56,7 @@ const CheckoutState = ({ eyebrow, title, body, ctaLabel, ctaTo }) => (
 
 export const Checkout = () => {
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentIntentId, setPaymentIntentId] = useState("");
   const [initError, setInitError] = useState("");
 
   const cartItems = useSelector(selectCartItems);
@@ -98,6 +99,7 @@ export const Checkout = () => {
       hasExpiredCoupon
     ) {
       setClientSecret("");
+      setPaymentIntentId("");
       setInitError("");
       return undefined;
     }
@@ -111,6 +113,7 @@ export const Checkout = () => {
           credentials: "include",
           body: JSON.stringify({
             items: productIDs,
+            userId: currentUser?._id,
             userEmail,
             shipping: shippingAddress,
             billing: effectiveBillingAddress,
@@ -126,10 +129,12 @@ export const Checkout = () => {
 
         if (!ignore) {
           setClientSecret(data.clientSecret);
+          setPaymentIntentId(data.paymentIntentId || "");
         }
       } catch (error) {
         if (!ignore) {
           setClientSecret("");
+          setPaymentIntentId("");
           setInitError(error.message || "未能初始化結帳。");
           toast.error(error.message || "未能初始化結帳。");
         }
@@ -262,7 +267,10 @@ export const Checkout = () => {
         </main>
       }
     >
-      <StripeCheckoutSurface clientSecret={clientSecret} />
+      <StripeCheckoutSurface
+        clientSecret={clientSecret}
+        paymentIntentId={paymentIntentId}
+      />
     </Suspense>
   );
 };

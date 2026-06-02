@@ -19,7 +19,7 @@ import {
 import { isCouponValid } from "../../../redux/features/coupon/couponSlice";
 import { createOrder } from "../../../redux/features/order/OrderSlice";
 
-export default function CheckoutForm() {
+export default function CheckoutForm({ paymentIntentId }) {
   const stripe = useStripe();
   const elements = useElements();
   const dispatch = useDispatch();
@@ -34,7 +34,7 @@ export default function CheckoutForm() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const saveOrder = async () => {
+  const saveOrder = async (stripePaymentIntentId) => {
     const today = new Date();
     const formData = {
       orderDate: today.toDateString(),
@@ -44,6 +44,7 @@ export default function CheckoutForm() {
       cartItems,
       shippingAddress,
       paymentMethod,
+      stripePaymentIntentId,
       coupon: isCouponValid(coupon) ? coupon : { name: "nil" },
     };
 
@@ -99,7 +100,7 @@ export default function CheckoutForm() {
 
       if (result.paymentIntent?.status === "succeeded") {
         toast.success("付款成功");
-        await saveOrder();
+        await saveOrder(result.paymentIntent.id || paymentIntentId);
       }
     } catch (error) {
       const errorMessage = error.message || "未能完成付款。";

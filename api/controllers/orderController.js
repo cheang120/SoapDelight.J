@@ -12,6 +12,98 @@ import { sendGmail } from "../utils/sendGmail.js";
 import mongoose from "mongoose";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
+const throwHttpError = (statusCode, message) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  throw error;
+};
+
+const getStripeObjectId = (value) => {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return value?.id ? String(value.id) : "";
+};
+
+const getOptionalNumber = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return undefined;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+};
+
+const toMajorCurrencyAmount = (amountMinor) => {
+  const number = getOptionalNumber(amountMinor);
+  return number === undefined ? undefined : number / 100;
+};
+
+const getStripePaymentSnapshot = async (paymentIntent) => {
+  const latestCharge = paymentIntent?.latest_charge;
+  const stripeChargeId = getStripeObjectId(latestCharge);
+  let charge = typeof latestCharge === "object" ? latestCharge : null;
+
+  if (stripeChargeId && !charge) {
+    try {
+      charge = await stripe.charges.retrieve(stripeChargeId, {
+        expand: ["balance_transaction"],
+      });
+    } catch {
+      charge = null;
+    }
+  }
+
+  const chargeBalanceTransaction = charge?.balance_transaction;
+  const stripeBalanceTransactionId = getStripeObjectId(chargeBalanceTransaction);
+  let balanceTransaction =
+    typeof chargeBalanceTransaction === "object"
+      ? chargeBalanceTransaction
+      : null;
+
+  if (stripeBalanceTransactionId && !balanceTransaction) {
+    try {
+      balanceTransaction = await stripe.balanceTransactions.retrieve(
+        stripeBalanceTransactionId
+      );
+    } catch {
+      balanceTransaction = null;
+    }
+  }
+
+  const stripeFeeAmountMinor = getOptionalNumber(balanceTransaction?.fee);
+  const hasStripeFee = stripeFeeAmountMinor !== undefined;
+  const paymentAmountMinor = getOptionalNumber(
+    paymentIntent?.amount_received ?? paymentIntent?.amount
+  );
+
+  return {
+    paymentProvider: "stripe",
+    paymentStatus: "paid",
+    paymentCurrency: paymentIntent?.currency || "",
+    paymentAmountMinor,
+    paymentAmount: toMajorCurrencyAmount(paymentAmountMinor),
+    stripePaymentIntentId: paymentIntent.id,
+    stripeChargeId: stripeChargeId || undefined,
+    stripeBalanceTransactionId: stripeBalanceTransactionId || undefined,
+    stripeFeeAmountMinor: hasStripeFee ? stripeFeeAmountMinor : undefined,
+    stripeFeeAmount: hasStripeFee
+      ? toMajorCurrencyAmount(stripeFeeAmountMinor)
+      : undefined,
+    stripeFeeCurrency: hasStripeFee
+      ? balanceTransaction?.currency || paymentIntent?.currency || ""
+      : undefined,
+    stripeFeeSource: hasStripeFee
+      ? "stripe_balance_transaction"
+      : "unavailable",
+    stripeFeeFetchedAt: hasStripeFee ? new Date() : undefined,
+    paidAt: charge?.created || paymentIntent?.created
+      ? new Date(Number(charge?.created || paymentIntent.created) * 1000)
+      : new Date(),
+  };
+};
+
 export const createOrder = asyncHandler(async (req, res) => {
   // res.send("create order")
   const {
@@ -23,6 +115,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     shippingAddress,
     paymentMethod,
     coupon,
+    stripePaymentIntentId,
   } = req.body;
     // 檢查 cartItems 是否為數組
     if (!Array.isArray(cartItems)) {
@@ -34,6 +127,50 @@ export const createOrder = asyncHandler(async (req, res) => {
   if (!cartItems || !orderStatus || !shippingAddress || !paymentMethod) {
     res.status(400);
     throw new Error("Order data missing!!!");
+  }
+
+  const isStripePayment =
+    String(paymentMethod || "").trim().toLowerCase() === "stripe";
+  let stripePaymentSnapshot = {};
+
+  if (isStripePayment) {
+    const normalizedPaymentIntentId = String(
+      stripePaymentIntentId || ""
+    ).trim();
+
+    if (!normalizedPaymentIntentId) {
+      throwHttpError(400, "Stripe payment reference missing");
+    }
+
+    const existingOrder = await Order.exists({
+      stripePaymentIntentId: normalizedPaymentIntentId,
+    });
+
+    if (existingOrder) {
+      throwHttpError(
+        409,
+        "This Stripe payment has already been used for another order"
+      );
+    }
+
+    let paymentIntent;
+
+    try {
+      paymentIntent = await stripe.paymentIntents.retrieve(
+        normalizedPaymentIntentId,
+        {
+          expand: ["latest_charge.balance_transaction"],
+        }
+      );
+    } catch {
+      throwHttpError(400, "Unable to verify Stripe payment");
+    }
+
+    if (paymentIntent?.status !== "succeeded") {
+      throwHttpError(400, "Stripe payment not completed");
+    }
+
+    stripePaymentSnapshot = await getStripePaymentSnapshot(paymentIntent);
   }
 
   let validatedCoupon = { name: "nil" };
@@ -93,6 +230,7 @@ export const createOrder = asyncHandler(async (req, res) => {
             shippingAddress,
             paymentMethod,
             coupon: validatedCoupon,
+            ...stripePaymentSnapshot,
           },
         ],
         { session }
@@ -106,6 +244,19 @@ export const createOrder = asyncHandler(async (req, res) => {
         session,
       });
     });
+  } catch (error) {
+    if (
+      error?.code === 11000 &&
+      (error?.keyPattern?.stripePaymentIntentId ||
+        error?.keyValue?.stripePaymentIntentId)
+    ) {
+      throwHttpError(
+        409,
+        "This Stripe payment has already been used for another order"
+      );
+    }
+
+    throw error;
   } finally {
     await session.endSession();
   }
@@ -205,7 +356,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
 // // Pay with stripe
 export const payWithStripe = asyncHandler(async (req, res) => {
-  const { items, shipping, description, coupon,shippingFee } = req.body;
+  const { items, shipping, description, coupon,shippingFee, userId, userEmail } = req.body;
   const products = await Product.find();
 
   let orderAmount;
@@ -225,6 +376,11 @@ export const payWithStripe = asyncHandler(async (req, res) => {
       enabled: true,
     },
     description,
+    metadata: {
+      source: "SoapDelight.J",
+      ...(userId ? { userId: String(userId) } : {}),
+      ...(userEmail ? { customerEmail: String(userEmail) } : {}),
+    },
     shipping: {
       address: {
         line1: shipping.line1,
@@ -243,6 +399,9 @@ export const payWithStripe = asyncHandler(async (req, res) => {
 
   res.send({
     clientSecret: paymentIntent.client_secret,
+    paymentIntentId: paymentIntent.id,
+    amount: paymentIntent.amount,
+    currency: paymentIntent.currency,
   });
 });
 

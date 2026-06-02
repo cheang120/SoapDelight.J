@@ -3,7 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./CheckoutForm";
 
-const StripeCheckoutSurface = ({ clientSecret }) => {
+const StripeCheckoutSurface = ({ clientSecret, paymentIntentId }) => {
   const stripePromise = useMemo(
     () => loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PK),
     []
@@ -18,7 +18,7 @@ const StripeCheckoutSurface = ({ clientSecret }) => {
 
   return (
     <Elements options={options} stripe={stripePromise}>
-      <CheckoutForm />
+      <CheckoutForm paymentIntentId={paymentIntentId} />
     </Elements>
   );
 };
