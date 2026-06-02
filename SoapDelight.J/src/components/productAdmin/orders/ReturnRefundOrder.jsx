@@ -238,6 +238,7 @@ const ReturnRefundOrder = ({ order }) => {
     (order.returnRequiresReturn
       ? returnInspectionStatus === "not_restockable"
       : true);
+  const isNoRefundMode = canShowNoRefundClose && confirmNoRefund;
 
   const closePanel = () => {
     setPanelMode("");
@@ -756,6 +757,7 @@ const ReturnRefundOrder = ({ order }) => {
                     </label>
                   )}
                 </div>
+                <p className={styles.subtitle}>退款處理</p>
                 {canShowNoRefundClose && (
                   <fieldset className={styles.fieldset}>
                     <legend>退貨結案，不設退款</legend>
@@ -812,13 +814,15 @@ const ReturnRefundOrder = ({ order }) => {
                   >
                     取消
                   </button>
-                  <button
-                    type="submit"
-                    className={styles.primaryButton}
-                    disabled={isReturnRefundLoading}
-                  >
-                    {isReturnRefundLoading ? "處理中..." : "提交 Stripe 退款"}
-                  </button>
+                  {!isNoRefundMode && (
+                    <button
+                      type="submit"
+                      className={styles.primaryButton}
+                      disabled={isReturnRefundLoading}
+                    >
+                      {isReturnRefundLoading ? "處理中..." : "提交 Stripe 退款"}
+                    </button>
+                  )}
                 </div>
               </>
             )}
