@@ -238,7 +238,7 @@ const ReturnRefundOrder = ({ order }) => {
     (order.returnRequiresReturn
       ? returnInspectionStatus === "not_restockable"
       : true);
-  const isNoRefundMode = canShowNoRefundClose && confirmNoRefund;
+  const shouldHideStripeRefundButton = confirmNoRefund;
 
   const closePanel = () => {
     setPanelMode("");
@@ -814,7 +814,7 @@ const ReturnRefundOrder = ({ order }) => {
                   >
                     取消
                   </button>
-                  {!isNoRefundMode && (
+                  {!shouldHideStripeRefundButton && (
                     <button
                       type="submit"
                       className={styles.primaryButton}
