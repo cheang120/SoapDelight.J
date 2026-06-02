@@ -22,7 +22,22 @@ const normalizeProductStatus = (status) =>
 const shouldIncludeDiscontinued = (query) =>
   String(query?.includeDiscontinued || "").toLowerCase() === "true";
 
-const getPublicProductAvailability = async (productId) => {
+const getPublicProductAvailabilityByProductIds = async (productIds = []) => {
+  const normalizedProductIds = productIds.filter(Boolean);
+  const availabilityByProductId = new Map(
+    normalizedProductIds.map((productId) => [
+      String(productId),
+      {
+        onlineStock: 0,
+        consignmentAvailability: [],
+      },
+    ])
+  );
+
+  if (normalizedProductIds.length === 0) {
+    return availabilityByProductId;
+  }
+
   const locations = await InventoryLocation.find({
     active: { $ne: false },
     type: { $in: ["online", "consignment"] },
@@ -31,41 +46,69 @@ const getPublicProductAvailability = async (productId) => {
     .lean();
 
   const balances = await InventoryBalance.find({
-    productId,
+    productId: { $in: normalizedProductIds },
     locationId: { $in: locations.map((location) => location._id) },
   }).lean();
 
-  const balanceByLocation = new Map(
-    balances.map((balance) => [String(balance.locationId), Number(balance.quantity || 0)])
+  const balanceByProductLocation = new Map(
+    balances.map((balance) => [
+      `${String(balance.productId)}:${String(balance.locationId)}`,
+      Number(balance.quantity || 0),
+    ])
   );
 
   const onlineLocation = locations.find((location) => location.code === "ONLINE");
-  const onlineStock = onlineLocation
-    ? Number(balanceByLocation.get(String(onlineLocation._id)) || 0)
-    : 0;
+  const consignmentLocations = locations.filter(
+    (location) => location.type === "consignment"
+  );
 
-  const consignmentAvailability = locations
-    .filter((location) => location.type === "consignment")
-    .map((location) => {
-      const quantity = Number(balanceByLocation.get(String(location._id)) || 0);
+  for (const productId of normalizedProductIds) {
+    const productKey = String(productId);
+    const onlineStock = onlineLocation
+      ? Number(
+          balanceByProductLocation.get(
+            `${productKey}:${String(onlineLocation._id)}`
+          ) || 0
+        )
+      : 0;
 
-      return {
+    const consignmentAvailability = consignmentLocations
+      .filter((location) => {
+        const quantity = Number(
+          balanceByProductLocation.get(
+            `${productKey}:${String(location._id)}`
+          ) || 0
+        );
+        return quantity > 0;
+      })
+      .map((location) => ({
         locationId: String(location._id),
         name: location.name,
         code: location.code,
         phone: location.phone || "",
         email: location.email || "",
         address: location.address || "",
-        hasStock: quantity > 0,
-      };
-    })
-    .filter((location) => location.hasStock)
-    .map(({ hasStock, ...location }) => location);
+      }));
 
-  return {
-    onlineStock,
-    consignmentAvailability,
-  };
+    availabilityByProductId.set(productKey, {
+      onlineStock,
+      consignmentAvailability,
+    });
+  }
+
+  return availabilityByProductId;
+};
+
+const getPublicProductAvailability = async (productId) => {
+  const availabilityByProductId =
+    await getPublicProductAvailabilityByProductIds([productId]);
+
+  return (
+    availabilityByProductId.get(String(productId)) || {
+      onlineStock: 0,
+      consignmentAvailability: [],
+    }
+  );
 };
 
 const getOrCreateCentralInventoryLocation = async (session) =>
@@ -296,8 +339,21 @@ export const getProducts = asyncHandler(async (req, res, next) => {
             { productStatus: { $ne: "discontinued" } },
           ],
         };
-    const products = await Product.find(query).sort("-createdAt");
-    res.status(200).json(products);
+    const products = await Product.find(query).sort("-createdAt").lean();
+    const availabilityByProductId =
+      await getPublicProductAvailabilityByProductIds(
+        products.map((product) => product._id)
+      );
+
+    res.status(200).json(
+      products.map((product) => ({
+        ...product,
+        ...(availabilityByProductId.get(String(product._id)) || {
+          onlineStock: 0,
+          consignmentAvailability: [],
+        }),
+      }))
+    );
 })
 
 export const getProduct = asyncHandler(async (req, res, next) => {

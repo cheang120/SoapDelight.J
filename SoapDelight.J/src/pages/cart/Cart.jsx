@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -278,10 +278,15 @@ const Cart = () => {
                   image,
                   cartQuantity = 1,
                   quantity,
+                  onlineStock,
                   category,
                 } = item;
-                const maxQuantity = Number(quantity || 0);
-                const canIncrease = maxQuantity <= 0 || cartQuantity < maxQuantity;
+                const maxQuantity =
+                  onlineStock !== undefined && onlineStock !== null
+                    ? Number(onlineStock || 0)
+                    : Number(quantity || 0);
+                const canIncrease =
+                  maxQuantity > 0 && cartQuantity < maxQuantity;
                 const itemTotal = Number(price || 0) * Number(cartQuantity || 0);
 
                 return (

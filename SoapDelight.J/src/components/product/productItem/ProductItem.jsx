@@ -12,7 +12,13 @@ const getProductStatus = (product) => product?.productStatus || "active";
 
 const getProductStatusMeta = (product) => {
   const status = getProductStatus(product);
-  const quantity = Number(product?.quantity || 0);
+  const quantity =
+    product?.onlineStock !== undefined && product?.onlineStock !== null
+      ? Number(product.onlineStock || 0)
+      : Number(product?.quantity || 0);
+  const consignmentAvailability = Array.isArray(product?.consignmentAvailability)
+    ? product.consignmentAvailability
+    : [];
 
   if (status === "out_of_stock") {
     return {
@@ -35,12 +41,22 @@ const getProductStatusMeta = (product) => {
   }
 
   if (quantity <= 0) {
+    if (consignmentAvailability.length > 0) {
+      return {
+        tone: "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200",
+        label: "寄售點可查詢",
+        actionLabel: "網頁暫未能購買",
+        purchasable: false,
+        reason: "此商品網頁暫未能購買，可透過聯絡我們查詢寄售點供應。",
+      };
+    }
+
     return {
       tone: "bg-zinc-100 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300",
-      label: "暫時缺貨",
-      actionLabel: "暫時缺貨",
+      label: "網頁暫未能購買",
+      actionLabel: "網頁暫未能購買",
       purchasable: false,
-      reason: "此商品暫時缺貨，可透過聯絡我們查詢。",
+      reason: "此商品網頁暫未能購買。",
     };
   }
 

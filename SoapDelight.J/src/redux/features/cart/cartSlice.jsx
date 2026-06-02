@@ -55,6 +55,15 @@ const normalizeShippingItem = (item) => ({
   cartQuantity: 1,
 });
 
+const getOnlineAvailableQuantity = (item) => {
+  const quantity =
+    item?.onlineStock !== undefined && item?.onlineStock !== null
+      ? Number(item.onlineStock || 0)
+      : Number(item?.quantity || 0);
+
+  return Number.isFinite(quantity) ? quantity : 0;
+};
+
 const normalizeCartItems = (items = []) => {
   const nextItems = Array.isArray(items) ? items : [];
   const productItems = nextItems.filter((item) => item?.category !== "Shipping");
@@ -209,6 +218,22 @@ const cartSlice = createSlice({
         // console.log(action.payload);
         // const product = action.payload
         // console.log(product);
+        const availableQuantity = getOnlineAvailableQuantity(action.payload);
+
+        if (
+          availableQuantity <= 0 ||
+          action.payload?.productStatus === "out_of_stock" ||
+          action.payload?.productStatus === "discontinued"
+        ) {
+          toast.info("此商品網頁暫未能購買");
+          return;
+        }
+
+        const normalizedProduct = {
+          ...action.payload,
+          onlineStock: availableQuantity,
+          quantity: availableQuantity,
+        };
         const cartQuantity = getCartQuantityById(
           state.cartItems,
           action.payload._id
@@ -222,9 +247,12 @@ const cartSlice = createSlice({
         if (productIndex >= 0) {
           // Item already exists in the cart
           // Increase the cartQuantity
-          if (cartQuantity === action.payload.quantity) {
+          state.cartItems[productIndex].onlineStock = availableQuantity;
+          state.cartItems[productIndex].quantity = availableQuantity;
+
+          if (cartQuantity >= availableQuantity) {
             state.cartItems[productIndex].cartQuantity += 0;
-            toast.info("Max number of product reached!!!");
+            toast.info("已達網店可購買數量上限");
           } else {
             state.cartItems[productIndex].cartQuantity += 1;
             toast.success(`${action.payload.name} increased by one`, {
@@ -235,7 +263,7 @@ const cartSlice = createSlice({
         } else {
           // Item doesn't exists in the cart
           // Add item to the cart
-          const tempProduct = { ...action.payload, cartQuantity: 1 };
+          const tempProduct = { ...normalizedProduct, cartQuantity: 1 };
           state.cartItems.push(tempProduct);
           toast.success(`${action.payload.name} added to cart`, {
             position: "top-left",

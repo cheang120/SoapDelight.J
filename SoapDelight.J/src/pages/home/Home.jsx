@@ -49,9 +49,13 @@ const serviceCards = [
 const getProductStatus = (product) => product?.productStatus || "active";
 const isVisibleProduct = (product) =>
   getProductStatus(product) !== "discontinued" && product?.category !== "Shipping";
+const getOnlineAvailableQuantity = (product) =>
+  product?.onlineStock !== undefined && product?.onlineStock !== null
+    ? Number(product.onlineStock || 0)
+    : Number(product?.quantity || 0);
 const getHomePriority = (product) => {
   const status = getProductStatus(product);
-  const quantity = Number(product?.quantity || 0);
+  const quantity = getOnlineAvailableQuantity(product);
 
   if (status === "active" && quantity > 0) return 0;
   if (status === "active") return 1;

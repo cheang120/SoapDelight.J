@@ -9,6 +9,7 @@ import Stripe from "stripe"
 // import sendGmail from "../utils/sendGmail.js";
 import { orderSuccessEmail } from "../emailTemplate/orderTemplate.js";
 import { sendGmail } from "../utils/sendGmail.js";
+import mongoose from "mongoose";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 export const createOrder = asyncHandler(async (req, res) => {
@@ -23,8 +24,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     paymentMethod,
     coupon,
   } = req.body;
-  console.log(cartItems);
-
     // 檢查 cartItems 是否為數組
     if (!Array.isArray(cartItems)) {
       res.status(400);
@@ -77,21 +76,39 @@ export const createOrder = asyncHandler(async (req, res) => {
   // const updatedProduct = await updateProductQuantity(cartItems);
   // console.log("updated product", updatedProduct);
 
-  // Create Order
-  await Order.create({
-    user: req.user.id,
-    orderDate,
-    orderTime,
-    orderAmount,
-    orderStatus,
-    cartItems,
-    shippingAddress,
-    paymentMethod,
-    coupon: validatedCoupon,
-  });
+  let createdOrder;
+  const session = await mongoose.startSession();
 
-  // Update product quantity 
-  await updateProductQuantity(cartItems)
+  try {
+    await session.withTransaction(async () => {
+      const [order] = await Order.create(
+        [
+          {
+            user: req.user.id,
+            orderDate,
+            orderTime,
+            orderAmount,
+            orderStatus,
+            cartItems,
+            shippingAddress,
+            paymentMethod,
+            coupon: validatedCoupon,
+          },
+        ],
+        { session }
+      );
+
+      createdOrder = order;
+
+      await updateProductQuantity(cartItems, {
+        orderId: order._id,
+        createdBy: req.user?._id,
+        session,
+      });
+    });
+  } finally {
+    await session.endSession();
+  }
 
   // Send Order Email to the user
   const subject = "SoapDelight.J Order Placed";
@@ -113,9 +130,14 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
   // const template = "template"
   const reply_to = "no_reply@gmail.com";
-  console.log('Template:', template);
-
-  await sendGmail(subject, send_to,reply_to, template );
+  try {
+    await sendGmail(subject, send_to,reply_to, template );
+  } catch (error) {
+    console.error(
+      `Order ${createdOrder?._id || ""} created, but confirmation email failed:`,
+      error?.message || error
+    );
+  }
 
   res.status(201).json({ message: "Order Created" });
 });

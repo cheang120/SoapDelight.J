@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -15,12 +15,17 @@ import Loader from "../../components/Loader";
 import "./Wishlist.scss";
 import { FaRegHeart, FaShoppingBag, FaTrashAlt } from "react-icons/fa";
 import { ProductImage } from "../../utils/productImageFallback.jsx";
+import productService from "../../redux/features/product/productService.jsx";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
   const { wishlist = [], isLoading } = useSelector((state) => state.auth);
   const { currentUser } = useSelector((state) => state.user);
-  const visibleWishlist = wishlist.filter((product) => product?.category !== "Shipping");
+  const visibleWishlist = useMemo(
+    () => wishlist.filter((product) => product?.category !== "Shipping"),
+    [wishlist]
+  );
+  const [availabilityByProductId, setAvailabilityByProductId] = useState({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -32,6 +37,33 @@ const Wishlist = () => {
     }
   }, [currentUser, dispatch]);
 
+  useEffect(() => {
+    let shouldIgnore = false;
+
+    const loadAvailability = async () => {
+      const entries = await Promise.all(
+        visibleWishlist.map(async (product) => {
+          try {
+            const latestProduct = await productService.getProduct(product._id);
+            return [product._id, latestProduct];
+          } catch {
+            return [product._id, null];
+          }
+        })
+      );
+
+      if (!shouldIgnore) {
+        setAvailabilityByProductId(Object.fromEntries(entries));
+      }
+    };
+
+    loadAvailability();
+
+    return () => {
+      shouldIgnore = true;
+    };
+  }, [visibleWishlist]);
+
   const removeWishlist = async (product) => {
     if (!currentUser) {
       toast.info("請先登入以管理收藏清單。");
@@ -41,8 +73,17 @@ const Wishlist = () => {
     await dispatch(getWishlist());
   };
 
-  const addToCart = (product) => {
-    dispatch(ADD_TO_CART(product));
+  const addToCart = async (product) => {
+    try {
+      const latestProduct = await productService.getProduct(product._id);
+      dispatch(ADD_TO_CART(latestProduct));
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "此商品網頁暫未能購買。"
+      );
+      return;
+    }
+
     dispatch(CALCULATE_TOTAL_QUANTITY());
     if (currentUser) {
       dispatch(
@@ -123,10 +164,18 @@ const Wishlist = () => {
                 name = "未命名商品",
                 price = 0,
                 regularPrice,
-                quantity = 0,
                 category,
               } = product;
               const hasDiscount = Number(regularPrice) > Number(price);
+              const latestProduct = availabilityByProductId[_id];
+              const onlineStock =
+                latestProduct?.onlineStock !== undefined &&
+                latestProduct?.onlineStock !== null
+                  ? Number(latestProduct.onlineStock || 0)
+                  : Number(product?.onlineStock ?? product?.quantity ?? 0);
+              const canPurchase =
+                (latestProduct?.productStatus || product?.productStatus || "active") ===
+                  "active" && onlineStock > 0;
 
               return (
                 <article
@@ -164,11 +213,11 @@ const Wishlist = () => {
                       <button
                         type="button"
                         onClick={() => addToCart(product)}
-                        disabled={Number(quantity) <= 0}
+                        disabled={!canPurchase}
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
                       >
                         <FaShoppingBag size={14} />
-                        {Number(quantity) > 0 ? "加入購物車" : "暫時缺貨"}
+                        {canPurchase ? "加入購物車" : "網頁暫未能購買"}
                       </button>
                       <button
                         type="button"
