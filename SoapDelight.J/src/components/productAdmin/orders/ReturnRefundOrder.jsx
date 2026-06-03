@@ -101,6 +101,18 @@ const ReturnRefundOrder = ({ order }) => {
   ] = useState(false);
   const [confirmCustomRefundAgreement, setConfirmCustomRefundAgreement] =
     useState(false);
+  const [
+    confirmRefundDespiteNoRestock,
+    setConfirmRefundDespiteNoRestock,
+  ] = useState(false);
+  const [
+    refundDespiteNoRestockReason,
+    setRefundDespiteNoRestockReason,
+  ] = useState("");
+  const [
+    refundDespiteNoRestockNote,
+    setRefundDespiteNoRestockNote,
+  ] = useState("");
   const [noRefundReason, setNoRefundReason] = useState("");
   const [noRefundNote, setNoRefundNote] = useState("");
   const [confirmNoRefund, setConfirmNoRefund] = useState(false);
@@ -238,7 +250,19 @@ const ReturnRefundOrder = ({ order }) => {
     (order.returnRequiresReturn
       ? returnInspectionStatus === "not_restockable"
       : true);
-  const shouldHideStripeRefundButton = confirmNoRefund;
+  const requiresNoRestockRefundGate =
+    canPrepareRefund &&
+    (order.returnRequiresReturn
+      ? returnInspectionStatus === "not_restockable"
+      : true);
+  const hasNoRestockRefundApproval =
+    !requiresNoRestockRefundGate ||
+    (confirmRefundDespiteNoRestock &&
+      refundDespiteNoRestockReason.trim() &&
+      refundDespiteNoRestockNote.trim());
+  const shouldHideStripeRefundButton =
+    confirmNoRefund ||
+    (requiresNoRestockRefundGate && !hasNoRestockRefundApproval);
 
   const closePanel = () => {
     setPanelMode("");
@@ -332,6 +356,16 @@ const ReturnRefundOrder = ({ order }) => {
       return;
     }
 
+    if (
+      requiresNoRestockRefundGate &&
+      (!confirmRefundDespiteNoRestock ||
+        !refundDespiteNoRestockReason.trim() ||
+        !refundDespiteNoRestockNote.trim())
+    ) {
+      toast.error("商品不可重新上架，如仍需退款，請確認並填寫原因及內部備註。");
+      return;
+    }
+
     const result = await dispatch(
       receiveReturnRefund({
         id: order._id,
@@ -347,6 +381,9 @@ const ReturnRefundOrder = ({ order }) => {
           confirmProductCondition,
           confirmCustomerAgreedFeeAndDeductions,
           confirmCustomRefundAgreement,
+          confirmRefundDespiteNoRestock,
+          refundDespiteNoRestockReason,
+          refundDespiteNoRestockNote,
         },
       })
     );
@@ -757,6 +794,44 @@ const ReturnRefundOrder = ({ order }) => {
                     </label>
                   )}
                 </div>
+                {requiresNoRestockRefundGate && !confirmNoRefund && (
+                  <fieldset className={styles.fieldset}>
+                    <legend>商品不可重新上架，但仍退款</legend>
+                    <p className={styles.subtitle}>
+                      商品不可重新上架時，Stripe 退款需要額外確認及記錄原因。
+                    </p>
+                    <label className={styles.option}>
+                      <input
+                        type="checkbox"
+                        checked={confirmRefundDespiteNoRestock}
+                        onChange={(event) =>
+                          setConfirmRefundDespiteNoRestock(event.target.checked)
+                        }
+                      />
+                      我確認商品不可重新上架，但仍需退款給客人。
+                    </label>
+                    <label className={styles.field}>
+                      <span>不可重新上架但仍退款原因</span>
+                      <input
+                        type="text"
+                        value={refundDespiteNoRestockReason}
+                        onChange={(event) =>
+                          setRefundDespiteNoRestockReason(event.target.value)
+                        }
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span>不可重新上架但仍退款內部備註</span>
+                      <textarea
+                        rows="3"
+                        value={refundDespiteNoRestockNote}
+                        onChange={(event) =>
+                          setRefundDespiteNoRestockNote(event.target.value)
+                        }
+                      />
+                    </label>
+                  </fieldset>
+                )}
                 <p className={styles.subtitle}>退款處理</p>
                 {canShowNoRefundClose && (
                   <fieldset className={styles.fieldset}>

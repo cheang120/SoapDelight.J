@@ -1231,6 +1231,9 @@ export const receiveReturnRefund = asyncHandler(async (req, res) => {
     confirmProductCondition,
     confirmCustomerAgreedFeeAndDeductions,
     confirmCustomRefundAgreement,
+    confirmRefundDespiteNoRestock,
+    refundDespiteNoRestockReason,
+    refundDespiteNoRestockNote,
   } = req.body;
   let order = await Order.findById(req.params.id);
 
@@ -1378,6 +1381,26 @@ export const receiveReturnRefund = asyncHandler(async (req, res) => {
   const returnedItemsRestockable =
     order.returnRequiresReturn &&
     normalizedInspectionStatus === "restockable";
+  const normalizedRefundDespiteNoRestockReason = String(
+    refundDespiteNoRestockReason || ""
+  ).trim();
+  const normalizedRefundDespiteNoRestockNote = String(
+    refundDespiteNoRestockNote || ""
+  ).trim();
+
+  if (
+    (!returnedItemsRestockable ||
+      normalizedInspectionStatus === "not_restockable") &&
+    (!confirmRefundDespiteNoRestock ||
+      !normalizedRefundDespiteNoRestockReason ||
+      !normalizedRefundDespiteNoRestockNote)
+  ) {
+    throwHttpError(
+      400,
+      "商品不可重新上架，如仍需退款，請確認並填寫原因及內部備註。"
+    );
+  }
+
   const claimedOrder = await Order.findOneAndUpdate(
     {
       _id: order._id,
@@ -1412,6 +1435,19 @@ export const receiveReturnRefund = asyncHandler(async (req, res) => {
           normalizedReturnShippingDeductionMinor ?? 0
         ),
         returnRefundSubmittedAt: new Date(),
+        refundDespiteNoRestockConfirmed: !returnedItemsRestockable,
+        refundDespiteNoRestockReason: !returnedItemsRestockable
+          ? normalizedRefundDespiteNoRestockReason
+          : undefined,
+        refundDespiteNoRestockNote: !returnedItemsRestockable
+          ? normalizedRefundDespiteNoRestockNote
+          : undefined,
+        refundDespiteNoRestockConfirmedAt: !returnedItemsRestockable
+          ? new Date()
+          : undefined,
+        refundDespiteNoRestockConfirmedBy: !returnedItemsRestockable
+          ? req.user?._id
+          : undefined,
         refundPolicyType,
         refundReason: order.returnReason,
         refundNote: `${order.returnNote}\n${normalizedInspectionNote}`.trim(),

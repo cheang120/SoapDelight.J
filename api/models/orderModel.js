@@ -245,6 +245,20 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    refundDespiteNoRestockConfirmed: Boolean,
+    refundDespiteNoRestockReason: {
+      type: String,
+      trim: true,
+    },
+    refundDespiteNoRestockNote: {
+      type: String,
+      trim: true,
+    },
+    refundDespiteNoRestockConfirmedAt: Date,
+    refundDespiteNoRestockConfirmedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     cartItems: {
         // type:String,
       type: [Object],
