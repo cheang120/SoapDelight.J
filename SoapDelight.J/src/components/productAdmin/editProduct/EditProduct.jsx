@@ -97,7 +97,14 @@ const EditProduct = () => {
   useEffect(() => {
     setProduct(
       productEdit
-        ? { ...productEdit, productStatus: productEdit.productStatus || "active" }
+        ? {
+            ...productEdit,
+            productStatus: productEdit.productStatus || "active",
+            keyFeatures: productEdit.keyFeatures || "",
+            ingredientsAndUsage: productEdit.ingredientsAndUsage || "",
+            storageAndNotes: productEdit.storageAndNotes || "",
+            deliveryAndPickup: productEdit.deliveryAndPickup || "",
+          }
         : productEdit
     );
 
@@ -134,6 +141,10 @@ const EditProduct = () => {
       regularPrice: product?.regularPrice,
       price: product?.price,
       description: description,
+      keyFeatures: product?.keyFeatures || "",
+      ingredientsAndUsage: product?.ingredientsAndUsage || "",
+      storageAndNotes: product?.storageAndNotes || "",
+      deliveryAndPickup: product?.deliveryAndPickup || "",
       image: files,
       productStatus: product?.productStatus || "active",
       isFeatured: Boolean(product?.isFeatured),

@@ -105,6 +105,9 @@ const InfoPanel = ({ title, subtitle, children, defaultOpen = false }) => (
   </details>
 );
 
+const getProductDetailText = (value) =>
+  typeof value === "string" ? value.trim() : "";
+
 const ProductDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -146,6 +149,10 @@ const ProductDetails = () => {
   const cartQuantity = cart?.cartQuantity || 1;
   const hasDiscount = Number(product?.regularPrice) > Number(product?.price);
   const sanitizedDescription = DOMPurify.sanitize(product?.description || "");
+  const keyFeatures = getProductDetailText(product?.keyFeatures);
+  const ingredientsAndUsage = getProductDetailText(product?.ingredientsAndUsage);
+  const storageAndNotes = getProductDetailText(product?.storageAndNotes);
+  const deliveryAndPickup = getProductDetailText(product?.deliveryAndPickup);
   const canPurchase =
     productStatus !== "discontinued" &&
     productStatus !== "out_of_stock" &&
@@ -452,26 +459,33 @@ const ProductDetails = () => {
           </InfoPanel>
 
           <InfoPanel title="主要特色" subtitle="手作日常護理">
-            <ul className="space-y-2">
-              <li>小批量製作，重視每件作品的細節。</li>
-              <li>適合作為日常護理或溫柔送禮選擇。</li>
-              <li>產品質感以天然、簡潔和舒適使用感為方向。</li>
-            </ul>
+            {keyFeatures ? (
+              <p className="whitespace-pre-line">{keyFeatures}</p>
+            ) : (
+              <ul className="space-y-2">
+                <li>小批量製作，重視每件作品的細節。</li>
+                <li>適合作為日常護理或溫柔送禮選擇。</li>
+                <li>產品質感以天然、簡潔和舒適使用感為方向。</li>
+              </ul>
+            )}
           </InfoPanel>
 
           <InfoPanel
             title="成分及用法"
             subtitle="以商品說明為準"
           >
-            <p>詳細成分及使用方法請參考商品說明。</p>
+            <p className={ingredientsAndUsage ? "whitespace-pre-line" : ""}>
+              {ingredientsAndUsage || "詳細成分及使用方法請參考商品說明。"}
+            </p>
           </InfoPanel>
 
           <InfoPanel
             title="保存及注意事項"
             subtitle="天然手作產品的小提醒"
           >
-            <p>
-              請存放於陰涼乾爽位置，避免陽光直射。每個人的膚況不同，使用前可先作局部測試。
+            <p className={storageAndNotes ? "whitespace-pre-line" : ""}>
+              {storageAndNotes ||
+                "請存放於陰涼乾爽位置，避免陽光直射。每個人的膚況不同，使用前可先作局部測試。"}
             </p>
           </InfoPanel>
 
@@ -479,8 +493,9 @@ const ProductDetails = () => {
             title="送貨及自取"
             subtitle="澳門本地安排"
           >
-            <p>
-              訂單會按產品狀態和手作時間安排處理。澳門本地送貨及自取安排以結帳頁和訂單確認為準。
+            <p className={deliveryAndPickup ? "whitespace-pre-line" : ""}>
+              {deliveryAndPickup ||
+                "訂單會按產品狀態和手作時間安排處理。澳門本地送貨及自取安排以結帳頁和訂單確認為準。"}
             </p>
           </InfoPanel>
         </div>

@@ -25,6 +25,10 @@ const initialState = {
     productStatus: "active",
     isFeatured: false,
     featuredOrder: 0,
+    keyFeatures: "",
+    ingredientsAndUsage: "",
+    storageAndNotes: "",
+    deliveryAndPickup: "",
   };
 
 const AddProduct = () => {
@@ -53,6 +57,10 @@ const AddProduct = () => {
       productStatus,
       isFeatured,
       featuredOrder,
+      keyFeatures,
+      ingredientsAndUsage,
+      storageAndNotes,
+      deliveryAndPickup,
     } = product;
 
     const userRole = currentUser?.role
@@ -97,6 +105,10 @@ const AddProduct = () => {
           regularPrice: regularPrice,
           price: price,
           description: description,
+          keyFeatures,
+          ingredientsAndUsage,
+          storageAndNotes,
+          deliveryAndPickup,
           image: files,
           productStatus,
           isFeatured: Boolean(isFeatured),

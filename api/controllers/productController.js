@@ -19,6 +19,9 @@ const normalizeProductImages = (image) => {
 const normalizeProductStatus = (status) =>
   PRODUCT_STATUS_VALUES.includes(status) ? status : "active";
 
+const normalizeOptionalText = (value) =>
+  value === undefined || value === null ? "" : String(value);
+
 const shouldIncludeDiscontinued = (query) =>
   String(query?.includeDiscontinued || "").toLowerCase() === "true";
 
@@ -262,6 +265,10 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         quantity,
         price,
         description,
+        keyFeatures,
+        ingredientsAndUsage,
+        storageAndNotes,
+        deliveryAndPickup,
         image,
         regularPrice,
         color,
@@ -300,6 +307,10 @@ export const createProduct = asyncHandler(async (req, res, next) => {
             brand,
             price,
             description,
+            keyFeatures: normalizeOptionalText(keyFeatures),
+            ingredientsAndUsage: normalizeOptionalText(ingredientsAndUsage),
+            storageAndNotes: normalizeOptionalText(storageAndNotes),
+            deliveryAndPickup: normalizeOptionalText(deliveryAndPickup),
             image: normalizeProductImages(image),
             regularPrice,
             color,
@@ -403,6 +414,10 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
         quantity,
         price,
         description,
+        keyFeatures,
+        ingredientsAndUsage,
+        storageAndNotes,
+        deliveryAndPickup,
         image,
         regularPrice,
         color,
@@ -446,6 +461,10 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
               quantity: hasQuantity ? nextQuantity : product.quantity,
               price,
               description,
+              keyFeatures: normalizeOptionalText(keyFeatures),
+              ingredientsAndUsage: normalizeOptionalText(ingredientsAndUsage),
+              storageAndNotes: normalizeOptionalText(storageAndNotes),
+              deliveryAndPickup: normalizeOptionalText(deliveryAndPickup),
               image: nextImages,
               regularPrice,
               color,

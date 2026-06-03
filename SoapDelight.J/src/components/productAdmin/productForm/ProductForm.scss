@@ -179,6 +179,12 @@
   box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.12);
 }
 
+textarea.admin-product-textarea {
+  min-height: 8.5rem;
+  line-height: 1.7;
+  resize: vertical;
+}
+
 select.admin-product-input {
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, #94a3b8 50%),

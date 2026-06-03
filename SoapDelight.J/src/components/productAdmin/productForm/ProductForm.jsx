@@ -101,6 +101,28 @@ const ProductForm = ({
         helper: "只供內部參考",
       },
     ];
+    const productDetailFields = [
+      {
+        name: "keyFeatures",
+        label: "主要特色",
+        placeholder: "選填。可輸入產品特色，每行一點。",
+      },
+      {
+        name: "ingredientsAndUsage",
+        label: "成分及用法",
+        placeholder: "選填。輸入成分、使用方法或相關提醒。",
+      },
+      {
+        name: "storageAndNotes",
+        label: "保存及注意事項",
+        placeholder: "選填。輸入保存方法、注意事項或測試提醒。",
+      },
+      {
+        name: "deliveryAndPickup",
+        label: "送貨及自取",
+        placeholder: "選填。輸入送貨、自取或處理時間安排。",
+      },
+    ];
     
   return (
     <div className="admin-product-form-shell">
@@ -320,6 +342,37 @@ const ProductForm = ({
               </div>
             </div>
 
+          </div>
+        </section>
+
+        <section className="admin-product-panel">
+          <div className="admin-product-panel-header">
+            <p className="admin-product-kicker">詳情頁</p>
+            <div>
+              <h2 className="admin-product-panel-title">商品詳情頁內容</h2>
+              <p className="admin-product-panel-subtitle">
+                選填。留空時前台會顯示預設文字，已輸入內容會在商品詳情頁對應面板顯示。
+              </p>
+            </div>
+          </div>
+
+          <div className="admin-product-grid">
+            {productDetailFields.map((field) => (
+              <div
+                key={field.name}
+                className="admin-product-field admin-product-field--full"
+              >
+                <label className="admin-product-label">{field.label}</label>
+                <textarea
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  className="admin-product-input admin-product-textarea"
+                  value={product?.[field.name] || ""}
+                  onChange={handleInputChange}
+                  rows="4"
+                />
+              </div>
+            ))}
           </div>
         </section>
 

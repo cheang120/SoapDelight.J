@@ -72,6 +72,26 @@ const productSchema = new mongoose.Schema(
       required: [true, "Please add a description"],
       trim: true,
     },
+    keyFeatures: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    ingredientsAndUsage: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    storageAndNotes: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    deliveryAndPickup: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     image: {
       type: [String],
       default: [],
