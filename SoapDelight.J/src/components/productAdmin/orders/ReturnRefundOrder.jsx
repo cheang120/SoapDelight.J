@@ -29,6 +29,68 @@ const feeSourceLabel = (source) => {
   return "暫未能從 Stripe 取得";
 };
 
+const stockRestoreStatusLabel = (status) => {
+  if (status === "restored") return "已補回 ONLINE 庫存";
+  if (status === "not_restocked") return "未補回網店庫存";
+  if (status === "not_applicable") return "不適用";
+  if (status === "failed") return "補貨失敗，需人工跟進";
+  if (status === "pending") return "等待庫存處理";
+  return "未設定";
+};
+
+const inspectionStatusLabel = (status) => {
+  if (status === "restockable") return "可重新上架";
+  if (status === "not_restockable") return "不可重新上架";
+  if (status === "not_applicable") return "不適用";
+  return "未設定";
+};
+
+const formatDateTime = (value) => {
+  if (!value) return "未能取得";
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "未能取得";
+  }
+
+  return parsedDate.toLocaleString("zh-HK", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const getOrderReturnBreakdown = (order) => {
+  const cartItems = Array.isArray(order?.cartItems) ? order.cartItems : [];
+  const productSubtotal = cartItems
+    .filter((item) => item?.category !== "Shipping")
+    .reduce(
+      (total, item) =>
+        total + Number(item?.price || 0) * Number(item?.cartQuantity || 0),
+      0
+    );
+  const shippingFee = cartItems
+    .filter((item) => item?.category === "Shipping")
+    .reduce((total, item) => total + Number(item?.price || 0), 0);
+  const couponDiscountRate =
+    String(order?.coupon?.name || "nil").toLowerCase() !== "nil"
+      ? Number(order?.coupon?.discount || 0)
+      : 0;
+  const couponDiscountAmount = (productSubtotal * couponDiscountRate) / 100;
+  const productSubtotalAfterDiscount = Math.max(
+    productSubtotal - couponDiscountAmount,
+    0
+  );
+
+  return {
+    productSubtotal,
+    productSubtotalAfterDiscount,
+    originalShippingFee: shippingFee,
+  };
+};
+
 const returnReasonLabel = (value) => {
   if (value === "customer_change_mind") return "客人改變主意 / 個人原因";
   if (value === "company_error") return "公司出錯 / 寄錯貨";
@@ -244,6 +306,13 @@ const ReturnRefundOrder = ({ order }) => {
     if (otherCase) return Number(customRefundAmount || 0);
     return subtotal + shippingFee;
   })();
+  const paymentAmountValue =
+    order?.paymentAmount ??
+    (order?.paymentAmountMinor !== undefined &&
+    order?.paymentAmountMinor !== null
+      ? Number(order.paymentAmountMinor) / 100
+      : undefined);
+  const completedBreakdown = getOrderReturnBreakdown(order);
   const canShowNoRefundClose =
     canPrepareRefund &&
     returnInspectionNote.trim() &&
@@ -263,6 +332,13 @@ const ReturnRefundOrder = ({ order }) => {
   const shouldHideStripeRefundButton =
     confirmNoRefund ||
     (requiresNoRestockRefundGate && !hasNoRestockRefundApproval);
+  const shouldShowCompletedRefundSummary =
+    order?.refundFlow === "shipped_return" &&
+    (order?.returnStatus === "returned_refunded" ||
+      order?.refundStatus === "succeeded");
+  const shouldShowNoRefundSummary =
+    order?.returnStatus === "closed_no_refund" ||
+    order?.orderStatus === "Return Closed / No Refund";
 
   const closePanel = () => {
     setPanelMode("");
@@ -499,6 +575,146 @@ const ReturnRefundOrder = ({ order }) => {
           <p className={styles.statusMessage}>
             {returnStatusMessage(order, pollTimedOut) || submittedMessage}
           </p>
+        )}
+
+        {shouldShowCompletedRefundSummary && (
+          <div className={styles.form}>
+            <div>
+              <p className={styles.eyebrow}>退貨退款結果摘要</p>
+              <h4 className={styles.title}>退貨退款結果摘要</h4>
+            </div>
+            <div className={styles.summaryGrid}>
+              <div>
+                <span>Stripe 付款金額</span>
+                <strong>
+                  {formatMoney(
+                    paymentAmountValue,
+                    order?.paymentCurrency || "HKD"
+                  )}
+                </strong>
+              </div>
+              <div>
+                <span>
+                  {Number(order?.coupon?.discount || 0) > 0
+                    ? "商品折扣後小計"
+                    : "商品小計"}
+                </span>
+                <strong>
+                  {formatMoney(
+                    Number(order?.coupon?.discount || 0) > 0
+                      ? completedBreakdown.productSubtotalAfterDiscount
+                      : completedBreakdown.productSubtotal,
+                    order?.refundCurrency || order?.paymentCurrency || "HKD"
+                  )}
+                </strong>
+              </div>
+              <div>
+                <span>原運費</span>
+                <strong>
+                  {formatMoney(
+                    completedBreakdown.originalShippingFee,
+                    order?.refundCurrency || order?.paymentCurrency || "HKD"
+                  )}
+                </strong>
+              </div>
+              <div>
+                <span>Stripe 手續費</span>
+                <strong>
+                  {formatMoney(
+                    order?.stripeFeeAmount,
+                    order?.stripeFeeCurrency || order?.paymentCurrency || "HKD"
+                  )}
+                </strong>
+              </div>
+              <div>
+                <span>額外扣除退回運費（如公司沒有代付，請填 0）</span>
+                <strong>
+                  {formatMoney(
+                    order?.returnShippingDeduction ?? 0,
+                    order?.refundCurrency || order?.paymentCurrency || "HKD"
+                  )}
+                </strong>
+              </div>
+              <div>
+                <span>實際退款金額</span>
+                <strong>
+                  {formatMoney(
+                    order?.refundAmount,
+                    order?.refundCurrency || order?.paymentCurrency || "HKD"
+                  )}
+                </strong>
+              </div>
+            </div>
+            <div className={styles.fieldGrid}>
+              <div className={styles.field}>
+                <span>商品檢查結果</span>
+                <strong>{inspectionStatusLabel(order?.returnInspectionStatus)}</strong>
+              </div>
+              <div className={styles.field}>
+                <span>商品是否可重新上架</span>
+                <strong>{order?.returnedItemsRestockable ? "是" : "否"}</strong>
+              </div>
+              <div className={styles.field}>
+                <span>庫存處理</span>
+                <strong>{stockRestoreStatusLabel(order?.stockRestoreStatus)}</strong>
+              </div>
+              <div className={styles.field}>
+                <span>Stripe refund ID</span>
+                <strong>{order?.stripeRefundId || "未能取得"}</strong>
+              </div>
+              <div className={styles.field}>
+                <span>退款完成時間</span>
+                <strong>{formatDateTime(order?.refundSucceededAt || order?.updatedAt)}</strong>
+              </div>
+              <div className={styles.field}>
+                <span>庫存處理時間</span>
+                <strong>{formatDateTime(order?.stockRestoredAt || order?.updatedAt)}</strong>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {shouldShowNoRefundSummary && (
+          <div className={styles.form}>
+            <div>
+              <p className={styles.eyebrow}>退貨結案結果摘要</p>
+              <h4 className={styles.title}>退貨結案結果摘要</h4>
+            </div>
+            <div className={styles.summaryGrid}>
+              <div>
+                <span>退款安排</span>
+                <strong>不設退款</strong>
+              </div>
+              <div>
+                <span>實際退款金額</span>
+                <strong>
+                  {formatMoney(0, order?.paymentCurrency || "HKD")}
+                </strong>
+              </div>
+              <div>
+                <span>商品檢查結果</span>
+                <strong>{inspectionStatusLabel(order?.returnInspectionStatus)}</strong>
+              </div>
+              <div>
+                <span>庫存處理</span>
+                <strong>未補回網店庫存</strong>
+              </div>
+            </div>
+            <div className={styles.fieldGrid}>
+              <div className={styles.field}>
+                <span>不設退款原因</span>
+                <strong>{order?.noRefundReason || "未能取得"}</strong>
+              </div>
+              <div className={styles.field}>
+                <span>結案日期</span>
+                <strong>{formatDateTime(order?.noRefundClosedAt || order?.updatedAt)}</strong>
+              </div>
+            </div>
+            <div className={styles.field}>
+              <span>不設退款內部備註</span>
+              <strong>{order?.noRefundNote || "未能取得"}</strong>
+            </div>
+          </div>
         )}
 
         {panelMode === "request" && (

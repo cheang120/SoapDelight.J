@@ -134,6 +134,12 @@
   gap: 0.45rem;
 }
 
+.field strong {
+  color: #18181b;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
 .fieldGrid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
@@ -240,6 +246,10 @@
 :global(.dark) .option,
 :global(.dark) .confirmations label {
   color: #d4d4d8;
+}
+
+:global(.dark) .field strong {
+  color: #fafafa;
 }
 
 :global(.dark) .field input,
