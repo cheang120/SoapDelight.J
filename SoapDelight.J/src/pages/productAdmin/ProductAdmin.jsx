@@ -22,6 +22,7 @@ import LocationStockPage from "../../components/productAdmin/locationStock/Locat
 import ConsignmentReports from "../../components/productAdmin/consignmentReports/ConsignmentReports.jsx";
 import CompanyProfile from "../../components/productAdmin/companyProfile/CompanyProfile.jsx";
 import ConsignmentDeliveries from "../../components/productAdmin/consignmentDeliveries/ConsignmentDeliveries.jsx";
+import RefundReturnRecords from "../../components/productAdmin/refundReturnRecords/RefundReturnRecords.jsx";
 
 
 export const ProductAdmin = () => {
@@ -46,6 +47,7 @@ export const ProductAdmin = () => {
               <Route path="add-product" element={<AddProduct />} />
               <Route path="edit-product/:id" element={<EditProduct />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="refund-return-records" element={<RefundReturnRecords />} />
               <Route path="order-details/:id" element={<OrderDetails />} />
               <Route path="coupon" element={<Coupon />} />
               <Route path="category" element={<Category />} />

@@ -11,6 +11,7 @@ const navSections = [
       { to: "/productAdmin/home", label: "管理首頁", short: "首" },
       { to: "/productAdmin/all-products", label: "查看商品", short: "品" },
       { to: "/productAdmin/orders", label: "訂單", short: "單" },
+      { to: "/productAdmin/refund-return-records", label: "退款 / 退貨紀錄", short: "退" },
     ],
   },
   {

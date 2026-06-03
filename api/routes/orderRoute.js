@@ -5,7 +5,7 @@ import {
   createOrder, getOrder, getOrders, updateOrderStatus,
   createCancelRefund, getRefundPreview,
   closeReturnNoRefund, createReturnRequest, getReturnRefundPreview,
-  receiveReturnRefund,
+  receiveReturnRefund, getRefundReturnRecords,
   payWithStripe,
   // payWithFlutterwave,
   // verifyFlwPayment,
@@ -20,6 +20,7 @@ router.get("/admin/:id/return-refund-preview", protect, authorOnly, getReturnRef
 router.post("/admin/:id/return-request", protect, authorOnly, createReturnRequest);
 router.post("/admin/:id/receive-return-refund", protect, authorOnly, receiveReturnRefund);
 router.post("/admin/:id/close-return-no-refund", protect, authorOnly, closeReturnNoRefund);
+router.get("/admin/refund-return-records", protect, authorOnly, getRefundReturnRecords);
 router.patch("/:id", protect, authorOnly, updateOrderStatus);
 
 router.get("/", protect, getOrders);

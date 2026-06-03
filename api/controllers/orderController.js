@@ -1098,6 +1098,213 @@ export const getReturnRefundPreview = asyncHandler(async (req, res) => {
   res.status(200).json(getReturnRefundPreviewPayload(order));
 });
 
+
+export const getRefundReturnRecords = asyncHandler(async (req, res) => {
+  const refundReturnOrderStatuses = [
+    "Cancellation / Refund Processing",
+    "Cancelled / Refunded",
+    "Refund Failed / Manual Follow-up Required",
+    "Return Requested / Awaiting Return",
+    "Return Approved / No Return Required",
+    "Return Received / Refund Processing",
+    "Return Refund Processing",
+    "Returned / Refunded",
+    "Return Closed / No Refund",
+  ];
+
+  const recordsQuery = {
+    $or: [
+      {
+        cancellationStatus: {
+          $in: ["refund_processing", "cancelled_refunded", "refund_failed"],
+        },
+      },
+      {
+        refundStatus: {
+          $in: ["processing", "succeeded", "failed", "no_refund"],
+        },
+      },
+      {
+        returnStatus: {
+          $in: [
+            "awaiting_return",
+            "no_return_required",
+            "refund_processing",
+            "returned_refunded",
+            "closed_no_refund",
+            "return_refund_failed",
+          ],
+        },
+      },
+      {
+        orderStatus: { $in: refundReturnOrderStatuses },
+      },
+    ],
+  };
+
+  const orders = await Order.find(recordsQuery)
+    .populate("user", "name username email")
+    .sort("-updatedAt")
+    .lean();
+
+  const toMoney = (value) => {
+    const number = Number(value || 0);
+    return Number.isFinite(number) ? Math.round(number * 100) / 100 : 0;
+  };
+
+  const formatCurrency = (order) =>
+    String(order?.refundCurrency || order?.paymentCurrency || "hkd").toUpperCase();
+
+  const getCustomerName = (order) =>
+    order?.shippingAddress?.name ||
+    order?.user?.name ||
+    order?.user?.username ||
+    "-";
+
+  const getCustomerEmail = (order) =>
+    order?.shippingAddress?.email ||
+    order?.user?.email ||
+    order?.customerEmail ||
+    "-";
+
+  const getProductQuantity = (order) =>
+    (Array.isArray(order?.cartItems) ? order.cartItems : [])
+      .filter((item) => item?.category !== "Shipping")
+      .reduce(
+        (total, item) => total + Number(item?.cartQuantity || item?.quantity || 0),
+        0
+      );
+
+  const getTypeLabel = (order) => {
+    const noRefund =
+      order?.refundStatus === "no_refund" ||
+      order?.returnStatus === "closed_no_refund" ||
+      order?.orderStatus === "Return Closed / No Refund";
+
+    if (noRefund) return "退貨不設退款";
+
+    const needsFollowUp =
+      ["refund_processing", "refund_failed"].includes(order?.cancellationStatus) ||
+      ["processing", "failed"].includes(order?.refundStatus) ||
+      ["refund_processing", "return_refund_failed"].includes(order?.returnStatus) ||
+      [
+        "Cancellation / Refund Processing",
+        "Return Received / Refund Processing",
+        "Return Refund Processing",
+        "Refund Failed / Manual Follow-up Required",
+      ].includes(order?.orderStatus);
+
+    if (needsFollowUp) return "退款處理中 / 需跟進";
+
+    const shippedReturn =
+      order?.refundFlow === "shipped_return" ||
+      order?.returnStatus === "returned_refunded" ||
+      order?.orderStatus === "Returned / Refunded";
+
+    if (shippedReturn) return "已出貨退貨退款";
+
+    return "未出貨退款";
+  };
+
+  const getStockRestoreLabel = (order) => {
+    if (order?.stockRestoreStatus === "restored") return "已補回 ONLINE";
+    if (order?.stockRestoreStatus === "not_restocked") return "未補回庫存";
+    if (order?.stockRestoreStatus === "not_applicable") return "不適用";
+    return "處理中";
+  };
+
+  const records = orders.map((order) => {
+    const breakdown = getOrderReturnBreakdown(order);
+    const paymentAmount = toMoney(order.paymentAmount ?? order.orderAmount);
+    const stripeFeeAmount = toMoney(
+      order.stripeFeeAmount ?? order.manualStripeFeeAmount
+    );
+    const returnShippingDeduction = toMoney(order.returnShippingDeduction);
+    const refundAmount = toMoney(order.refundAmount);
+    const restoredQuantity =
+      order.stockRestoreStatus === "restored" ? getProductQuantity(order) : 0;
+
+    return {
+      orderId: String(order._id),
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      customerName: getCustomerName(order),
+      customerEmail: getCustomerEmail(order),
+      typeLabel: getTypeLabel(order),
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      refundStatus: order.refundStatus,
+      returnStatus: order.returnStatus,
+      paymentAmount,
+      paymentCurrency: formatCurrency(order),
+      productSubtotalAfterDiscount:
+        toMoney(order.productSubtotalAfterDiscount) ||
+        breakdown.productSubtotalAfterDiscount,
+      originalShippingFee:
+        toMoney(order.originalShippingFee) || breakdown.originalShippingFee,
+      stripeFeeAmount,
+      returnShippingDeduction,
+      refundAmount,
+      noRefundReason: order.noRefundReason || "",
+      returnInspectionStatus: order.returnInspectionStatus || "",
+      returnedItemsRestockable: Boolean(order.returnedItemsRestockable),
+      stockRestoreStatus: order.stockRestoreStatus || "",
+      stockRestoreLabel: getStockRestoreLabel(order),
+      stripeRefundId: order.stripeRefundId || "",
+      refundSucceededAt: order.refundSucceededAt,
+      stockRestoredAt: order.stockRestoredAt,
+      noRefundClosedAt: order.noRefundClosedAt,
+      restoredQuantity,
+    };
+  });
+
+  const summary = records.reduce(
+    (total, record) => {
+      const isNoRefund = record.typeLabel === "退貨不設退款";
+      const isProcessingOrFailed = record.typeLabel === "退款處理中 / 需跟進";
+
+      total.totalPaymentAmount += record.paymentAmount;
+      total.totalRefundAmount += record.refundAmount;
+      total.totalStripeFeeDeducted += record.stripeFeeAmount;
+      total.totalReturnShippingDeducted += record.returnShippingDeduction;
+      total.totalRestoredQuantity += record.restoredQuantity;
+
+      if (record.refundStatus === "succeeded") total.refundedOrderCount += 1;
+      if (isNoRefund) total.noRefundCaseCount += 1;
+      if (isProcessingOrFailed) total.processingOrFailedCount += 1;
+      if (record.stockRestoreStatus === "not_restocked") {
+        total.totalNotRestockedCount += 1;
+      }
+
+      return total;
+    },
+    {
+      totalRecords: records.length,
+      refundedOrderCount: 0,
+      noRefundCaseCount: 0,
+      processingOrFailedCount: 0,
+      totalPaymentAmount: 0,
+      totalRefundAmount: 0,
+      totalStripeFeeDeducted: 0,
+      totalReturnShippingDeducted: 0,
+      totalRestoredQuantity: 0,
+      totalNotRestockedCount: 0,
+    }
+  );
+
+  Object.keys(summary).forEach((key) => {
+    if (typeof summary[key] === "number") {
+      summary[key] = toMoney(summary[key]);
+    }
+  });
+
+  res.status(200).json({
+    summary,
+    records,
+  });
+});
+
+
 export const createReturnRequest = asyncHandler(async (req, res) => {
   const {
     returnReasonType,

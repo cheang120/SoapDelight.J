@@ -1,0 +1,280 @@
+.page {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #71717a;
+}
+
+.title {
+  margin-top: 0.25rem;
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #09090b;
+}
+
+.subtitle {
+  margin-top: 0.45rem;
+  max-width: 70ch;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: #71717a;
+}
+
+.refreshButton,
+.filterButton,
+.filterActive,
+.detailLink {
+  border: 1px solid #e4e4e7;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #18181b;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.refreshButton {
+  min-height: 2.6rem;
+  padding: 0 1rem;
+}
+
+.refreshButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.85rem;
+}
+
+.summaryCard {
+  border: 1px solid rgba(228, 228, 231, 0.92);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.summaryCard span {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #71717a;
+}
+
+.summaryCard strong {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 1.2rem;
+  color: #09090b;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filterButton,
+.filterActive {
+  min-height: 2.35rem;
+  padding: 0 0.9rem;
+}
+
+.filterActive {
+  border-color: #18181b;
+  background: #18181b;
+  color: #ffffff;
+}
+
+.card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(228, 228, 231, 0.92);
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.tableHeader {
+  border-bottom: 1px solid #e4e4e7;
+  padding: 0.9rem 1rem;
+  color: #52525b;
+  font-weight: 700;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid #f1f5f9;
+  padding: 0.85rem;
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.86rem;
+}
+
+.table th {
+  background: #fafafa;
+  color: #52525b;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table td {
+  color: #18181b;
+}
+
+.table small {
+  display: block;
+  margin-top: 0.2rem;
+  color: #71717a;
+  word-break: break-all;
+}
+
+.badge {
+  display: inline-flex;
+  border-radius: 9999px;
+  background: #f4f4f5;
+  padding: 0.25rem 0.6rem;
+  color: #3f3f46;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.detailLink {
+  display: inline-flex;
+  padding: 0.4rem 0.75rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #71717a;
+  font-weight: 700;
+}
+
+:global(.dark) .page {
+  .eyebrow,
+  .subtitle,
+  .summaryCard span,
+  .tableHeader,
+  .table small,
+  .empty {
+    color: #a1a1aa;
+  }
+
+  .title,
+  .summaryCard strong,
+  .table td {
+    color: #f4f4f5;
+  }
+
+  .summaryCard,
+  .card {
+    border-color: rgba(63, 63, 70, 0.92);
+    background: rgba(24, 24, 27, 0.9);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+  }
+
+  .refreshButton,
+  .filterButton,
+  .detailLink {
+    border-color: #3f3f46;
+    background: #18181b;
+    color: #f4f4f5;
+  }
+
+  .filterActive {
+    border-color: #f4f4f5;
+    background: #f4f4f5;
+    color: #18181b;
+  }
+
+  .tableHeader,
+  .table th,
+  .table td {
+    border-color: #27272a;
+  }
+
+  .table th {
+    background: #18181b;
+    color: #d4d4d8;
+  }
+
+  .badge {
+    background: #27272a;
+    color: #e4e4e7;
+  }
+}
+
+@media (max-width: 760px) {
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .table {
+    min-width: 0;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    border-bottom: 1px solid #e4e4e7;
+    padding: 0.75rem 0;
+  }
+
+  .table td {
+    border: 0;
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 0.75rem;
+    padding: 0.45rem 1rem;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    color: #71717a;
+    font-weight: 700;
+  }
+}
