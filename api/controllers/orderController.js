@@ -23,11 +23,36 @@ const REFUND_SUBMITTED_MESSAGE =
   "退款已提交，等待 Stripe 確認。客人通知會在退款成功及庫存補回後發出。";
 const RETURN_REFUND_SUBMITTED_MESSAGE =
   "已提交 Stripe 退款，等待確認。客人通知會在退款成功及退貨商品處理完成後發出。";
+const POLICY_VERSION = "2026-06-v1";
+const POLICY_ACCEPTANCE_ERROR =
+  "請先閱讀並同意退款、退貨、送貨及自取政策";
 
 const throwHttpError = (statusCode, message) => {
   const error = new Error(message);
   error.statusCode = statusCode;
   throw error;
+};
+
+const validateCheckoutPolicyAcceptance = ({
+  policyAccepted,
+  policyAcceptedAt,
+  policyVersion,
+}) => {
+  if (policyAccepted !== true || policyVersion !== POLICY_VERSION) {
+    throwHttpError(400, POLICY_ACCEPTANCE_ERROR);
+  }
+
+  const acceptedAt = new Date(policyAcceptedAt);
+
+  if (Number.isNaN(acceptedAt.getTime())) {
+    throwHttpError(400, POLICY_ACCEPTANCE_ERROR);
+  }
+
+  return {
+    policyAccepted: true,
+    policyAcceptedAt: acceptedAt,
+    policyVersion: POLICY_VERSION,
+  };
 };
 
 const getStripeObjectId = (value) => {
@@ -850,6 +875,9 @@ export const createOrder = asyncHandler(async (req, res) => {
     paymentMethod,
     coupon,
     stripePaymentIntentId,
+    policyAccepted,
+    policyAcceptedAt,
+    policyVersion,
   } = req.body;
     // 檢查 cartItems 是否為數組
     if (!Array.isArray(cartItems)) {
@@ -862,6 +890,12 @@ export const createOrder = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Order data missing!!!");
   }
+
+  const policyAcceptance = validateCheckoutPolicyAcceptance({
+    policyAccepted,
+    policyAcceptedAt,
+    policyVersion,
+  });
 
   const isStripePayment =
     String(paymentMethod || "").trim().toLowerCase() === "stripe";
@@ -964,6 +998,7 @@ export const createOrder = asyncHandler(async (req, res) => {
             shippingAddress,
             paymentMethod,
             coupon: validatedCoupon,
+            ...policyAcceptance,
             ...stripePaymentSnapshot,
           },
         ],
@@ -2163,7 +2198,23 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
 // // Pay with stripe
 export const payWithStripe = asyncHandler(async (req, res) => {
-  const { items, shipping, description, coupon,shippingFee, userId, userEmail } = req.body;
+  const {
+    items,
+    shipping,
+    description,
+    coupon,
+    shippingFee,
+    userId,
+    userEmail,
+    policyAccepted,
+    policyAcceptedAt,
+    policyVersion,
+  } = req.body;
+  const policyAcceptance = validateCheckoutPolicyAcceptance({
+    policyAccepted,
+    policyAcceptedAt,
+    policyVersion,
+  });
   const products = await Product.find();
 
   let orderAmount;
@@ -2185,6 +2236,7 @@ export const payWithStripe = asyncHandler(async (req, res) => {
     description,
     metadata: {
       source: "SoapDelight.J",
+      policyVersion: policyAcceptance.policyVersion,
       ...(userId ? { userId: String(userId) } : {}),
       ...(userEmail ? { customerEmail: String(userEmail) } : {}),
     },

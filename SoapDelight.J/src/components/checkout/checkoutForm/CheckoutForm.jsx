@@ -19,7 +19,13 @@ import {
 import { isCouponValid } from "../../../redux/features/coupon/couponSlice";
 import { createOrder } from "../../../redux/features/order/OrderSlice";
 
-export default function CheckoutForm({ paymentIntentId }) {
+export default function CheckoutForm({
+  paymentIntentId,
+  policyAccepted,
+  policyAcceptedAt,
+  policyVersion,
+  policyAgreement,
+}) {
   const stripe = useStripe();
   const elements = useElements();
   const dispatch = useDispatch();
@@ -46,6 +52,9 @@ export default function CheckoutForm({ paymentIntentId }) {
       paymentMethod,
       stripePaymentIntentId,
       coupon: isCouponValid(coupon) ? coupon : { name: "nil" },
+      policyAccepted: Boolean(policyAccepted),
+      policyAcceptedAt,
+      policyVersion,
     };
 
     await dispatch(createOrder(formData)).unwrap();
@@ -128,28 +137,32 @@ export default function CheckoutForm({ paymentIntentId }) {
         </div>
 
         <div className={styles.layout}>
-          <section className={styles.paymentCard}>
-            <div className={styles.sectionHeader}>
-              <h2>付款資料</h2>
-              <p>付款將透過 Stripe 安全處理。</p>
-            </div>
+          <div className={styles.paymentColumn}>
+            {policyAgreement}
 
-            <form onSubmit={handleSubmit}>
-              <div className={styles.paymentElement}>
-                <PaymentElement options={{ layout: "tabs" }} />
+            <section className={styles.paymentCard}>
+              <div className={styles.sectionHeader}>
+                <h2>付款資料</h2>
+                <p>付款將透過 Stripe 安全處理。</p>
               </div>
 
-              <button
-                disabled={isLoading || !stripe || !elements}
-                type="submit"
-                className={styles.button}
-              >
-                <span>{isLoading ? <Spinner /> : "立即付款"}</span>
-              </button>
+              <form onSubmit={handleSubmit}>
+                <div className={styles.paymentElement}>
+                  <PaymentElement options={{ layout: "tabs" }} />
+                </div>
 
-              {message && <div className={styles.message}>{message}</div>}
-            </form>
-          </section>
+                <button
+                  disabled={isLoading || !stripe || !elements}
+                  type="submit"
+                  className={styles.button}
+                >
+                  <span>{isLoading ? <Spinner /> : "立即付款"}</span>
+                </button>
+
+                {message && <div className={styles.message}>{message}</div>}
+              </form>
+            </section>
+          </div>
 
           <aside className={styles.summaryColumn}>
             <div className={styles.summaryCard}>

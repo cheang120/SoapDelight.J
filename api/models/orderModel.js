@@ -87,6 +87,17 @@ const orderSchema = new mongoose.Schema(
     paidAt: {
       type: Date,
     },
+    policyAccepted: {
+      type: Boolean,
+      default: false,
+    },
+    policyAcceptedAt: {
+      type: Date,
+    },
+    policyVersion: {
+      type: String,
+      trim: true,
+    },
     cancellationStatus: {
       type: String,
       default: "none",

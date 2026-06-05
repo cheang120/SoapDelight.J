@@ -15,6 +15,9 @@ import {
 } from "../../redux/features/checkout/checkoutSlice";
 import { isCouponValid } from "../../redux/features/coupon/couponSlice";
 import { API_BASE_URL } from "../../utils/apiBase";
+import CheckoutPolicyAgreement, {
+  POLICY_VERSION,
+} from "../../components/checkout/policyAgreement/CheckoutPolicyAgreement";
 
 const StripeCheckoutSurface = lazy(() =>
   import("../../components/checkout/checkoutForm/StripeCheckoutSurface")
@@ -58,6 +61,11 @@ export const Checkout = () => {
   const [clientSecret, setClientSecret] = useState("");
   const [paymentIntentId, setPaymentIntentId] = useState("");
   const [initError, setInitError] = useState("");
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
+  const [hasViewedCheckoutPolicy, setHasViewedCheckoutPolicy] = useState(false);
+  const [policyAgreementChecked, setPolicyAgreementChecked] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [policyAcceptedAt, setPolicyAcceptedAt] = useState("");
 
   const cartItems = useSelector(selectCartItems);
   const productItems = useSelector(selectProductCartItems);
@@ -86,18 +94,57 @@ export const Checkout = () => {
     Boolean(selectedDeliveryMethod) &&
     hasShippingAddress &&
     hasBillingAddress &&
-    !hasExpiredCoupon;
+    !hasExpiredCoupon &&
+    policyAccepted;
+
+  const openPolicyModal = () => {
+    setHasViewedCheckoutPolicy(true);
+    setIsPolicyModalOpen(true);
+  };
+
+  const closePolicyModal = () => {
+    setIsPolicyModalOpen(false);
+  };
+
+  const handlePolicyAgreementCheckedChange = (nextChecked) => {
+    setPolicyAgreementChecked(nextChecked);
+
+    if (!nextChecked) {
+      setPolicyAccepted(false);
+      setPolicyAcceptedAt("");
+      setClientSecret("");
+      setPaymentIntentId("");
+      setInitError("");
+    }
+  };
+
+  const confirmPolicyAcceptance = () => {
+    if (!policyAgreementChecked) {
+      toast.info("請先閱讀並同意退款及退貨政策、送貨及自取政策");
+      return;
+    }
+
+    setPolicyAccepted(true);
+    setPolicyAcceptedAt(new Date().toISOString());
+  };
+
+  const renderPolicyAgreement = () => (
+    <CheckoutPolicyAgreement
+      isPolicyModalOpen={isPolicyModalOpen}
+      hasViewedCheckoutPolicy={hasViewedCheckoutPolicy}
+      policyAgreementChecked={policyAgreementChecked}
+      policyAccepted={policyAccepted}
+      onOpenPolicy={openPolicyModal}
+      onClosePolicy={closePolicyModal}
+      onPolicyAgreementCheckedChange={handlePolicyAgreementCheckedChange}
+      onConfirmPolicyAcceptance={confirmPolicyAcceptance}
+    />
+  );
+
   useEffect(() => {
     let ignore = false;
 
-    if (
-      !currentUser ||
-      !productItems.length ||
-      !selectedDeliveryMethod ||
-      !hasShippingAddress ||
-      !hasBillingAddress ||
-      hasExpiredCoupon
-    ) {
+    if (!shouldLoadStripe) {
       setClientSecret("");
       setPaymentIntentId("");
       setInitError("");
@@ -119,6 +166,9 @@ export const Checkout = () => {
             billing: effectiveBillingAddress,
             description,
             coupon: validCoupon || { name: "nil" },
+            policyAccepted: true,
+            policyAcceptedAt,
+            policyVersion: POLICY_VERSION,
           }),
         });
 
@@ -150,12 +200,13 @@ export const Checkout = () => {
     currentUser,
     description,
     hasBillingAddress,
-    hasExpiredCoupon,
     hasShippingAddress,
     effectiveBillingAddress,
+    policyAcceptedAt,
     productItems.length,
     productIDs,
     selectedDeliveryMethod,
+    shouldLoadStripe,
     shippingAddress,
     userEmail,
     validCoupon,
@@ -233,6 +284,34 @@ export const Checkout = () => {
     );
   }
 
+  if (!policyAccepted) {
+    return (
+      <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 dark:bg-zinc-950 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-4xl gap-5">
+          <div className="rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-8 shadow-[0_12px_28px_rgba(24,24,27,0.04)] dark:border-zinc-800 dark:bg-zinc-950 sm:px-8">
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-emerald-700">
+              安全付款
+            </p>
+            <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+              付款前確認政策
+            </h1>
+            <p className="mt-4 max-w-2xl text-zinc-600 dark:text-zinc-300">
+              請先閱讀並同意退款、退貨、送貨及自取政策，然後即可載入安全付款表單。
+            </p>
+            <Link
+              to="/checkout-details"
+              className="mt-6 inline-flex text-sm font-medium text-zinc-500 transition hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white"
+            >
+              &larr; 返回資料頁
+            </Link>
+          </div>
+
+          {renderPolicyAgreement()}
+        </div>
+      </main>
+    );
+  }
+
   if (!clientSecret) {
     return (
       <main className="min-h-screen bg-[#fbfcfa] px-5 py-10 dark:bg-zinc-950 sm:px-6 lg:px-8">
@@ -270,6 +349,10 @@ export const Checkout = () => {
       <StripeCheckoutSurface
         clientSecret={clientSecret}
         paymentIntentId={paymentIntentId}
+        policyAccepted={policyAccepted}
+        policyAcceptedAt={policyAcceptedAt}
+        policyVersion={POLICY_VERSION}
+        policyAgreement={renderPolicyAgreement()}
       />
     </Suspense>
   );
