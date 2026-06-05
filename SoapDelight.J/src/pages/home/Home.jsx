@@ -208,38 +208,38 @@ const Home = () => {
   return (
     <main className="home-page bg-white text-zinc-950 dark:bg-zinc-950 dark:text-white">
       <section className="relative overflow-hidden bg-[#f7faf6] dark:bg-zinc-950">
-        <div className="mx-auto grid min-h-[calc(100vh-3.5rem)] max-w-7xl items-center gap-10 px-5 py-14 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:py-20 lg:px-8">
-          <div className="max-w-xl">
-            <p className="mb-5 text-sm font-medium tracking-[0.28em] text-emerald-800">
+        <div className="mx-auto grid max-w-7xl justify-items-center gap-5 px-5 py-5 sm:px-6 sm:py-12 md:min-h-[calc(100vh-3.5rem)] md:grid-cols-[0.9fr_1.1fr] md:items-center md:justify-items-stretch md:gap-10 md:py-20 lg:px-8">
+          <div className="home-hero-copy w-full max-w-[20.5rem] md:max-w-xl">
+            <p className="mb-4 text-xs font-medium tracking-[0.24em] text-emerald-800 sm:mb-5 sm:text-sm sm:tracking-[0.28em]">
               澳門手作・生活選物
             </p>
-            <h1 className="text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl">
               SoapDelight.J
             </h1>
-            <p className="mt-6 text-xl leading-8 text-zinc-700 dark:text-zinc-300">
+            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg md:mt-6 md:text-xl md:leading-8">
               精選手作護理、香氣、陶瓷與生活禮品。
             </p>
-            <p className="mt-3 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 hidden text-sm leading-6 text-zinc-600 dark:text-zinc-400 sm:mt-3 sm:block sm:text-lg sm:leading-8">
               由日常自用到送禮心意，為生活留一點溫柔。
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-5 flex flex-col items-start gap-2 sm:mt-9 sm:flex-row sm:items-center sm:gap-3">
               <Link
                 to="/shop"
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+                className="home-hero-primary-cta inline-flex min-h-10 w-full max-w-[20.5rem] items-center justify-center rounded-full bg-zinc-950 px-4 text-sm font-medium text-white transition hover:bg-zinc-800 sm:min-h-11 sm:w-auto sm:px-7 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
               >
                 立即選購
               </Link>
               <Link
                 to="/about"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-300 px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-950 dark:border-zinc-700 dark:text-white dark:hover:border-zinc-300"
+                className="home-hero-secondary-link inline-flex min-h-10 items-center justify-center px-1 text-sm font-medium text-zinc-700 underline-offset-4 transition hover:underline sm:min-h-11 sm:w-auto sm:rounded-full sm:border sm:border-zinc-300 sm:px-7 sm:text-zinc-900 sm:no-underline sm:hover:border-zinc-950 dark:text-zinc-300 dark:hover:text-white sm:dark:border-zinc-700 sm:dark:text-white sm:dark:hover:border-zinc-300"
               >
                 品牌故事
               </Link>
             </div>
           </div>
 
-          <div className="relative">
-            <div className="home-hero-frame mx-auto max-w-[620px] overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="relative w-full min-w-0">
+            <div className="home-hero-frame mx-auto w-full overflow-hidden rounded-2xl border border-white/70 bg-white shadow-sm md:max-w-[620px] md:rounded-[2rem] dark:border-zinc-800 dark:bg-zinc-900">
               {heroSlides.length > 0 ? (
                 <div className="home-hero-carousel" aria-roledescription="carousel">
                   <div
@@ -255,19 +255,21 @@ const Home = () => {
                         <ProductImage
                           product={slideProduct}
                           alt={slideProduct.name}
-                          className="aspect-[4/5] w-full object-cover"
-                          fallbackClassName="aspect-[4/5]"
+                          className="home-hero-media aspect-[4/3] w-full object-cover md:aspect-[4/5]"
+                          fallbackClassName="home-hero-media aspect-[4/3] md:aspect-[4/5]"
                         />
-                        <div className="flex items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800">
+                        <div className="home-hero-meta flex items-center justify-between gap-3 border-t border-zinc-100 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4 dark:border-zinc-800">
                           <div>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 sm:text-sm">
                               精選產品
                             </p>
-                            <h2 className="text-lg font-medium text-zinc-950 dark:text-white">
+                            <h2 className="text-base font-medium text-zinc-950 dark:text-white sm:text-lg">
                               {slideProduct.name}
                             </h2>
                           </div>
-                          <p className="text-lg font-semibold">${slideProduct.price}</p>
+                          <p className="text-base font-semibold sm:text-lg">
+                            ${slideProduct.price}
+                          </p>
                         </div>
                       </Link>
                     ))}
@@ -308,7 +310,7 @@ const Home = () => {
                   )}
                 </div>
               ) : (
-                <div className="flex aspect-[4/5] items-center justify-center p-10 text-center text-zinc-500">
+                <div className="home-hero-media flex aspect-[4/3] items-center justify-center p-8 text-center text-zinc-500 md:aspect-[4/5]">
                   {isLoading ? "正在載入商品..." : "商品即將上架"}
                 </div>
               )}

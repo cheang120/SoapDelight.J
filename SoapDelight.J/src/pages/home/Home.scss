@@ -14,7 +14,9 @@
   border-radius: 1.5rem;
   pointer-events: none;
   z-index: 1;
-}\n\n.home-category-carousel {
+}
+
+.home-category-carousel {
   overflow: hidden;
   -webkit-mask-image: linear-gradient(
     to right,
@@ -91,6 +93,7 @@
 .home-hero-slide {
   flex: 0 0 100%;
   min-width: 100%;
+  position: relative;
 }
 
 .home-hero-arrow {
@@ -163,4 +166,107 @@
 .home-hero-dot--active {
   width: 1rem;
   background: #18181b;
+}
+
+@media (max-width: 767px) {
+  .home-hero-carousel,
+  .home-hero-track,
+  .home-hero-slide {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .home-page .home-hero-copy {
+    width: 100%;
+    max-width: min(20.5rem, calc(100vw - 2.5rem));
+    margin-inline: auto;
+    min-width: 0;
+  }
+
+  .home-page .home-hero-primary-cta {
+    width: 100%;
+    max-width: min(20.5rem, calc(100vw - 2.5rem));
+    align-self: center;
+  }
+
+  .home-hero-secondary-link {
+    align-self: center;
+  }
+
+  .home-page .home-hero-frame {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+    border-radius: 1rem;
+  }
+
+  .home-hero-frame::before {
+    inset: 0.55rem;
+    border-radius: 0.85rem;
+  }
+
+  .home-hero-slide .home-hero-media {
+    height: clamp(250px, 68vw, 290px);
+    max-height: 290px;
+    min-height: 0;
+    object-fit: cover;
+  }
+
+  .home-hero-meta {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    gap: 0.75rem;
+    padding: 1rem 0.9rem 0.8rem;
+    border-top: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(24, 24, 27, 0) 0%,
+      rgba(24, 24, 27, 0.72) 48%,
+      rgba(24, 24, 27, 0.92) 100%
+    );
+    color: #fff;
+  }
+
+  .home-hero-meta p,
+  .home-hero-meta h2 {
+    color: inherit;
+  }
+
+  .home-hero-arrow {
+    top: 50%;
+    height: 3rem;
+    width: 2.1rem;
+  }
+
+  .home-hero-arrow::before {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-top-width: 3px;
+    border-right-width: 3px;
+  }
+
+  .home-hero-arrow--left {
+    left: 0.5rem;
+  }
+
+  .home-hero-arrow--right {
+    right: 0.5rem;
+  }
+
+  .home-hero-dots {
+    right: 0.85rem;
+    bottom: 0.8rem;
+    gap: 0.3rem;
+  }
+
+  .home-hero-dot {
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  .home-hero-dot--active {
+    background: #fff;
+  }
 }
