@@ -3,6 +3,13 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../../../utils/apiBase";
+import {
+  getInspectionStatusLabel,
+  getOrderStatusLabel,
+  getRefundStatusLabel,
+  getReturnStatusLabel,
+  getStockRestoreStatusLabel,
+} from "../../../utils/statusLabels";
 import styles from "./RefundReturnRecords.module.scss";
 
 const API_URL = `${API_BASE_URL}/order/admin/refund-return-records`;
@@ -175,8 +182,12 @@ const RefundReturnRecords = () => {
                         <span className={styles.badge}>{record.typeLabel || "-"}</span>
                       </td>
                       <td data-label="狀態">
-                        <span>{record.orderStatus || "-"}</span>
-                        <small>{record.refundStatus || record.returnStatus || "-"}</small>
+                        <span>{getOrderStatusLabel(record.orderStatus)}</span>
+                        <small>
+                          {record.refundStatus && record.refundStatus !== "none"
+                            ? getRefundStatusLabel(record.refundStatus)
+                            : getReturnStatusLabel(record.returnStatus)}
+                        </small>
                       </td>
                       <td data-label="Stripe 付款金額">{money(record.paymentAmount, currency)}</td>
                       <td data-label="Stripe 手續費">{money(record.stripeFeeAmount, currency)}</td>
@@ -185,10 +196,13 @@ const RefundReturnRecords = () => {
                         <strong>{money(record.refundAmount, currency)}</strong>
                       </td>
                       <td data-label="商品檢查">
-                        {record.returnInspectionStatus || "-"}
+                        {getInspectionStatusLabel(record.returnInspectionStatus)}
                         {record.returnedItemsRestockable ? <small>可重新上架</small> : null}
                       </td>
-                      <td data-label="庫存處理">{record.stockRestoreLabel || "-"}</td>
+                      <td data-label="庫存處理">
+                        {record.stockRestoreLabel ||
+                          getStockRestoreStatusLabel(record.stockRestoreStatus)}
+                      </td>
                       <td data-label="Stripe refund ID">
                         <small>{record.stripeRefundId || "-"}</small>
                       </td>

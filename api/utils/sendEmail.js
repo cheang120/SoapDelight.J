@@ -18,16 +18,16 @@ const escapeHtml = (value = "") =>
 
 const getEmailCopy = (subject, safeName, safeLink) => {
   const isReset = /password reset/i.test(subject);
-  const actionLabel = isReset ? "Reset Password" : "Verify Account";
+  const actionLabel = isReset ? "重設密碼" : "驗證帳戶";
   const intro = isReset
-    ? "We received a request to reset your password. Use the button below to continue."
-    : "Please use the button below to verify your SoapDelight.J account.";
+    ? "我們收到重設密碼的申請，請按以下按鈕繼續。"
+    : "請按以下按鈕完成您的 SoapDelight.J 帳戶驗證。";
   const expiry = isReset
-    ? "This link is valid for 1 hour."
-    : "This verification link is valid for 1 hour.";
+    ? "此連結有效時間為 1 小時。"
+    : "此驗證連結有效時間為 1 小時。";
 
   return `
-    <html lang="en">
+    <html lang="zh-Hant">
       <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -91,11 +91,11 @@ const getEmailCopy = (subject, safeName, safeLink) => {
           <div class="card">
             <p class="brand">SoapDelight.J</p>
             <h1 class="title">${escapeHtml(subject)}</h1>
-            <p class="body">Hello ${safeName},</p>
+            <p class="body">您好，${safeName}</p>
             <p class="body">${intro}</p>
             <a class="button" href="${safeLink}">${actionLabel}</a>
             <p class="body">${expiry}</p>
-            <p class="footnote">If the button does not work, copy and paste this link into your browser:</p>
+            <p class="footnote">如按鈕未能正常開啟，請複製以下連結並貼到瀏覽器：</p>
             <p class="footnote">${safeLink}</p>
           </div>
         </div>
@@ -124,7 +124,7 @@ const sendEmail = async (subject, send_to, sent_from, reply_to, name, link) => {
     },
   });
 
-  const safeName = escapeHtml(name || "there");
+  const safeName = escapeHtml(name || "客人");
   const safeLink = String(link || "");
   const mailOptions = {
     from: `SoapDelight.J <${emailUser}>`,
@@ -132,7 +132,7 @@ const sendEmail = async (subject, send_to, sent_from, reply_to, name, link) => {
     replyTo: reply_to || emailUser,
     subject,
     html: getEmailCopy(subject, safeName, safeLink),
-    text: `Hello ${name || "there"}, please open this link: ${safeLink}`,
+    text: `您好，${name || "客人"}。請開啟此連結：${safeLink}`,
   };
 
   try {

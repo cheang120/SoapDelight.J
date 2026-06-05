@@ -85,10 +85,10 @@ const buildCampaignHtml = (campaign, unsubscribeUrl) => {
   });
 
   const emailHtml = mailGenerator.generate(template);
-  const unsubscribeHtml = unsubscribeUrl
-    ? `<p style="font-size:12px;color:#71717a;text-align:center;margin-top:24px;">To stop receiving promotional updates, <a href="${escapeHtml(
+const unsubscribeHtml = unsubscribeUrl
+    ? `<p style="font-size:12px;color:#71717a;text-align:center;margin-top:24px;">如不想再接收推廣消息，可按此<a href="${escapeHtml(
         unsubscribeUrl
-      )}">unsubscribe here</a>.</p>`
+      )}">取消訂閱</a>。</p>`
     : "";
 
   return emailHtml.includes("</body>")

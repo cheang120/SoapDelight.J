@@ -1,4 +1,10 @@
 import React from "react";
+import {
+  getOrderBadgeTone,
+  getOrderStatusLabel,
+  getPaymentMethodLabel,
+  getPaymentStatusLabel,
+} from "../../utils/statusLabels";
 
 const formatCurrency = (value) => {
   const amount = Number(value || 0);
@@ -11,13 +17,13 @@ const shortenId = (id = "") => {
 };
 
 const getStatusClasses = (status = "") => {
-  const normalized = status.toLowerCase();
+  const tone = getOrderBadgeTone(status);
 
-  if (normalized.includes("deliver")) {
+  if (tone === "success") {
     return "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300";
   }
 
-  if (normalized.includes("cancel")) {
+  if (tone === "danger") {
     return "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300";
   }
 
@@ -25,8 +31,8 @@ const getStatusClasses = (status = "") => {
 };
 
 const paymentStatusLabel = (order) => {
-  if (order?.paymentStatus) return order.paymentStatus;
-  if (order?.paymentMethod) return order.paymentMethod;
+  if (order?.paymentStatus) return getPaymentStatusLabel(order.paymentStatus);
+  if (order?.paymentMethod) return getPaymentMethodLabel(order.paymentMethod);
   return null;
 };
 
@@ -90,7 +96,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
                       order.orderStatus
                     )}`}
                   >
-                    {order.orderStatus || "處理中"}
+                    {getOrderStatusLabel(order.orderStatus)}
                   </span>
                 </div>
 
@@ -141,7 +147,7 @@ const ListOfOrders = ({ orders, openOrderDetails = () => {} }) => {
                     order.orderStatus
                   )}`}
                 >
-                  {order.orderStatus || "處理中"}
+                  {getOrderStatusLabel(order.orderStatus)}
                 </span>
               </div>
 

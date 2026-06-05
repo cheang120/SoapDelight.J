@@ -132,7 +132,7 @@ export const sendVerificationEmail = async (req, res,next) => {
   // Construct Verification URL
   const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
 
-  const subject = "Verify Your Account - SoapDelight.J";
+  const subject = "請驗證您的 SoapDelight.J 帳戶";
   const send_to = user.email;
   const sent_from = process.env.EMAIL_USER;
   const reply_to = process.env.EMAIL_USER;
@@ -447,7 +447,7 @@ export const upgradeUser = async (req, res, next) => {
 
     // Construct Reset URL
     const resetUrl = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
-  const subject = "Password Reset Request - SoapDelight.J";
+  const subject = "SoapDelight.J 重設密碼申請";
     const send_to = user.email;
     const sent_from = process.env.EMAIL_USER;
     const reply_to = process.env.EMAIL_USER;

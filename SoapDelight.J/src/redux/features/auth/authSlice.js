@@ -322,7 +322,7 @@ const authSlice = createSlice({
         state.isSuccess = true;
         state.isLoggedIn = true;
         state.user = action.payload;
-        toast.success("Registration Successful");
+        toast.success("註冊成功");
         console.log(action.payload);
       })
       .addCase(signup.rejected, (state, action) => {
@@ -354,7 +354,7 @@ const authSlice = createSlice({
             state.isSuccess = true;
             state.isLoggedIn = true;
             state.user = action.payload;
-            toast.success("Login Successful");
+            toast.success("登入成功");
             console.log(action.payload);
         })
         .addCase(login.rejected, (state, action) => {
@@ -609,7 +609,7 @@ const authSlice = createSlice({
         if (index !== -1) {
           state.users[index] = action.payload;
         }
-        toast.success("User upgraded successfully");
+        toast.success("使用者權限已更新");
       })
       .addCase(upgradeUser.rejected, (state, action) => {
         state.isLoading = false;

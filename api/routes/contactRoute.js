@@ -12,7 +12,7 @@ router.post('/send-email', async (req, res) => {
     return res.status(400).json({ success: false, message: 'All fields are required' });
   }
 
-  const subject = 'New Contact Form Submission';
+  const subject = 'SoapDelight.J 新的聯絡表單提交';
   const replyTo = email;
   const cc = []; 
   const template = contactEmailTemplate(username, email, whatsapp,content);

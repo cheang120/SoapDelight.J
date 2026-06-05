@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import inventoryService from "../inventory/inventoryService";
+import { getStockMovementTypeLabel } from "../../../utils/statusLabels";
 import "./StockMovements.scss";
 
 const emptyAddForm = {
@@ -388,7 +389,11 @@ const StockMovements = () => {
                         : "-"}
                     </td>
                     <td>{movement.productId?.name || movement.product?.name || "-"}</td>
-                    <td><span className="movement-badge">{movement.type}</span></td>
+                    <td>
+                      <span className="movement-badge">
+                        {getStockMovementTypeLabel(movement.type)}
+                      </span>
+                    </td>
                     <td>
                       {movement.fromLocationId?.name ||
                         movement.fromLocation?.name ||

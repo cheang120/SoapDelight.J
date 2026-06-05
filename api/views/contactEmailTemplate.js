@@ -1,30 +1,29 @@
-const contactEmailTemplate = (username, email, whatsapp,content) => ({
-    body: {
-      name: username,
-      intro: 'You have a new contact form submission!',
-      table: {
-        data: [
-          {
-            item: 'Username',
-            description: username,
-          },
-          {
-            item: 'Email',
-            description: email,
-          },
-          {
-            item: 'WhatsApp',
-            description: whatsapp,
-          },
-          { 
-            item: 'Content', 
-            description: content,
-          }
-        ],
-      },
-      outro: 'Thank you for your message!',
+const contactEmailTemplate = (username, email, whatsapp, content) => ({
+  body: {
+    name: username,
+    intro: "您收到一則新的聯絡表單提交。",
+    table: {
+      data: [
+        {
+          item: "姓名",
+          description: username,
+        },
+        {
+          item: "電郵",
+          description: email,
+        },
+        {
+          item: "WhatsApp",
+          description: whatsapp,
+        },
+        {
+          item: "內容",
+          description: content,
+        },
+      ],
     },
-  });
-  
-  export default contactEmailTemplate;
-  
+    outro: "請盡快跟進此訊息。",
+  },
+});
+
+export default contactEmailTemplate;

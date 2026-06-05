@@ -497,7 +497,7 @@ const sendRefundCompletionEmailIfNeeded = async (orderId) => {
 
   try {
     await sendGmail(
-      "SoapDelight.J Refund Completed",
+      "SoapDelight.J 退款已完成",
       sendTo,
       "no_reply@gmail.com",
       template
@@ -973,8 +973,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     productSubtotal - couponDiscountAmount,
     0
   );
-  const deliveryName =
-    shippingItem?.name || "Delivery information not available";
+  const deliveryName = shippingItem?.name || "未有送貨資料";
   const deliveryFee = Number(shippingItem?.price || 0);
   const total = subtotalAfterDiscount + deliveryFee;
 
@@ -1031,7 +1030,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   }
 
   // Send Order Email to the user
-  const subject = "SoapDelight.J Order Placed";
+  const subject = "SoapDelight.J 訂單確認";
   const send_to = req.user.email;
   // console.log(send_to);
   const template = orderSuccessEmail({

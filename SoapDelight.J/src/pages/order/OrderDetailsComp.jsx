@@ -2,6 +2,12 @@ import React, { useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import {
+  getOrderBadgeTone,
+  getOrderStatusLabel,
+  getPaymentMethodLabel,
+  getPaymentStatusLabel,
+} from "../../utils/statusLabels";
 
 const formatCurrency = (value) => {
   const amount = Number(value || 0);
@@ -14,19 +20,19 @@ const shortenId = (id = "") => {
 };
 
 const statusBadgeClass = (status = "") => {
-  const normalized = status.toLowerCase();
-  if (normalized.includes("deliver")) {
+  const tone = getOrderBadgeTone(status);
+  if (tone === "success") {
     return "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300";
   }
-  if (normalized.includes("cancel")) {
+  if (tone === "danger") {
     return "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300";
   }
   return "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300";
 };
 
 const paymentStatusLabel = (order) => {
-  if (order?.paymentStatus) return order.paymentStatus;
-  if (order?.paymentMethod) return order.paymentMethod;
+  if (order?.paymentStatus) return getPaymentStatusLabel(order.paymentStatus);
+  if (order?.paymentMethod) return getPaymentMethodLabel(order.paymentMethod);
   return null;
 };
 
@@ -173,7 +179,7 @@ const OrderDetailsComp = ({ order, orderPageLink, variant = "customer" }) => {
                   order?.orderStatus
                 )}`}
               >
-                {order?.orderStatus || "處理中"}
+                {getOrderStatusLabel(order?.orderStatus)}
               </span>
             </div>
             {paymentLabel && (

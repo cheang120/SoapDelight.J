@@ -31,7 +31,7 @@ const CarouselItem = ({
   const addToCart = (product) => {
     const cartQuantity = getCartQuantityById(cartItems, product._id);
     if (cartQuantity === product.quantity) {
-      return toast.info("Max number of product reached!!!");
+      return toast.info("已達此商品可購買數量上限");
     }
     dispatch(ADD_TO_CART(product));
     dispatch(CALCULATE_TOTAL_QUANTITY());

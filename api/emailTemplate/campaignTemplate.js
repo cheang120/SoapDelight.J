@@ -8,31 +8,31 @@ export const campaignEmailTemplate = ({
 } = {}) => {
   const body = {
     intro: [
-      "Hi,",
-      title || "SoapDelight.J update",
-      message || "We have an update from SoapDelight.J.",
+      "您好，",
+      title || "SoapDelight.J 最新消息",
+      message || "我們有一則來自 SoapDelight.J 的最新消息。",
     ],
     outro: [
-      "You are receiving this email because you subscribed to SoapDelight.J updates.",
+      "您收到此電郵，是因為您已訂閱 SoapDelight.J 的最新消息。",
       unsubscribeUrl
-        ? `Unsubscribe from these updates: ${unsubscribeUrl}`
-        : "You can update your subscription preferences in your account.",
+        ? `如需取消訂閱，請按此連結：${unsubscribeUrl}`
+        : "您可以登入帳戶更新訂閱偏好。",
     ],
   };
 
   if (couponCode) {
     body.table = {
-      title: "Special offer",
+      title: "優惠資訊",
       data: [
         {
-          "Coupon code": couponCode,
-          Note: "Apply this code at checkout while the offer is available.",
+          優惠碼: couponCode,
+          備註: "請於優惠有效期間在結帳時輸入此優惠碼。",
         },
       ],
       columns: {
         customWidth: {
-          "Coupon code": "35%",
-          Note: "65%",
+          優惠碼: "35%",
+          備註: "65%",
         },
       },
     };
@@ -40,10 +40,10 @@ export const campaignEmailTemplate = ({
 
   if (buttonLink) {
     body.action = {
-      instructions: "Open SoapDelight.J to view this update:",
+      instructions: "請開啟 SoapDelight.J 查看詳情：",
       button: {
         color: "#18181b",
-        text: buttonLabel || "Shop Now",
+        text: buttonLabel || "立即查看",
         link: buttonLink,
       },
     };

@@ -23,6 +23,9 @@ const typeOptions = [
   { value: "other", label: "其他" },
 ];
 
+const getTypeLabel = (value) =>
+  typeOptions.find((option) => option.value === value)?.label || value || "-";
+
 const InventoryLocations = () => {
   const [locations, setLocations] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -270,7 +273,7 @@ const InventoryLocations = () => {
                     <tr key={location._id} className={location.active === false ? "is-inactive" : ""}>
                       <td>{location.name}</td>
                       <td><code>{location.code}</code></td>
-                      <td>{location.type}</td>
+                      <td>{getTypeLabel(location.type)}</td>
                       <td>{Number(location.commissionRate || 0)}%</td>
                       <td>{location.contactPerson || "-"}</td>
                       <td>{location.phone || "-"}</td>

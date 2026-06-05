@@ -17,7 +17,7 @@ export const orderSuccessEmail = ({
   productSubtotal = 0,
   couponDiscountAmount = 0,
   subtotalAfterDiscount = 0,
-  deliveryName = "Delivery information not available",
+  deliveryName = "未有送貨資料",
   deliveryFee = 0,
   total = 0,
   orderAmount,
@@ -29,7 +29,7 @@ export const orderSuccessEmail = ({
     : Number(orderAmount || 0);
   const summaryRows = [
     {
-      item: "Product subtotal / 商品小計",
+      item: "商品小計",
       detail: "",
       amount: formatMoney(productSubtotal),
     },
@@ -38,12 +38,12 @@ export const orderSuccessEmail = ({
   if (couponApplied) {
     summaryRows.push(
       {
-        item: "Coupon / 優惠",
-        detail: `${coupon.name} (${Number(coupon.discount || 0)}% off)`,
+        item: "優惠",
+        detail: `${coupon.name} (${Number(coupon.discount || 0)}%)`,
         amount: `-${formatMoney(couponDiscountAmount)}`,
       },
       {
-        item: "Subtotal after discount / 優惠後小計",
+        item: "優惠後小計",
         detail: "",
         amount: formatMoney(subtotalAfterDiscount),
       }
@@ -52,17 +52,17 @@ export const orderSuccessEmail = ({
 
   summaryRows.push(
     {
-      item: "Delivery / 送貨方式",
-      detail: deliveryName || "Delivery information not available",
+      item: "送貨方式",
+      detail: deliveryName || "未有送貨資料",
       amount: "",
     },
     {
-      item: "Delivery fee / 運費",
+      item: "運費",
       detail: "",
       amount: formatMoney(deliveryFee),
     },
     {
-      item: "Total / 總數",
+      item: "總數",
       detail: "",
       amount: formatMoney(finalTotal),
     }
@@ -70,44 +70,43 @@ export const orderSuccessEmail = ({
 
   const email = {
     body: {
-      name: customerName || "Customer",
-      intro:
-        "Thank you for your order. Your payment has been received and your order is now being processed.",
+      name: customerName || "客人",
+      intro: "感謝您的訂購。我們已收到付款，訂單現正處理中。",
       table: [
         {
-          title: "Order items",
+          title: "訂單商品",
           data:
             validProductItems.length > 0
               ? validProductItems.map((item) => ({
-                  Product: item?.name || "Product",
-                  "Unit price": formatMoney(item?.price),
-                  Quantity: Number(item?.cartQuantity || 0),
-                  "Item total": formatMoney(getItemTotal(item)),
+                  商品: item?.name || "未有商品資料",
+                  單價: formatMoney(item?.price),
+                  數量: Number(item?.cartQuantity || 0),
+                  小計: formatMoney(getItemTotal(item)),
                 }))
               : [
                   {
-                    Product: "No product items available",
-                    "Unit price": formatMoney(0),
-                    Quantity: 0,
-                    "Item total": formatMoney(0),
+                    商品: "未有商品資料",
+                    單價: formatMoney(0),
+                    數量: 0,
+                    小計: formatMoney(0),
                   },
                 ],
           columns: {
             customWidth: {
-              Product: "40%",
-              "Unit price": "20%",
-              Quantity: "15%",
-              "Item total": "25%",
+              商品: "40%",
+              單價: "20%",
+              數量: "15%",
+              小計: "25%",
             },
             customAlignment: {
-              "Unit price": "right",
-              Quantity: "right",
-              "Item total": "right",
+              單價: "right",
+              數量: "right",
+              小計: "right",
             },
           },
         },
         {
-          title: "Order summary",
+          title: "訂單摘要",
           data: summaryRows,
           columns: {
             customWidth: {
@@ -122,20 +121,19 @@ export const orderSuccessEmail = ({
         },
       ],
       dictionary: {
-        "Order date": orderDate || "N/A",
-        "Order time": orderTime || "N/A",
+        訂單日期: orderDate || "未能取得",
+        訂單時間: orderTime || "未能取得",
       },
       action: {
-        instructions:
-          "You can check the status of your order and more in your dashboard:",
+        instructions: "您可以登入帳戶查看訂單狀態：",
         button: {
           color: "#18181b",
-          text: "Go to Dashboard",
+          text: "查看訂單",
           link: "https://soapdelight-j.onrender.com/",
         },
       },
       outro:
-        "We will contact you if any further information is required. Thank you for shopping with SoapDelight.J.",
+        "如需補充資料，我們會與您聯絡。感謝您支持 SoapDelight.J。",
     },
   };
 

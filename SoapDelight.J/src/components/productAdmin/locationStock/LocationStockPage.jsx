@@ -374,14 +374,14 @@ const LocationStockPage = () => {
                   </button>
                 </th>
                 <th>寄賣商品名稱</th>
-                <th>Location</th>
+                <th>地點</th>
                 <th>
                   <button type="button" onClick={() => handleSort("quantity")}>
                     現有數量
                   </button>
                 </th>
                 <th>價格</th>
-                <th>折扣 / commission reference</th>
+                <th>折扣 / 佣金參考</th>
                 <th>估算金額</th>
                 <th>
                   <button
