@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://soapdelight-j.onrender.com/sitemap.xml
