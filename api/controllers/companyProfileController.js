@@ -20,15 +20,28 @@ const buildCompanyProfilePayload = (body = {}) => ({
   note: normalizeText(body.note),
 });
 
+const companyProfileAuditFieldLabels = {
+  businessName: "商戶名稱",
+  contactName: "聯絡人",
+  phone: "電話",
+  email: "電郵",
+  facebookPage: "Facebook 專頁",
+  address: "地址",
+};
+
 const compactCompanyProfileAuditSnapshot = (profile) => ({
-  companyName: profile?.businessName || "",
   businessName: profile?.businessName || "",
+  contactName: profile?.contactName || "",
   phone: profile?.phone || "",
   email: profile?.email || "",
-  website: profile?.facebookPage || "",
   facebookPage: profile?.facebookPage || "",
-  updatedAt: profile?.updatedAt || "",
+  address: profile?.address || "",
 });
+
+const getChangedCompanyProfileFields = (before = {}, after = {}) =>
+  Object.keys(companyProfileAuditFieldLabels).filter(
+    (field) => String(before?.[field] || "") !== String(after?.[field] || "")
+  );
 
 export const getCompanyProfile = asyncHandler(async (req, res) => {
   const profile = await CompanyProfile.findOneAndUpdate(
@@ -44,6 +57,9 @@ export const updateCompanyProfile = asyncHandler(async (req, res) => {
   const previousProfile = await CompanyProfile.findOne({
     profileKey: PROFILE_KEY,
   }).lean();
+  const beforeSnapshot = previousProfile
+    ? compactCompanyProfileAuditSnapshot(previousProfile)
+    : undefined;
   const profile = await CompanyProfile.findOneAndUpdate(
     { profileKey: PROFILE_KEY },
     {
@@ -53,19 +69,34 @@ export const updateCompanyProfile = asyncHandler(async (req, res) => {
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
 
-  await createAuditLog({
-    req,
-    actionType: "company_profile.updated",
-    actionLabel: "更新商戶資料",
-    targetType: "CompanyProfile",
-    targetId: profile._id,
-    targetLabel: profile.businessName || "SoapDelight.J",
-    summary: `更新商戶資料：${profile.businessName || "SoapDelight.J"}`,
-    before: previousProfile
-      ? compactCompanyProfileAuditSnapshot(previousProfile)
-      : undefined,
-    after: compactCompanyProfileAuditSnapshot(profile),
-  });
+  const afterSnapshot = compactCompanyProfileAuditSnapshot(profile);
+  const changedFields = getChangedCompanyProfileFields(
+    beforeSnapshot,
+    afterSnapshot
+  );
+
+  if (changedFields.length > 0) {
+    const changedFieldLabels = changedFields
+      .map((field) => companyProfileAuditFieldLabels[field] || field)
+      .join("、");
+
+    await createAuditLog({
+      req,
+      actionType: "company_profile.updated",
+      actionLabel: "更新商戶資料",
+      targetType: "CompanyProfile",
+      targetId: profile._id,
+      targetLabel: profile.businessName || "SoapDelight.J",
+      summary: `更新商戶資料：${
+        profile.businessName || "SoapDelight.J"
+      }（已更新：${changedFieldLabels}）`,
+      before: beforeSnapshot,
+      after: afterSnapshot,
+      metadata: {
+        changedFields,
+      },
+    });
+  }
 
   res.status(200).json(profile);
 });
