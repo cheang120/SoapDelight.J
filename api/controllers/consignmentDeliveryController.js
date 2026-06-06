@@ -10,10 +10,12 @@ import InventoryLocation from "../models/inventoryLocationModel.js";
 import ProductLocationMapping from "../models/productLocationMappingModel.js";
 import Product from "../models/productModel.js";
 import StockMovement from "../models/stockMovementModel.js";
+import { createAuditLog } from "../utils/auditLogger.js";
 
 const normalizeCode = (value = "") => String(value).trim().toUpperCase();
 
 const normalizeText = (value = "") => String(value ?? "").trim();
+const toAuditId = (value) => String(value || "");
 
 const toMoney = (value) => Math.round((Number(value) || 0) * 100) / 100;
 
@@ -98,6 +100,29 @@ const getOrCreateBalance = async (productId, locationId) => {
 
   return InventoryBalance.create({ productId, locationId, quantity: 0 });
 };
+
+const compactDeliveryAuditSnapshot = (delivery) => ({
+  deliveryNo: delivery?.deliveryNumber || "",
+  deliveryNumber: delivery?.deliveryNumber || "",
+  status: delivery?.status || "",
+  locationId: toAuditId(delivery?.locationId),
+  locationName: delivery?.locationNameAtIssue || "",
+  locationCode: delivery?.locationCodeAtIssue || "",
+  totalQuantity: Number(delivery?.totalQuantity || 0),
+  totalAmount: Number(delivery?.totalAmount || 0),
+  itemCount: Array.isArray(delivery?.items) ? delivery.items.length : 0,
+});
+
+const compactDeliveryReturnAuditSnapshot = (returnRecord) => ({
+  returnNo: returnRecord?.returnNo || "",
+  originalDeliveryId: toAuditId(returnRecord?.originalDeliveryId),
+  deliveryNumber: returnRecord?.deliveryNumberAtReturn || "",
+  locationId: toAuditId(returnRecord?.locationId),
+  locationName: returnRecord?.locationNameAtReturn || "",
+  reason: returnRecord?.reason || "",
+  totalQuantity: Number(returnRecord?.totalQuantity || 0),
+  itemCount: Array.isArray(returnRecord?.items) ? returnRecord.items.length : 0,
+});
 
 const buildCompanySnapshot = (profile) => ({
   businessName: normalizeText(profile?.businessName),
@@ -835,6 +860,17 @@ export const createConsignmentDelivery = asyncHandler(async (req, res) => {
     createdBy: req.user?._id,
   });
 
+  await createAuditLog({
+    req,
+    actionType: "consignment.delivery_created",
+    actionLabel: "新增寄售出貨單",
+    targetType: "ConsignmentDelivery",
+    targetId: delivery._id,
+    targetLabel: delivery.deliveryNumber,
+    summary: `新增寄售出貨單：${delivery.deliveryNumber}`,
+    after: compactDeliveryAuditSnapshot(delivery),
+  });
+
   res.status(201).json(delivery);
 });
 
@@ -850,6 +886,7 @@ export const updateConsignmentDelivery = asyncHandler(async (req, res) => {
   }
 
   const { payload } = await buildDeliveryPayload(res, req.body);
+  const before = compactDeliveryAuditSnapshot(delivery);
 
   delivery.issueDate = payload.issueDate;
   delivery.locationId = payload.locationId;
@@ -865,6 +902,17 @@ export const updateConsignmentDelivery = asyncHandler(async (req, res) => {
   delivery.note = payload.note;
 
   const updatedDelivery = await delivery.save();
+  await createAuditLog({
+    req,
+    actionType: "consignment.delivery_updated",
+    actionLabel: "編輯寄售出貨單",
+    targetType: "ConsignmentDelivery",
+    targetId: updatedDelivery._id,
+    targetLabel: updatedDelivery.deliveryNumber,
+    summary: `編輯寄售出貨單：${updatedDelivery.deliveryNumber}`,
+    before,
+    after: compactDeliveryAuditSnapshot(updatedDelivery),
+  });
 
   res.status(200).json(updatedDelivery);
 });
@@ -891,6 +939,7 @@ export const markConsignmentDeliveryIssued = asyncHandler(async (req, res) => {
   }
 
   const items = Array.isArray(delivery.items) ? delivery.items : [];
+  const before = compactDeliveryAuditSnapshot(delivery);
 
   if (items.length === 0) {
     throwHttpError(res, 400, "At least one delivery item is required");
@@ -972,6 +1021,21 @@ export const markConsignmentDeliveryIssued = asyncHandler(async (req, res) => {
   delivery.issuedAt = new Date();
 
   const updatedDelivery = await delivery.save();
+  await createAuditLog({
+    req,
+    actionType: "consignment.delivery_issued",
+    actionLabel: "發出寄售出貨單",
+    targetType: "ConsignmentDelivery",
+    targetId: updatedDelivery._id,
+    targetLabel: updatedDelivery.deliveryNumber,
+    summary: `發出寄售出貨單：${updatedDelivery.deliveryNumber}`,
+    before,
+    after: compactDeliveryAuditSnapshot(updatedDelivery),
+    metadata: {
+      stockMovementCount: items.length,
+      centralLocationId: toAuditId(centralLocation._id),
+    },
+  });
 
   res.status(200).json(updatedDelivery);
 });
@@ -995,11 +1059,23 @@ export const cancelConsignmentDelivery = asyncHandler(async (req, res) => {
     );
   }
 
+  const before = compactDeliveryAuditSnapshot(delivery);
   delivery.status = "cancelled";
   delivery.cancelledBy = req.user?._id;
   delivery.cancelledAt = new Date();
 
   const updatedDelivery = await delivery.save();
+  await createAuditLog({
+    req,
+    actionType: "consignment.delivery_cancelled",
+    actionLabel: "取消寄售出貨單",
+    targetType: "ConsignmentDelivery",
+    targetId: updatedDelivery._id,
+    targetLabel: updatedDelivery.deliveryNumber,
+    summary: `取消寄售出貨單：${updatedDelivery.deliveryNumber}`,
+    before,
+    after: compactDeliveryAuditSnapshot(updatedDelivery),
+  });
 
   res.status(200).json(updatedDelivery);
 });
@@ -1015,6 +1091,7 @@ export const createConsignmentDeliveryReturn = asyncHandler(async (req, res) => 
     throwHttpError(res, 400, "Only issued deliveries can be returned");
   }
 
+  const beforeDelivery = compactDeliveryAuditSnapshot(delivery);
   const reason = normalizeText(req.body?.reason);
   const note = normalizeText(req.body?.note);
 
@@ -1177,6 +1254,22 @@ export const createConsignmentDeliveryReturn = asyncHandler(async (req, res) => 
   }
 
   const updatedDelivery = await delivery.save();
+  await createAuditLog({
+    req,
+    actionType: "consignment.delivery_return_created",
+    actionLabel: "建立寄售退回",
+    targetType: "ConsignmentDeliveryReturn",
+    targetId: returnRecord._id,
+    targetLabel: returnRecord.returnNo,
+    summary: `建立寄售退回：${returnRecord.returnNo}（${delivery.deliveryNumber}）`,
+    before: beforeDelivery,
+    after: compactDeliveryReturnAuditSnapshot(returnRecord),
+    metadata: {
+      updatedDeliveryId: toAuditId(updatedDelivery._id),
+      deliveryNumber: updatedDelivery.deliveryNumber,
+      stockMovementCount: returnItems.length,
+    },
+  });
 
   res.status(201).json({
     message: "Consignment delivery return created",

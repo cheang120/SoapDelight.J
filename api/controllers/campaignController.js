@@ -4,8 +4,10 @@ import asyncHandler from "express-async-handler";
 import Campaign from "../models/campaignModel.js";
 import Subscriber from "../models/subscriberModel.js";
 import { campaignEmailTemplate } from "../emailTemplate/campaignTemplate.js";
+import { createAuditLog } from "../utils/auditLogger.js";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const toAuditId = (value) => String(value || "");
 
 const normalizeCampaignPayload = (body) => ({
   title: body.title?.trim(),
@@ -23,6 +25,20 @@ const validateCampaignPayload = ({ title, subject, message }) => {
 
   return "";
 };
+
+const compactCampaignAuditSnapshot = (campaign) => ({
+  title: campaign?.title || "",
+  subject: campaign?.subject || "",
+  status: campaign?.status || "",
+  channel: campaign?.channel || "",
+  hasCouponCode: Boolean(campaign?.couponCode),
+  hasButton: Boolean(campaign?.buttonLabel || campaign?.buttonLink),
+  messageLength: String(campaign?.message || "").length,
+  sentCount: Number(campaign?.sentCount || 0),
+  recipientCount: Number(campaign?.sentCount || 0),
+  failedCount: Number(campaign?.failedCount || 0),
+  sentAt: campaign?.sentAt || "",
+});
 
 const getFrontendUrl = () =>
   process.env.FRONTEND_URL ||
@@ -158,6 +174,17 @@ export const createCampaign = asyncHandler(async (req, res) => {
     createdBy: req.user?._id,
   });
 
+  await createAuditLog({
+    req,
+    actionType: "campaign.created",
+    actionLabel: "新增推廣電郵",
+    targetType: "Campaign",
+    targetId: campaign._id,
+    targetLabel: campaign.title,
+    summary: `新增推廣電郵：${campaign.title}`,
+    after: compactCampaignAuditSnapshot(campaign),
+  });
+
   res.status(201).json(campaign);
 });
 
@@ -177,8 +204,20 @@ export const updateDraftCampaign = asyncHandler(async (req, res) => {
     throw new Error(validationError);
   }
 
+  const before = compactCampaignAuditSnapshot(campaign);
   Object.assign(campaign, payload);
   const updatedCampaign = await campaign.save();
+  await createAuditLog({
+    req,
+    actionType: "campaign.updated",
+    actionLabel: "編輯推廣電郵",
+    targetType: "Campaign",
+    targetId: updatedCampaign._id,
+    targetLabel: updatedCampaign.title,
+    summary: `編輯推廣電郵：${updatedCampaign.title}`,
+    before,
+    after: compactCampaignAuditSnapshot(updatedCampaign),
+  });
 
   res.status(200).json(updatedCampaign);
 });
@@ -201,6 +240,19 @@ export const sendTestCampaign = asyncHandler(async (req, res) => {
 
   campaign.testSentTo = testEmail;
   await campaign.save();
+  await createAuditLog({
+    req,
+    actionType: "campaign.test_sent",
+    actionLabel: "發送測試推廣電郵",
+    targetType: "Campaign",
+    targetId: campaign._id,
+    targetLabel: campaign.title,
+    summary: `發送測試推廣電郵：${campaign.title}`,
+    after: compactCampaignAuditSnapshot(campaign),
+    metadata: {
+      testRecipientProvided: true,
+    },
+  });
 
   res.status(200).json({ message: "Test email sent.", campaign });
 });
@@ -256,6 +308,21 @@ export const sendCampaignToSubscribers = asyncHandler(async (req, res) => {
   campaign.status = errors.length > 0 && sentCount === 0 ? "failed" : "sent";
 
   const updatedCampaign = await campaign.save();
+  await createAuditLog({
+    req,
+    actionType: "campaign.sent",
+    actionLabel: "發送推廣電郵",
+    targetType: "Campaign",
+    targetId: updatedCampaign._id,
+    targetLabel: updatedCampaign.title,
+    summary: `發送推廣電郵：${updatedCampaign.title}，成功 ${sentCount}，失敗 ${errors.length}`,
+    after: compactCampaignAuditSnapshot(updatedCampaign),
+    metadata: {
+      recipientQuery: updatedCampaign.recipientQuery,
+      sentCount,
+      failedCount: errors.length,
+    },
+  });
 
   res.status(200).json({
     message: "Campaign send completed.",
@@ -273,7 +340,20 @@ export const deleteDraftCampaign = asyncHandler(async (req, res) => {
     throw new Error("Only draft campaigns can be deleted.");
   }
 
+  const before = compactCampaignAuditSnapshot(campaign);
+  const campaignId = toAuditId(campaign._id);
+  const campaignTitle = campaign.title;
   await campaign.deleteOne();
+  await createAuditLog({
+    req,
+    actionType: "campaign.deleted",
+    actionLabel: "刪除推廣電郵",
+    targetType: "Campaign",
+    targetId: campaignId,
+    targetLabel: campaignTitle,
+    summary: `刪除推廣電郵：${campaignTitle}`,
+    before,
+  });
 
   res.status(200).json({ message: "Draft campaign deleted." });
 });

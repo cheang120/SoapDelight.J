@@ -5,6 +5,7 @@ import InventoryLocation from "../models/inventoryLocationModel.js";
 import ProductLocationMapping from "../models/productLocationMappingModel.js";
 import InventoryBalance from "../models/inventoryBalanceModel.js";
 import StockMovement from "../models/stockMovementModel.js";
+import { createAuditLog } from "../utils/auditLogger.js";
 
 const DEFAULT_LOCATIONS = [
   {
@@ -36,6 +37,54 @@ const getProductImageStatus = (product) => {
     : typeof image === "string" && image.trim();
   return hasImage ? "Real photo" : "Placeholder";
 };
+
+const compactLocationAuditSnapshot = (location) => ({
+  code: location?.code || "",
+  name: location?.name || "",
+  type: location?.type || "",
+  commissionRate: Number(location?.commissionRate || 0),
+  active: location?.active !== false,
+});
+
+const compactMappingAuditSnapshot = (mapping, { product, location } = {}) => ({
+  productId: toObjectIdString(mapping?.productId || product?._id),
+  productName: product?.name || "",
+  locationId: toObjectIdString(mapping?.locationId || location?._id),
+  locationName: location?.name || "",
+  locationSku: mapping?.locationSku || "",
+  locationProductName: mapping?.locationProductName || "",
+  commissionRate: Number(mapping?.commissionRate || 0),
+  active: mapping?.active !== false,
+});
+
+const compactBalanceAuditSnapshot = ({ product, location, balance, quantity }) => ({
+  productId: toObjectIdString(product?._id || balance?.productId),
+  productName: product?.name || "",
+  locationId: toObjectIdString(location?._id || balance?.locationId),
+  locationName: location?.name || "",
+  quantity: Number(quantity ?? balance?.quantity ?? 0),
+});
+
+const compactMovementAuditSnapshot = ({
+  product,
+  fromLocation,
+  toLocation,
+  movement,
+}) => ({
+  productId: toObjectIdString(product?._id || movement?.productId),
+  productName: product?.name || "",
+  fromLocationId: toObjectIdString(
+    movement?.fromLocationId || fromLocation?._id
+  ),
+  fromLocationName: fromLocation?.name || "",
+  toLocationId: toObjectIdString(movement?.toLocationId || toLocation?._id),
+  toLocationName: toLocation?.name || "",
+  quantity: Number(movement?.quantity || 0),
+  type: movement?.type || "",
+  direction: movement?.direction || "",
+  reason: movement?.note || "",
+  sourceDocument: movement?.sourceDocument || "",
+});
 
 const toNonNegativeNumber = (value, fieldName) => {
   const number = Number(value);
@@ -220,6 +269,17 @@ export const createInventoryLocation = asyncHandler(async (req, res) => {
   }
 
   const location = await InventoryLocation.create(payload);
+  await createAuditLog({
+    req,
+    actionType: "inventory.location_created",
+    actionLabel: "新增存貨地點",
+    targetType: "InventoryLocation",
+    targetId: location._id,
+    targetLabel: location.code || location.name,
+    summary: `新增存貨地點：${location.code || location.name}`,
+    after: compactLocationAuditSnapshot(location),
+  });
+
   res.status(201).json(location);
 });
 
@@ -245,8 +305,20 @@ export const updateInventoryLocation = asyncHandler(async (req, res) => {
     }
   }
 
+  const before = compactLocationAuditSnapshot(location);
   Object.assign(location, payload);
   const savedLocation = await location.save();
+  await createAuditLog({
+    req,
+    actionType: "inventory.location_updated",
+    actionLabel: "編輯存貨地點",
+    targetType: "InventoryLocation",
+    targetId: savedLocation._id,
+    targetLabel: savedLocation.code || savedLocation.name,
+    summary: `編輯存貨地點：${savedLocation.code || savedLocation.name}`,
+    before,
+    after: compactLocationAuditSnapshot(savedLocation),
+  });
 
   res.status(200).json(savedLocation);
 });
@@ -406,6 +478,10 @@ export const updateProductLocationMapping = asyncHandler(async (req, res) => {
     throw new Error("Commission rate must be zero or greater");
   }
 
+  const previousMapping = await ProductLocationMapping.findOne({
+    productId: product._id,
+    locationId: location._id,
+  }).lean();
   const mapping = await upsertMapping({
     product,
     location,
@@ -415,6 +491,19 @@ export const updateProductLocationMapping = asyncHandler(async (req, res) => {
   });
 
   const [row] = await buildInventoryRows([product.toObject()]);
+  await createAuditLog({
+    req,
+    actionType: "inventory.mapping_updated",
+    actionLabel: "更新商品存貨地點設定",
+    targetType: "ProductLocationMapping",
+    targetId: mapping._id,
+    targetLabel: `${product.name || product._id} / ${location.name || location.code}`,
+    summary: `更新商品存貨地點設定：${product.name} / ${location.name}`,
+    before: previousMapping
+      ? compactMappingAuditSnapshot(previousMapping, { product, location })
+      : undefined,
+    after: compactMappingAuditSnapshot(mapping, { product, location }),
+  });
 
   res.status(200).json({ mapping, inventory: row });
 });
@@ -452,6 +541,10 @@ export const setInitialInventoryBalance = asyncHandler(async (req, res) => {
     notes: note,
   });
 
+  const previousBalance = await InventoryBalance.findOne({
+    productId: product._id,
+    locationId: location._id,
+  }).lean();
   const balance = await InventoryBalance.findOneAndUpdate(
     { productId: product._id, locationId: location._id },
     { $set: { quantity: initialQuantity } },
@@ -486,6 +579,26 @@ export const setInitialInventoryBalance = asyncHandler(async (req, res) => {
       sourceDate: sourceDate ? new Date(sourceDate) : undefined,
       createdBy: req.user?._id,
     }));
+
+  await createAuditLog({
+    req,
+    actionType: "inventory.initial_balance_set",
+    actionLabel: "設定初始庫存",
+    targetType: "InventoryBalance",
+    targetId: balance._id,
+    targetLabel: `${product.name || product._id} / ${location.name || location.code}`,
+    summary: `設定初始庫存：${product.name} / ${location.name}，數量 ${initialQuantity}`,
+    before: previousBalance
+      ? compactBalanceAuditSnapshot({ product, location, balance: previousBalance })
+      : undefined,
+    after: compactBalanceAuditSnapshot({ product, location, balance }),
+    metadata: {
+      mappingId: toObjectIdString(mapping?._id),
+      movementId: toObjectIdString(movement?._id),
+      movementType: movement?.type || "",
+      sourceDocument: movement?.sourceDocument || "",
+    },
+  });
 
   res.status(200).json({ balance, mapping, movement });
 });
@@ -537,6 +650,32 @@ export const adjustInventoryMovement = asyncHandler(async (req, res) => {
     createdBy: req.user?._id,
   });
 
+  await createAuditLog({
+    req,
+    actionType: "inventory.adjusted",
+    actionLabel: "庫存調整",
+    targetType: "StockMovement",
+    targetId: movement._id,
+    targetLabel: `${product.name || product._id} / ${location.name || location.code}`,
+    summary: `庫存調整：${product.name} / ${location.name}，${currentQuantity} → ${targetQuantity}`,
+    before: compactBalanceAuditSnapshot({
+      product,
+      location,
+      balance,
+      quantity: currentQuantity,
+    }),
+    after: {
+      ...compactMovementAuditSnapshot({
+        product,
+        fromLocation: delta < 0 ? location : null,
+        toLocation: delta >= 0 ? location : null,
+        movement,
+      }),
+      balanceQuantity: Number(balance.quantity || 0),
+      delta,
+    },
+  });
+
   res.status(200).json({ balance, movement });
 });
 
@@ -561,6 +700,7 @@ export const createProductionInMovement = asyncHandler(async (req, res) => {
   }
 
   const balance = await getOrCreateBalance(product._id, toLocation._id);
+  const beforeQuantity = Number(balance.quantity || 0);
   balance.quantity = Number(balance.quantity || 0) + movementQuantity;
   await balance.save();
 
@@ -573,6 +713,30 @@ export const createProductionInMovement = asyncHandler(async (req, res) => {
     direction: "in",
     note: note?.trim() || "",
     createdBy: req.user?._id,
+  });
+
+  await createAuditLog({
+    req,
+    actionType: "inventory.production_in",
+    actionLabel: "製作入庫",
+    targetType: "StockMovement",
+    targetId: movement._id,
+    targetLabel: `${product.name || product._id} / ${toLocation.name || toLocation.code}`,
+    summary: `製作入庫：${product.name} / ${toLocation.name}，數量 ${movementQuantity}`,
+    before: compactBalanceAuditSnapshot({
+      product,
+      location: toLocation,
+      balance,
+      quantity: beforeQuantity,
+    }),
+    after: {
+      ...compactMovementAuditSnapshot({
+        product,
+        toLocation,
+        movement,
+      }),
+      balanceQuantity: Number(balance.quantity || 0),
+    },
   });
 
   res.status(201).json({
@@ -625,6 +789,8 @@ export const transferInventoryMovement = asyncHandler(async (req, res) => {
     throw new Error("Not enough stock at source location");
   }
 
+  const fromBeforeQuantity = Number(fromBalance.quantity || 0);
+  const toBeforeQuantity = Number(toBalance.quantity || 0);
   fromBalance.quantity = Number(fromBalance.quantity || 0) - transferQuantity;
   toBalance.quantity = Number(toBalance.quantity || 0) + transferQuantity;
   await Promise.all([fromBalance.save(), toBalance.save()]);
@@ -638,6 +804,40 @@ export const transferInventoryMovement = asyncHandler(async (req, res) => {
     direction: "transfer",
     note: note?.trim() || "",
     createdBy: req.user?._id,
+  });
+
+  await createAuditLog({
+    req,
+    actionType: "inventory.transferred",
+    actionLabel: "庫存轉移",
+    targetType: "StockMovement",
+    targetId: movement._id,
+    targetLabel: `${product.name || product._id} / ${fromLocation.code} → ${toLocation.code}`,
+    summary: `庫存轉移：${product.name}，${fromLocation.name} → ${toLocation.name}，數量 ${transferQuantity}`,
+    before: {
+      from: compactBalanceAuditSnapshot({
+        product,
+        location: fromLocation,
+        balance: fromBalance,
+        quantity: fromBeforeQuantity,
+      }),
+      to: compactBalanceAuditSnapshot({
+        product,
+        location: toLocation,
+        balance: toBalance,
+        quantity: toBeforeQuantity,
+      }),
+    },
+    after: {
+      ...compactMovementAuditSnapshot({
+        product,
+        fromLocation,
+        toLocation,
+        movement,
+      }),
+      fromBalanceQuantity: Number(fromBalance.quantity || 0),
+      toBalanceQuantity: Number(toBalance.quantity || 0),
+    },
   });
 
   res.status(200).json({ fromBalance, toBalance, movement });

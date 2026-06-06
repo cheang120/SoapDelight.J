@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import ShippingMethod from "../models/shippingMethodModel.js";
+import { createAuditLog } from "../utils/auditLogger.js";
 
 const normalizeBoolean = (value, fallback) => {
   if (value === undefined) return fallback;
@@ -31,6 +32,18 @@ const getShippingMethodValidationError = ({ name, code, fee }) => {
   return "";
 };
 
+const compactShippingMethodAuditSnapshot = (shippingMethod) => ({
+  name: shippingMethod?.name || "",
+  code: shippingMethod?.code || "",
+  type: shippingMethod?.isPickup ? "pickup" : "delivery",
+  region: shippingMethod?.region || "",
+  price: Number(shippingMethod?.fee || 0),
+  fee: Number(shippingMethod?.fee || 0),
+  currency: shippingMethod?.currency || "",
+  active: shippingMethod?.active !== false,
+  isPickup: Boolean(shippingMethod?.isPickup),
+});
+
 export const getActiveShippingMethods = asyncHandler(async (req, res) => {
   const shippingMethods = await ShippingMethod.find({ active: true }).sort({
     isPickup: -1,
@@ -61,6 +74,16 @@ export const createShippingMethod = asyncHandler(async (req, res) => {
   }
 
   const shippingMethod = await ShippingMethod.create(payload);
+  await createAuditLog({
+    req,
+    actionType: "shipping_method.created",
+    actionLabel: "新增送貨方式",
+    targetType: "ShippingMethod",
+    targetId: shippingMethod._id,
+    targetLabel: shippingMethod.name || shippingMethod.code,
+    summary: `新增送貨方式：${shippingMethod.name || shippingMethod.code}`,
+    after: compactShippingMethodAuditSnapshot(shippingMethod),
+  });
 
   res.status(201).json(shippingMethod);
 });
@@ -72,6 +95,13 @@ export const updateShippingMethod = asyncHandler(async (req, res) => {
   if (validationError) {
     res.status(400);
     throw new Error(validationError);
+  }
+
+  const previousShippingMethod = await ShippingMethod.findById(req.params.id);
+
+  if (!previousShippingMethod) {
+    res.status(404);
+    throw new Error("Shipping method not found");
   }
 
   const shippingMethod = await ShippingMethod.findByIdAndUpdate(
@@ -88,6 +118,18 @@ export const updateShippingMethod = asyncHandler(async (req, res) => {
     throw new Error("Shipping method not found");
   }
 
+  await createAuditLog({
+    req,
+    actionType: "shipping_method.updated",
+    actionLabel: "編輯送貨方式",
+    targetType: "ShippingMethod",
+    targetId: shippingMethod._id,
+    targetLabel: shippingMethod.name || shippingMethod.code,
+    summary: `編輯送貨方式：${shippingMethod.name || shippingMethod.code}`,
+    before: compactShippingMethodAuditSnapshot(previousShippingMethod),
+    after: compactShippingMethodAuditSnapshot(shippingMethod),
+  });
+
   res.status(200).json(shippingMethod);
 });
 
@@ -98,6 +140,17 @@ export const deleteShippingMethod = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Shipping method not found");
   }
+
+  await createAuditLog({
+    req,
+    actionType: "shipping_method.deleted",
+    actionLabel: "刪除送貨方式",
+    targetType: "ShippingMethod",
+    targetId: shippingMethod._id,
+    targetLabel: shippingMethod.name || shippingMethod.code,
+    summary: `刪除送貨方式：${shippingMethod.name || shippingMethod.code}`,
+    before: compactShippingMethodAuditSnapshot(shippingMethod),
+  });
 
   res.status(200).json({ message: "Shipping method deleted." });
 });

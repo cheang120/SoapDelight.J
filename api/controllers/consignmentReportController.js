@@ -9,9 +9,11 @@ import ProductLocationMapping from "../models/productLocationMappingModel.js";
 import InventoryBalance from "../models/inventoryBalanceModel.js";
 import StockMovement from "../models/stockMovementModel.js";
 import ConsignmentReport from "../models/consignmentReportModel.js";
+import { createAuditLog } from "../utils/auditLogger.js";
 
 const normalizeCode = (code) => String(code || "").trim().toUpperCase();
 const normalizeText = (value) => String(value || "").trim();
+const toAuditId = (value) => String(value || "");
 const toMoney = (value) => Math.round(Number(value || 0) * 100) / 100;
 const formatMoney = (value) =>
   `MOP$${Number(value || 0).toLocaleString("en-US", {
@@ -29,6 +31,24 @@ const throwHttpError = (res, status, message) => {
   res.status(status);
   throw new Error(message);
 };
+
+const compactReportAuditSnapshot = (report) => ({
+  reportNo: report?.reportNumber || "",
+  reportNumber: report?.reportNumber || "",
+  status: report?.status || "",
+  locationId: toAuditId(report?.locationId),
+  locationName: report?.locationNameAtReport || "",
+  locationCode: report?.locationCodeAtReport || "",
+  periodStart: report?.periodStart || "",
+  periodEnd: report?.periodEnd || "",
+  totalQuantity: Number(report?.totalQuantity || 0),
+  grossTotal: Number(report?.grossTotal || 0),
+  promotionDiscountTotal: Number(report?.promotionDiscountTotal || 0),
+  commissionTotal: Number(report?.commissionTotal || 0),
+  netPayableTotal: Number(report?.netPayableTotal || 0),
+  totalAmount: Number(report?.netPayableTotal || report?.grossTotal || 0),
+  itemCount: Array.isArray(report?.items) ? report.items.length : 0,
+});
 
 const getReadableFontPath = () => {
   const candidates = [
@@ -941,6 +961,17 @@ export const createConsignmentReport = asyncHandler(async (req, res) => {
     createdBy: req.user?._id,
   });
 
+  await createAuditLog({
+    req,
+    actionType: "consignment.report_created",
+    actionLabel: "新增寄售報告",
+    targetType: "ConsignmentReport",
+    targetId: report._id,
+    targetLabel: report.reportNumber,
+    summary: `新增寄售報告：${report.reportNumber}`,
+    after: compactReportAuditSnapshot(report),
+  });
+
   res.status(201).json(report);
 });
 
@@ -956,9 +987,22 @@ export const updateConsignmentReport = asyncHandler(async (req, res) => {
   }
 
   const { payload } = await buildReportPayload(res, req.body);
+  const before = compactReportAuditSnapshot(report);
   Object.assign(report, payload);
 
   const savedReport = await report.save();
+  await createAuditLog({
+    req,
+    actionType: "consignment.report_updated",
+    actionLabel: "編輯寄售報告",
+    targetType: "ConsignmentReport",
+    targetId: savedReport._id,
+    targetLabel: savedReport.reportNumber,
+    summary: `編輯寄售報告：${savedReport.reportNumber}`,
+    before,
+    after: compactReportAuditSnapshot(savedReport),
+  });
+
   res.status(200).json(savedReport);
 });
 
@@ -974,6 +1018,7 @@ export const confirmConsignmentReport = asyncHandler(async (req, res) => {
     throwHttpError(res, 400, "Only draft reports can be confirmed");
   }
 
+  const before = compactReportAuditSnapshot(report);
   const requiredByProduct = new Map();
 
   for (const item of report.items) {
@@ -1036,5 +1081,20 @@ export const confirmConsignmentReport = asyncHandler(async (req, res) => {
   report.confirmedAt = new Date();
 
   const savedReport = await report.save();
+  await createAuditLog({
+    req,
+    actionType: "consignment.report_confirmed",
+    actionLabel: "確認寄售報告",
+    targetType: "ConsignmentReport",
+    targetId: savedReport._id,
+    targetLabel: savedReport.reportNumber,
+    summary: `確認寄售報告：${savedReport.reportNumber}`,
+    before,
+    after: compactReportAuditSnapshot(savedReport),
+    metadata: {
+      stockMovementCount: Array.isArray(report.items) ? report.items.length : 0,
+    },
+  });
+
   res.status(200).json(savedReport);
 });

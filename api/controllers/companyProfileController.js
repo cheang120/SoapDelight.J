@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import CompanyProfile from "../models/companyProfileModel.js";
+import { createAuditLog } from "../utils/auditLogger.js";
 
 const PROFILE_KEY = "default";
 
@@ -19,6 +20,16 @@ const buildCompanyProfilePayload = (body = {}) => ({
   note: normalizeText(body.note),
 });
 
+const compactCompanyProfileAuditSnapshot = (profile) => ({
+  companyName: profile?.businessName || "",
+  businessName: profile?.businessName || "",
+  phone: profile?.phone || "",
+  email: profile?.email || "",
+  website: profile?.facebookPage || "",
+  facebookPage: profile?.facebookPage || "",
+  updatedAt: profile?.updatedAt || "",
+});
+
 export const getCompanyProfile = asyncHandler(async (req, res) => {
   const profile = await CompanyProfile.findOneAndUpdate(
     { profileKey: PROFILE_KEY },
@@ -30,6 +41,9 @@ export const getCompanyProfile = asyncHandler(async (req, res) => {
 });
 
 export const updateCompanyProfile = asyncHandler(async (req, res) => {
+  const previousProfile = await CompanyProfile.findOne({
+    profileKey: PROFILE_KEY,
+  }).lean();
   const profile = await CompanyProfile.findOneAndUpdate(
     { profileKey: PROFILE_KEY },
     {
@@ -38,6 +52,20 @@ export const updateCompanyProfile = asyncHandler(async (req, res) => {
     },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
+
+  await createAuditLog({
+    req,
+    actionType: "company_profile.updated",
+    actionLabel: "更新商戶資料",
+    targetType: "CompanyProfile",
+    targetId: profile._id,
+    targetLabel: profile.businessName || "SoapDelight.J",
+    summary: `更新商戶資料：${profile.businessName || "SoapDelight.J"}`,
+    before: previousProfile
+      ? compactCompanyProfileAuditSnapshot(previousProfile)
+      : undefined,
+    after: compactCompanyProfileAuditSnapshot(profile),
+  });
 
   res.status(200).json(profile);
 });
