@@ -31,6 +31,7 @@ const navSections = [
     short: "設",
     items: [
       { to: "/productAdmin/company-profile", label: "商戶資料", short: "商" },
+      { to: "/productAdmin/audit-logs", label: "操作紀錄", short: "紀" },
       { to: "/productAdmin/inventory-locations", label: "存貨地點", short: "點" },
       { to: "/productAdmin/category", label: "分類", short: "類" },
       { to: "/productAdmin/brand", label: "品牌", short: "牌" },

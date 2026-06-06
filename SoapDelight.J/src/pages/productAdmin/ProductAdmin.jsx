@@ -23,6 +23,7 @@ import ConsignmentReports from "../../components/productAdmin/consignmentReports
 import CompanyProfile from "../../components/productAdmin/companyProfile/CompanyProfile.jsx";
 import ConsignmentDeliveries from "../../components/productAdmin/consignmentDeliveries/ConsignmentDeliveries.jsx";
 import RefundReturnRecords from "../../components/productAdmin/refundReturnRecords/RefundReturnRecords.jsx";
+import AuditLogs from "../../components/productAdmin/auditLogs/AuditLogs.jsx";
 
 
 export const ProductAdmin = () => {
@@ -54,6 +55,7 @@ export const ProductAdmin = () => {
               <Route path="brand" element={<Brand />} />
               <Route path="shipping-methods" element={<ShippingMethods />} />
               <Route path="company-profile" element={<CompanyProfile />} />
+              <Route path="audit-logs" element={<AuditLogs />} />
               <Route path="subscribers" element={<Subscribers />} />
               <Route path="campaigns" element={<Campaigns />} />
               <Route path="inventory-locations" element={<InventoryLocations />} />

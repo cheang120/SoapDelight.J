@@ -16,6 +16,7 @@ import { orderSuccessEmail } from "../emailTemplate/orderTemplate.js";
 import { refundCompletionEmail } from "../emailTemplate/refundTemplate.js";
 import { sendGmail } from "../utils/sendGmail.js";
 import mongoose from "mongoose";
+import { createAuditLog } from "../utils/auditLogger.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 const REFUND_ELIGIBLE_ORDER_STATUSES = ["Order Placed...", "Processing..."];
 const RETURN_REFUND_ELIGIBLE_ORDER_STATUSES = ["Shipped...", "Delivered"];
@@ -96,6 +97,26 @@ const getAmountMinor = (amountMinor, amount) => {
 };
 
 const roundMoney = (value) => Math.round(Number(value || 0) * 100) / 100;
+
+const getAuditOrderLabel = (order) =>
+  order?._id ? `#${String(order._id).slice(-8).toUpperCase()}` : "";
+
+const compactOrderAuditSnapshot = (order) => ({
+  orderStatus: order?.orderStatus || "",
+  paymentStatus: order?.paymentStatus || "",
+  refundStatus: order?.refundStatus || "",
+  cancellationStatus: order?.cancellationStatus || "",
+  returnStatus: order?.returnStatus || "",
+  refundFlow: order?.refundFlow || "",
+  refundAmount: order?.refundAmount ?? undefined,
+  stockRestoreStatus: order?.stockRestoreStatus || "",
+  returnInspectionStatus: order?.returnInspectionStatus || "",
+});
+
+const compactAuditText = (value, maxLength = 160) => {
+  const text = String(value || "").trim();
+  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+};
 
 const getOrderReturnBreakdown = (order) => {
   const cartItems = Array.isArray(order?.cartItems) ? order.cartItems : [];
@@ -1360,6 +1381,7 @@ export const createReturnRequest = asyncHandler(async (req, res) => {
     throwHttpError(400, eligibilityError);
   }
 
+  const auditBefore = compactOrderAuditSnapshot(order);
   const normalizedReasonType = String(returnReasonType || "").trim();
   const normalizedReason = String(returnReason || "").trim();
   const normalizedNote = String(returnNote || "").trim();
@@ -1448,6 +1470,22 @@ export const createReturnRequest = asyncHandler(async (req, res) => {
     throwHttpError(409, "此訂單已有退貨個案或目前不可建立退貨個案");
   }
 
+  await createAuditLog({
+    req,
+    actionType: "order.return_requested",
+    actionLabel: "建立退貨個案",
+    targetType: "Order",
+    targetId: updatedOrder._id,
+    targetLabel: getAuditOrderLabel(updatedOrder),
+    summary: "已建立已出貨訂單退貨個案",
+    before: auditBefore,
+    after: compactOrderAuditSnapshot(updatedOrder),
+    metadata: {
+      returnReasonType: normalizedReasonType,
+      returnRequiresReturn,
+    },
+  });
+
   res.status(201).json({
     message: returnRequiresReturn
       ? "已建立退貨個案，等待退貨。"
@@ -1481,6 +1519,8 @@ export const receiveReturnRefund = asyncHandler(async (req, res) => {
   if (!order) {
     throwHttpError(404, "Order not found");
   }
+
+  const auditBefore = compactOrderAuditSnapshot(order);
 
   if (!canSubmitReturnRefund(order)) {
     throwHttpError(400, "此訂單目前不可提交已出貨退款");
@@ -1758,30 +1798,54 @@ export const receiveReturnRefund = asyncHandler(async (req, res) => {
 
   const stripeRefundFailed = stripeRefund.status === "failed";
 
-  await Order.findByIdAndUpdate(claimedOrder._id, {
-    stripeRefundId: stripeRefund.id,
-    stripeRefundStatus: stripeRefund.status,
-    stripeRefundCreatedAt: stripeRefund.created
-      ? new Date(Number(stripeRefund.created) * 1000)
-      : new Date(),
-    ...(stripeRefundFailed
-      ? {
-          returnStatus: "return_refund_failed",
-          refundStatus: "failed",
-          paymentStatus: "refund_failed",
-          orderStatus: "Return Refund Failed / Manual Follow-up Required",
-          stockRestoreStatus: "not_applicable",
-          refundFailedAt: new Date(),
-          refundFailureReason:
-            stripeRefund.failure_reason ||
-            "Stripe refund failed; manual follow-up required",
-        }
-      : {}),
-  });
+  const finalizedOrder = await Order.findByIdAndUpdate(
+    claimedOrder._id,
+    {
+      stripeRefundId: stripeRefund.id,
+      stripeRefundStatus: stripeRefund.status,
+      stripeRefundCreatedAt: stripeRefund.created
+        ? new Date(Number(stripeRefund.created) * 1000)
+        : new Date(),
+      ...(stripeRefundFailed
+        ? {
+            returnStatus: "return_refund_failed",
+            refundStatus: "failed",
+            paymentStatus: "refund_failed",
+            orderStatus: "Return Refund Failed / Manual Follow-up Required",
+            stockRestoreStatus: "not_applicable",
+            refundFailedAt: new Date(),
+            refundFailureReason:
+              stripeRefund.failure_reason ||
+              "Stripe refund failed; manual follow-up required",
+          }
+        : {}),
+    },
+    { new: true }
+  );
 
   if (stripeRefundFailed) {
     throwHttpError(502, "Stripe 退款未能完成，請人工跟進");
   }
+
+  await createAuditLog({
+    req,
+    actionType: "order.return_refund_submitted",
+    actionLabel: "提交已出貨退貨退款",
+    targetType: "Order",
+    targetId: finalizedOrder?._id || claimedOrder._id,
+    targetLabel: getAuditOrderLabel(finalizedOrder || claimedOrder),
+    summary: "已提交已出貨退貨退款",
+    before: auditBefore,
+    after: compactOrderAuditSnapshot(finalizedOrder || claimedOrder),
+    metadata: {
+      refundAmount: toMajorCurrencyAmount(refundAmountMinor),
+      stockRestoreStatus:
+        finalizedOrder?.stockRestoreStatus || claimedOrder.stockRestoreStatus,
+      returnInspectionStatus:
+        finalizedOrder?.returnInspectionStatus || normalizedInspectionStatus,
+      stripeRefundId: stripeRefund.id,
+    },
+  });
 
   res.status(202).json({
     message: RETURN_REFUND_SUBMITTED_MESSAGE,
@@ -1803,6 +1867,8 @@ export const closeReturnNoRefund = asyncHandler(async (req, res) => {
   if (!order) {
     throwHttpError(404, "Order not found");
   }
+
+  const auditBefore = compactOrderAuditSnapshot(order);
 
   const allowedOrderStatuses = [
     ...RETURN_REFUND_ELIGIBLE_ORDER_STATUSES,
@@ -1912,6 +1978,21 @@ export const closeReturnNoRefund = asyncHandler(async (req, res) => {
     throwHttpError(409, "此退貨個案已被處理，請重新整理後再試");
   }
 
+  await createAuditLog({
+    req,
+    actionType: "order.return_closed_no_refund",
+    actionLabel: "退貨結案，不設退款",
+    targetType: "Order",
+    targetId: updatedOrder._id,
+    targetLabel: getAuditOrderLabel(updatedOrder),
+    summary: "退貨個案已結案，不設退款",
+    before: auditBefore,
+    after: compactOrderAuditSnapshot(updatedOrder),
+    metadata: {
+      noRefundReason: compactAuditText(normalizedNoRefundReason),
+    },
+  });
+
   res.status(200).json({
     message: "退貨已處理，未有退款；商品未重新上架。",
     order: updatedOrder,
@@ -1937,6 +2018,8 @@ export const createCancelRefund = asyncHandler(async (req, res) => {
   if (!order) {
     throwHttpError(404, "Order not found");
   }
+
+  const auditBefore = compactOrderAuditSnapshot(order);
 
   const initialEligibilityError = getRefundEligibility(order);
   if (initialEligibilityError) {
@@ -2125,30 +2208,51 @@ export const createCancelRefund = asyncHandler(async (req, res) => {
 
   const stripeRefundFailed = stripeRefund.status === "failed";
 
-  await Order.findByIdAndUpdate(claimedOrder._id, {
-    stripeRefundId: stripeRefund.id,
-    stripeRefundStatus: stripeRefund.status,
-    stripeRefundCreatedAt: stripeRefund.created
-      ? new Date(Number(stripeRefund.created) * 1000)
-      : new Date(),
-    ...(stripeRefundFailed
-      ? {
-          cancellationStatus: "refund_failed",
-          refundStatus: "failed",
-          paymentStatus: "refund_failed",
-          orderStatus: "Refund Failed / Manual Follow-up Required",
-          stockRestoreStatus: "not_applicable",
-          refundFailedAt: new Date(),
-          refundFailureReason:
-            stripeRefund.failure_reason ||
-            "Stripe refund failed; manual follow-up required",
-        }
-      : {}),
-  });
+  const finalizedOrder = await Order.findByIdAndUpdate(
+    claimedOrder._id,
+    {
+      stripeRefundId: stripeRefund.id,
+      stripeRefundStatus: stripeRefund.status,
+      stripeRefundCreatedAt: stripeRefund.created
+        ? new Date(Number(stripeRefund.created) * 1000)
+        : new Date(),
+      ...(stripeRefundFailed
+        ? {
+            cancellationStatus: "refund_failed",
+            refundStatus: "failed",
+            paymentStatus: "refund_failed",
+            orderStatus: "Refund Failed / Manual Follow-up Required",
+            stockRestoreStatus: "not_applicable",
+            refundFailedAt: new Date(),
+            refundFailureReason:
+              stripeRefund.failure_reason ||
+              "Stripe refund failed; manual follow-up required",
+          }
+        : {}),
+    },
+    { new: true }
+  );
 
   if (stripeRefundFailed) {
     throwHttpError(502, "Stripe 退款未能完成，請人工跟進");
   }
+
+  await createAuditLog({
+    req,
+    actionType: "order.refund_unshipped_submitted",
+    actionLabel: "提交未出貨退款",
+    targetType: "Order",
+    targetId: finalizedOrder?._id || claimedOrder._id,
+    targetLabel: getAuditOrderLabel(finalizedOrder || claimedOrder),
+    summary: "已提交未出貨訂單退款",
+    before: auditBefore,
+    after: compactOrderAuditSnapshot(finalizedOrder || claimedOrder),
+    metadata: {
+      refundAmount: toMajorCurrencyAmount(refundAmountMinor),
+      refundPolicyType: normalizedPolicyType,
+      stripeRefundId: stripeRefund.id,
+    },
+  });
 
   res.status(202).json({
     message: REFUND_SUBMITTED_MESSAGE,
@@ -2180,8 +2284,10 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     throwHttpError(400, "退貨處理中的訂單不可手動更改狀態");
   }
 
+  const auditBefore = compactOrderAuditSnapshot(order);
+
   // Update Product
-  await Order.findByIdAndUpdate(
+  const updatedOrder = await Order.findByIdAndUpdate(
     { _id: id },
     {
       orderStatus: orderStatus,
@@ -2191,6 +2297,18 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
       runValidators: true,
     }
   );
+
+  await createAuditLog({
+    req,
+    actionType: "order.status_updated",
+    actionLabel: "更新訂單狀態",
+    targetType: "Order",
+    targetId: updatedOrder?._id || order._id,
+    targetLabel: getAuditOrderLabel(updatedOrder || order),
+    summary: `訂單狀態由「${order.orderStatus}」更新為「${orderStatus}」`,
+    before: auditBefore,
+    after: compactOrderAuditSnapshot(updatedOrder || order),
+  });
 
   res.status(200).json({ message: "Order status updated" });
 });

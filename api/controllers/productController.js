@@ -5,6 +5,7 @@ import InventoryLocation from "../models/inventoryLocationModel.js";
 import InventoryBalance from "../models/inventoryBalanceModel.js";
 import StockMovement from "../models/stockMovementModel.js";
 import mongoose from "mongoose";
+import { createAuditLog } from "../utils/auditLogger.js";
 const { ObjectId } = mongoose.Schema;
 
 const PRODUCT_STATUS_VALUES = ["active", "out_of_stock", "discontinued"];
@@ -24,6 +25,19 @@ const normalizeOptionalText = (value) =>
 
 const shouldIncludeDiscontinued = (query) =>
   String(query?.includeDiscontinued || "").toLowerCase() === "true";
+
+const compactProductAuditSnapshot = (product) => ({
+  name: product?.name || "",
+  sku: product?.sku || "",
+  category: product?.category || "",
+  brand: product?.brand || "",
+  price: product?.price ?? undefined,
+  quantity: product?.quantity ?? undefined,
+  onlineStock: product?.onlineStock ?? undefined,
+  productStatus: product?.productStatus || "active",
+  isFeatured: Boolean(product?.isFeatured),
+  featuredOrder: Number(product?.featuredOrder || 0),
+});
 
 const getPublicProductAvailabilityByProductIds = async (productIds = []) => {
   const normalizedProductIds = productIds.filter(Boolean);
@@ -330,6 +344,18 @@ export const createProduct = asyncHandler(async (req, res, next) => {
         createdBy: req.user?._id,
         session,
       });
+
+      await createAuditLog({
+        req,
+        actionType: "product.created",
+        actionLabel: "新增商品",
+        targetType: "Product",
+        targetId: product._id,
+        targetLabel: product.name,
+        summary: `新增商品：${product.name}`,
+        after: compactProductAuditSnapshot(product),
+        session,
+      });
     });
   } finally {
     await session.endSession();
@@ -400,6 +426,16 @@ export const deleteProduct = asyncHandler(async (req, res, next) => {
     }
   
     await Product.findByIdAndDelete(req.params.id)
+    await createAuditLog({
+      req,
+      actionType: "product.deleted",
+      actionLabel: "刪除商品",
+      targetType: "Product",
+      targetId: product._id,
+      targetLabel: product.name,
+      summary: `刪除商品：${product.name}`,
+      before: compactProductAuditSnapshot(product),
+    });
     res.status(200).json({ message: "Product deleted." });
 });
 
@@ -433,6 +469,7 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
         throw new Error("Product not found");
       }
 
+      const auditBefore = compactProductAuditSnapshot(product);
       const hasQuantity = Object.prototype.hasOwnProperty.call(req.body, "quantity");
       const nextQuantity = hasQuantity ? Number(quantity) : Number(product.quantity || 0);
 
@@ -479,6 +516,18 @@ export const updateProduct = asyncHandler(async(req,res,next) => {
             }
           );
 
+          await createAuditLog({
+            req,
+            actionType: "product.updated",
+            actionLabel: "編輯商品",
+            targetType: "Product",
+            targetId: updatedProduct._id,
+            targetLabel: updatedProduct.name,
+            summary: `編輯商品：${updatedProduct.name}`,
+            before: auditBefore,
+            after: compactProductAuditSnapshot(updatedProduct),
+            session,
+          });
         });
       } finally {
         await session.endSession();
