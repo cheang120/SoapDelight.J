@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./CheckoutPolicyAgreement.module.scss";
 
@@ -65,6 +66,16 @@ const CheckoutPolicyAgreement = ({
       <button type="button" className={styles.policyButton} onClick={onOpenPolicy}>
         查看退款、退貨、送貨及自取政策
       </button>
+
+      <p className={styles.footerHint}>
+        完整政策亦可於網站頁尾查看。
+        <span className={styles.inlineLinks}>
+          <Link to="/refund-return-policy">退款及退貨政策</Link>
+          <Link to="/delivery-pickup-policy">送貨及自取政策</Link>
+          <Link to="/privacy-policy">私隱政策</Link>
+          <Link to="/terms">條款及細則</Link>
+        </span>
+      </p>
 
       <label
         className={`${styles.checkboxRow} ${

@@ -57,6 +57,30 @@
   background: #27272a;
 }
 
+.footerHint {
+  color: #52525b;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  margin: 0.9rem 0 0;
+}
+
+.inlineLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  margin-top: 0.45rem;
+}
+
+.inlineLinks a {
+  color: #047857;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.inlineLinks a:hover {
+  text-decoration: underline;
+}
+
 .checkboxRow {
   align-items: flex-start;
   border: 1px solid #d4d4d8;

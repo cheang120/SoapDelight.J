@@ -30,6 +30,7 @@ import Wishlist from './pages/wishlist/Wishlist'
 import ReviewProduct from './pages/reviewProduct/ReviewProduct'
 import Contact from './pages/Contact'
 import Subscribe from './pages/Subscribe'
+import PolicyPage, { policyPages } from './pages/policies/PolicyPage'
 
 
 axios.defaults.withCredentials = true
@@ -56,6 +57,22 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/subscribe" element={<Subscribe />} />
+        <Route
+          path="/refund-return-policy"
+          element={<PolicyPage {...policyPages.refundReturn} />}
+        />
+        <Route
+          path="/delivery-pickup-policy"
+          element={<PolicyPage {...policyPages.deliveryPickup} />}
+        />
+        <Route
+          path="/privacy-policy"
+          element={<PolicyPage {...policyPages.privacy} />}
+        />
+        <Route
+          path="/terms"
+          element={<PolicyPage {...policyPages.terms} />}
+        />
         <Route element={<PrivateRoute />} >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route 
