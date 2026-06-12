@@ -11,6 +11,7 @@ import { CALCULATE_TOTAL_QUANTITY, selectCartItems, selectCartTotalQuantity } fr
 const desktopLinks = [
   { label: "首頁", to: "/" },
   { label: "選購", to: "/shop" },
+  { label: "生活香氣誌", to: "/journal" },
   { label: "關於我們", to: "/about" },
   { label: "聯絡我們", to: "/contact" },
 ];

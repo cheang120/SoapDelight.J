@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { BsFacebook } from "react-icons/bs";
 
-const policyLinks = [
+const footerLinks = [
+  { to: "/journal", label: "生活香氣誌" },
   { to: "/refund-return-policy", label: "退款及退貨政策" },
   { to: "/delivery-pickup-policy", label: "送貨及自取政策" },
   { to: "/privacy-policy", label: "私隱政策" },
@@ -18,12 +19,12 @@ export default function FooterCom() {
               SoapDelight.J
             </Link>
             <p className="max-w-sm text-sm leading-7 text-zinc-500">
-              手作護理、香氣、陶瓷與生活選物，網站政策可於下列連結隨時查閱。
+              手作護理、香氣、陶瓷與生活選物，生活香氣誌與網站政策可於下列連結隨時查閱。
             </p>
           </div>
 
-          <nav aria-label="網站政策" className="grid gap-3 sm:grid-cols-2 lg:min-w-[24rem]">
-            {policyLinks.map((link) => (
+          <nav aria-label="網站內容及政策" className="grid gap-3 sm:grid-cols-2 lg:min-w-[24rem]">
+            {footerLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}

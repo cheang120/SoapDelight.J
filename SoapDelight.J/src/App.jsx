@@ -31,6 +31,8 @@ import ReviewProduct from './pages/reviewProduct/ReviewProduct'
 import Contact from './pages/Contact'
 import Subscribe from './pages/Subscribe'
 import PolicyPage, { policyPages } from './pages/policies/PolicyPage'
+import Journal from './pages/journal/Journal'
+import JournalArticle from './pages/journal/JournalArticle'
 
 
 axios.defaults.withCredentials = true
@@ -57,6 +59,8 @@ function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/subscribe" element={<Subscribe />} />
+        <Route path="/journal" element={<Journal />} />
+        <Route path="/journal/:slug" element={<JournalArticle />} />
         <Route
           path="/refund-return-policy"
           element={<PolicyPage {...policyPages.refundReturn} />}
