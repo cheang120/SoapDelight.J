@@ -4,8 +4,6 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { extractIdAndCartQuantity } from "../../utils";
 import {
-  selectCartItems,
-  selectCartTotalAmount,
   selectProductCartItems,
   selectSelectedDeliveryMethod,
 } from "../../redux/features/cart/cartSlice";
@@ -67,9 +65,7 @@ export const Checkout = () => {
   const [policyAccepted, setPolicyAccepted] = useState(false);
   const [policyAcceptedAt, setPolicyAcceptedAt] = useState("");
 
-  const cartItems = useSelector(selectCartItems);
   const productItems = useSelector(selectProductCartItems);
-  const totalAmount = useSelector(selectCartTotalAmount);
   const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const { currentUser } = useSelector((state) => state.user);
   const shippingAddress = useSelector(selectShippingAddress);
@@ -81,8 +77,11 @@ export const Checkout = () => {
     : shippingAddress;
   const checkoutEmail = shippingAddress?.email || currentUser?.email || "";
   const userEmail = currentUser?.email || checkoutEmail;
-  const productIDs = useMemo(() => extractIdAndCartQuantity(cartItems), [cartItems]);
-  const description = `eShop payment: email: ${userEmail}, Amount: ${totalAmount}`;
+  const productIDs = useMemo(
+    () => extractIdAndCartQuantity(productItems),
+    [productItems]
+  );
+  const description = `eShop payment: email: ${userEmail}`;
   const hasShippingAddress = hasAddressData(shippingAddress);
   const hasBillingAddress = hasAddressData(effectiveBillingAddress);
   const hasValidCoupon = isCouponValid(coupon);
@@ -160,12 +159,10 @@ export const Checkout = () => {
           credentials: "include",
           body: JSON.stringify({
             items: productIDs,
-            userId: currentUser?._id,
-            userEmail,
+            deliveryMethodId: selectedDeliveryMethod._id,
+            couponName: validCoupon?.name || "nil",
             shipping: shippingAddress,
-            billing: effectiveBillingAddress,
             description,
-            coupon: validCoupon || { name: "nil" },
             policyAccepted: true,
             policyAcceptedAt,
             policyVersion: POLICY_VERSION,
@@ -201,7 +198,6 @@ export const Checkout = () => {
     description,
     hasBillingAddress,
     hasShippingAddress,
-    effectiveBillingAddress,
     policyAcceptedAt,
     productItems.length,
     productIDs,

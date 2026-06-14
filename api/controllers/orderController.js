@@ -1,9 +1,10 @@
+import { createHash } from "node:crypto";
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js"
 import Coupon from "../models/couponMondel.js";
+import ShippingMethod from "../models/shippingMethodModel.js";
 import {
-  calculateTotalPrice,
   restoreOnlineStockForCancelledOrder,
   restoreOnlineStockForReturnedOrder,
   updateProductQuantity,
@@ -27,6 +28,8 @@ const RETURN_REFUND_SUBMITTED_MESSAGE =
 const POLICY_VERSION = "2026-06-v1";
 const POLICY_ACCEPTANCE_ERROR =
   "請先閱讀並同意退款、退貨、送貨及自取政策";
+const LOCAL_PICKUP_ID = "local-pickup";
+const LOCAL_PICKUP_NAME = "澳門本地自取";
 
 const throwHttpError = (statusCode, message) => {
   const error = new Error(message);
@@ -53,6 +56,266 @@ const validateCheckoutPolicyAcceptance = ({
     policyAccepted: true,
     policyAcceptedAt: acceptedAt,
     policyVersion: POLICY_VERSION,
+  };
+};
+
+const toMoneyFromMinor = (amountMinor) =>
+  Math.round(Number(amountMinor || 0)) / 100;
+
+const assertValidMinorAmount = (value, message) => {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throwHttpError(400, message);
+  }
+};
+
+const getMacauOrderDateTime = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Macau",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const partMap = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+
+  return {
+    orderDate: `${partMap.year}-${partMap.month}-${partMap.day}`,
+    orderTime: `${partMap.hour}:${partMap.minute}:${partMap.second}`,
+  };
+};
+
+const normalizeCheckoutItems = (items) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    throwHttpError(400, "購物車沒有商品");
+  }
+
+  const quantityByProductId = new Map();
+
+  for (const item of items) {
+    const productId = String(item?._id || "").trim();
+    const cartQuantity = Number(item?.cartQuantity);
+
+    if (!mongoose.isValidObjectId(productId)) {
+      throwHttpError(400, "商品 ID 或數量無效");
+    }
+
+    if (!Number.isInteger(cartQuantity) || cartQuantity <= 0) {
+      throwHttpError(400, "商品 ID 或數量無效");
+    }
+
+    quantityByProductId.set(
+      productId,
+      Number(quantityByProductId.get(productId) || 0) + cartQuantity
+    );
+  }
+
+  if (quantityByProductId.size === 0) {
+    throwHttpError(400, "購物車沒有商品");
+  }
+
+  return quantityByProductId;
+};
+
+const getCanonicalCoupon = async (couponName) => {
+  const normalizedCouponName = String(couponName || "").trim().toUpperCase();
+
+  if (!normalizedCouponName || normalizedCouponName.toLowerCase() === "nil") {
+    return { name: "nil" };
+  }
+
+  const validCoupon = await Coupon.findOne({
+    name: normalizedCouponName,
+    expiresAt: { $gt: Date.now() },
+  });
+
+  if (!validCoupon) {
+    throwHttpError(400, "優惠碼無效或已過期");
+  }
+
+  const discount = Number(validCoupon.discount || 0);
+
+  if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
+    throwHttpError(400, "優惠碼折扣資料無效");
+  }
+
+  return {
+    _id: validCoupon._id,
+    name: validCoupon.name,
+    discount,
+    expiresAt: validCoupon.expiresAt,
+  };
+};
+
+const getCanonicalShippingItem = async (deliveryMethodId) => {
+  const normalizedDeliveryMethodId = String(deliveryMethodId || "").trim();
+
+  if (!normalizedDeliveryMethodId) {
+    throwHttpError(400, "送貨方式無效");
+  }
+
+  if (normalizedDeliveryMethodId === LOCAL_PICKUP_ID) {
+    return {
+      shippingItem: {
+        _id: LOCAL_PICKUP_ID,
+        name: LOCAL_PICKUP_NAME,
+        price: 0,
+        regularPrice: 0,
+        category: "Shipping",
+        cartQuantity: 1,
+        isPickup: true,
+      },
+      shippingFeeMinor: 0,
+    };
+  }
+
+  if (!mongoose.isValidObjectId(normalizedDeliveryMethodId)) {
+    throwHttpError(400, "送貨方式無效");
+  }
+
+  const shippingMethod = await ShippingMethod.findOne({
+    _id: normalizedDeliveryMethodId,
+    active: true,
+  });
+
+  if (!shippingMethod) {
+    throwHttpError(400, "送貨方式無效或已停用");
+  }
+
+  const fee = Number(shippingMethod.fee);
+
+  if (!Number.isFinite(fee) || fee < 0) {
+    throwHttpError(400, "送貨方式費用無效");
+  }
+
+  const shippingFeeMinor = Math.round(fee * 100);
+  const shippingFee = toMoneyFromMinor(shippingFeeMinor);
+
+  return {
+    shippingItem: {
+      _id: shippingMethod._id,
+      name: shippingMethod.name,
+      code: shippingMethod.code,
+      price: shippingFee,
+      regularPrice: shippingFee,
+      category: "Shipping",
+      cartQuantity: 1,
+      isPickup: Boolean(shippingMethod.isPickup),
+    },
+    shippingFeeMinor,
+  };
+};
+
+const createCheckoutQuoteHash = (quote) => {
+  const canonicalProducts = quote.productItems
+    .map((item) => ({
+      productId: String(item._id),
+      cartQuantity: Number(item.cartQuantity),
+      unitPriceMinor: Math.round(Number(item.price) * 100),
+    }))
+    .sort((a, b) => a.productId.localeCompare(b.productId));
+  const payload = {
+    products: canonicalProducts,
+    deliveryMethodId: String(quote.shippingItem._id),
+    shippingFeeMinor: quote.shippingFeeMinor,
+    couponName: String(quote.coupon?.name || "nil").toUpperCase(),
+    couponDiscountMinor: quote.couponDiscountMinor,
+    totalMinor: quote.totalMinor,
+  };
+
+  return createHash("sha256")
+    .update(JSON.stringify(payload))
+    .digest("hex");
+};
+
+const buildCheckoutQuote = async ({ items, couponName, deliveryMethodId }) => {
+  const quantityByProductId = normalizeCheckoutItems(items);
+  const productIds = Array.from(quantityByProductId.keys());
+  const products = await Product.find({ _id: { $in: productIds } });
+  const productById = new Map(
+    products.map((product) => [String(product._id), product])
+  );
+
+  if (productById.size !== productIds.length) {
+    throwHttpError(400, "購物車內有找不到的商品");
+  }
+
+  let productSubtotalMinor = 0;
+  const productItems = productIds.map((productId) => {
+    const product = productById.get(productId);
+
+    if ((product?.productStatus || "active") !== "active") {
+      throwHttpError(400, `商品暫未能購買：${product?.name || productId}`);
+    }
+
+    const price = Number(product.price);
+
+    if (!Number.isFinite(price) || price < 0) {
+      throwHttpError(400, `商品價格無效：${product?.name || productId}`);
+    }
+
+    const cartQuantity = quantityByProductId.get(productId);
+    const unitPriceMinor = Math.round(price * 100);
+    productSubtotalMinor += unitPriceMinor * cartQuantity;
+
+    return {
+      ...product.toObject(),
+      cartQuantity,
+      price: toMoneyFromMinor(unitPriceMinor),
+    };
+  });
+
+  const coupon = await getCanonicalCoupon(couponName);
+  const couponDiscountRate =
+    String(coupon?.name || "nil").toLowerCase() === "nil"
+      ? 0
+      : Number(coupon.discount || 0);
+  const couponDiscountMinor = Math.min(
+    productSubtotalMinor,
+    Math.round((productSubtotalMinor * couponDiscountRate) / 100)
+  );
+  const subtotalAfterDiscountMinor = Math.max(
+    productSubtotalMinor - couponDiscountMinor,
+    0
+  );
+  const { shippingItem, shippingFeeMinor } = await getCanonicalShippingItem(
+    deliveryMethodId
+  );
+  const totalMinor = subtotalAfterDiscountMinor + shippingFeeMinor;
+
+  assertValidMinorAmount(
+    productSubtotalMinor,
+    "Product subtotal amount is invalid"
+  );
+  assertValidMinorAmount(
+    couponDiscountMinor,
+    "Coupon discount amount is invalid"
+  );
+  assertValidMinorAmount(
+    subtotalAfterDiscountMinor,
+    "Checkout subtotal amount is invalid"
+  );
+  assertValidMinorAmount(shippingFeeMinor, "Shipping fee amount is invalid");
+
+  if (!Number.isSafeInteger(totalMinor) || totalMinor <= 0) {
+    throwHttpError(400, "Checkout total must be greater than zero");
+  }
+
+  return {
+    productItems,
+    shippingItem,
+    coupon,
+    productSubtotalMinor,
+    couponDiscountMinor,
+    subtotalAfterDiscountMinor,
+    shippingFeeMinor,
+    totalMinor,
   };
 };
 
@@ -885,31 +1148,24 @@ export const stripeRefundWebhook = async (req, res) => {
 };
 
 export const createOrder = asyncHandler(async (req, res) => {
-  // res.send("create order")
   const {
-    orderDate,
-    orderTime,
-    orderAmount,
-    orderStatus,
-    cartItems,
+    items,
+    deliveryMethodId,
+    couponName,
     shippingAddress,
     paymentMethod,
-    coupon,
     stripePaymentIntentId,
     policyAccepted,
     policyAcceptedAt,
     policyVersion,
   } = req.body;
-    // 檢查 cartItems 是否為數組
-    if (!Array.isArray(cartItems)) {
-      res.status(400);
-      throw new Error("cartItems 應該是一個數組");
-    }
 
-  //   Validation
-  if (!cartItems || !orderStatus || !shippingAddress || !paymentMethod) {
-    res.status(400);
-    throw new Error("Order data missing!!!");
+  if (!shippingAddress || !paymentMethod) {
+    throwHttpError(400, "Order data missing");
+  }
+
+  if (String(paymentMethod || "").trim().toLowerCase() !== "stripe") {
+    throwHttpError(400, "Only Stripe payment is supported for this checkout");
   }
 
   const policyAcceptance = validateCheckoutPolicyAcceptance({
@@ -918,88 +1174,77 @@ export const createOrder = asyncHandler(async (req, res) => {
     policyVersion,
   });
 
-  const isStripePayment =
-    String(paymentMethod || "").trim().toLowerCase() === "stripe";
-  let stripePaymentSnapshot = {};
+  const quote = await buildCheckoutQuote({
+    items,
+    couponName,
+    deliveryMethodId,
+  });
+  const expectedQuoteHash = createCheckoutQuoteHash(quote);
+  const canonicalCartItems = [...quote.productItems, quote.shippingItem];
+  const normalizedPaymentIntentId = String(stripePaymentIntentId || "").trim();
 
-  if (isStripePayment) {
-    const normalizedPaymentIntentId = String(
-      stripePaymentIntentId || ""
-    ).trim();
-
-    if (!normalizedPaymentIntentId) {
-      throwHttpError(400, "Stripe payment reference missing");
-    }
-
-    const existingOrder = await Order.exists({
-      stripePaymentIntentId: normalizedPaymentIntentId,
-    });
-
-    if (existingOrder) {
-      throwHttpError(
-        409,
-        "This Stripe payment has already been used for another order"
-      );
-    }
-
-    let paymentIntent;
-
-    try {
-      paymentIntent = await stripe.paymentIntents.retrieve(
-        normalizedPaymentIntentId,
-        {
-          expand: ["latest_charge.balance_transaction"],
-        }
-      );
-    } catch {
-      throwHttpError(400, "Unable to verify Stripe payment");
-    }
-
-    if (paymentIntent?.status !== "succeeded") {
-      throwHttpError(400, "Stripe payment not completed");
-    }
-
-    stripePaymentSnapshot = await getStripePaymentSnapshot(paymentIntent);
+  if (!normalizedPaymentIntentId) {
+    throwHttpError(400, "Stripe payment reference missing");
   }
 
-  let validatedCoupon = { name: "nil" };
-  if (coupon && coupon.name && String(coupon.name).toLowerCase() !== "nil") {
-    const validCoupon = await Coupon.findOne({
-      name: String(coupon.name).trim().toUpperCase(),
-      expiresAt: { $gt: Date.now() },
-    });
+  const existingOrder = await Order.exists({
+    stripePaymentIntentId: normalizedPaymentIntentId,
+  });
 
-    if (!validCoupon) {
-      res.status(400);
-      throw new Error("Coupon has expired or is invalid");
-    }
-
-    validatedCoupon = {
-      _id: validCoupon._id,
-      name: validCoupon.name,
-      discount: validCoupon.discount,
-      expiresAt: validCoupon.expiresAt,
-    };
+  if (existingOrder) {
+    throwHttpError(
+      409,
+      "This Stripe payment has already been used for another order"
+    );
   }
 
-  const productItems = cartItems.filter((item) => item?.category !== "Shipping");
-  const shippingItem = cartItems.find((item) => item?.category === "Shipping");
-  const productSubtotal = productItems.reduce((total, item) => {
-    return total + Number(item?.price || 0) * Number(item?.cartQuantity || 0);
-  }, 0);
-  const couponDiscountAmount = validatedCoupon?.discount
-    ? (productSubtotal * Number(validatedCoupon.discount || 0)) / 100
-    : 0;
-  const subtotalAfterDiscount = Math.max(
-    productSubtotal - couponDiscountAmount,
-    0
+  let paymentIntent;
+
+  try {
+    paymentIntent = await stripe.paymentIntents.retrieve(
+      normalizedPaymentIntentId,
+      {
+        expand: ["latest_charge.balance_transaction"],
+      }
+    );
+  } catch {
+    throwHttpError(400, "Unable to verify Stripe payment");
+  }
+
+  if (paymentIntent?.status !== "succeeded") {
+    throwHttpError(400, "Stripe payment not completed");
+  }
+
+  if (String(paymentIntent?.currency || "").toLowerCase() !== "hkd") {
+    throwHttpError(400, "Stripe payment currency does not match checkout");
+  }
+
+  const stripePaidMinor = Number(
+    paymentIntent?.amount_received ?? paymentIntent?.amount
   );
-  const deliveryName = shippingItem?.name || "未有送貨資料";
-  const deliveryFee = Number(shippingItem?.price || 0);
-  const total = subtotalAfterDiscount + deliveryFee;
 
-  // const updatedProduct = await updateProductQuantity(cartItems);
-  // console.log("updated product", updatedProduct);
+  if (!Number.isInteger(stripePaidMinor)) {
+    throwHttpError(400, "Stripe payment amount is invalid");
+  }
+
+  if (stripePaidMinor !== quote.totalMinor) {
+    throwHttpError(400, "Stripe amount does not match server checkout total");
+  }
+
+  if (String(paymentIntent?.metadata?.userId || "") !== String(req.user.id)) {
+    throwHttpError(409, "Stripe payment belongs to another user");
+  }
+
+  if (String(paymentIntent?.metadata?.quoteHash || "") !== expectedQuoteHash) {
+    throwHttpError(
+      409,
+      "Stripe payment does not match the current order details"
+    );
+  }
+
+  const stripePaymentSnapshot = await getStripePaymentSnapshot(paymentIntent);
+  const { orderDate, orderTime } = getMacauOrderDateTime();
+  const orderAmount = toMoneyFromMinor(quote.totalMinor);
 
   let createdOrder;
   const session = await mongoose.startSession();
@@ -1013,11 +1258,11 @@ export const createOrder = asyncHandler(async (req, res) => {
             orderDate,
             orderTime,
             orderAmount,
-            orderStatus,
-            cartItems,
+            orderStatus: "Order Placed...",
+            cartItems: canonicalCartItems,
             shippingAddress,
-            paymentMethod,
-            coupon: validatedCoupon,
+            paymentMethod: "Stripe",
+            coupon: quote.coupon,
             ...policyAcceptance,
             ...stripePaymentSnapshot,
           },
@@ -1027,7 +1272,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
       createdOrder = order;
 
-      await updateProductQuantity(cartItems, {
+      await updateProductQuantity(canonicalCartItems, {
         orderId: order._id,
         createdBy: req.user?._id,
         session,
@@ -1058,14 +1303,14 @@ export const createOrder = asyncHandler(async (req, res) => {
     customerName: req.user.name || req.user.username || req.user.email,
     orderDate,
     orderTime,
-    productItems,
-    coupon: validatedCoupon,
-    productSubtotal,
-    couponDiscountAmount,
-    subtotalAfterDiscount,
-    deliveryName,
-    deliveryFee,
-    total,
+    productItems: quote.productItems,
+    coupon: quote.coupon,
+    productSubtotal: toMoneyFromMinor(quote.productSubtotalMinor),
+    couponDiscountAmount: toMoneyFromMinor(quote.couponDiscountMinor),
+    subtotalAfterDiscount: toMoneyFromMinor(quote.subtotalAfterDiscountMinor),
+    deliveryName: quote.shippingItem?.name || "未有送貨資料",
+    deliveryFee: toMoneyFromMinor(quote.shippingFeeMinor),
+    total: toMoneyFromMinor(quote.totalMinor),
     orderAmount,
   });
   // const template = "template"
@@ -2317,12 +2562,10 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 export const payWithStripe = asyncHandler(async (req, res) => {
   const {
     items,
+    deliveryMethodId,
+    couponName,
     shipping,
     description,
-    coupon,
-    shippingFee,
-    userId,
-    userEmail,
     policyAccepted,
     policyAcceptedAt,
     policyVersion,
@@ -2332,20 +2575,21 @@ export const payWithStripe = asyncHandler(async (req, res) => {
     policyAcceptedAt,
     policyVersion,
   });
-  const products = await Product.find();
 
-  let orderAmount;
-  orderAmount = calculateTotalPrice(products, items);
-  if (coupon !== null && coupon?.name !== "nil") {
-    let totalAfterDiscount =
-      orderAmount - (orderAmount * coupon.discount) / 100;
-    orderAmount = totalAfterDiscount;
+  if (!shipping) {
+    throwHttpError(400, "Shipping address is required");
   }
+
+  const quote = await buildCheckoutQuote({
+    items,
+    couponName,
+    deliveryMethodId,
+  });
+  const quoteHash = createCheckoutQuoteHash(quote);
 
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
-    // amount: orderAmount,
-    amount: Math.round(orderAmount * 100),
+    amount: quote.totalMinor,
     currency: "hkd",
     automatic_payment_methods: {
       enabled: true,
@@ -2354,19 +2598,21 @@ export const payWithStripe = asyncHandler(async (req, res) => {
     metadata: {
       source: "SoapDelight.J",
       policyVersion: policyAcceptance.policyVersion,
-      ...(userId ? { userId: String(userId) } : {}),
-      ...(userEmail ? { customerEmail: String(userEmail) } : {}),
+      userId: String(req.user.id),
+      deliveryMethodId: String(deliveryMethodId),
+      couponName: quote.coupon?.name || "nil",
+      quoteHash,
     },
     shipping: {
       address: {
-        line1: shipping.line1,
-        line2: shipping.line2,
-        city: shipping.city,
-        country: shipping.country,
-        postal_code: shipping.postal_code,
+        line1: shipping?.line1,
+        line2: shipping?.line2,
+        city: shipping?.city,
+        country: shipping?.country,
+        postal_code: shipping?.postal_code,
       },
-      name: shipping.name,
-      phone: shipping.phone,
+      name: shipping?.name,
+      phone: shipping?.phone,
     },
     // receipt_email: customerEmail
   });

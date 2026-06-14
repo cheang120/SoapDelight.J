@@ -6,16 +6,14 @@ import { toast } from "react-toastify";
 import styles from "./CheckoutForm.module.scss";
 import CheckoutSummary from "../checkoutSummary/CheckoutSummary";
 import { Spinner } from "../../Loader";
+import { extractIdAndCartQuantity } from "../../../utils";
 import {
   CLEAR_CART,
   saveCartDB,
-  selectCartItems,
-  selectCartTotalAmount,
+  selectProductCartItems,
+  selectSelectedDeliveryMethod,
 } from "../../../redux/features/cart/cartSlice";
-import {
-  selectPaymentMethod,
-  selectShippingAddress,
-} from "../../../redux/features/checkout/checkoutSlice";
+import { selectShippingAddress } from "../../../redux/features/checkout/checkoutSlice";
 import { isCouponValid } from "../../../redux/features/coupon/couponSlice";
 import { createOrder } from "../../../redux/features/order/OrderSlice";
 
@@ -32,26 +30,27 @@ export default function CheckoutForm({
   const navigate = useNavigate();
 
   const { coupon } = useSelector((state) => state.coupon);
-  const cartItems = useSelector(selectCartItems);
-  const cartTotalAmount = useSelector(selectCartTotalAmount);
+  const productItems = useSelector(selectProductCartItems);
+  const selectedDeliveryMethod = useSelector(selectSelectedDeliveryMethod);
   const shippingAddress = useSelector(selectShippingAddress);
-  const paymentMethod = useSelector(selectPaymentMethod);
 
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const saveOrder = async (stripePaymentIntentId) => {
-    const today = new Date();
+    const items = extractIdAndCartQuantity(productItems);
+
+    if (!selectedDeliveryMethod?._id) {
+      throw new Error("請先選擇送貨方式。");
+    }
+
     const formData = {
-      orderDate: today.toDateString(),
-      orderTime: today.toLocaleTimeString(),
-      orderAmount: cartTotalAmount,
-      orderStatus: "Order Placed...",
-      cartItems,
+      items,
+      deliveryMethodId: selectedDeliveryMethod._id,
+      couponName: isCouponValid(coupon) ? coupon.name : "nil",
       shippingAddress,
-      paymentMethod,
+      paymentMethod: "Stripe",
       stripePaymentIntentId,
-      coupon: isCouponValid(coupon) ? coupon : { name: "nil" },
       policyAccepted: Boolean(policyAccepted),
       policyAcceptedAt,
       policyVersion,

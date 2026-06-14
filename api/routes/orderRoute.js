@@ -26,7 +26,7 @@ router.patch("/:id", protect, authorOnly, updateOrderStatus);
 router.get("/", protect, getOrders);
 router.get("/:id", protect, getOrder);
 
-router.post("/create-payment-intent", payWithStripe);
+router.post("/create-payment-intent", protect, payWithStripe);
 // router.post("/payWithFlutterwave", payWithFlutterwave);
 // router.post("/payWithWallet", protect, payWithWallet);
 
