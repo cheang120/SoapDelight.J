@@ -1,21 +1,67 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { journalArticles, journalCategories } from "../../data/journalArticles";
+import journalService, { JOURNAL_CATEGORIES } from "../../services/journalService";
+import { journalMediaBySlug } from "../../data/journalArticleMedia";
 import "./Journal.scss";
 
-const formatDate = (dateString) =>
-  new Intl.DateTimeFormat("zh-HK", {
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  const parsed = new Date(dateString);
+  if (Number.isNaN(parsed.getTime())) return "-";
+  return new Intl.DateTimeFormat("zh-HK", {
+    timeZone: "Asia/Macau",
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(dateString));
+  }).format(parsed);
+};
+
+const getLocalCoverImage = (slug) => {
+  const cover = journalMediaBySlug[slug]?.cover;
+  if (typeof cover === "string") return cover;
+  if (cover?.showPlaceholder === true) return "";
+  return cover?.src || "";
+};
 
 export default function Journal() {
   const [selectedCategory, setSelectedCategory] = useState("全部");
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const requestIdRef = useRef(0);
 
-  const filteredArticles = useMemo(() => {
-    if (selectedCategory === "全部") return journalArticles;
-    return journalArticles.filter((article) => article.category === selectedCategory);
+  const loadArticles = async () => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    setLoading(true);
+    setError("");
+
+    try {
+      const data = await journalService.getPublishedArticles({
+        category: selectedCategory === "全部" ? "" : selectedCategory,
+      });
+
+      if (requestIdRef.current === requestId) {
+        setArticles(Array.isArray(data) ? data : []);
+      }
+    } catch (loadError) {
+      if (requestIdRef.current === requestId) {
+        setArticles([]);
+        setError(loadError.response?.data?.message || "暫時未能載入生活香氣誌，請稍後再試。");
+      }
+    } finally {
+      if (requestIdRef.current === requestId) {
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadArticles();
+
+    return () => {
+      requestIdRef.current += 1;
+    };
   }, [selectedCategory]);
 
   return (
@@ -36,7 +82,7 @@ export default function Journal() {
         </div>
 
         <div className="journal-category-chips">
-          {journalCategories.map((category) => (
+          {JOURNAL_CATEGORIES.map((category) => (
             <button
               key={category}
               type="button"
@@ -50,34 +96,54 @@ export default function Journal() {
       </section>
 
       <section className="journal-grid" aria-label="生活香氣誌文章">
-        {filteredArticles.map((article) => (
-          <article key={article.slug} className={"journal-card tone-" + article.coverTone}>
-            <div className="journal-card-visual">
-              <span>{article.heroLabel}</span>
-            </div>
+        {loading ? (
+          <div className="journal-state journal-state--wide">正在載入生活香氣誌...</div>
+        ) : error ? (
+          <div className="journal-state journal-state--wide">
+            <p>{error}</p>
+            <button type="button" onClick={loadArticles}>重新載入</button>
+          </div>
+        ) : articles.length === 0 ? (
+          <div className="journal-state journal-state--wide">
+            <p>暫時未有這個分類的文章。</p>
+          </div>
+        ) : articles.map((article) => {
+          const coverImage = article.coverImage || getLocalCoverImage(article.slug);
+          const tags = article.tags || [];
 
-            <div className="journal-card-body">
-              <div className="journal-card-meta">
-                <span>{article.category}</span>
-                <span>{formatDate(article.publishDate)}</span>
-                <span>{article.readTime}</span>
+          return (
+            <article key={article.slug} className={"journal-card tone-" + (article.coverTone || "lavender")}>
+              <div className="journal-card-visual">
+                {coverImage ? (
+                  <img src={coverImage} alt={article.title || "生活香氣誌文章封面"} loading="lazy" />
+                ) : (
+                  <span>{article.heroLabel}</span>
+                )}
               </div>
 
-              <h2>{article.title}</h2>
-              <p>{article.excerpt}</p>
+              <div className="journal-card-body">
+                <div className="journal-card-meta">
+                  <span>{article.category}</span>
+                  <span>{formatDate(article.publishDate)}</span>
+                  <span>{article.readTime}</span>
+                </div>
 
-              <div className="journal-tags">
-                {article.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
-                ))}
+                <h2>{article.title}</h2>
+                <p>{article.excerpt}</p>
+
+                <div className="journal-tags">
+                  {tags.map((tag) => (
+                    <span key={`${article.slug}-${tag}`}>{tag}</span>
+                  ))}
+                </div>
+
+                <Link to={"/journal/" + article.slug} className="journal-read-link">
+                  閱讀文章
+                </Link>
               </div>
-
-              <Link to={"/journal/" + article.slug} className="journal-read-link">
-                閱讀文章
-              </Link>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </section>
 
       <section className="journal-subscribe-callout">

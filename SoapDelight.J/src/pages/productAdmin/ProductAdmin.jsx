@@ -16,6 +16,8 @@ import OrderDetails from "../../components/productAdmin/orders/OrderDetails.jsx"
 import ShippingMethods from "../../components/productAdmin/shippingMethods/ShippingMethods.jsx";
 import Subscribers from "../../components/productAdmin/subscribers/Subscribers.jsx";
 import Campaigns from "../../components/productAdmin/campaigns/Campaigns.jsx";
+import JournalAdmin from "../../components/productAdmin/journal/JournalAdmin.jsx";
+import JournalEditor from "../../components/productAdmin/journal/JournalEditor.jsx";
 import InventoryLocations from "../../components/productAdmin/inventoryLocations/InventoryLocations.jsx";
 import StockMovements from "../../components/productAdmin/stockMovements/StockMovements.jsx";
 import LocationStockPage from "../../components/productAdmin/locationStock/LocationStockPage.jsx";
@@ -56,6 +58,9 @@ export const ProductAdmin = () => {
               <Route path="shipping-methods" element={<ShippingMethods />} />
               <Route path="company-profile" element={<CompanyProfile />} />
               <Route path="audit-logs" element={<AuditLogs />} />
+              <Route path="journal" element={<JournalAdmin />} />
+              <Route path="journal/new" element={<JournalEditor />} />
+              <Route path="journal/:id" element={<JournalEditor />} />
               <Route path="subscribers" element={<Subscribers />} />
               <Route path="campaigns" element={<Campaigns />} />
               <Route path="inventory-locations" element={<InventoryLocations />} />

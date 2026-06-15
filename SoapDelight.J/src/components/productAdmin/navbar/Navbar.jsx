@@ -44,6 +44,7 @@ const navSections = [
     label: "行銷工具",
     short: "銷",
     items: [
+      { to: "/productAdmin/journal", label: "生活香氣誌", short: "誌" },
       { to: "/productAdmin/subscribers", label: "訂閱者", short: "訂" },
       { to: "/productAdmin/campaigns", label: "推廣電郵", short: "郵" },
     ],
