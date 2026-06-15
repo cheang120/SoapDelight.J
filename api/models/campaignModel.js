@@ -52,6 +52,16 @@ const campaignSchema = new mongoose.Schema(
       type: String,
       default: "email",
     },
+    source: {
+      type: String,
+      enum: ["manual", "journal"],
+      default: "manual",
+    },
+    journalArticle: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "JournalArticle",
+      index: true,
+    },
     recipientQuery: {
       type: Object,
       default: {},

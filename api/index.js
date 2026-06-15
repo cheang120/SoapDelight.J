@@ -18,6 +18,7 @@ import consignmentReportRoute from './routes/consignmentReportRoute.js';
 import companyProfileRoute from './routes/companyProfileRoute.js';
 import consignmentDeliveryRoute from './routes/consignmentDeliveryRoute.js';
 import auditLogRoute from './routes/auditLogRoute.js';
+import journalArticleRoute from './routes/journalArticleRoute.js';
 import { stripeRefundWebhook } from './controllers/orderController.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
@@ -75,6 +76,7 @@ app.use('/api/consignment-reports', consignmentReportRoute);
 app.use('/api/company-profile', companyProfileRoute);
 app.use('/api/consignment-deliveries', consignmentDeliveryRoute);
 app.use('/api/audit-logs', auditLogRoute);
+app.use('/api/journal', journalArticleRoute);
 
 
 app.get('*', (req, res) => {

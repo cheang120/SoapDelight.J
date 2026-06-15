@@ -2,6 +2,7 @@ import MailGen from "mailgen";
 import nodemailer from "nodemailer";
 import asyncHandler from "express-async-handler";
 import Campaign from "../models/campaignModel.js";
+import JournalArticle from "../models/journalArticleModel.js";
 import Subscriber from "../models/subscriberModel.js";
 import { campaignEmailTemplate } from "../emailTemplate/campaignTemplate.js";
 import { createAuditLog } from "../utils/auditLogger.js";
@@ -265,6 +266,25 @@ export const sendCampaignToSubscribers = asyncHandler(async (req, res) => {
     throw new Error("This campaign has already been sent.");
   }
 
+  let journalArticle = null;
+  if (campaign.journalArticle) {
+    journalArticle = await JournalArticle.findById(campaign.journalArticle);
+
+    if (!journalArticle) {
+      res.status(400);
+      throw new Error("Linked journal article not found.");
+    }
+
+    if (
+      journalArticle.status !== "published" ||
+      !journalArticle.publishedAt ||
+      journalArticle.publishedAt > new Date()
+    ) {
+      res.status(400);
+      throw new Error("Journal article must be published before sending to subscribers.");
+    }
+  }
+
   const subscribers = await Subscriber.find(eligibleEmailSubscriberQuery)
     .select("email unsubscribeToken")
     .lean();
@@ -308,6 +328,14 @@ export const sendCampaignToSubscribers = asyncHandler(async (req, res) => {
   campaign.status = errors.length > 0 && sentCount === 0 ? "failed" : "sent";
 
   const updatedCampaign = await campaign.save();
+  if (journalArticle && sentCount > 0) {
+    journalArticle.newsletterStatus = "sent";
+    journalArticle.newsletterCampaignId = updatedCampaign._id;
+    journalArticle.newsletterSentAt = new Date();
+    journalArticle.updatedBy = req.user?._id;
+    await journalArticle.save();
+  }
+
   await createAuditLog({
     req,
     actionType: "campaign.sent",
@@ -343,7 +371,18 @@ export const deleteDraftCampaign = asyncHandler(async (req, res) => {
   const before = compactCampaignAuditSnapshot(campaign);
   const campaignId = toAuditId(campaign._id);
   const campaignTitle = campaign.title;
+  const linkedJournalArticleId = campaign.journalArticle;
   await campaign.deleteOne();
+  if (linkedJournalArticleId) {
+    const article = await JournalArticle.findById(linkedJournalArticleId);
+    if (article && String(article.newsletterCampaignId || "") === campaignId) {
+      article.newsletterCampaignId = undefined;
+      article.newsletterStatus = article.newsletterSentAt ? "sent" : "not_prepared";
+      article.updatedBy = req.user?._id;
+      await article.save();
+    }
+  }
+
   await createAuditLog({
     req,
     actionType: "campaign.deleted",
